@@ -24,7 +24,6 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.List;
 
 public class CommonCohortAnalysisDTO extends CommonEntityDTO {
