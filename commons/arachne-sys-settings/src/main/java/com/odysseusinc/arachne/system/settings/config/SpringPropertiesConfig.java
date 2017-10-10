@@ -34,7 +34,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.slf4j.Logger;

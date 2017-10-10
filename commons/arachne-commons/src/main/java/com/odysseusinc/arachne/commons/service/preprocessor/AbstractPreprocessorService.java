@@ -22,12 +22,11 @@
 
 package com.odysseusinc.arachne.commons.service.preprocessor;
 
-import org.springframework.beans.factory.BeanInitializationException;
-
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.springframework.beans.factory.BeanInitializationException;
 
 public abstract class AbstractPreprocessorService<T> implements PreprocessorService<T> {
 
