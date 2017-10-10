@@ -1,0 +1,91 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <localRepository/>
+    <interactiveMode/>
+    <usePluginRegistry/>
+    <offline/>
+    <pluginGroups>
+        <pluginGroup>org.sonarsource.scanner.maven</pluginGroup>
+    </pluginGroups>
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Optional URL to server. Default value is http://localhost:9000 -->
+                <sonar.host.url>http://odysseusovh04.odysseusinc.com:9000</sonar.host.url>
+                <sonar.login>admin</sonar.login>
+                <sonar.password>K*S7^xQS7NtG&amp;&amp;KK</sonar.password>
+            </properties>
+        </profile>
+        <profile>
+            <id>default</id>
+
+            <repositories>
+                <repository>
+                    <id>artifactory</id>
+                    <url>http://odysseusovh04.odysseusinc.com:8081/artifactory/libs-snapshot/</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </repository>
+                <repository>
+                    <id>artifactory-release</id>
+                    <url>http://odysseusovh04.odysseusinc.com:8081/artifactory/libs-release/</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                </repository>
+
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>artifactory</id>
+                    <url>http://odysseusovh04.odysseusinc.com:8081/artifactory/libs-release/</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+
+
+    <proxies/>
+
+    <activeProfiles>
+        <activeProfile>default</activeProfile>
+    </activeProfiles>
+    <servers>
+        <server>
+            <id>artifactory</id>
+            <username>test</username>
+            <password>APomHxdrenAKVbACNjYEDa7zayseyjcKrGuBo</password>
+        </server>
+        <server>
+            <id>artifactory-release</id>
+            <username>test</username>
+            <password>APomHxdrenAKVbACNjYEDa7zayseyjcKrGuBo</password>
+        </server>
+    </servers>
+
+
+</settings>
