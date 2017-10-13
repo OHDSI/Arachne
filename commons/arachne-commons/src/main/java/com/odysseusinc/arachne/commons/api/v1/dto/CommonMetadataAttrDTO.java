@@ -51,6 +51,8 @@ public class CommonMetadataAttrDTO {
     private Integer currentMinValue;
     private Integer currentMaxValue;
 
+    private Integer order;
+
     public Long getId() {
 
         return id;
@@ -149,5 +151,15 @@ public class CommonMetadataAttrDTO {
     public void setCurrentMaxValue(Integer currentMaxValue) {
 
         this.currentMaxValue = currentMaxValue;
+    }
+
+    public Integer getOrder() {
+
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+
+        this.order = order;
     }
 }
