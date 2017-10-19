@@ -24,15 +24,15 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 
 public class CommonDataSourceHealthStatusDTO extends CommonHealthStatusResponseDTO {
 
-    private String uuid;
+    private Long centralId;
 
-    public String getUuid() {
+    public Long getCentralId() {
 
-        return uuid;
+        return centralId;
     }
 
-    public void setUuid(String uuid) {
+    public void setCentralId(Long centralId) {
 
-        this.uuid = uuid;
+        this.centralId = centralId;
     }
 }
