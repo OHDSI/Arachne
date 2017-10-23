@@ -25,7 +25,7 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 public class CommonAchillesPermissionDTO {
     private CommonAchillesReportDTO report;
     private CommonAchillesGrantType grantType;
-    private String datasourceUuid;
+    private Long datasourceId;
 
     public CommonAchillesReportDTO getReport() {
 
@@ -47,13 +47,13 @@ public class CommonAchillesPermissionDTO {
         this.grantType = grantType;
     }
 
-    public String getDatasourceUuid() {
+    public Long getDatasourceId() {
 
-        return datasourceUuid;
+        return datasourceId;
     }
 
-    public void setDatasourceUuid(String datasourceUuid) {
+    public void setDatasourceId(Long datasourceId) {
 
-        this.datasourceUuid = datasourceUuid;
+        this.datasourceId = datasourceId;
     }
 }
