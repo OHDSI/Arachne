@@ -27,17 +27,17 @@ import java.util.Set;
 
 public class CommonDataNodeHealthStatusDTO extends CommonHealthStatusResponseDTO {
 
-    private String uuid;
+    private Long centralId;
     private Set<CommonDataSourceHealthStatusDTO> dataSourceHealthStatuses = new HashSet<>();
 
-    public String getUuid() {
+    public Long getCentralId() {
 
-        return uuid;
+        return centralId;
     }
 
-    public void setUuid(String uuid) {
+    public void setCentralId(Long centralId) {
 
-        this.uuid = uuid;
+        this.centralId = centralId;
     }
 
     public Set<CommonDataSourceHealthStatusDTO> getDataSourceHealthStatuses() {
