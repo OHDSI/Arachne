@@ -27,6 +27,7 @@ import java.util.Set;
 
 public class CommonLinkUserToDataNodeDTO {
     private String userName;
+    private Boolean enabled;
     private Set<CommonDataNodeUserRole> roles = new HashSet<>();
 
     public String getUserName() {
@@ -47,5 +48,15 @@ public class CommonLinkUserToDataNodeDTO {
     public void setRoles(Set<CommonDataNodeUserRole> roles) {
 
         this.roles = roles;
+    }
+
+    public Boolean getEnabled() {
+
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+
+        this.enabled = enabled;
     }
 }
