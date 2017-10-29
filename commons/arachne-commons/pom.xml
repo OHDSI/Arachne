@@ -13,6 +13,8 @@
         <java.version>1.8</java.version>
         <handlebars.version>4.0.6</handlebars.version>
         <commons.io.version>2.5</commons.io.version>
+        <swagger.springmvc.version>1.0.2</swagger.springmvc.version>
+        <springfox.swagger2.version>2.6.0</springfox.swagger2.version>
     </properties>
 
     <dependencies>
@@ -75,6 +77,16 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.swagger2.version}</version>
         </dependency>
     </dependencies>
     <build>
