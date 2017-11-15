@@ -1,4 +1,4 @@
-/**
+/*
  *
  * Copyright 2017 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 
 public class CommonDataSourceHealthCheckDTO {
     @NotNull
-    private String uuid;
+    private Long centralId;
     @NotNull
     private Long delay;
 
@@ -34,20 +34,20 @@ public class CommonDataSourceHealthCheckDTO {
 
     }
 
-    public CommonDataSourceHealthCheckDTO(@NotNull String uuid, long delay) {
+    public CommonDataSourceHealthCheckDTO(@NotNull Long centralId, long delay) {
 
-        this.uuid = uuid;
+        this.centralId = centralId;
         this.delay = delay;
     }
 
-    public String getUuid() {
+    public Long getCentralId() {
 
-        return uuid;
+        return centralId;
     }
 
-    public void setUuid(String uuid) {
+    public void setCentralId(Long centralId) {
 
-        this.uuid = uuid;
+        this.centralId = centralId;
     }
 
     public Long getDelay() {

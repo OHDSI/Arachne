@@ -1,4 +1,4 @@
-/**
+/*
  *
  * Copyright 2017 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
@@ -50,14 +52,14 @@ public class CommonFileUtils {
 
     private static final String VISITOR_ACCESS_ERROR = "Access error when access to file '{}'. Skipped";
 
-    private static final String TYPE_IMAGE = "image";
-    private static final String TYPE_PDF = "pdf";
+    public static final String TYPE_IMAGE = "image";
+    public static final String TYPE_PDF = "pdf";
     public static final String TYPE_TEXT = "text";
-    private static final String TYPE_WORD = "word";
-    private static final String TYPE_EXCEL = "excel";
-    private static final String TYPE_POWERPOINT = "ppt";
+    public static final String TYPE_WORD = "word";
+    public static final String TYPE_EXCEL = "excel";
+    public static final String TYPE_POWERPOINT = "ppt";
     public static final String TYPE_LINK = "link";
-    private static final String TYPE_OTHER = "other";
+    public static final String TYPE_OTHER = "other";
 
     public static final String TYPE_COHORT_SQL = "cohort";
     public static final String TYPE_ESTIMATION = "estimation";

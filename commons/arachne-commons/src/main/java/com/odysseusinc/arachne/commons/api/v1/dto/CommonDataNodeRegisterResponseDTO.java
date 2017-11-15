@@ -1,4 +1,4 @@
-/**
+/*
  *
  * Copyright 2017 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ public class CommonDataNodeRegisterResponseDTO implements Serializable{
     private String name;
     private String description;
     private String token;
+    private Long centralId;
 
     public String getDataNodeUuid() {
         return dataNodeUuid;
@@ -67,5 +68,15 @@ public class CommonDataNodeRegisterResponseDTO implements Serializable{
     public void setToken(String token) {
 
         this.token = token;
+    }
+
+    public Long getCentralId() {
+
+        return centralId;
+    }
+
+    public void setCentralId(Long centralId) {
+
+        this.centralId = centralId;
     }
 }

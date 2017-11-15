@@ -1,4 +1,4 @@
-/**
+/*
  *
  * Copyright 2017 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,9 @@ public class DataSourceDTO {
     private String cdmSchema;
     private String username;
     private String password;
+    private String targetSchema;
+    private String resultSchema;
+    private String cohortTargetTable;
 
     public String getConnectionString() {
 
@@ -78,5 +81,35 @@ public class DataSourceDTO {
     public void setPassword(String password) {
 
         this.password = password;
+    }
+
+    public void setTargetSchema(String targetSchema) {
+
+        this.targetSchema = targetSchema;
+    }
+
+    public String getTargetSchema() {
+
+        return targetSchema;
+    }
+
+    public void setResultSchema(String resultSchema) {
+
+        this.resultSchema = resultSchema;
+    }
+
+    public String getResultSchema() {
+
+        return resultSchema;
+    }
+
+    public void setCohortTargetTable(String cohortTargetTable) {
+
+        this.cohortTargetTable = cohortTargetTable;
+    }
+
+    public String getCohortTargetTable() {
+
+        return cohortTargetTable;
     }
 }
