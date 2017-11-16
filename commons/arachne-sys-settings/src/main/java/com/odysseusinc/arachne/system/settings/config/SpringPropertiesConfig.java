@@ -73,7 +73,7 @@ public class SpringPropertiesConfig {
         return ds;
     }
 
-    private Map getDbProperties(DataSource dataSource) {
+    private Map getDbProperties(DataSource dataSource, EncryptablePropertyResolver encryptablePropertyResolver) {
 
         Map<String, Object> loadedProperties = new HashMap<>();
 
@@ -84,6 +84,7 @@ public class SpringPropertiesConfig {
                     while (rs.next()) {
                         String name = rs.getString("name");
                         String value = rs.getString("value");
+                        value = encryptablePropertyResolver.resolvePropertyValue(value);
                         loadedProperties.put(name, value);
                     }
                 }
@@ -102,7 +103,7 @@ public class SpringPropertiesConfig {
 
         DataSource dataSource = getDataSource(encryptablePropertyResolver, environment);
         Properties dbProps = new Properties();
-        dbProps.putAll(getDbProperties(dataSource));
+        dbProps.putAll(getDbProperties(dataSource, encryptablePropertyResolver));
 
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 
