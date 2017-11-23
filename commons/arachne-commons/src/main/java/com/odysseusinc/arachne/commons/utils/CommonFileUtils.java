@@ -24,6 +24,8 @@ package com.odysseusinc.arachne.commons.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
+import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationDocType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +39,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
-
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
@@ -135,6 +135,14 @@ public class CommonFileUtils {
         String mimeType = getMimeType(realName, inputStreamSource);
 
         String contentType = TYPE_OTHER;
+
+        final CohortCharacterizationDocType cohortCharacterizationType
+                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource);
+        if (CohortCharacterizationDocType.UNKNOWN != cohortCharacterizationType) {
+            contentType = cohortCharacterizationType.getTitle();
+            return contentType;
+        }
+
         if (realName.endsWith(OHDSI_SQL_EXT)) {
             contentType = TYPE_COHORT_SQL;
         } else if (isPackratBundle(realName, inputStreamSource)) {
