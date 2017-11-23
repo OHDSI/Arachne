@@ -72,7 +72,7 @@ public class CohortCharacterizationMatcher {
 
     public static CohortCharacterizationDocType getCohortCharacterizationType(String fileName, InputStreamSource inputStreamSource) {
 
-        CohortCharacterizationDocType docType = CohortCharacterizationDocType.UNKNOWN;
+        CohortCharacterizationDocType docType = null;
         if (!fileName.endsWith(COHORT_CHARACTERIZATION_EXT)) {
             return docType;
         }
@@ -85,7 +85,7 @@ public class CohortCharacterizationMatcher {
                 jsonReader.skipValue();
             }
             final String fieldString = names.stream().sorted().collect(Collectors.joining());
-            docType = docTypeStrings.getOrDefault(fieldString, CohortCharacterizationDocType.UNKNOWN);
+            docType = docTypeStrings.get(fieldString);
         } catch (FileNotFoundException e) {
             log.error(e.getMessage());
         } catch (IOException e) {

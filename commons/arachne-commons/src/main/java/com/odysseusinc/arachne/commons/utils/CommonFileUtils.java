@@ -136,12 +136,7 @@ public class CommonFileUtils {
 
         String contentType = TYPE_OTHER;
 
-        final CohortCharacterizationDocType cohortCharacterizationType
-                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource);
-        if (CohortCharacterizationDocType.UNKNOWN != cohortCharacterizationType) {
-            contentType = cohortCharacterizationType.getTitle();
-            return contentType;
-        }
+        CohortCharacterizationDocType cohortCharacterizationType;
 
         if (realName.endsWith(OHDSI_SQL_EXT)) {
             contentType = TYPE_COHORT_SQL;
@@ -161,6 +156,9 @@ public class CommonFileUtils {
             contentType = TYPE_EXCEL;
         } else if (POWERPOINT_MIMES.stream().anyMatch(mimeType::startsWith)) {
             contentType = TYPE_POWERPOINT;
+        } else if ((cohortCharacterizationType
+                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource)) != null) {
+            contentType = cohortCharacterizationType.getTitle();
         }
 
         return contentType;
