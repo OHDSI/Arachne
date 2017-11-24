@@ -28,6 +28,7 @@ public enum CommonAnalysisType {
     CUSTOM("Custom"),
     CHARACTERIZATION("Clinical Characterization"),
     PREDICTION("Patient Level Prediction"),
+    COHORT_CHARACTERIZATION("Cohort Characterization"),
     COHORT("Cohort");
 
     private String title;
