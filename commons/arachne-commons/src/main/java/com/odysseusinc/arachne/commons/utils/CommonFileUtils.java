@@ -140,6 +140,9 @@ public class CommonFileUtils {
 
         if (realName.endsWith(OHDSI_SQL_EXT)) {
             contentType = TYPE_COHORT_SQL;
+        } else if ((cohortCharacterizationType
+                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource)) != null) {
+            contentType = cohortCharacterizationType.getTitle();
         } else if (isPackratBundle(realName, inputStreamSource)) {
             contentType = TYPE_PACKRAT;
         } else if (isEstimationAnalysis(realName, inputStreamSource)) {
@@ -156,9 +159,6 @@ public class CommonFileUtils {
             contentType = TYPE_EXCEL;
         } else if (POWERPOINT_MIMES.stream().anyMatch(mimeType::startsWith)) {
             contentType = TYPE_POWERPOINT;
-        } else if ((cohortCharacterizationType
-                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource)) != null) {
-            contentType = cohortCharacterizationType.getTitle();
         }
 
         return contentType;
