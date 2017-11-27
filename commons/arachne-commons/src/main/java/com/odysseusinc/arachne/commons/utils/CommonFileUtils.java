@@ -59,6 +59,7 @@ public class CommonFileUtils {
     public static final String TYPE_EXCEL = "excel";
     public static final String TYPE_POWERPOINT = "ppt";
     public static final String TYPE_LINK = "link";
+    public static final String TYPE_FOLDER = "folder";
     public static final String TYPE_OTHER = "other";
 
     public static final String TYPE_COHORT_SQL = "cohort";
