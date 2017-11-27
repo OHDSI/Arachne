@@ -66,7 +66,6 @@ public class CommonFileUtils {
     public static final String TYPE_PACKRAT = "packrat";
 
     public static final String OHDSI_SQL_EXT = ".ohdsi.sql";
-    public static final String SQL_EXT = ".sql";
     public static final String OHDSI_JSON_EXT = ".ohdsi.json";
     public static final String ESTIMATION_EXT = ".json";
 
