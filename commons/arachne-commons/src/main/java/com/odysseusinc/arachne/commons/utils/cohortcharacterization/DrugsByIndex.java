@@ -26,10 +26,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 class DrugsByIndex extends CohortCharacterizationJson {
 
-    private Types.TreeMap[] drugEraPrevalenceOfDrug;
+    private DrugEraPrevalenceOfDrug[] drugEraPrevalenceOfDrug;
 
-    public DrugsByIndex(@JsonProperty(value = "drugEraPrevalenceOfDrug", required = true) Types.TreeMap[] drugEraPrevalenceOfDrug) {
+    public DrugsByIndex(@JsonProperty(value = "drugEraPrevalenceOfDrug", required = true) DrugEraPrevalenceOfDrug[] drugEraPrevalenceOfDrug) {
 
         this.drugEraPrevalenceOfDrug = drugEraPrevalenceOfDrug;
+    }
+
+    static class DrugEraPrevalenceOfDrug {
+        public long CONCEPT_ID;
+        public String INGREDIENT_CONCEPT_NAME;
+        public String ATC5_CONCEPT_NAME;
+        public String ATC3_CONCEPT_NAME;
+        public String ATC1_CONCEPT_NAME;
+        public String CONCEPT_PATH;
+        public float PERCENT_PERSONS;
+        public float PERCENT_PERSONS_BEFORE;
+        public float PERCENT_PERSONS_AFTER;
+        public float RISK_DIFF_AFTER_BEFORE;
+        public float LOGRR_AFTER_BEFORE;
+        public long NUM_PERSONS;
+        public long COUNT_VALUE;
     }
 }
