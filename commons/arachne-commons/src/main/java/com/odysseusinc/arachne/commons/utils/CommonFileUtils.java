@@ -230,4 +230,9 @@ public class CommonFileUtils {
         }
         return result;
     }
+
+    public static String convertToUnixPath(String path) {
+
+        return path.replace('\\', '/');
+    }
 }
