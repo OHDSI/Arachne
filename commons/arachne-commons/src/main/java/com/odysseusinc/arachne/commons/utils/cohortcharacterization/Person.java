@@ -22,11 +22,14 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.*;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.Donut;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineData;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineMetaData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class Person extends CohortCharacterizationJson {
+class Person extends CommonObjectJson {
     public LineData[] yearOfBirthData;
     public LineMetaData[] yearOfBirthStats;
     public Donut[] gender;

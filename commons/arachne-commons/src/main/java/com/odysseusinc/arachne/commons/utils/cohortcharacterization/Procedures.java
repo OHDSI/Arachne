@@ -22,11 +22,12 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.*;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class Procedures extends CohortCharacterizationJson {
+class Procedures extends CommonObjectJson {
 
     private TreeMap[] procedures;
 

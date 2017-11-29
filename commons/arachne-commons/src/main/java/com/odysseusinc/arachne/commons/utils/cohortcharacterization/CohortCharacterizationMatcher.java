@@ -22,85 +22,39 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-import com.google.gson.stream.JsonReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamSource;
+import com.odysseusinc.arachne.commons.utils.JsonMatcher;
 
-public class CohortCharacterizationMatcher {
-
-    private static final Logger log = LoggerFactory.getLogger(CohortCharacterizationMatcher.class);
+public class CohortCharacterizationMatcher extends JsonMatcher {
 
     private static final String COHORT_CHARACTERIZATION_EXT = ".json";
 
-    private static Map<String, CohortCharacterizationDocType> docTypeStrings
-            = new HashMap<>();
+    {
 
-    static {
-
-        putToMap(CohortCharacterizationDocType.DASHBOARD, Dashboard.class);
-        putToMap(CohortCharacterizationDocType.PERSON, Person.class);
-        putToMap(CohortCharacterizationDocType.OBSERVATION_PERIODS, ObservationPeriods.class);
-        putToMap(CohortCharacterizationDocType.DATA_DENSITY, DataDensity.class);
-        putToMap(CohortCharacterizationDocType.DEATH, Death.class);
-        putToMap(CohortCharacterizationDocType.CONDITIONS, Conditions.class);
-        putToMap(CohortCharacterizationDocType.CONDITIONERA, ConditionEra.class);
-        putToMap(CohortCharacterizationDocType.OBSERVATIONS, Observations.class);
-        putToMap(CohortCharacterizationDocType.DRUGERA, Drugera.class);
-        putToMap(CohortCharacterizationDocType.DRUG, Drug.class);
-        putToMap(CohortCharacterizationDocType.DRUGSBYINDEX, DrugsByIndex.class);
-        putToMap(CohortCharacterizationDocType.PROCEDURES, Procedures.class);
-        putToMap(CohortCharacterizationDocType.VISITS, Visits.class);
-        putToMap(CohortCharacterizationDocType.ACHILLESHEEL, AchillesHeel.class);
-        putToMap(CohortCharacterizationDocType.COHORTPECIFIC, CohortSpecific.class);
-        putToMap(CohortCharacterizationDocType.HERACLESHEEL, HeraclesHeel.class);
-        putToMap(CohortCharacterizationDocType.PROCEDURES_BY_INDEX, ProceduresByIndex.class);
-        putToMap(CohortCharacterizationDocType.CONDITIONS_BY_INDEX, ConditionsByIndex.class);
-        putToMap(CohortCharacterizationDocType.DATA_COMPLETENESS, DataCompleteness.class);
-        putToMap(CohortCharacterizationDocType.ENTROPY, Entropy.class);
+        putToMap(CohortCharacterizationDocType.DASHBOARD.getTitle(), Dashboard.class);
+        putToMap(CohortCharacterizationDocType.PERSON.getTitle(), Person.class);
+        putToMap(CohortCharacterizationDocType.OBSERVATION_PERIODS.getTitle(), ObservationPeriods.class);
+        putToMap(CohortCharacterizationDocType.DATA_DENSITY.getTitle(), DataDensity.class);
+        putToMap(CohortCharacterizationDocType.DEATH.getTitle(), Death.class);
+        putToMap(CohortCharacterizationDocType.CONDITIONS.getTitle(), Conditions.class);
+        putToMap(CohortCharacterizationDocType.CONDITIONERA.getTitle(), ConditionEra.class);
+        putToMap(CohortCharacterizationDocType.OBSERVATIONS.getTitle(), Observations.class);
+        putToMap(CohortCharacterizationDocType.DRUGERA.getTitle(), Drugera.class);
+        putToMap(CohortCharacterizationDocType.DRUG.getTitle(), Drug.class);
+        putToMap(CohortCharacterizationDocType.DRUGSBYINDEX.getTitle(), DrugsByIndex.class);
+        putToMap(CohortCharacterizationDocType.PROCEDURES.getTitle(), Procedures.class);
+        putToMap(CohortCharacterizationDocType.VISITS.getTitle(), Visits.class);
+        putToMap(CohortCharacterizationDocType.ACHILLESHEEL.getTitle(), AchillesHeel.class);
+        putToMap(CohortCharacterizationDocType.COHORTPECIFIC.getTitle(), CohortSpecific.class);
+        putToMap(CohortCharacterizationDocType.HERACLESHEEL.getTitle(), HeraclesHeel.class);
+        putToMap(CohortCharacterizationDocType.PROCEDURES_BY_INDEX.getTitle(), ProceduresByIndex.class);
+        putToMap(CohortCharacterizationDocType.CONDITIONS_BY_INDEX.getTitle(), ConditionsByIndex.class);
+        putToMap(CohortCharacterizationDocType.DATA_COMPLETENESS.getTitle(), DataCompleteness.class);
+        putToMap(CohortCharacterizationDocType.ENTROPY.getTitle(), Entropy.class);
     }
 
-    public static CohortCharacterizationDocType getCohortCharacterizationType(String fileName, InputStreamSource inputStreamSource) {
+    @Override
+    protected boolean satisfy(String fileName) {
 
-        CohortCharacterizationDocType docType = null;
-        if (!fileName.endsWith(COHORT_CHARACTERIZATION_EXT)) {
-            return docType;
-        }
-        try {
-            final JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStreamSource.getInputStream()));
-            List<String> names = new ArrayList<>();
-            jsonReader.beginObject();
-            while (jsonReader.hasNext()) {
-                names.add(jsonReader.nextName());
-                jsonReader.skipValue();
-            }
-            final String fieldString = names.stream().sorted().collect(Collectors.joining());
-            docType = docTypeStrings.get(fieldString);
-        } catch (FileNotFoundException e) {
-            log.error(e.getMessage());
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-        return docType;
-    }
-
-    private static void putToMap(CohortCharacterizationDocType docType, Class<? extends CohortCharacterizationJson> aClass) {
-
-        final Field[] declaredFields = aClass.getDeclaredFields();
-        final String fields = Arrays.asList(declaredFields).stream()
-                .map(Field::getName)
-                .sorted(String::compareTo)
-                .collect(Collectors.joining());
-        docTypeStrings.put(fields, docType);
+        return fileName.endsWith(COHORT_CHARACTERIZATION_EXT);
     }
 }

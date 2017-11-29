@@ -23,8 +23,9 @@
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class DrugsByIndex extends CohortCharacterizationJson {
+class DrugsByIndex extends CommonObjectJson {
 
     private DrugEraPrevalenceOfDrug[] drugEraPrevalenceOfDrug;
 
