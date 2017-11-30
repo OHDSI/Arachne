@@ -63,7 +63,7 @@ public class CommonFileUtils {
     public static final String TYPE_OTHER = "other";
 
     public static final String TYPE_COHORT_SQL = "cohort";
-    public static final String TYPE_COHORT_JSON = "cohortdefinition";
+    public static final String TYPE_COHORT_JSON = "cohortdefinitionjson";
     public static final String TYPE_ESTIMATION = "estimation";
     public static final String TYPE_PACKRAT = "packrat";
 
