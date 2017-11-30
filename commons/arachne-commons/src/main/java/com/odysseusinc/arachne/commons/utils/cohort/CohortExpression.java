@@ -25,7 +25,7 @@ public class CohortExpression extends CommonObjectJson {
     public Criteria CensoringCriteria;
     public Settings CollapseSettings;
 
-    public CohortExpression(@JsonProperty(value = "Titlte") String title,
+    public CohortExpression(@JsonProperty(value = "Title") String title,
                             @JsonProperty(value = "ConceptSets", required = true) ConceptSet[] conceptSets,
                             @JsonProperty(value = "PrimaryCriteria", required = true) Criteria primaryCriteria,
                             @JsonProperty(value = "AdditionalCriteria") CriteriaGroup additionalCriteria,
