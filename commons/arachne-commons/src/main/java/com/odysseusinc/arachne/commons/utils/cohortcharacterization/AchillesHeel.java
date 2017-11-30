@@ -22,6 +22,8 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-class AchillesHeel extends CohortCharacterizationJson {
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
+
+class AchillesHeel extends CommonObjectJson {
 
 }

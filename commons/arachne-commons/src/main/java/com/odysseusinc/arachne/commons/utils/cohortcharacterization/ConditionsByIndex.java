@@ -23,8 +23,9 @@
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class ConditionsByIndex extends CohortCharacterizationJson {
+class ConditionsByIndex extends CommonObjectJson {
 
     private ConditionOccurrencePrevalenceOfCondition[] conditionOccurrencePrevalenceOfCondition;
 

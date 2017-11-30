@@ -20,8 +20,8 @@
  *
  */
 
-package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
+package com.odysseusinc.arachne.commons.utils;
 
-public abstract class CohortCharacterizationJson {
+public abstract class CommonObjectJson {
 
 }

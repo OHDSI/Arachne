@@ -22,11 +22,13 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.*;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.Boxplot;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineDataByMonth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class CohortSpecific extends CohortCharacterizationJson {
+class CohortSpecific extends CommonObjectJson {
 
     private PersonsByDurationFromStartToEnd[] personsByDurationFromStartToEnd;
     private PrevalenceByMonth[] prevalenceByMonth;

@@ -22,11 +22,17 @@
 
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.*;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.Boxplot;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.Donut;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.Line;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineData;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineDataByMonth;
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.LineMetaData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class ObservationPeriods extends CohortCharacterizationJson {
+class ObservationPeriods extends CommonObjectJson {
     public final LineData[] ageAtFirst;
     public final LineData[] observationLengthData;
     public final LineMetaData[] observationLengthStats;

@@ -24,8 +24,8 @@ package com.odysseusinc.arachne.commons.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odysseusinc.arachne.commons.utils.cohort.CohortDefinitionMatcher;
 import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
-import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationDocType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +63,7 @@ public class CommonFileUtils {
     public static final String TYPE_OTHER = "other";
 
     public static final String TYPE_COHORT_SQL = "cohort";
+    public static final String TYPE_COHORT_JSON = "cohortdefinitionjson";
     public static final String TYPE_ESTIMATION = "estimation";
     public static final String TYPE_PACKRAT = "packrat";
 
@@ -71,6 +72,9 @@ public class CommonFileUtils {
     public static final String ESTIMATION_EXT = ".json";
 
     private static List<String> TEXT_MIMES = new ArrayList<>();
+
+    private static CohortCharacterizationMatcher cohortCharacterizationMatcher = new CohortCharacterizationMatcher();
+    private static CohortDefinitionMatcher cohortDefinitionMatcher = new CohortDefinitionMatcher();
 
     static {
         TEXT_MIMES.add("text");
@@ -137,13 +141,15 @@ public class CommonFileUtils {
 
         String contentType = TYPE_OTHER;
 
-        CohortCharacterizationDocType cohortCharacterizationType;
+        String jsonContentType;
 
         if (realName.endsWith(OHDSI_SQL_EXT)) {
             contentType = TYPE_COHORT_SQL;
-        } else if ((cohortCharacterizationType
-                = CohortCharacterizationMatcher.getCohortCharacterizationType(realName, inputStreamSource)) != null) {
-            contentType = cohortCharacterizationType.getTitle();
+        } else if ((jsonContentType = cohortDefinitionMatcher.getContentType(realName, inputStreamSource)) != null) {
+            contentType = jsonContentType;
+        } else if ((jsonContentType
+                = cohortCharacterizationMatcher.getContentType(realName, inputStreamSource)) != null) {
+            contentType = jsonContentType;
         } else if (isPackratBundle(realName, inputStreamSource)) {
             contentType = TYPE_PACKRAT;
         } else if (isEstimationAnalysis(realName, inputStreamSource)) {

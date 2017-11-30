@@ -23,8 +23,9 @@
 package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-class HeraclesHeel extends CohortCharacterizationJson {
+class HeraclesHeel extends CommonObjectJson {
 
     private HeraclesHeelInner[] heraclesHeel;
 
