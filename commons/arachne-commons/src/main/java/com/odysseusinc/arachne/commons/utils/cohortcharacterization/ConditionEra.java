@@ -16,30 +16,23 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 27, 2017
+ * Created: August 08, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation"),
-    REPORTING("Reporting"),
-    CUSTOM("Custom"),
-    CHARACTERIZATION("Clinical Characterization"),
-    PREDICTION("Patient Level Prediction"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)"),
-    COHORT("Cohort (Simple Counts)");
+import static com.odysseusinc.arachne.commons.utils.cohortcharacterization.Types.TreeMapEra;
 
-    private String title;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-    CommonAnalysisType(String title) {
+class ConditionEra extends CommonObjectJson {
 
-        this.title = title;
-    }
+    private TreeMapEra[] conditioneras;
 
-    public String getTitle() {
+    public ConditionEra(@JsonProperty(value = "conditioneras", required = true) TreeMapEra[] conditioneras) {
 
-        return title;
+        this.conditioneras = conditioneras;
     }
 }

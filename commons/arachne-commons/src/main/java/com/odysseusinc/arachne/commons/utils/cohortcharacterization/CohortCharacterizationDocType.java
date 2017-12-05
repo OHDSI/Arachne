@@ -16,24 +16,39 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 27, 2017
+ * Created: August 08, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation"),
-    REPORTING("Reporting"),
-    CUSTOM("Custom"),
-    CHARACTERIZATION("Clinical Characterization"),
-    PREDICTION("Patient Level Prediction"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)"),
-    COHORT("Cohort (Simple Counts)");
+public enum CohortCharacterizationDocType {
+
+    DASHBOARD("dashboard"),
+    PERSON("person"),
+    OBSERVATION_PERIODS("observationperiods"),
+    DATA_DENSITY("datadensity"),
+    DEATH("death"),
+    CONDITIONS("conditions"),
+    CONDITIONERA("conditionera"),
+    OBSERVATIONS("observations"),
+    DRUGERA("drugeras"),
+    DRUG("drugexposures"),
+    DRUGSBYINDEX("drugbyindex"),
+    PROCEDURES("procedures"),
+    VISITS("visits"),
+    ACHILLESHEEL("achillesheel"),
+    COHORTPECIFIC("cohortspecific"),
+    HERACLESHEEL("heraclesheel"),
+    PROCEDURES_BY_INDEX("procbyindex"),
+    CONDITIONS_BY_INDEX("condbyindex"),
+    DATA_COMPLETENESS("datacompleteness"),
+    ENTROPY("entropy"),
+    UNKNOWN("unknown");
 
     private String title;
 
-    CommonAnalysisType(String title) {
+    CohortCharacterizationDocType(String title) {
 
         this.title = title;
     }
