@@ -4,6 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.odysseusinc.arachne.commons.utils.annotations.OptionalField;
 import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ public abstract class JsonMatcher {
 
         String docType = null;
         if (satisfy(fileName)) {
-            try {
-                final JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStreamSource.getInputStream()));
+            try (final InputStream in = inputStreamSource.getInputStream()) {
+                final JsonReader jsonReader = new JsonReader(new InputStreamReader(in));
                 List<String> names = new ArrayList<>();
                 jsonReader.beginObject();
                 while (jsonReader.hasNext()) {
@@ -61,7 +62,7 @@ public abstract class JsonMatcher {
                         docType = docTypeStrings.get(match.get());
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException e) {
                 log.error(e.getMessage());
             }
         }
