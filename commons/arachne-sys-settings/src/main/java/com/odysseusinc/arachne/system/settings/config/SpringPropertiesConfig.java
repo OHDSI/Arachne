@@ -42,42 +42,38 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 @Configuration
 @ComponentScan("com.ulisesbocchio.jasyptspringboot")
 public class SpringPropertiesConfig {
 
-    private static final String SQL = "select * from system_settings where value IS NOT NULL";
+    private static final String SQL = "SELECT * FROM system_settings WHERE value IS NOT NULL";
     private static final Logger LOG = LoggerFactory.getLogger(SpringPropertiesConfig.class);
 
-    private DataSource getDataSource(EncryptablePropertyResolver encryptablePropertyResolver)
-            throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+       private DataSource getDataSource(EncryptablePropertyResolver encryptablePropertyResolver, ConfigurableEnvironment environment)
+               throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
 
-        Properties properties = new Properties();
-        properties.load(new ClassPathResource("application.properties").getInputStream());
-        PGPoolingDataSource ds = new PGPoolingDataSource();
-        try {
-            String connectionUrl = encryptablePropertyResolver.resolvePropertyValue((String) properties.get("spring.datasource.url"));
-            String user = encryptablePropertyResolver.resolvePropertyValue((String) properties.get("spring.datasource.username"));
-            String password = encryptablePropertyResolver.resolvePropertyValue((String) properties.get("spring.datasource.password"));
-
+            final String datasourceUrl = environment.getProperty("spring.datasource.url");
+            final String datasourceUsername = environment.getProperty("spring.datasource.username");
+            final String datasourcePassword = environment.getProperty("spring.datasource.password");
+            final String connectionUrl = encryptablePropertyResolver.resolvePropertyValue(datasourceUrl);
+            final String user = encryptablePropertyResolver.resolvePropertyValue(datasourceUsername);
+            final String password = encryptablePropertyResolver.resolvePropertyValue(datasourcePassword);
             DriverManager.registerDriver((Driver) Class.forName("org.postgresql.Driver").newInstance());
-            String cleanURI = connectionUrl.substring(5);
-            URI uri = URI.create(cleanURI);
+            final String cleanURI = connectionUrl.substring(5);
+            final URI uri = URI.create(cleanURI);
+            final PGPoolingDataSource ds = new PGPoolingDataSource();
             ds.setServerName(uri.getHost());
             ds.setPortNumber(uri.getPort());
             ds.setDatabaseName(uri.getPath().substring(1));
             ds.setUser(user);
             ds.setPassword(password);
             ds.setMaxConnections(10);
-        } catch (SQLException ex) {
-            LOG.error(ex.getMessage(), ex);
-        }
         return ds;
     }
 
-    private Map getDbProperties(DataSource dataSource) {
+    private Map getDbProperties(DataSource dataSource, EncryptablePropertyResolver encryptablePropertyResolver) {
 
         Map<String, Object> loadedProperties = new HashMap<>();
 
@@ -88,6 +84,7 @@ public class SpringPropertiesConfig {
                     while (rs.next()) {
                         String name = rs.getString("name");
                         String value = rs.getString("value");
+                        value = encryptablePropertyResolver.resolvePropertyValue(value);
                         loadedProperties.put(name, value);
                     }
                 }
@@ -101,12 +98,12 @@ public class SpringPropertiesConfig {
 
     @Bean
     public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(
-            EncryptablePropertyResolver encryptablePropertyResolver
-    ) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+            EncryptablePropertyResolver encryptablePropertyResolver, ConfigurableEnvironment environment
+    ) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
 
-        DataSource dataSource = getDataSource(encryptablePropertyResolver);
+        DataSource dataSource = getDataSource(encryptablePropertyResolver, environment);
         Properties dbProps = new Properties();
-        dbProps.putAll(getDbProperties(dataSource));
+        dbProps.putAll(getDbProperties(dataSource, encryptablePropertyResolver));
 
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 

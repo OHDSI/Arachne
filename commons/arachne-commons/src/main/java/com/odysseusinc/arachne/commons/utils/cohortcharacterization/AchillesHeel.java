@@ -16,31 +16,14 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 27, 2017
+ * Created: August 08, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation"),
-    REPORTING("Reporting"),
-    CUSTOM("Custom"),
-    CHARACTERIZATION("Clinical Characterization"),
-    PREDICTION("Patient Level Prediction"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)"),
-    COHORT("Cohort (Simple Counts)"),
-    INCIDENCE("Incidence rates");
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-    private String title;
+class AchillesHeel extends CommonObjectJson {
 
-    CommonAnalysisType(String title) {
-
-        this.title = title;
-    }
-
-    public String getTitle() {
-
-        return title;
-    }
 }

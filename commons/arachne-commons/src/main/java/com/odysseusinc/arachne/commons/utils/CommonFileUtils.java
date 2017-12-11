@@ -24,6 +24,8 @@ package com.odysseusinc.arachne.commons.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odysseusinc.arachne.commons.utils.cohort.CohortDefinitionMatcher;
+import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +39,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
-
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
@@ -59,16 +59,22 @@ public class CommonFileUtils {
     public static final String TYPE_EXCEL = "excel";
     public static final String TYPE_POWERPOINT = "ppt";
     public static final String TYPE_LINK = "link";
+    public static final String TYPE_FOLDER = "folder";
     public static final String TYPE_OTHER = "other";
 
     public static final String TYPE_COHORT_SQL = "cohort";
+    public static final String TYPE_COHORT_JSON = "cohortdefinitionjson";
     public static final String TYPE_ESTIMATION = "estimation";
     public static final String TYPE_PACKRAT = "packrat";
 
     public static final String OHDSI_SQL_EXT = ".ohdsi.sql";
+    public static final String OHDSI_JSON_EXT = ".ohdsi.json";
     public static final String ESTIMATION_EXT = ".json";
 
     private static List<String> TEXT_MIMES = new ArrayList<>();
+
+    private static CohortCharacterizationMatcher cohortCharacterizationMatcher = new CohortCharacterizationMatcher();
+    private static CohortDefinitionMatcher cohortDefinitionMatcher = new CohortDefinitionMatcher();
 
     static {
         TEXT_MIMES.add("text");
@@ -134,8 +140,16 @@ public class CommonFileUtils {
         String mimeType = getMimeType(realName, inputStreamSource);
 
         String contentType = TYPE_OTHER;
+
+        String jsonContentType;
+
         if (realName.endsWith(OHDSI_SQL_EXT)) {
             contentType = TYPE_COHORT_SQL;
+        } else if ((jsonContentType = cohortDefinitionMatcher.getContentType(realName, inputStreamSource)) != null) {
+            contentType = jsonContentType;
+        } else if ((jsonContentType
+                = cohortCharacterizationMatcher.getContentType(realName, inputStreamSource)) != null) {
+            contentType = jsonContentType;
         } else if (isPackratBundle(realName, inputStreamSource)) {
             contentType = TYPE_PACKRAT;
         } else if (isEstimationAnalysis(realName, inputStreamSource)) {
@@ -221,5 +235,10 @@ public class CommonFileUtils {
             }
         }
         return result;
+    }
+
+    public static String convertToUnixPath(String path) {
+
+        return path.replace('\\', '/');
     }
 }
