@@ -16,29 +16,27 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 27, 2017
+ * Created: August 08, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.utils.cohortcharacterization;
 
-public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation"),
-    REPORTING("Reporting"),
-    CUSTOM("Custom"),
-    PREDICTION("Patient Level Prediction"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)"),
-    COHORT("Cohort (Simple Counts)");
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odysseusinc.arachne.commons.utils.CommonObjectJson;
 
-    private String title;
+class Entropy extends CommonObjectJson {
 
-    CommonAnalysisType(String title) {
+    private EntropyInner[] entropy;
 
-        this.title = title;
+    public Entropy(@JsonProperty(value = "entropy", required = true) EntropyInner[] entropy) {
+
+        this.entropy = entropy;
     }
 
-    public String getTitle() {
-
-        return title;
+    static class EntropyInner {
+        public long date;
+        public float entropy;
+        public String insitution;
     }
 }
