@@ -26,7 +26,6 @@ public enum CommonAnalysisType {
     ESTIMATION("Population Level Effect Estimation"),
     REPORTING("Reporting"),
     CUSTOM("Custom"),
-    CHARACTERIZATION("Clinical Characterization"),
     PREDICTION("Patient Level Prediction"),
     COHORT_CHARACTERIZATION("Cohort (Characterization)"),
     COHORT("Cohort (Simple Counts)"),
