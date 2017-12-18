@@ -36,9 +36,12 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
@@ -84,22 +87,30 @@ public class CommonFileUtils {
     private static List<String> WORD_MIMES = new ArrayList<>();
 
     static {
+        //docx
         WORD_MIMES.add("application/vnd.openxmlformats-officedocument.word");
         WORD_MIMES.add("application/vnd.ms-word");
+        //doc
         WORD_MIMES.add("application/msword");
     }
 
     private static List<String> EXCEL_MIMES = new ArrayList<>();
 
     static {
+        //xlsx
         EXCEL_MIMES.add("application/vnd.openxmlformats-officedocument.spreadsheetml");
+        EXCEL_MIMES.add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        //xls
         EXCEL_MIMES.add("application/vnd.ms-excel");
     }
 
     private static List<String> POWERPOINT_MIMES = new ArrayList<>();
 
     static {
+        //pptx
         POWERPOINT_MIMES.add("application/vnd.openxmlformats-officedocument.presentationml");
+        POWERPOINT_MIMES.add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        //ppt
         POWERPOINT_MIMES.add("application/vnd.ms-powerpoint");
     }
 
@@ -110,6 +121,10 @@ public class CommonFileUtils {
         PACKRAT_EXTS.add("zip");
         PACKRAT_EXTS.add("gz");
     }
+
+    private static final Set<String> CONVERTABLE_TO_PDF = new HashSet<>(
+            Arrays.asList(TYPE_PDF, TYPE_EXCEL, TYPE_POWERPOINT)
+    );
 
     private CommonFileUtils() {
 
@@ -236,6 +251,11 @@ public class CommonFileUtils {
             }
         }
         return result;
+    }
+
+    public static boolean isFileConvertableToPdf(String contentType) {
+
+        return CONVERTABLE_TO_PDF.contains(contentType);
     }
 
     public static String convertToUnixPath(String path) {
