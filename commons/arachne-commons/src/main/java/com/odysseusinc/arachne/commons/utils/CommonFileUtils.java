@@ -86,6 +86,7 @@ public class CommonFileUtils {
     static {
         WORD_MIMES.add("application/vnd.openxmlformats-officedocument.word");
         WORD_MIMES.add("application/vnd.ms-word");
+        WORD_MIMES.add("application/msword");
     }
 
     private static List<String> EXCEL_MIMES = new ArrayList<>();
