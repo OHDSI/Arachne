@@ -13,7 +13,7 @@
         <module>arachne-commons</module>
         <module>arachne-sys-settings</module>
         <module>execution-engine-commons</module>
-        <module>arachne-jcr</module>
+        <module>arachne-storage</module>
     </modules>
 
     <properties>

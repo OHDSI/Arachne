@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.jcr.model;
+package com.odysseusinc.arachne.storage.model;
 
 public class QuerySpec {
 

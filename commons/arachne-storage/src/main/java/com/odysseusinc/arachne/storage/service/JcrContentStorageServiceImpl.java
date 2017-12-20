@@ -1,15 +1,17 @@
-package com.odysseusinc.arachne.jcr.service;
+package com.odysseusinc.arachne.storage.service;
 
 
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
-import com.odysseusinc.arachne.jcr.service.ContentStorageService;
-import com.odysseusinc.arachne.jcr.model.ArachneFileSourced;
-import com.odysseusinc.arachne.jcr.model.ArachneFileMeta;
-import com.odysseusinc.arachne.jcr.model.QuerySpec;
+import com.odysseusinc.arachne.storage.model.ArachneFileSourced;
+import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
+import com.odysseusinc.arachne.storage.model.QuerySpec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -25,6 +27,7 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Table;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
@@ -34,7 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springmodules.jcr.JcrTemplate;
 
 @Service
-public class ContentStorageServiceImpl implements ExtendedContentStorageService {
+public class JcrContentStorageServiceImpl implements ContentStorageService {
 
     public static String PATH_SEPARATOR = "/";
     public static String ENTITY_FILES_DIR = "entities";
@@ -42,29 +45,23 @@ public class ContentStorageServiceImpl implements ExtendedContentStorageService 
     public static String JCR_CONTENT_TYPE = "jcr:contentType";
     public static String JCR_AUTHOR = "jcr:author";
 
-    private JcrTemplate jcrTemplate;
-    private ConversionService conversionService;
-    private EntityManagerFactory entityManagerFactory;
+    protected JcrTemplate jcrTemplate;
+    protected ConversionService conversionService;
+    protected EntityManagerFactory entityManagerFactory;
 
     @Autowired
-    public ContentStorageServiceImpl(JcrTemplate jcrTemplate,
-                                     ConversionService conversionService,
-                                     EntityManagerFactory entityManagerFactory) {
+    public JcrContentStorageServiceImpl(JcrTemplate jcrTemplate,
+                                        ConversionService conversionService,
+                                        EntityManagerFactory entityManagerFactory) {
 
         this.jcrTemplate = jcrTemplate;
         this.conversionService = conversionService;
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    public String getJcrLocationForEntity(Object domainObject, List<String> additionalPathParts) {
+    public String getLocationForEntity(String entityTableName, Serializable entityIdentifier, List<String> additionalPathParts) {
 
-        List<String> pathParts = new ArrayList<>(Arrays.asList(ENTITY_FILES_DIR));
-
-        Table entityTable = domainObject.getClass().getAnnotation(Table.class);
-        pathParts.add(entityTable.name());
-
-        String entityId = String.valueOf(entityManagerFactory.getPersistenceUnitUtil().getIdentifier(domainObject));
-        pathParts.add(entityId);
+        List<String> pathParts = new ArrayList<>(Arrays.asList(ENTITY_FILES_DIR, entityTableName, entityIdentifier.toString()));
 
         pathParts.addAll(additionalPathParts);
 
@@ -73,8 +70,16 @@ public class ContentStorageServiceImpl implements ExtendedContentStorageService 
                 .collect(Collectors.joining(PATH_SEPARATOR));
     }
 
+    public String getLocationForEntity(Object domainObject, List<String> additionalPathParts) {
+
+        Table entityTable = domainObject.getClass().getAnnotation(Table.class);
+        String entityId = String.valueOf(entityManagerFactory.getPersistenceUnitUtil().getIdentifier(domainObject));
+
+        return getLocationForEntity(entityTable.name(), entityId, additionalPathParts);
+    }
+
     @Override
-    public ArachneFileSourced getFileByFn(String absoulteFilename) {
+    public ArachneFileSourced getFileByPath(String absoulteFilename) {
 
         return (ArachneFileSourced) jcrTemplate.execute(session -> {
 
@@ -83,7 +88,6 @@ public class ContentStorageServiceImpl implements ExtendedContentStorageService 
         });
     }
 
-    @Override
     public ArachneFileSourced getFileByIdentifier(String identifier) {
 
         return (ArachneFileSourced) jcrTemplate.execute(session -> {
@@ -94,9 +98,15 @@ public class ContentStorageServiceImpl implements ExtendedContentStorageService 
     }
 
     @Override
-    public ArachneFileMeta saveFile(String path, String name, File file, Long createdById) {
+    public ArachneFileMeta saveFile(String filepath, File file, Long createdById) {
 
-        String fixedPath = fixPath(path);
+        Path path = Paths.get(filepath);
+
+        String parentNodePath = path.getParent() != null ? path.getParent().toString() : "/";
+        String name = path.getFileName().toString();
+
+        String fixedPath = fixPath(parentNodePath);
+
         return (ArachneFileMeta) jcrTemplate.execute(session -> {
 
             Node targetDir = getOrAddNestedFolder(session, fixedPath);
@@ -147,13 +157,7 @@ public class ContentStorageServiceImpl implements ExtendedContentStorageService 
     @Override
     public void deleteByPath(String identifier) {
 
-        jcrTemplate.execute(session -> {
-
-            Node fileNode = session.getNode(identifier);
-            fileNode.remove();
-            session.save();
-            return null;
-        });
+        throw new NotImplementedException("Manual deletion of JCR files is prohibited. Use 'JcrStored' interface to bind deletion of JCR entry to deletion of Hibernate entity.");
     }
 
     private String fixPath(String path) {

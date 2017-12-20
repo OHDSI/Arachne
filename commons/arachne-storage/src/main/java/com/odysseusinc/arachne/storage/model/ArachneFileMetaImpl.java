@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.jcr.model;
+package com.odysseusinc.arachne.storage.model;
 
 
 import java.util.Date;
@@ -8,8 +8,6 @@ public class ArachneFileMetaImpl implements ArachneFileMeta {
     protected String uuid;
 
     protected String path;
-
-    protected String name;
 
     protected Date created;
 
@@ -23,11 +21,10 @@ public class ArachneFileMetaImpl implements ArachneFileMeta {
 
     }
 
-    public ArachneFileMetaImpl(String uuid, String path, String name, Date created, Long createdBy, Date updated, String contentType) {
+    public ArachneFileMetaImpl(String uuid, String path, Date created, Long createdBy, Date updated, String contentType) {
 
         this.uuid = uuid;
         this.path = path;
-        this.name = name;
         this.created = created;
         this.createdBy = createdBy;
         this.updated = updated;
@@ -54,17 +51,6 @@ public class ArachneFileMetaImpl implements ArachneFileMeta {
     public void setPath(String path) {
 
         this.path = path;
-    }
-
-    @Override
-    public String getName() {
-
-        return name;
-    }
-
-    public void setName(String name) {
-
-        this.name = name;
     }
 
     @Override

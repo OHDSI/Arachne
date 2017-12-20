@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.jcr.config;
+package com.odysseusinc.arachne.storage.config;
 
 import javax.annotation.PostConstruct;
 import javax.jcr.observation.Event;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springmodules.jcr.JcrTemplate;
 
-@Configuration
+// @Configuration
 public class JcrObserver {
 
     @Autowired

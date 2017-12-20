@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.jcr.model;
+package com.odysseusinc.arachne.storage.model;
 
 import java.io.InputStream;
 
@@ -13,7 +13,6 @@ public class ArachneFileSourced extends ArachneFileMetaImpl {
         super(
                 arachneFileMeta.getUuid(),
                 arachneFileMeta.getPath(),
-                arachneFileMeta.getName(),
                 arachneFileMeta.getCreated(),
                 arachneFileMeta.getCreatedBy(),
                 arachneFileMeta.getUpdated(),

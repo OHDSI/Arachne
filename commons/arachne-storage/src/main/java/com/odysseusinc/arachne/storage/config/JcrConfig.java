@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.jcr.config;
+package com.odysseusinc.arachne.storage.config;
 
 import java.io.File;
 import java.io.FileReader;

@@ -1,6 +1,6 @@
-package com.odysseusinc.arachne.jcr.config;
+package com.odysseusinc.arachne.storage.config;
 
-import com.odysseusinc.arachne.jcr.service.ContentIntegrityService;
+import com.odysseusinc.arachne.storage.service.JcrContentIntegrityService;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -18,14 +18,14 @@ public class HibernateListenerConfigurer {
     private EntityManagerFactory entityManagerFactory;
 
     @Autowired
-    private ContentIntegrityService contentIntegrityService;
+    private JcrContentIntegrityService jcrContentIntegrityService;
 
     @PostConstruct
     public void registerListeners() {
 
         EventListenerRegistry registry = getEventRegistry();
 
-        DeleteEventListener deleteEntityListener = contentIntegrityService.getHibernateDeleteEventListener();
+        DeleteEventListener deleteEntityListener = jcrContentIntegrityService.getHibernateDeleteEventListener();
         registry.getEventListenerGroup(EventType.DELETE).appendListener(deleteEntityListener);
     }
 

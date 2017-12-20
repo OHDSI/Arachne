@@ -1,12 +1,12 @@
-package com.odysseusinc.arachne.jcr.converter;
+package com.odysseusinc.arachne.storage.converter;
 
-import static com.odysseusinc.arachne.jcr.service.ContentStorageServiceImpl.JCR_AUTHOR;
-import static com.odysseusinc.arachne.jcr.service.ContentStorageServiceImpl.JCR_CONTENT_TYPE;
+import static com.odysseusinc.arachne.storage.service.JcrContentStorageServiceImpl.JCR_AUTHOR;
+import static com.odysseusinc.arachne.storage.service.JcrContentStorageServiceImpl.JCR_CONTENT_TYPE;
 
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
-import com.odysseusinc.arachne.jcr.model.ArachneFileMeta;
-import com.odysseusinc.arachne.jcr.model.ArachneFileMetaImpl;
-import com.odysseusinc.arachne.jcr.service.ContentStorageServiceImpl;
+import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
+import com.odysseusinc.arachne.storage.model.ArachneFileMetaImpl;
+import com.odysseusinc.arachne.storage.service.JcrContentStorageServiceImpl;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -36,15 +36,14 @@ public class JcrNodeToArachneFileMeta implements Converter<Node, ArachneFileMeta
 
         try {
             result.setUuid(node.getIdentifier());
-            result.setName(node.getName());
             result.setPath(node.getPath());
             result.setCreated(node.getProperty(JcrConstants.JCR_CREATED).getDate().getTime());
 
             if (node.hasNode(JcrConstants.JCR_CONTENT)) {
                 Node resNode = node.getNode(JcrConstants.JCR_CONTENT);
                 result.setUpdated(resNode.getProperty(JcrConstants.JCR_LASTMODIFIED).getDate().getTime());
-                result.setContentType(ContentStorageServiceImpl.getStringProperty(resNode, JCR_CONTENT_TYPE));
-                result.setCreatedBy(NumberUtils.createLong(ContentStorageServiceImpl.getStringProperty(resNode, JCR_AUTHOR)));
+                result.setContentType(JcrContentStorageServiceImpl.getStringProperty(resNode, JCR_CONTENT_TYPE));
+                result.setCreatedBy(NumberUtils.createLong(JcrContentStorageServiceImpl.getStringProperty(resNode, JCR_AUTHOR)));
             } else {
                 result.setContentType(CommonFileUtils.TYPE_FOLDER);
             }

@@ -1,8 +1,8 @@
-package com.odysseusinc.arachne.jcr.service;
+package com.odysseusinc.arachne.storage.service;
 
 import org.hibernate.event.spi.DeleteEventListener;
 
-public interface ContentIntegrityService {
+public interface JcrContentIntegrityService {
 
     DeleteEventListener getHibernateDeleteEventListener();
 }

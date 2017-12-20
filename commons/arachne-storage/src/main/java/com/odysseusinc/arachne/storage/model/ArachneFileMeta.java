@@ -1,6 +1,7 @@
-package com.odysseusinc.arachne.jcr.model;
+package com.odysseusinc.arachne.storage.model;
 
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Date;
 import org.apache.commons.lang3.NotImplementedException;
@@ -15,7 +16,10 @@ public interface ArachneFileMeta {
         throw new NotImplementedException("No implementation for method was provided");
     }
 
-    String getName();
+    default String getName() {
+
+        return Paths.get(getPath()).getFileName().toString();
+    }
 
     Date getCreated();
 
