@@ -123,7 +123,7 @@ public class CommonFileUtils {
     }
 
     private static final Set<String> CONVERTABLE_TO_PDF = new HashSet<>(
-            Arrays.asList(TYPE_WORD, TYPE_PDF, TYPE_EXCEL, TYPE_POWERPOINT)
+            Arrays.asList(TYPE_WORD, TYPE_EXCEL, TYPE_POWERPOINT)
     );
 
     private CommonFileUtils() {
