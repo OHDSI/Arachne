@@ -17,7 +17,7 @@ public interface ContentStorageService {
 
     ArachneFileMeta saveFile(String filepath, File file, Long createdById);
 
-    List<ArachneFileMeta> searchFiles(QuerySpec querySpec);
+    List<ArachneFileSourced> searchFiles(QuerySpec querySpec);
 
     void deleteByPath(String identifier);
 }

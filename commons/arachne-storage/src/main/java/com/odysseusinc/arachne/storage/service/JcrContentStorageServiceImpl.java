@@ -28,6 +28,7 @@ import javax.jcr.query.QueryResult;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Table;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
@@ -116,23 +117,12 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         });
     }
 
-    /*@Override
-    public void saveFolder(String path, File directory) throws RepositoryException, IOException {
-
-        String fixedPath = fixPath(path);
-        return (String) jcrTemplate.execute(session -> {
-
-            Node targetDir = getOrAddNestedFolder(session, fixedPath);
-            return saveFolder(targetDir, directory);
-        });
-    }*/
-
     @Override
-    public List<ArachneFileMeta> searchFiles(QuerySpec querySpec) {
+    public List<ArachneFileSourced> searchFiles(QuerySpec querySpec) {
 
-        List<ArachneFileMeta> resultFileList = (List<ArachneFileMeta>) jcrTemplate.execute(session -> {
+        return (List<ArachneFileSourced>) jcrTemplate.execute(session -> {
 
-            List<ArachneFileMeta> result = new ArrayList<>();
+            List<ArachneFileSourced> result = new ArrayList<>();
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
             String expression = buildQuery(querySpec);
@@ -144,14 +134,11 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
             Node childNode;
             while (nit.hasNext()) {
                 childNode = nit.nextNode();
-                ArachneFileMeta file = conversionService.convert(childNode, ArachneFileMeta.class);
-                result.add(file);
+                result.add(getFile(childNode));
             }
 
             return result;
         });
-
-        return resultFileList;
     }
 
     @Override
@@ -169,23 +156,38 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     // Yes, I haven't found query builder for JCR SQL
     private String buildQuery(QuerySpec querySpec) {
 
-        String query = "SELECT * FROM [nt:base]";
-        List<String> conditions = new ArrayList<>();
+        String query = "SELECT * FROM [nt:base] AS node";
+
+        List<String> joinList = new ArrayList<>();
+        List<String> filterConditions = new ArrayList<>();
 
         if (querySpec.getPath() != null) {
-            conditions.add("ischildnode('" + querySpec.getPath() + "')");
+            filterConditions.add("ISCHILDNODE(node, '" + querySpec.getPath() + "')");
         }
 
         if (querySpec.getName() != null) {
-            conditions.add("NAME = '" + querySpec.getName() + "'");
+            String operator = ObjectUtils.firstNonNull(querySpec.getNameLike(), false) ? " LIKE " : " = ";
+            filterConditions.add("LOCALNAME() " + operator + " '" + querySpec.getName() + "'");
         }
 
-        if (conditions.size() > 0) {
-            query += "\n WHERE " + String.join("\n AND ", conditions);
+        if (querySpec.getContentTypes() != null) {
+            joinList.add("INNER JOIN [" + JcrConstants.JCR_CONTENT + "] as content ON ISCHILDNODE(child, node)");
+
+            List<String> conentTypeConditions = new ArrayList<>();
+            querySpec.getContentTypes().forEach(contentType -> conentTypeConditions.add("content.[" + JCR_CONTENT_TYPE + "] = '" + contentType + "'"));
+            filterConditions.add("(" + String.join("\n OR ", conentTypeConditions) + ")");
+        }
+
+        if (joinList.size() > 0) {
+            query += " \n" + String.join(" \n", joinList);
+        }
+
+        if (filterConditions.size() > 0) {
+            query += "\n WHERE " + String.join("\n AND ", filterConditions);
         }
 
         // Sort by: folders first, then by name
-        query += "\n order by [jcr:primaryType] desc, name()";
+        query += "\n ORDER BY [jcr:primaryType] DESC, LOCALNAME()";
 
         return query;
     }
@@ -206,12 +208,14 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
     private ArachneFileSourced getFile(Node fileNode) throws RepositoryException {
 
-        Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
-        InputStream stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
-
         ArachneFileMeta arachneFileMeta = conversionService.convert(fileNode, ArachneFileMeta.class);
         ArachneFileSourced file = new ArachneFileSourced(arachneFileMeta);
-        file.setInputStream(stream);
+
+        if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
+            Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
+            InputStream stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+            file.setInputStream(stream);
+        }
 
         return file;
     }
@@ -240,18 +244,6 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         return fileNode;
     }
-
-    /*private void saveFolder(Node parentNode, File directory) throws RepositoryException, IOException {
-
-        for (File dirEntry : directory.listFiles()) {
-            if (dirEntry.isDirectory()) {
-                Node childNode = JcrUtils.getOrAddFolder(parentNode, dirEntry.getName());
-                saveFolder(childNode, dirEntry);
-            } else {
-                saveFile(parentNode, dirEntry);
-            }
-        }
-    }*/
 
     public static String getStringProperty(Node node, String path) throws RepositoryException {
 

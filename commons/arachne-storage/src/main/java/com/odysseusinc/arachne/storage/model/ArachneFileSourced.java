@@ -2,7 +2,7 @@ package com.odysseusinc.arachne.storage.model;
 
 import java.io.InputStream;
 
-public class ArachneFileSourced extends ArachneFileMetaImpl {
+public class ArachneFileSourced extends ArachneFileMetaImpl implements ArachneFileMeta {
 
     public ArachneFileSourced() {
 
