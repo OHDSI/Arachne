@@ -2,9 +2,9 @@ package com.odysseusinc.arachne.storage.config;
 
 import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.jackrabbit.JackrabbitSessionFactory;
 import org.xml.sax.InputSource;
@@ -68,13 +71,20 @@ public class JcrConfig {
             protected void registerNodeTypes() throws Exception {
 
                 Session session = this.getSession();
-                File cndDir = new ClassPathResource(CND_DIR).getFile();
-                for (File cndConfFile : cndDir.listFiles()) {
+
+                ClassLoader cl = this.getClass().getClassLoader();
+                ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
+                Resource[] resources = resolver.getResources("classpath*:" + CND_DIR + "/*.cnd") ;
+                for (Resource cndResource: resources){
                     try {
-                        CndImporter.registerNodeTypes(new FileReader(cndConfFile), session, true);
+                        CndImporter.registerNodeTypes(
+                                new InputStreamReader(cndResource.getInputStream()),
+                                session,
+                                true
+                        );
                         session.logout();
                     } catch (ParseException e) {
-                        LOGGER.error("Cannot register JCR node types from " + cndConfFile.getName());
+                        LOGGER.error("Cannot register JCR node types from: " + cndResource.getFilename());
                     }
                 }
             }
