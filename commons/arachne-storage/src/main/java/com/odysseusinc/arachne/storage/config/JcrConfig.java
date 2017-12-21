@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.RepositoryImpl;
@@ -24,7 +24,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.jackrabbit.JackrabbitSessionFactory;
 import org.xml.sax.InputSource;
 
@@ -41,10 +40,10 @@ public class JcrConfig {
     private String homeDir;
 
     @Bean
-    public Repository repository(ConfigurableEnvironment environment) throws RepositoryException, IOException {
+    public JackrabbitRepository repository(ConfigurableEnvironment environment) throws RepositoryException, IOException {
 
         ClassPathResource repositoryConfigResource = new ClassPathResource(REPOSITORY_CONFIG_FILE);
-        Repository repository;
+        JackrabbitRepository repository;
 
         checkRepoHomeExists();
 
@@ -64,7 +63,7 @@ public class JcrConfig {
     }
 
     @Bean
-    public JackrabbitSessionFactory jackrabbitSessionFactory(Repository repository) {
+    public JackrabbitSessionFactory jackrabbitSessionFactory(JackrabbitRepository repository) {
 
         JackrabbitSessionFactory sessionFactory = new JackrabbitSessionFactory() {
 
@@ -74,8 +73,8 @@ public class JcrConfig {
 
                 ClassLoader cl = this.getClass().getClassLoader();
                 ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-                Resource[] resources = resolver.getResources("classpath*:" + CND_DIR + "/*.cnd") ;
-                for (Resource cndResource: resources){
+                Resource[] resources = resolver.getResources("classpath*:" + CND_DIR + "/*.cnd");
+                for (Resource cndResource : resources) {
                     try {
                         CndImporter.registerNodeTypes(
                                 new InputStreamReader(cndResource.getInputStream()),
