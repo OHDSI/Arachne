@@ -1,5 +1,6 @@
 package com.odysseusinc.arachne.storage.config;
 
+import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import javax.annotation.PostConstruct;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
@@ -13,7 +14,7 @@ import org.springmodules.jcr.JcrTemplate;
 public class JcrObserver {
 
     @Autowired
-    private JcrTemplate jcrTemplate;
+    private TypifiedJcrTemplate jcrTemplate;
 
     @PostConstruct
     public void registerListeners() {
