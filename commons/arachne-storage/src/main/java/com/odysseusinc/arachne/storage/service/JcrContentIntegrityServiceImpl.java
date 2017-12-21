@@ -1,23 +1,22 @@
 package com.odysseusinc.arachne.storage.service;
 
 import com.odysseusinc.arachne.storage.model.JcrStored;
+import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import java.util.Set;
 import javax.jcr.Node;
-import javax.persistence.EntityManagerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.event.spi.DeleteEvent;
 import org.hibernate.event.spi.DeleteEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springmodules.jcr.JcrTemplate;
 
 @Service
 public class JcrContentIntegrityServiceImpl implements JcrContentIntegrityService {
 
-    private JcrTemplate jcrTemplate;
+    private TypifiedJcrTemplate jcrTemplate;
 
     @Autowired
-    public JcrContentIntegrityServiceImpl(JcrTemplate jcrTemplate) {
+    public JcrContentIntegrityServiceImpl(TypifiedJcrTemplate jcrTemplate) {
 
         this.jcrTemplate = jcrTemplate;
     }
@@ -45,7 +44,7 @@ public class JcrContentIntegrityServiceImpl implements JcrContentIntegrityServic
 
     private void deleteJcrEntryByPath(String path) {
 
-        jcrTemplate.execute(session -> {
+        jcrTemplate.exec(session -> {
 
             Node fileNode = session.getNode(path);
             fileNode.remove();

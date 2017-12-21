@@ -5,6 +5,7 @@ import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.storage.model.ArachneFileSourced;
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.QuerySpec;
+import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,7 +36,6 @@ import org.apache.jackrabbit.commons.JcrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
-import org.springmodules.jcr.JcrTemplate;
 
 @Service
 public class JcrContentStorageServiceImpl implements ContentStorageService {
@@ -45,13 +45,14 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
     public static String JCR_CONTENT_TYPE = "jcr:contentType";
     public static String JCR_AUTHOR = "jcr:author";
+    public static String MIX_ARACHNE_FILE = "mix:arachneFile";
 
-    protected JcrTemplate jcrTemplate;
+    protected TypifiedJcrTemplate jcrTemplate;
     protected ConversionService conversionService;
     protected EntityManagerFactory entityManagerFactory;
 
     @Autowired
-    public JcrContentStorageServiceImpl(JcrTemplate jcrTemplate,
+    public JcrContentStorageServiceImpl(TypifiedJcrTemplate jcrTemplate,
                                         ConversionService conversionService,
                                         EntityManagerFactory entityManagerFactory) {
 
@@ -82,7 +83,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     @Override
     public ArachneFileSourced getFileByPath(String absoulteFilename) {
 
-        return (ArachneFileSourced) jcrTemplate.execute(session -> {
+        return jcrTemplate.exec(session -> {
 
             Node fileNode = session.getNode(absoulteFilename);
             return getFile(fileNode);
@@ -91,7 +92,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
     public ArachneFileSourced getFileByIdentifier(String identifier) {
 
-        return (ArachneFileSourced) jcrTemplate.execute(session -> {
+        return jcrTemplate.exec(session -> {
 
             Node fileNode = session.getNodeByIdentifier(identifier);
             return getFile(fileNode);
@@ -108,7 +109,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         String fixedPath = fixPath(parentNodePath);
 
-        return (ArachneFileMeta) jcrTemplate.execute(session -> {
+        return jcrTemplate.exec(session -> {
 
             Node targetDir = getOrAddNestedFolder(session, fixedPath);
             Node node = saveFile(targetDir, name, file, createdById);
@@ -120,14 +121,14 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     @Override
     public List<ArachneFileSourced> searchFiles(QuerySpec querySpec) {
 
-        return (List<ArachneFileSourced>) jcrTemplate.execute(session -> {
+        return jcrTemplate.exec(session -> {
 
             List<ArachneFileSourced> result = new ArrayList<>();
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
             String expression = buildQuery(querySpec);
 
-            Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
 
             NodeIterator nit = queryResult.getNodes();
@@ -228,7 +229,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         Node fileNode = JcrUtils.getOrAddNode(parentNode, name, JcrConstants.NT_FILE);
         Node resNode = JcrUtils.getOrAddNode(fileNode, JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
 
-        resNode.addMixin("mix:arachneFile");
+        resNode.addMixin(MIX_ARACHNE_FILE);
 
         resNode.setProperty(JCR_CONTENT_TYPE, contentType);
         if (createdById != null) {

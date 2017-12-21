@@ -1,5 +1,6 @@
 package com.odysseusinc.arachne.storage.config;
 
+import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -85,9 +86,9 @@ public class JcrConfig {
     }
 
     @Bean
-    public JcrTemplate jcrTemplate(JackrabbitSessionFactory sessionFactory) {
+    public TypifiedJcrTemplate jcrTemplate(JackrabbitSessionFactory sessionFactory) {
 
-        JcrTemplate jcrTemplate = new JcrTemplate();
+        TypifiedJcrTemplate jcrTemplate = new TypifiedJcrTemplate();
         jcrTemplate.setAllowCreate(true);
         jcrTemplate.setSessionFactory(sessionFactory);
 
