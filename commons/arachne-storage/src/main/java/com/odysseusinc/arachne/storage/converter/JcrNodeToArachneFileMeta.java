@@ -11,6 +11,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.util.Text;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
@@ -36,7 +37,7 @@ public class JcrNodeToArachneFileMeta implements Converter<Node, ArachneFileMeta
 
         try {
             result.setUuid(node.getIdentifier());
-            result.setPath(node.getPath());
+            result.setPath(Text.unescape(node.getPath()));
             result.setCreated(node.getProperty(JcrConstants.JCR_CREATED).getDate().getTime());
 
             if (node.hasNode(JcrConstants.JCR_CONTENT)) {

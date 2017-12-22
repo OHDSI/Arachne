@@ -34,6 +34,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
+import org.apache.jackrabbit.util.Text;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
@@ -110,7 +111,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         Path path = Paths.get(filepath);
 
         String parentNodePath = path.getParent() != null ? path.getParent().toString() : "/";
-        String name = path.getFileName().toString();
+        String name = Text.escapeIllegalJcrChars(path.getFileName().toString());
 
         String fixedPath = fixPath(parentNodePath);
 
