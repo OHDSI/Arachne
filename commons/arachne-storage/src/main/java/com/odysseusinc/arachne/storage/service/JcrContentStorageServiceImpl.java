@@ -2,6 +2,7 @@ package com.odysseusinc.arachne.storage.service;
 
 
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
+import com.odysseusinc.arachne.storage.converter.JcrNodeToArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.ArachneFileSourced;
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.QuerySpec;
@@ -39,6 +40,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JcrContentStorageServiceImpl implements ContentStorageService {
+
+    // To ensure proper order of beans load
+    @Autowired
+    private JcrNodeToArachneFileMeta jcrNodeToArachneFileMeta;
 
     public static String PATH_SEPARATOR = "/";
     public static String ENTITY_FILES_DIR = "entities";
