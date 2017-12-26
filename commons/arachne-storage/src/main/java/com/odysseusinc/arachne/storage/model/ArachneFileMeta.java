@@ -13,7 +13,7 @@ public interface ArachneFileMeta {
     // Default due to back-compatibility
     default String getPath() {
 
-        throw new NotImplementedException("No implementation for method was provided");
+        return null;
     }
 
     default String getName() {
