@@ -9,7 +9,11 @@ import java.util.List;
 
 public interface ContentStorageService {
 
+    String PATH_SEPARATOR = "/";
+
     String getLocationForEntity(String entityTableName, Serializable entityIdentifier, List<String> additionalPathParts);
+
+    String getLocationForEntity(Class domainClazz, Serializable entityId, List<String> additionalPathParts);
 
     String getLocationForEntity(Object domainObject, List<String> additionalPathParts);
 
