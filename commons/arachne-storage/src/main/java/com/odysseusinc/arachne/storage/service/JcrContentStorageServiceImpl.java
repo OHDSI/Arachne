@@ -46,7 +46,6 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     @Autowired
     private JcrNodeToArachneFileMeta jcrNodeToArachneFileMeta;
 
-    public static String PATH_SEPARATOR = "/";
     public static String ENTITY_FILES_DIR = "entities";
 
     public static String JCR_CONTENT_TYPE = "jcr:contentType";
@@ -71,19 +70,25 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         List<String> pathParts = new ArrayList<>(Arrays.asList(ENTITY_FILES_DIR, entityTableName, entityIdentifier.toString()));
 
-        pathParts.addAll(additionalPathParts);
+        if (additionalPathParts != null) {
+            pathParts.addAll(additionalPathParts);
+        }
 
         return PATH_SEPARATOR + pathParts.stream()
                 .filter(part -> StringUtils.isNotBlank(part) && !part.equals(PATH_SEPARATOR))
                 .collect(Collectors.joining(PATH_SEPARATOR));
     }
 
+    public String getLocationForEntity(Class domainClazz, Serializable entityId, List<String> additionalPathParts) {
+
+        Table entityTable = (Table) domainClazz.getAnnotation(Table.class);
+        return getLocationForEntity(entityTable.name(), entityId, additionalPathParts);
+    }
+
     public String getLocationForEntity(Object domainObject, List<String> additionalPathParts) {
 
-        Table entityTable = domainObject.getClass().getAnnotation(Table.class);
         String entityId = String.valueOf(entityManagerFactory.getPersistenceUnitUtil().getIdentifier(domainObject));
-
-        return getLocationForEntity(entityTable.name(), entityId, additionalPathParts);
+        return getLocationForEntity(domainObject.getClass(), entityId, additionalPathParts);
     }
 
     @Override
