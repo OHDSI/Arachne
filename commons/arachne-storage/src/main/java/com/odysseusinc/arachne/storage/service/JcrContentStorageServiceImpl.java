@@ -35,12 +35,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.util.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JcrContentStorageServiceImpl implements ContentStorageService {
+
+    private static Logger log = LoggerFactory.getLogger(JcrContentStorageServiceImpl.class);
 
     // To ensure proper order of beans load
     @Autowired
@@ -134,6 +138,8 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         return jcrTemplate.exec(session -> {
 
+            long time = System.nanoTime();
+
             List<ArachneFileSourced> result = new ArrayList<>();
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
@@ -148,6 +154,10 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
                 childNode = nit.nextNode();
                 result.add(getFile(childNode));
             }
+
+            time = System.nanoTime() - time;
+            final long timeMs = time / 1000000;
+            log.debug("executed in {} ms. ({})", timeMs, expression);
 
             return result;
         });
@@ -179,11 +189,11 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         if (querySpec.getName() != null) {
             String operator = ObjectUtils.firstNonNull(querySpec.getNameLike(), false) ? " LIKE " : " = ";
-            filterConditions.add("LOCALNAME() " + operator + " '" + querySpec.getName() + "'");
+            filterConditions.add("LOCALNAME(node) " + operator + " '" + querySpec.getName() + "'");
         }
 
         if (querySpec.getContentTypes() != null) {
-            joinList.add("INNER JOIN [" + JcrConstants.JCR_CONTENT + "] as content ON ISCHILDNODE(child, node)");
+            joinList.add("LEFT OUTER JOIN [" + JcrConstants.NT_RESOURCE + "] as content ON ISCHILDNODE(content, node)");
 
             List<String> conentTypeConditions = new ArrayList<>();
             querySpec.getContentTypes().forEach(contentType -> conentTypeConditions.add("content.[" + JCR_CONTENT_TYPE + "] = '" + contentType + "'"));
@@ -199,7 +209,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         }
 
         // Sort by: folders first, then by name
-        query += "\n ORDER BY [jcr:primaryType] DESC, LOCALNAME()";
+        query += "\n ORDER BY node.[jcr:primaryType] DESC, LOCALNAME(node)";
 
         return query;
     }
