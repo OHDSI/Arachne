@@ -5,6 +5,7 @@ import java.util.Collection;
 public class QuerySpec {
 
     private String path;
+    private boolean searchSubfolders = false;
     private String name;
     private Boolean nameLike;
     private Collection contentTypes;
@@ -17,6 +18,16 @@ public class QuerySpec {
     public void setPath(String path) {
 
         this.path = path;
+    }
+
+    public boolean isSearchSubfolders() {
+
+        return searchSubfolders;
+    }
+
+    public void setSearchSubfolders(boolean searchSubfolders) {
+
+        this.searchSubfolders = searchSubfolders;
     }
 
     public String getName() {
