@@ -7,19 +7,26 @@ import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.ArachneFileMetaImpl;
 import com.odysseusinc.arachne.storage.service.JcrContentStorageServiceImpl;
+import java.io.InputStream;
+import java.util.Arrays;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.util.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JcrNodeToArachneFileMeta implements Converter<Node, ArachneFileMeta>, InitializingBean {
+
+    private static Logger log = LoggerFactory.getLogger(JcrNodeToArachneFileMeta.class);
 
     @Autowired
     protected GenericConversionService conversionService;
@@ -40,18 +47,32 @@ public class JcrNodeToArachneFileMeta implements Converter<Node, ArachneFileMeta
             result.setPath(Text.unescape(node.getPath()));
             result.setCreated(node.getProperty(JcrConstants.JCR_CREATED).getDate().getTime());
 
-            if (node.hasNode(JcrConstants.JCR_CONTENT)) {
-                Node resNode = node.getNode(JcrConstants.JCR_CONTENT);
-                result.setUpdated(resNode.getProperty(JcrConstants.JCR_LASTMODIFIED).getDate().getTime());
-                result.setContentType(JcrContentStorageServiceImpl.getStringProperty(resNode, JCR_CONTENT_TYPE));
-                result.setCreatedBy(NumberUtils.createLong(JcrContentStorageServiceImpl.getStringProperty(resNode, JCR_AUTHOR)));
-            } else {
+            if (node.isNodeType(JcrConstants.NT_FOLDER)) {
                 result.setContentType(CommonFileUtils.TYPE_FOLDER);
+            } else {
+                if (hasArachneMixin(node)) {
+                    result.setUpdated(node.getProperty(JcrConstants.JCR_LASTMODIFIED).getDate().getTime());
+                    result.setContentType(JcrContentStorageServiceImpl.getStringProperty(node, JCR_CONTENT_TYPE));
+                    result.setCreatedBy(NumberUtils.createLong(JcrContentStorageServiceImpl.getStringProperty(node, JCR_AUTHOR)));
+                } else {
+                    log.warn("Unwanted behaviour: JCR file node doesn't have Arachne mixin. " +
+                            "Resolving content type dynamically - this will seriously decrease performance");
+                    Node resNode = node.getNode(JcrConstants.JCR_CONTENT);
+                    InputStream stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+                    String contentType = CommonFileUtils.getContentType(result.getName(), new InputStreamResource(stream));
+                    result.setContentType(contentType);
+                }
             }
         } catch (RepositoryException ex) {
-            return null;
+            return new ArachneFileMetaImpl();
         }
 
         return result;
+    }
+
+    private boolean hasArachneMixin(Node node) throws RepositoryException {
+
+        return Arrays.asList(node.getMixinNodeTypes()).stream()
+                .anyMatch(t -> t.isNodeType(JcrContentStorageServiceImpl.MIX_ARACHNE_FILE));
     }
 }

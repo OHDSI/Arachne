@@ -3,7 +3,6 @@ package com.odysseusinc.arachne.storage.service;
 
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.storage.converter.JcrNodeToArachneFileMeta;
-import com.odysseusinc.arachne.storage.model.ArachneFileSourced;
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.QuerySpec;
 import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
@@ -52,9 +51,10 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
     public static String ENTITY_FILES_DIR = "entities";
 
+    public static String MIX_ARACHNE_FILE = "mix:arachneFile";
+
     public static String JCR_CONTENT_TYPE = "jcr:contentType";
     public static String JCR_AUTHOR = "jcr:author";
-    public static String MIX_ARACHNE_FILE = "mix:arachneFile";
 
     protected TypifiedJcrTemplate jcrTemplate;
     protected ConversionService conversionService;
@@ -96,7 +96,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
-    public ArachneFileSourced getFileByPath(String absoulteFilename) {
+    public ArachneFileMeta getFileByPath(String absoulteFilename) {
 
         return jcrTemplate.exec(session -> {
 
@@ -105,12 +105,20 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         });
     }
 
-    public ArachneFileSourced getFileByIdentifier(String identifier) {
+    @Override
+    public InputStream getContentByFilepath(String absoulteFilename) {
 
         return jcrTemplate.exec(session -> {
 
-            Node fileNode = session.getNodeByIdentifier(identifier);
-            return getFile(fileNode);
+            Node fileNode = session.getNode(absoulteFilename);
+            InputStream stream = null;
+
+            if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
+                Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
+                stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+            }
+
+            return stream;
         });
     }
 
@@ -134,13 +142,13 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
-    public List<ArachneFileSourced> searchFiles(QuerySpec querySpec) {
+    public List<ArachneFileMeta> searchFiles(QuerySpec querySpec) {
 
         return jcrTemplate.exec(session -> {
 
             long time = System.nanoTime();
 
-            List<ArachneFileSourced> result = new ArrayList<>();
+            List<ArachneFileMeta> result = new ArrayList<>();
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
             String expression = buildQuery(querySpec);
@@ -193,11 +201,9 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         }
 
         if (querySpec.getContentTypes() != null) {
-            joinList.add("LEFT OUTER JOIN [" + JcrConstants.NT_RESOURCE + "] as content ON ISCHILDNODE(content, node)");
-
-            List<String> conentTypeConditions = new ArrayList<>();
-            querySpec.getContentTypes().forEach(contentType -> conentTypeConditions.add("content.[" + JCR_CONTENT_TYPE + "] = '" + contentType + "'"));
-            filterConditions.add("(" + String.join("\n OR ", conentTypeConditions) + ")");
+            List<String> contentTypeConditions = new ArrayList<>();
+            querySpec.getContentTypes().forEach(contentType -> contentTypeConditions.add("node.[" + JCR_CONTENT_TYPE + "] = '" + contentType + "'"));
+            filterConditions.add("(" + String.join("\n OR ", contentTypeConditions) + ")");
         }
 
         if (joinList.size() > 0) {
@@ -228,18 +234,9 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         return node;
     }
 
-    private ArachneFileSourced getFile(Node fileNode) throws RepositoryException {
+    private ArachneFileMeta getFile(Node fileNode) throws RepositoryException {
 
-        ArachneFileMeta arachneFileMeta = conversionService.convert(fileNode, ArachneFileMeta.class);
-        ArachneFileSourced file = new ArachneFileSourced(arachneFileMeta);
-
-        if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
-            Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
-            InputStream stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
-            file.setInputStream(stream);
-        }
-
-        return file;
+        return conversionService.convert(fileNode, ArachneFileMeta.class);
     }
 
     private Node saveFile(Node parentNode, String name, File file, Long createdById) throws RepositoryException, IOException {
@@ -248,17 +245,16 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         String contentType = CommonFileUtils.getContentType(file.getName(), file.getAbsolutePath());
 
         Node fileNode = JcrUtils.getOrAddNode(parentNode, name, JcrConstants.NT_FILE);
-        Node resNode = JcrUtils.getOrAddNode(fileNode, JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
 
-        resNode.addMixin(MIX_ARACHNE_FILE);
-
-        resNode.setProperty(JCR_CONTENT_TYPE, contentType);
+        fileNode.addMixin(MIX_ARACHNE_FILE);
+        fileNode.setProperty(JCR_CONTENT_TYPE, contentType);
+        fileNode.setProperty(JcrConstants.JCR_MIMETYPE, mimeType);
+        fileNode.setProperty(JcrConstants.JCR_LASTMODIFIED, Calendar.getInstance());
         if (createdById != null) {
-            resNode.setProperty(JCR_AUTHOR, String.valueOf(createdById));
+            fileNode.setProperty(JCR_AUTHOR, String.valueOf(createdById));
         }
-        resNode.setProperty(JcrConstants.JCR_MIMETYPE, mimeType);
-        resNode.setProperty(JcrConstants.JCR_LASTMODIFIED, Calendar.getInstance());
 
+        Node resNode = JcrUtils.getOrAddNode(fileNode, JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
         try (InputStream fileStream = new FileInputStream(file)) {
             Binary binary = resNode.getSession().getValueFactory().createBinary(fileStream);
             resNode.setProperty(JcrConstants.JCR_DATA, binary);
