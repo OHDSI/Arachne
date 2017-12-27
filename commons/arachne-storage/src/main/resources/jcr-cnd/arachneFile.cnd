@@ -1,3 +1,5 @@
 [mix:arachneFile] mixin
+  - jcr:mimeType (string)
   - jcr:contentType (string)
   - jcr:author (string)
+  - jcr:lastModified (date)
