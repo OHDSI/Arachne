@@ -2,6 +2,7 @@ package com.odysseusinc.arachne.storage.service;
 
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.QuerySpec;
+import com.odysseusinc.arachne.storage.util.FileSaveRequest;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -21,7 +22,9 @@ public interface ContentStorageService {
 
     InputStream getContentByFilepath(String absoulteFilename);
 
-    ArachneFileMeta saveFile(String filepath, File file, Long createdById);
+    ArachneFileMeta saveFile(File file, String destinationPath, Long createdById);
+
+    List<ArachneFileMeta> saveBatch(List<FileSaveRequest> fileSaveRequestList, Long createdById);
 
     List<ArachneFileMeta> searchFiles(QuerySpec querySpec);
 

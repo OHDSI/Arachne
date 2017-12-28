@@ -4,19 +4,21 @@ package com.odysseusinc.arachne.storage.service;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.storage.converter.JcrNodeToArachneFileMeta;
 import com.odysseusinc.arachne.storage.model.ArachneFileMeta;
+import com.odysseusinc.arachne.storage.model.ArachneFileMetaImpl;
 import com.odysseusinc.arachne.storage.model.QuerySpec;
+import com.odysseusinc.arachne.storage.util.FileSaveRequest;
 import com.odysseusinc.arachne.storage.util.TypifiedJcrTemplate;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -32,8 +34,9 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.JcrUtils;
-import org.apache.jackrabbit.util.Text;
+import org.apache.jackrabbit.core.fs.FileSystemPathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +59,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     public static String JCR_CONTENT_TYPE = "jcr:contentType";
     public static String JCR_AUTHOR = "jcr:author";
 
+    protected JackrabbitRepository repository;
     protected TypifiedJcrTemplate jcrTemplate;
     protected ConversionService conversionService;
     protected EntityManagerFactory entityManagerFactory;
@@ -123,21 +127,65 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
-    public ArachneFileMeta saveFile(String filepath, File file, Long createdById) {
+    public ArachneFileMeta saveFile(File file, String destinationPath, Long createdById) {
 
-        Path path = Paths.get(filepath);
+        FileSaveRequest saveRequest = new FileSaveRequest();
+        saveRequest.setDestinationFilepath(destinationPath);
+        saveRequest.setFile(file);
 
-        String parentNodePath = path.getParent() != null ? path.getParent().toString() : "/";
-        String name = Text.escapeIllegalJcrChars(path.getFileName().toString());
+        return saveBatch(Arrays.asList(saveRequest), createdById).get(0);
+    }
 
-        String fixedPath = fixPath(parentNodePath);
+    @Override
+    public List<ArachneFileMeta> saveBatch(List<FileSaveRequest> fileSaveRequestList, Long createdById) {
 
         return jcrTemplate.exec(session -> {
 
-            Node targetDir = getOrAddNestedFolder(session, fixedPath);
-            Node node = saveFile(targetDir, name, file, createdById);
+            List<ArachneFileMeta> savedFileList = new ArrayList<>();
+            Map<String, Node> folderNodeCache = new HashMap<>();
+
+            Integer doneCount = 0;
+            Integer notPersistedCount = 0;
+
+            for (FileSaveRequest request : fileSaveRequestList) {
+
+                String fixedPath = fixPath(request.getDestinationFilepath());
+
+                String dirPath = FileSystemPathUtil.getParentDir(fixedPath);
+                String filename = FileSystemPathUtil.getName(fixedPath);
+
+                Node parentNode = folderNodeCache.get(dirPath);
+                if (parentNode == null) {
+                    parentNode = getOrAddNestedFolder(session, dirPath);
+                    folderNodeCache.put(dirPath, parentNode);
+                }
+
+                Node node = saveFile(
+                        parentNode,
+                        filename,
+                        request.getFile(),
+                        createdById
+                );
+
+                ArachneFileMetaImpl meta = new ArachneFileMetaImpl();
+                meta.setUuid(node.getIdentifier());
+                meta.setPath(fixedPath);
+
+                savedFileList.add(meta);
+
+                doneCount++;
+                notPersistedCount++;
+
+                if (notPersistedCount >= 1000) {
+                    session.save();
+                    notPersistedCount = 0;
+                    log.debug("Persisted {}/{} items", doneCount, fileSaveRequestList.size());
+                }
+            }
+
             session.save();
-            return conversionService.convert(node, ArachneFileMeta.class);
+
+            return savedFileList;
         });
     }
 
