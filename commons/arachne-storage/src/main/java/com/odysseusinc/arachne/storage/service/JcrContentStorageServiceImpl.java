@@ -192,7 +192,8 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         List<String> filterConditions = new ArrayList<>();
 
         if (querySpec.getPath() != null) {
-            filterConditions.add("ISCHILDNODE(node, '" + querySpec.getPath() + "')");
+            String operator = querySpec.isSearchSubfolders() ? "ISDESCENDANTNODE" : "ISCHILDNODE";
+            filterConditions.add(operator + "(node, '" + querySpec.getPath() + "')");
         }
 
         if (querySpec.getName() != null) {
