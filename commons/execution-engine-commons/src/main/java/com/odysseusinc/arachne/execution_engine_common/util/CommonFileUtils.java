@@ -80,13 +80,14 @@ public class CommonFileUtils {
             // High compression level was set selected as possible fix for a bug:
             // http://www.lingala.net/zip4j/forum/index.php?topic=225.0
             parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
+            parameters.setIncludeRootFolder(false);
             parameters.setReadHiddenFiles(false);
 
             parameters.setDefaultFolderPath(folder.getAbsolutePath());
 
-
             ArrayList<File> filesToAdd = new ArrayList<>(
                     Files.walk(folder.toPath())
+                            .filter(path -> !Files.isDirectory(path))
                             .map(Path::toFile)
                             .collect(Collectors.toList())
             );
