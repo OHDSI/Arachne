@@ -84,9 +84,9 @@ public class CommonFileUtils {
 
             parameters.setDefaultFolderPath(folder.getAbsolutePath());
 
-
             ArrayList<File> filesToAdd = new ArrayList<>(
                     Files.walk(folder.toPath())
+                            .filter(path -> !Files.isDirectory(path))
                             .map(Path::toFile)
                             .collect(Collectors.toList())
             );
