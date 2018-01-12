@@ -20,6 +20,8 @@ public interface ContentStorageService {
 
     ArachneFileMeta getFileByPath(String absoulteFilename);
 
+    ArachneFileMeta getFileByIdentifier(String identifier);
+
     InputStream getContentByFilepath(String absoulteFilename);
 
     ArachneFileMeta saveFile(File file, String destinationPath, Long createdById);
