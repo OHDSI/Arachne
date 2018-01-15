@@ -110,6 +110,16 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
+    public ArachneFileMeta getFileByIdentifier(String identifier) {
+
+        return jcrTemplate.exec(session -> {
+
+            Node fileNode = session.getNodeByIdentifier(identifier);
+            return getFile(fileNode);
+        });
+    }
+
+    @Override
     public InputStream getContentByFilepath(String absoulteFilename) {
 
         return jcrTemplate.exec(session -> {
