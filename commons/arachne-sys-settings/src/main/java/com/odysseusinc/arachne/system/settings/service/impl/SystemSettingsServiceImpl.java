@@ -117,11 +117,17 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
         }
     }
 
+    @Override
+    public boolean isSecuredSetting(SystemSetting systemSetting) {
+
+        return systemSetting.getType() == SystemSettingType.password;
+    }
+
     private void updateProperty(List<SystemSetting> forUpdate, Map.Entry<Long, String> entry, SystemSetting systemProperty) {
 
         String value = entry.getValue();
         if (value != null) {
-            if (systemProperty.getType() == SystemSettingType.password) {
+            if (isSecuredSetting(systemProperty)) {
                 value = getEncryptedValue(value);
             }
         }

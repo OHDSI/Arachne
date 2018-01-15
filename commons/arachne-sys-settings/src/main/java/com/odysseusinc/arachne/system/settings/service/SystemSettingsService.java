@@ -23,6 +23,7 @@
 package com.odysseusinc.arachne.system.settings.service;
 
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
+import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingsGroup;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ public interface SystemSettingsService {
     String getEncryptedValue(String value);
 
     void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException;
+
+    boolean isSecuredSetting(SystemSetting systemSetting);
 
     boolean isConfigChanged();
 }
