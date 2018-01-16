@@ -22,10 +22,15 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import com.odysseusinc.arachne.commons.api.v1.dto.util.NotNullIfAnotherFieldHasValue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 
+@NotNullIfAnotherFieldHasValue(
+        fieldName = "modelType",
+        fieldValue = CommonModelType.CDM,
+        dependentFieldName = "cdmVersion")
 public class CommonBaseDataSourceDTO {
     private Long id;
 
