@@ -25,5 +25,7 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 import java.io.Serializable;
 
 public enum CommonModelType implements Serializable {
-    CDM, I2B2, CDISK, OTHER
+    CDM, I2B2, CDISK, OTHER;
+
+    public static final String CDM_NAME = "CDM";
 }

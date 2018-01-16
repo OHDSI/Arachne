@@ -23,7 +23,7 @@ public @interface NotNullIfAnotherFieldHasValue {
 
     String fieldName();
 
-    CommonModelType fieldValue();
+    String fieldValue();
 
     String dependentFieldName();
 

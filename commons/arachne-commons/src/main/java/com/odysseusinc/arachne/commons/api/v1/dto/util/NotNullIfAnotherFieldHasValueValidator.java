@@ -1,6 +1,5 @@
 package com.odysseusinc.arachne.commons.api.v1.dto.util;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 import org.apache.commons.beanutils.BeanUtils;
 
 import javax.validation.ConstraintValidator;
@@ -12,7 +11,7 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
         Object> {
 
     private String fieldName;
-    private CommonModelType expectedFieldValue;
+    private String expectedFieldValue;
     private String dependentFieldName;
 
     @Override
@@ -29,9 +28,9 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             return true;
         }
         try {
-            final CommonModelType fieldValue = CommonModelType.valueOf(BeanUtils.getProperty(value, fieldName));
+            final String fieldValue = BeanUtils.getProperty(value, fieldName);
             final String dependentFieldValue = BeanUtils.getProperty(value, dependentFieldName);
-            if (expectedFieldValue == fieldValue && dependentFieldValue == null) {
+            if (expectedFieldValue.equals(fieldValue) && dependentFieldValue == null) {
                 ctx.disableDefaultConstraintViolation();
                 ctx.buildConstraintViolationWithTemplate(ctx.getDefaultConstraintMessageTemplate())
                         .addNode(dependentFieldName)
