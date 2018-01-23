@@ -23,7 +23,13 @@
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ComplexRuleInfoDTO.class, name = "ComplexRuleInfoDTO")
+})
 public class RuleInfoDTO {
 
     protected String description;
