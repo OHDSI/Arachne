@@ -30,7 +30,8 @@ public enum DBMSType {
     REDSHIFT("Redshift", "redshift"),
     ORACLE("Oracle", "oracle"),
     IMPALA("Impala", "impala"),
-    BIGQUERY("Google BigQuery", "bigquery");
+    BIGQUERY("Google BigQuery", "bigquery"),
+    NETEZZA("Netezza", "netezza");
 
     private String label;
     // For further pass into SqlRender.translateSql as "targetDialect" and DatabaseConnector as "dbms"
