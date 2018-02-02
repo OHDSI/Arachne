@@ -15,13 +15,32 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: January 13, 2017
+ * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Konstantin Yaroshovets
+ * Created: January 23, 2018
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-public enum CommonCDMVersionDTO {
-    V4_0, V5_0, V5_0_1, V5_1, V5_2, V5_3
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ComplexRuleInfoDTO.class, name = "ComplexRuleInfoDTO")
+})
+public class RuleInfoDTO {
+
+    protected String description;
+
+    public RuleInfoDTO(@JsonProperty("description") String description) {
+
+        this.description = description;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
 }

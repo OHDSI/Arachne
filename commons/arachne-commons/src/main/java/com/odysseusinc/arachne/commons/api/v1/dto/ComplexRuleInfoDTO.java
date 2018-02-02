@@ -15,29 +15,28 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon
- * Created: April 19, 2017
+ * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Konstantin Yaroshovets
+ * Created: January 23, 2018
  *
  */
 
-package com.odysseusinc.arachne.system.settings.service;
+package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
-import com.odysseusinc.arachne.system.settings.model.SystemSetting;
-import com.odysseusinc.arachne.system.settings.model.SystemSettingsGroup;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
 
-public interface SystemSettingsService {
+public class ComplexRuleInfoDTO extends RuleInfoDTO {
+    protected Set<RuleInfoDTO> rules;
 
-    Iterable<SystemSettingsGroup> getAll();
+    public ComplexRuleInfoDTO(@JsonProperty("description") String description,
+                              @JsonProperty("rules") Set<RuleInfoDTO> rules) {
 
-    String getDecryptedValue(String value);
+        super(description);
+        this.rules = rules;
+    }
 
-    String getEncryptedValue(String value);
+    public Set<RuleInfoDTO> getRules() {
 
-    void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException;
-
-    boolean isSecuredSetting(SystemSetting systemSetting);
-
-    boolean isConfigChanged();
+        return rules;
+    }
 }

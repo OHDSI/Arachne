@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.lingala.zip4j.core.ZipFile;
@@ -81,10 +83,19 @@ public class CommonFileUtils {
             parameters.setIncludeRootFolder(false);
             parameters.setReadHiddenFiles(false);
 
+            parameters.setDefaultFolderPath(folder.getAbsolutePath());
+
+            ArrayList<File> filesToAdd = new ArrayList<>(
+                    Files.walk(folder.toPath())
+                            .filter(path -> !Files.isDirectory(path))
+                            .map(Path::toFile)
+                            .collect(Collectors.toList())
+            );
+
             if (maximumSize != null) {
-                zipFile.createZipFileFromFolder(folder, parameters, true, maximumSize);
+                zipFile.createZipFile(filesToAdd, parameters, true, maximumSize);
             } else {
-                zipFile.createZipFileFromFolder(folder, parameters, false, 0);
+                zipFile.createZipFile(filesToAdd, parameters);
             }
         } catch (ZipException | IOException ex) {
             log.error(ex.getMessage(), ex);

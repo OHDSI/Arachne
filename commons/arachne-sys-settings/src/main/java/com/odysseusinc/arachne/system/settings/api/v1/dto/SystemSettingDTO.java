@@ -29,6 +29,7 @@ public class SystemSettingDTO {
     private String name;
     private String value;
     private String type;
+    private Boolean isSet;
 
     public Long getId() {
 
@@ -78,5 +79,15 @@ public class SystemSettingDTO {
     public void setType(String type) {
 
         this.type = type;
+    }
+
+    public Boolean getIsSet() {
+
+        return isSet;
+    }
+
+    public void setIsSet(Boolean set) {
+
+        isSet = set;
     }
 }

@@ -58,11 +58,15 @@ public class SystemSettingToSystemSettingDTO implements Converter<SystemSetting,
         dto.setLabel(systemSetting.getLabel());
         dto.setName(systemSetting.getName());
         dto.setType(systemSetting.getType().toString());
-        if (systemSetting.getValue() != null) {
-            String value = systemSettingsService.getDecryptedValue(systemSetting.getValue());
-            dto.setValue(value);
-        } else if (env.containsProperty(systemSetting.getName())) {
-            dto.setValue(env.getProperty(systemSetting.getName()));
+        if (!systemSettingsService.isSecuredSetting(systemSetting)) {
+            if (systemSetting.getValue() != null) {
+                String value = systemSettingsService.getDecryptedValue(systemSetting.getValue());
+                dto.setValue(value);
+            } else if (env.containsProperty(systemSetting.getName())) {
+                dto.setValue(env.getProperty(systemSetting.getName()));
+            }
+        } else {
+            dto.setIsSet(systemSetting.getValue() != null || env.containsProperty(systemSetting.getName()));
         }
         /*
         // Get not decrypted props

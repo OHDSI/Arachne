@@ -6,13 +6,14 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.10.0</version>
+    <version>1.11.0</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>arachne-commons</module>
         <module>arachne-sys-settings</module>
         <module>execution-engine-commons</module>
+        <module>arachne-storage</module>
     </modules>
 
     <properties>
