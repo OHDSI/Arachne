@@ -25,7 +25,7 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 import java.util.Date;
 
 public class CommonUserDTO {
-    private Long id;
+    private String id;
     private String password;
     private String email;
     private String firstname;
@@ -38,11 +38,11 @@ public class CommonUserDTO {
     private Date updated;
     private CommonProfessionalTypeDTO professionalType;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
