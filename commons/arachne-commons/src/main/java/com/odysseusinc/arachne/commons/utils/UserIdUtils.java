@@ -38,6 +38,9 @@ public class UserIdUtils {
 
     public static String idToUuid(Long id) {
 
+        if (id == null) {
+            return null;
+        }
         Long hashedId = reversibleHash(id);
         byte[] bytes = stringToBytes(hashedId.toString());
         return Base64.encodeBase64String(bytes, false);
@@ -45,6 +48,9 @@ public class UserIdUtils {
 
     public static Long uuidToId(String hash) {
 
+        if (hash == null) {
+            return null;
+        }
         byte[] bytes = Base64.decodeBase64(hash);
         String fromBytes = bytesToString(bytes);
         Long hashedId = Long.parseLong(fromBytes);
