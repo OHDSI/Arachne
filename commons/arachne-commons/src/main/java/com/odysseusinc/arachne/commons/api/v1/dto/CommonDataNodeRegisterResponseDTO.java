@@ -24,19 +24,22 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import java.io.Serializable;
 
-public class CommonDataNodeRegisterResponseDTO implements Serializable{
+public class CommonDataNodeRegisterResponseDTO implements Serializable {
 
     private String dataNodeUuid;
     private String name;
     private String description;
     private String token;
     private Long centralId;
+    private OrganizationDTO organization;
 
     public String getDataNodeUuid() {
+
         return dataNodeUuid;
     }
 
     public void setDataNodeUuid(String dataNodeUuid) {
+
         this.dataNodeUuid = dataNodeUuid;
     }
 
@@ -78,5 +81,15 @@ public class CommonDataNodeRegisterResponseDTO implements Serializable{
     public void setCentralId(Long centralId) {
 
         this.centralId = centralId;
+    }
+
+    public OrganizationDTO getOrganization() {
+
+        return organization;
+    }
+
+    public void setOrganization(OrganizationDTO organization) {
+
+        this.organization = organization;
     }
 }
