@@ -51,6 +51,8 @@ public class CommonBaseDataSourceDTO implements Serializable {
     private String organization;
     private CommonCDMVersionDTO cdmVersion;
 
+    private Boolean published;
+
     public Long getId() {
 
         return id;
@@ -105,5 +107,13 @@ public class CommonBaseDataSourceDTO implements Serializable {
 
     public void setCdmVersion(CommonCDMVersionDTO cdmVersion) {
         this.cdmVersion = cdmVersion;
+    }
+
+    public Boolean getPublished() {
+        return published;
+    }
+
+    public void setPublished(Boolean published) {
+        this.published = published;
     }
 }
