@@ -45,7 +45,7 @@ public class AnalysisRequestDTO {
     private String resultCallback;
 
     @NotNull
-    private DataSourceDTO dataSource;
+    private DataSourceUnsecureDTO dataSource;
 
     @NotNull
     private Date requested;
@@ -100,12 +100,12 @@ public class AnalysisRequestDTO {
         this.resultCallback = resultCallback;
     }
 
-    public DataSourceDTO getDataSource() {
+    public DataSourceUnsecureDTO getDataSource() {
 
         return dataSource;
     }
 
-    public void setDataSource(DataSourceDTO dataSource) {
+    public void setDataSource(DataSourceUnsecureDTO dataSource) {
 
         this.dataSource = dataSource;
     }
