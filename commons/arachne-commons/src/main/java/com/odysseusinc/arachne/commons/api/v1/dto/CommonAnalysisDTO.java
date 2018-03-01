@@ -31,7 +31,7 @@ public class CommonAnalysisDTO extends CommonUuidDTO {
     private CommonAnalysisResultDTO result;
     private String executableFileName;
     private String innerExecutableFilename;
-    private String dataSourceSid;
+    private Long centralDataSourceId;
     private String updateSubmissionStatusPassword;
     private List<String> archiveChunkUrls;
     private List<CommonAnalysisFileDTO> analysisFiles;
@@ -88,14 +88,12 @@ public class CommonAnalysisDTO extends CommonUuidDTO {
         this.executableFileName = executableFileName;
     }
 
-    public String getDataSourceSid() {
-
-        return dataSourceSid;
+    public Long getCentralDataSourceId() {
+        return centralDataSourceId;
     }
 
-    public void setDataSourceSid(String dataSourceSid) {
-
-        this.dataSourceSid = dataSourceSid;
+    public void setCentralDataSourceId(Long centralDataSourceId) {
+        this.centralDataSourceId = centralDataSourceId;
     }
 
     public String getUpdateSubmissionStatusPassword() {
