@@ -37,10 +37,6 @@ import org.hibernate.validator.constraints.NotBlank;
 public class CommonBaseDataSourceDTO implements Serializable {
     private Long id;
 
-    @Pattern(
-            message = "Must be valid UUID.",
-            regexp = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-    )
     private String uuid;
 
     @NotBlank
