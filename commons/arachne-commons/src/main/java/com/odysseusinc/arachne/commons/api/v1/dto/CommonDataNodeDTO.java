@@ -16,67 +16,35 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: January 13, 2017
+ * Created: February 12, 2018
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
-public class CommonDataNodeRegisterResponseDTO implements Serializable{
+public class CommonDataNodeDTO extends CommonDataNodeCreationResponseDTO implements Serializable{
 
-    private String dataNodeUuid;
+    @NotNull
     private String name;
+    @NotNull
     private String description;
-    private String token;
-    private Long centralId;
-
-    public String getDataNodeUuid() {
-        return dataNodeUuid;
-    }
-
-    public void setDataNodeUuid(String dataNodeUuid) {
-        this.dataNodeUuid = dataNodeUuid;
-    }
 
     public String getName() {
-
         return name;
     }
 
     public void setName(String name) {
-
         this.name = name;
     }
 
     public String getDescription() {
-
         return description;
     }
 
     public void setDescription(String description) {
-
         this.description = description;
-    }
-
-    public String getToken() {
-
-        return token;
-    }
-
-    public void setToken(String token) {
-
-        this.token = token;
-    }
-
-    public Long getCentralId() {
-
-        return centralId;
-    }
-
-    public void setCentralId(Long centralId) {
-
-        this.centralId = centralId;
     }
 }
