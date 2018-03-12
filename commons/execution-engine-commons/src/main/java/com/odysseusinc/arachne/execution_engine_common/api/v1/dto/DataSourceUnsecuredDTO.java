@@ -22,7 +22,7 @@
 
 package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
 
-public class DataSourceDTO {
+public class DataSourceUnsecuredDTO {
 
     private String connectionString;
     private DBMSType type;
