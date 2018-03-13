@@ -20,7 +20,7 @@
  *
  */
 
-package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
+package com.odysseusinc.arachne.commons.types;
 
 public enum DBMSType {
     // Set of databases both supported by OHDSI/SqlRender and OHDSI/DatabaseConnector
