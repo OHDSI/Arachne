@@ -16,50 +16,47 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 30, 2017
+ * Created: July 17, 2017
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.List;
 
-public class AtlasInfoDTO {
+public class CommonEntityRequestObject implements Serializable {
 
-    public static final String ATLAS_VERSION_REGEX = "\\d\\.\\d\\.\\d(-plus)*";
+    private List<Long> atlasIdList;
+    private CommonAnalysisType entityType;
 
-    @NotNull
-    private Boolean installed;
-
-    private String version;
-
-    public AtlasInfoDTO() {
+    public CommonEntityRequestObject() {
 
     }
 
-    public AtlasInfoDTO(Boolean installed, String version) {
+    public CommonEntityRequestObject(List<Long> atlasIdList, CommonAnalysisType entityType) {
 
-        this.installed = installed;
-        this.version = version;
+        this.atlasIdList = atlasIdList;
+        this.entityType = entityType;
     }
 
-    public Boolean getInstalled() {
+    public List<Long> getAtlasIdList() {
 
-        return installed;
+        return atlasIdList;
     }
 
-    public void setInstalled(Boolean installed) {
+    public void setAtlasIdList(List<Long> atlasIdList) {
 
-        this.installed = installed;
+        this.atlasIdList = atlasIdList;
     }
 
-    public String getVersion() {
+    public CommonAnalysisType getEntityType() {
 
-        return version;
+        return entityType;
     }
 
-    public void setVersion(String version) {
+    public void setEntityType(CommonAnalysisType entityType) {
 
-        this.version = version;
+        this.entityType = entityType;
     }
 }
