@@ -2,7 +2,6 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 
 public class AtlasShortDTO {
 
-    private Long id;
     private Long centralId;
     private String name;
     private String version;
@@ -14,16 +13,6 @@ public class AtlasShortDTO {
     public AtlasShortDTO(String name) {
 
         this.name = name;
-    }
-
-    public Long getId() {
-
-        return id;
-    }
-
-    public void setId(Long id) {
-
-        this.id = id;
     }
 
     public Long getCentralId() {
