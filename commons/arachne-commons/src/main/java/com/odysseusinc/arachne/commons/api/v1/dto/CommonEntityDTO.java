@@ -26,7 +26,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CommonEntityDTO implements Serializable {
+
+    private Long originId;
     private Long localId;
+
     private String guid;
     private String name;
     private String description;
@@ -51,6 +54,16 @@ public class CommonEntityDTO implements Serializable {
     public void setName(String name) {
 
         this.name = name;
+    }
+
+    public Long getOriginId() {
+
+        return originId;
+    }
+
+    public void setOriginId(Long originId) {
+
+        this.originId = originId;
     }
 
     public Long getLocalId() {

@@ -22,30 +22,31 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CommonListEntityRequest {
+public class CommonListEntityRequest implements Serializable {
 
-    private Map<String, CommonAnalysisType> requestMap = new LinkedHashMap<>();
+    private Map<String, CommonEntityRequestObject> requestMap = new LinkedHashMap<>();
 
     public CommonListEntityRequest() {
 
     }
 
-    public CommonListEntityRequest(Map<String, CommonAnalysisType> requestIds) {
+    public CommonListEntityRequest(Map<String, CommonEntityRequestObject> requestIds) {
 
         if (requestIds != null) {
             this.requestMap = requestIds;
         }
     }
 
-    public Map<String, CommonAnalysisType> getRequestMap() {
+    public Map<String, CommonEntityRequestObject> getRequestMap() {
 
         return requestMap;
     }
 
-    public void setRequestMap(Map<String, CommonAnalysisType> requestMap) {
+    public void setRequestMap(Map<String, CommonEntityRequestObject> requestMap) {
 
         this.requestMap = requestMap;
     }
