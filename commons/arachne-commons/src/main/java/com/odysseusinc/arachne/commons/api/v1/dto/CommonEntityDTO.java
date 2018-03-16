@@ -22,15 +22,12 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 
 public class CommonEntityDTO implements Serializable {
 
-    @JsonIgnore
     private Long originId;
-    @JsonIgnore
     private Long localId;
 
     private String guid;
