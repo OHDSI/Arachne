@@ -25,21 +25,18 @@ package com.odysseusinc.arachne.commons.api.v1.dto;
 import static com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType.CDM_NAME;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.util.NotNullIfAnotherFieldHasValue;
+import com.odysseusinc.arachne.commons.types.DBMSType;
+import java.io.Serializable;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 
 @NotNullIfAnotherFieldHasValue(
         fieldName = "modelType",
         fieldValue = CDM_NAME,
         dependentFieldName = "cdmVersion")
-public class CommonBaseDataSourceDTO {
+public class CommonBaseDataSourceDTO implements Serializable {
     private Long id;
 
-    @Pattern(
-            message = "Must be valid UUID.",
-            regexp = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-    )
     private String uuid;
 
     @NotBlank
@@ -49,6 +46,10 @@ public class CommonBaseDataSourceDTO {
     @NotBlank
     private String organization;
     private CommonCDMVersionDTO cdmVersion;
+
+    private Boolean published;
+
+    private DBMSType dbmsType;
 
     public Long getId() {
 
@@ -104,5 +105,21 @@ public class CommonBaseDataSourceDTO {
 
     public void setCdmVersion(CommonCDMVersionDTO cdmVersion) {
         this.cdmVersion = cdmVersion;
+    }
+
+    public Boolean getPublished() {
+        return published;
+    }
+
+    public void setPublished(Boolean published) {
+        this.published = published;
+    }
+
+    public DBMSType getDbmsType() {
+        return dbmsType;
+    }
+
+    public void setDbmsType(DBMSType dbmsType) {
+        this.dbmsType = dbmsType;
     }
 }

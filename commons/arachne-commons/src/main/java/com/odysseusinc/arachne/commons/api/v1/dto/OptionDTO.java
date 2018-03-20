@@ -16,50 +16,42 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 30, 2017
+ * Created: May 17, 2017
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import javax.validation.constraints.NotNull;
+public class OptionDTO {
 
-public class AtlasInfoDTO {
+    private String id;
+    private String name;
 
-    public static final String ATLAS_VERSION_REGEX = "\\d\\.\\d\\.\\d(-plus)*";
+    public OptionDTO() {}
 
-    @NotNull
-    private Boolean installed;
+    public OptionDTO(String id, String name) {
 
-    private String version;
-
-    public AtlasInfoDTO() {
-
+        this.id = id;
+        this.name = name;
     }
 
-    public AtlasInfoDTO(Boolean installed, String version) {
+    public String getId() {
 
-        this.installed = installed;
-        this.version = version;
+        return id;
     }
 
-    public Boolean getInstalled() {
+    public void setId(String id) {
 
-        return installed;
+        this.id = id;
     }
 
-    public void setInstalled(Boolean installed) {
+    public String getName() {
 
-        this.installed = installed;
+        return name;
     }
 
-    public String getVersion() {
+    public void setName(String name) {
 
-        return version;
-    }
-
-    public void setVersion(String version) {
-
-        this.version = version;
+        this.name = name;
     }
 }
