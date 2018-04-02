@@ -43,8 +43,7 @@ public class CommonBaseDataSourceDTO implements Serializable {
     private String name;
     @NotNull
     private CommonModelType modelType;
-    @NotBlank
-    private String organization;
+
     private CommonCDMVersionDTO cdmVersion;
 
     private Boolean published;
@@ -89,14 +88,6 @@ public class CommonBaseDataSourceDTO implements Serializable {
     public void setModelType(CommonModelType modelType) {
 
         this.modelType = modelType;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(String organization) {
-        this.organization = organization;
     }
 
     public CommonCDMVersionDTO getCdmVersion() {
