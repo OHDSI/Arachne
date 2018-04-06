@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,28 +15,26 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: October 02, 2017
+ * Authors: Pavel Grafkin
+ * Created: March 14, 2018
  *
  */
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
-import com.odysseusinc.arachne.datanode.dto.OptionDTO;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DBMSType;
+import com.odysseusinc.arachne.commons.api.v1.dto.AtlasShortDTO;
+import com.odysseusinc.arachne.datanode.model.atlas.Atlas;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
-import org.springframework.stereotype.Component;
 
-@Component
-public class DBMSTypeToDBMSTypeDTOConverter implements Converter<DBMSType, OptionDTO>, InitializingBean {
+public abstract class BaseAtlasToAtlasShortDTOConverter<T extends AtlasShortDTO> implements Converter<Atlas, T>, InitializingBean {
 
     private GenericConversionService conversionService;
 
     @Autowired
-    public DBMSTypeToDBMSTypeDTOConverter(GenericConversionService conversionService) {
+    public BaseAtlasToAtlasShortDTOConverter(GenericConversionService conversionService) {
 
         this.conversionService = conversionService;
     }
@@ -48,12 +46,16 @@ public class DBMSTypeToDBMSTypeDTOConverter implements Converter<DBMSType, Optio
     }
 
     @Override
-    public OptionDTO convert(DBMSType source) {
+    public T convert(Atlas source) {
 
-        OptionDTO dto = new OptionDTO();
-        dto.setLabel(source.getLabel());
-        dto.setValue(source.getValue());
-        return dto;
+        T result = getDTOClass();
+
+        result.setCentralId(source.getCentralId());
+        result.setName(source.getName());
+        result.setVersion(source.getVersion());
+
+        return result;
     }
 
+    public abstract T getDTOClass();
 }

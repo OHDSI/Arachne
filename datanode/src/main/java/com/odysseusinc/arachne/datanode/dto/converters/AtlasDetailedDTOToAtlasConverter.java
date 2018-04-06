@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,15 +15,16 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: April 20, 2017
+ * Authors: Pavel Grafkin
+ * Created: March 14, 2018
  *
  */
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
-import com.odysseusinc.arachne.datanode.dto.datanode.DataNodeInfoDTO;
-import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
+import com.odysseusinc.arachne.datanode.dto.atlas.AtlasDetailedDTO;
+import com.odysseusinc.arachne.datanode.model.atlas.Atlas;
+import com.odysseusinc.arachne.datanode.service.client.atlas.AtlasAuthSchema;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
@@ -31,16 +32,14 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataNodeToDataNodeInfoDTOConverter implements Converter<DataNode, DataNodeInfoDTO>, InitializingBean {
+public class AtlasDetailedDTOToAtlasConverter implements Converter<AtlasDetailedDTO, Atlas>, InitializingBean {
 
     private GenericConversionService conversionService;
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiringInspection")
-    public DataNodeToDataNodeInfoDTOConverter(GenericConversionService conversionService) {
+    public AtlasDetailedDTOToAtlasConverter(GenericConversionService conversionService) {
 
         this.conversionService = conversionService;
-
     }
 
     @Override
@@ -50,13 +49,20 @@ public class DataNodeToDataNodeInfoDTOConverter implements Converter<DataNode, D
     }
 
     @Override
-    public DataNodeInfoDTO convert(DataNode dataNode) {
+    public Atlas convert(AtlasDetailedDTO source) {
 
-        DataNodeInfoDTO dataNodeInfo = new DataNodeInfoDTO();
-        dataNodeInfo.setName(dataNode.getName());
-        dataNodeInfo.setDescription(dataNode.getDescription());
-        dataNodeInfo.setHealthStatus(dataNode.getHealthStatus());
-        dataNodeInfo.setHealthStatusDescription(dataNode.getHealthStatusDescription());
-        return dataNodeInfo;
+        Atlas result = new Atlas();
+
+        result.setId(null);
+        result.setCentralId(null);
+        result.setName(source.getName());
+        result.setVersion(null);
+
+        result.setUrl(source.getUrl());
+        result.setAuthType(AtlasAuthSchema.valueOf(source.getAuthType()));
+        result.setUsername(source.getUsername());
+        result.setPassword(source.getPassword());
+
+        return result;
     }
 }
