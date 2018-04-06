@@ -16,38 +16,14 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: July 19, 2017
+ * Created: November 20, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.types;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-public class CommonListEntityRequest implements Serializable {
-
-    private Map<String, CommonEntityRequestObject> requestMap = new LinkedHashMap<>();
-
-    public CommonListEntityRequest() {
-
-    }
-
-    public CommonListEntityRequest(Map<String, CommonEntityRequestObject> requestIds) {
-
-        if (requestIds != null) {
-            this.requestMap = requestIds;
-        }
-    }
-
-    public Map<String, CommonEntityRequestObject> getRequestMap() {
-
-        return requestMap;
-    }
-
-    public void setRequestMap(Map<String, CommonEntityRequestObject> requestMap) {
-
-        this.requestMap = requestMap;
-    }
+public enum SuggestionTarget {
+    STUDY,
+    DATANODE,
+    PAPER
 }

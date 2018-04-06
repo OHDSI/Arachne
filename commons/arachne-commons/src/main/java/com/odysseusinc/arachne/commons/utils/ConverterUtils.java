@@ -16,38 +16,34 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: July 19, 2017
+ * Created: May 29, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.utils;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.stereotype.Component;
 
-public class CommonListEntityRequest implements Serializable {
+@Component
+public class ConverterUtils {
 
-    private Map<String, CommonEntityRequestObject> requestMap = new LinkedHashMap<>();
+    private GenericConversionService conversionService;
 
-    public CommonListEntityRequest() {
+    @Autowired
+    public ConverterUtils(GenericConversionService conversionService) {
 
+        this.conversionService = conversionService;
     }
 
-    public CommonListEntityRequest(Map<String, CommonEntityRequestObject> requestIds) {
+    public <S, R> List<R> convertList(List<S> source, Class<R> targetClass) {
 
-        if (requestIds != null) {
-            this.requestMap = requestIds;
-        }
+        return source.stream()
+                .map(item -> conversionService.convert(item, targetClass))
+                .collect(Collectors.toList());
     }
 
-    public Map<String, CommonEntityRequestObject> getRequestMap() {
-
-        return requestMap;
-    }
-
-    public void setRequestMap(Map<String, CommonEntityRequestObject> requestMap) {
-
-        this.requestMap = requestMap;
-    }
 }

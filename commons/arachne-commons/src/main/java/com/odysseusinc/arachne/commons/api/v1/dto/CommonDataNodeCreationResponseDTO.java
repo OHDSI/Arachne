@@ -16,50 +16,58 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: June 30, 2017
+ * Created: January 13, 2017
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
-public class AtlasInfoDTO {
+public class CommonDataNodeCreationResponseDTO implements Serializable {
 
-    public static final String ATLAS_VERSION_REGEX = "\\d\\.\\d\\.\\d(-plus)*";
+    private String dataNodeUuid;
+    private String token;
+    private Long centralId;
+    private OrganizationDTO organization;
 
-    @NotNull
-    private Boolean installed;
+    public String getDataNodeUuid() {
 
-    private String version;
-
-    public AtlasInfoDTO() {
-
+        return dataNodeUuid;
     }
 
-    public AtlasInfoDTO(Boolean installed, String version) {
+    public void setDataNodeUuid(String dataNodeUuid) {
 
-        this.installed = installed;
-        this.version = version;
+        this.dataNodeUuid = dataNodeUuid;
     }
 
-    public Boolean getInstalled() {
+    public String getToken() {
 
-        return installed;
+        return token;
     }
 
-    public void setInstalled(Boolean installed) {
+    public void setToken(String token) {
 
-        this.installed = installed;
+        this.token = token;
     }
 
-    public String getVersion() {
+    public Long getCentralId() {
 
-        return version;
+        return centralId;
     }
 
-    public void setVersion(String version) {
+    public void setCentralId(Long centralId) {
 
-        this.version = version;
+        this.centralId = centralId;
+    }
+
+    public OrganizationDTO getOrganization() {
+
+        return organization;
+    }
+
+    public void setOrganization(OrganizationDTO organization) {
+
+        this.organization = organization;
     }
 }

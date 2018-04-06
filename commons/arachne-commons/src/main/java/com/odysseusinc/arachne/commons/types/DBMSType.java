@@ -20,7 +20,7 @@
  *
  */
 
-package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
+package com.odysseusinc.arachne.commons.types;
 
 public enum DBMSType {
     // Set of databases both supported by OHDSI/SqlRender and OHDSI/DatabaseConnector
@@ -30,7 +30,8 @@ public enum DBMSType {
     REDSHIFT("Redshift", "redshift"),
     ORACLE("Oracle", "oracle"),
     IMPALA("Impala", "impala"),
-    BIGQUERY("Google BigQuery", "bigquery");
+    BIGQUERY("Google BigQuery", "bigquery"),
+    NETEZZA("Netezza", "netezza");
 
     private String label;
     // For further pass into SqlRender.translateSql as "targetDialect" and DatabaseConnector as "dbms"

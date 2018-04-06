@@ -6,7 +6,7 @@
 
     <groupId>com.odysseusinc.arachne</groupId>
     <artifactId>execution-engine-commons</artifactId>
-    <version>1.11.4-QA</version>
+    <version>1.12.0-QA</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -34,6 +34,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>4.3.6.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.odysseusinc.arachne</groupId>
+            <artifactId>arachne-commons</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
