@@ -22,8 +22,10 @@
 
 package com.odysseusinc.arachne.commons.utils;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
@@ -41,9 +43,16 @@ public class ConverterUtils {
 
     public <S, R> List<R> convertList(List<S> source, Class<R> targetClass) {
 
-        return source.stream()
-                .map(item -> conversionService.convert(item, targetClass))
-                .collect(Collectors.toList());
+        return convertList(source, targetClass, null);
     }
 
+    public <S, R> List<R> convertList(List<S> source, Class<R> targetClass, Comparator<R> comparator) {
+
+        Stream<R> intermediateStream = source.stream()
+                .map(item -> conversionService.convert(item, targetClass));
+        if (comparator != null) {
+            intermediateStream = intermediateStream.sorted(comparator);
+        }
+        return intermediateStream.collect(Collectors.toList());
+    }
 }
