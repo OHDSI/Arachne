@@ -109,7 +109,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         return jcrTemplate.exec(session -> {
 
-            Node fileNode = session.getNode(absoulteFilename);
+            Node fileNode = session.getNode(fixPath(absoulteFilename));
             return getFile(fileNode);
         });
     }
