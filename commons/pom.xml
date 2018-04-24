@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.12.0-QA</version>
+    <version>1.13.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
