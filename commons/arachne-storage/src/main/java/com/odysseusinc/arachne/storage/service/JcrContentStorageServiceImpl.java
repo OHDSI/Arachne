@@ -19,7 +19,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -37,6 +39,7 @@ import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.core.fs.FileSystemPathUtil;
+import org.apache.jackrabbit.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +85,10 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
             pathParts.addAll(additionalPathParts);
         }
 
+        final String ESCAPED_PATH_SEPARATOR = Text.escapeIllegalJcrChars(PATH_SEPARATOR);
+        
         return PATH_SEPARATOR + pathParts.stream()
-                .filter(part -> StringUtils.isNotBlank(part) && !part.equals(PATH_SEPARATOR))
+                .filter(part -> StringUtils.isNotBlank(part) && !part.equals(PATH_SEPARATOR) && !ESCAPED_PATH_SEPARATOR.equals(part))
                 .collect(Collectors.joining(PATH_SEPARATOR));
     }
 
@@ -120,19 +125,34 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
+    public InputStream getContentByIdentifier(String identifier) {
+
+        return jcrTemplate.exec(session -> {
+
+            final Node fileNode = session.getNodeByIdentifier(identifier);
+            return getInputStream(fileNode);
+        });
+    }
+
+    private InputStream getInputStream(final Node fileNode) throws RepositoryException {
+
+        InputStream stream = null;
+
+        if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
+            final Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
+            stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+        }
+
+        return stream;
+    }
+
+    @Override
     public InputStream getContentByFilepath(String absoulteFilename) {
 
         return jcrTemplate.exec(session -> {
 
-            Node fileNode = session.getNode(absoulteFilename);
-            InputStream stream = null;
-
-            if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
-                Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
-                stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
-            }
-
-            return stream;
+            final Node fileNode = session.getNode(fixPath(absoulteFilename));
+            return getInputStream(fileNode);
         });
     }
 
@@ -159,10 +179,11 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
             for (FileSaveRequest request : fileSaveRequestList) {
 
-                String fixedPath = fixPath(request.getDestinationFilepath());
-
-                String dirPath = FileSystemPathUtil.getParentDir(fixedPath);
-                String filename = FileSystemPathUtil.getName(fixedPath);
+                String fixedPath = replaceBackSlashes(request.getDestinationFilepath());
+                String escapedPath = escapePath(fixedPath);
+                
+                String dirPath = FileSystemPathUtil.getParentDir(escapedPath);
+                String filename = FileSystemPathUtil.getName(escapedPath);
 
                 Node parentNode = folderNodeCache.get(dirPath);
                 if (parentNode == null) {
@@ -235,9 +256,21 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
         throw new NotImplementedException("Manual deletion of JCR files is prohibited. Use 'JcrStored' interface to bind deletion of JCR entry to deletion of Hibernate entity.");
     }
 
-    private String fixPath(String path) {
+    private String escapePath(final String path) {
+
+        final String leadingString = Objects.equals(path.charAt(0), '/') ? "/" : "";
+        return leadingString + Stream.of(StringUtils.split(path, '/'))
+                .map(Text::escapeIllegalJcrChars)
+                .collect(Collectors.joining("/"));
+    }
+
+    private String replaceBackSlashes(final String path) {
 
         return path.replace('\\', '/');
+    }
+    
+    private String fixPath(final String path) {
+        return escapePath(replaceBackSlashes(path));
     }
 
     // NOTE:
@@ -251,7 +284,7 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
 
         if (querySpec.getPath() != null) {
             String operator = querySpec.isSearchSubfolders() ? "ISDESCENDANTNODE" : "ISCHILDNODE";
-            filterConditions.add(operator + "(node, '" + querySpec.getPath() + "')");
+            filterConditions.add(operator + "(node, '" + fixPath(querySpec.getPath()) + "')");
         }
 
         if (querySpec.getName() != null) {
