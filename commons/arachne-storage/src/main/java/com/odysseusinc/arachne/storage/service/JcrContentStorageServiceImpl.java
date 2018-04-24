@@ -125,34 +125,20 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     }
 
     @Override
-    public InputStream getContentByIdentifier(String identifier) {
-
-        return jcrTemplate.exec(session -> {
-
-            final Node fileNode = session.getNodeByIdentifier(identifier);
-            return getInputStream(fileNode);
-        });
-    }
-
-    private InputStream getInputStream(final Node fileNode) throws RepositoryException {
-
-        InputStream stream = null;
-
-        if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
-            final Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
-            stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
-        }
-
-        return stream;
-    }
-
-    @Override
     public InputStream getContentByFilepath(String absoulteFilename) {
 
         return jcrTemplate.exec(session -> {
 
             final Node fileNode = session.getNode(fixPath(absoulteFilename));
-            return getInputStream(fileNode);
+
+            InputStream stream = null;
+
+            if (fileNode.hasNode(JcrConstants.JCR_CONTENT)) {
+                final Node resNode = fileNode.getNode(JcrConstants.JCR_CONTENT);
+                stream = resNode.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+            }
+            
+            return stream;
         });
     }
 
