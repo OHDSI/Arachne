@@ -16,93 +16,35 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: July 07, 2017
+ * Created: February 12, 2018
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
-public class CommonEntityDTO implements Serializable {
+public class CommonDataNodeDTO extends CommonDataNodeCreationResponseDTO implements Serializable{
 
-    private Long originId;
-    private Long localId;
-
-    private String guid;
+    @NotNull
     private String name;
+    @NotNull
     private String description;
-    private Date modified;
-    private CommonAnalysisType type;
-
-    public String getGuid() {
-
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-
-        this.guid = guid;
-    }
 
     public String getName() {
-
         return name;
     }
 
     public void setName(String name) {
-
         this.name = name;
     }
 
-    public Long getOriginId() {
-
-        return originId;
-    }
-
-    public void setOriginId(Long originId) {
-
-        this.originId = originId;
-    }
-
-    public Long getLocalId() {
-
-        return localId;
-    }
-
-    public void setLocalId(Long localId) {
-
-        this.localId = localId;
-    }
-
     public String getDescription() {
-
         return description;
     }
 
     public void setDescription(String description) {
-
         this.description = description;
-    }
-
-    public Date getModified() {
-
-        return modified;
-    }
-
-    public void setModified(Date modified) {
-
-        this.modified = modified;
-    }
-
-    public CommonAnalysisType getType() {
-
-        return type;
-    }
-
-    public void setType(CommonAnalysisType type) {
-
-        this.type = type;
     }
 }
