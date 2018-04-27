@@ -16,28 +16,33 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: January 13, 2017
+ * Created: May 17, 2017
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import java.io.Serializable;
+public class OptionDTO {
 
-public class CommonDataNodeRegisterResponseDTO implements Serializable{
-
-    private String dataNodeUuid;
+    private String id;
     private String name;
-    private String description;
-    private String token;
-    private Long centralId;
 
-    public String getDataNodeUuid() {
-        return dataNodeUuid;
+    public OptionDTO() {}
+
+    public OptionDTO(String id, String name) {
+
+        this.id = id;
+        this.name = name;
     }
 
-    public void setDataNodeUuid(String dataNodeUuid) {
-        this.dataNodeUuid = dataNodeUuid;
+    public String getId() {
+
+        return id;
+    }
+
+    public void setId(String id) {
+
+        this.id = id;
     }
 
     public String getName() {
@@ -48,35 +53,5 @@ public class CommonDataNodeRegisterResponseDTO implements Serializable{
     public void setName(String name) {
 
         this.name = name;
-    }
-
-    public String getDescription() {
-
-        return description;
-    }
-
-    public void setDescription(String description) {
-
-        this.description = description;
-    }
-
-    public String getToken() {
-
-        return token;
-    }
-
-    public void setToken(String token) {
-
-        this.token = token;
-    }
-
-    public Long getCentralId() {
-
-        return centralId;
-    }
-
-    public void setCentralId(Long centralId) {
-
-        this.centralId = centralId;
     }
 }

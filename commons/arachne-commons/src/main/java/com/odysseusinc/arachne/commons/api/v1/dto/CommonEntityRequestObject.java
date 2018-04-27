@@ -16,38 +16,47 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: July 19, 2017
+ * Created: July 17, 2017
  *
  */
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
-public class CommonListEntityRequest implements Serializable {
+public class CommonEntityRequestObject implements Serializable {
 
-    private Map<String, CommonEntityRequestObject> requestMap = new LinkedHashMap<>();
+    private List<Long> atlasIdList;
+    private CommonAnalysisType entityType;
 
-    public CommonListEntityRequest() {
+    public CommonEntityRequestObject() {
 
     }
 
-    public CommonListEntityRequest(Map<String, CommonEntityRequestObject> requestIds) {
+    public CommonEntityRequestObject(List<Long> atlasIdList, CommonAnalysisType entityType) {
 
-        if (requestIds != null) {
-            this.requestMap = requestIds;
-        }
+        this.atlasIdList = atlasIdList;
+        this.entityType = entityType;
     }
 
-    public Map<String, CommonEntityRequestObject> getRequestMap() {
+    public List<Long> getAtlasIdList() {
 
-        return requestMap;
+        return atlasIdList;
     }
 
-    public void setRequestMap(Map<String, CommonEntityRequestObject> requestMap) {
+    public void setAtlasIdList(List<Long> atlasIdList) {
 
-        this.requestMap = requestMap;
+        this.atlasIdList = atlasIdList;
+    }
+
+    public CommonAnalysisType getEntityType() {
+
+        return entityType;
+    }
+
+    public void setEntityType(CommonAnalysisType entityType) {
+
+        this.entityType = entityType;
     }
 }
