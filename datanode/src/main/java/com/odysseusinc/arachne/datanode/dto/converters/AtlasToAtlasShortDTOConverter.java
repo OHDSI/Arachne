@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,27 +15,28 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: April 28, 2017
+ * Authors: Pavel Grafkin
+ * Created: March 14, 2018
  *
  */
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
-import com.odysseusinc.arachne.datanode.dto.datanode.CreateDataNodeDTO;
-import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
-import org.springframework.core.convert.converter.Converter;
+import com.odysseusinc.arachne.commons.api.v1.dto.AtlasShortDTO;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateDataNodeDTOToDataNodeConverter implements Converter<CreateDataNodeDTO, DataNode> {
+public class AtlasToAtlasShortDTOConverter extends BaseAtlasToAtlasShortDTOConverter<AtlasShortDTO> {
+
+    public AtlasToAtlasShortDTOConverter(GenericConversionService conversionService) {
+
+        super(conversionService);
+    }
 
     @Override
-    public DataNode convert(CreateDataNodeDTO source) {
+    public AtlasShortDTO getDTOClass() {
 
-        DataNode dataNode = new DataNode();
-        dataNode.setName(source.getName());
-        dataNode.setDescription(source.getDescription());
-        return dataNode;
+        return new AtlasShortDTO();
     }
 }

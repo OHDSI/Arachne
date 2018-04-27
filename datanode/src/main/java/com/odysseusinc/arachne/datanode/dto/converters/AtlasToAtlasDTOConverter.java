@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Observational Health Data Sciences and Informatics
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,27 +15,28 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: April 28, 2017
+ * Authors: Pavel Grafkin
+ * Created: March 14, 2018
  *
  */
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataNodeRegisterDTO;
-import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
-import org.springframework.core.convert.converter.Converter;
+import com.odysseusinc.arachne.datanode.dto.atlas.AtlasDTO;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataNodeToCommonDataNodeRegisterDTOConverter implements Converter<DataNode, CommonDataNodeRegisterDTO> {
+public class AtlasToAtlasDTOConverter extends BaseAtlasToAtlasDTOConverter<AtlasDTO> {
+
+    public AtlasToAtlasDTOConverter(GenericConversionService conversionService) {
+
+        super(conversionService);
+    }
 
     @Override
-    public CommonDataNodeRegisterDTO convert(DataNode source) {
+    public AtlasDTO getDTOClass() {
 
-        if (source == null) {
-            return null;
-        }
-        return new CommonDataNodeRegisterDTO(source.getName(), source.getDescription());
+        return new AtlasDTO();
     }
 }
