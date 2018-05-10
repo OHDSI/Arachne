@@ -22,18 +22,18 @@
 
 package com.odysseusinc.arachne.execution_engine_common.exception;
 
-public class IORuntimeExecption extends RuntimeException {
-    public IORuntimeExecption() {
+public class IORuntimeException extends RuntimeException {
+    public IORuntimeException() {
 
         super();
     }
 
-    public IORuntimeExecption(String message) {
+    public IORuntimeException(String message) {
 
         super(message);
     }
 
-    public IORuntimeExecption(String message, Throwable cause) {
+    public IORuntimeException(String message, Throwable cause) {
 
         super(message, cause);
     }
