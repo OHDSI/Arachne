@@ -68,7 +68,7 @@ public class CommonFileUtils {
         }
     }
 
-    public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) {
+    public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) throws ZipException {
 
         File zipDir = new File(zipArchive.getParent());
         try {
@@ -101,8 +101,8 @@ public class CommonFileUtils {
             log.error(ioException.getMessage(), ioException);
             throw new IORuntimeException(ioException.getMessage());
         } catch (ZipException zipException) {
-            log.error("Zip exception [folder: {}, zipArchive: {}]: {}",
-                    folder.getAbsolutePath(), zipArchive.getAbsolutePath(), zipException.getMessage());
+            throw new ZipException(String.format("Zip exception [folder: %s, zipArchive: %s]: %s",
+                    folder.getAbsolutePath(), zipArchive.getAbsolutePath(), zipException.getMessage()), zipException);
         }
         return zipDir;
     }
