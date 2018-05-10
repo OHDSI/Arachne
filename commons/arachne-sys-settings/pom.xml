@@ -6,7 +6,7 @@
 
     <artifactId>arachne-sys-settings</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.12.1-QA</version>
+    <version>1.13.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
