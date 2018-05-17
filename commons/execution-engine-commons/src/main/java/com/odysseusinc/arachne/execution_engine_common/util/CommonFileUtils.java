@@ -22,7 +22,7 @@
 
 package com.odysseusinc.arachne.execution_engine_common.util;
 
-import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeExecption;
+import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class CommonFileUtils {
         }
     }
 
-    public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) {
+    public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) throws ZipException {
 
         File zipDir = new File(zipArchive.getParent());
         try {
@@ -97,9 +97,12 @@ public class CommonFileUtils {
             } else {
                 zipFile.createZipFile(filesToAdd, parameters);
             }
-        } catch (ZipException | IOException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new IORuntimeExecption(ex.getMessage());
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage(), ioException);
+            throw new IORuntimeException(ioException.getMessage());
+        } catch (ZipException zipException) {
+            throw new ZipException(String.format("Zip exception [folder: %s, zipArchive: %s]: %s",
+                    folder.getAbsolutePath(), zipArchive.getAbsolutePath(), zipException.getMessage()), zipException);
         }
         return zipDir;
     }
