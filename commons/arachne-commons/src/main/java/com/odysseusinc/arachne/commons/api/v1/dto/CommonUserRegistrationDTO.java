@@ -57,6 +57,13 @@ public class CommonUserRegistrationDTO {
     })
     private String lastname;
 
+    @NotBlank
+    @Length.List({
+            @Length(min = 2, message = "The organization must be at least 2 characters"),
+            @Length(max = 255, message = "The field must be less than 255 characters")
+    })
+    private String organization;
+
     @NotNull(message = "{validation.professionalTypeId.NotNull}")
     private Long professionalTypeId;
 
@@ -141,5 +148,15 @@ public class CommonUserRegistrationDTO {
     public void setCallbackUrl(String callbackUrl) {
 
         this.callbackUrl = callbackUrl;
+    }
+
+    public String getOrganization() {
+
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+
+        this.organization = organization;
     }
 }
