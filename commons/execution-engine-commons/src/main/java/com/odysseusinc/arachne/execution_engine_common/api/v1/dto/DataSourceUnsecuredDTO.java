@@ -22,7 +22,10 @@
 
 package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.odysseusinc.arachne.commons.types.DBMSType;
+import com.odysseusinc.arachne.execution_engine_common.util.ConnectionParams;
+import com.odysseusinc.arachne.execution_engine_common.util.ConnectionParamsParser;
 
 public class DataSourceUnsecuredDTO {
 
@@ -43,6 +46,23 @@ public class DataSourceUnsecuredDTO {
     public void setConnectionString(String connectionString) {
 
         this.connectionString = connectionString;
+    }
+
+    @JsonIgnore
+    public String getConnectionStringForLogging() {
+
+        if (connectionString != null) {
+            ConnectionParams params = ConnectionParamsParser.parse(type, connectionString);
+            String clearConnString = params.getConnectionString();
+            if (params.getUser() != null) {
+                clearConnString = clearConnString.replace(params.getUser(), "");
+            }
+            if (params.getPassword() != null) {
+                clearConnString = clearConnString.replace(params.getPassword(), "");
+            }
+            return clearConnString;
+        }
+        return null;
     }
 
     public DBMSType getType() {
