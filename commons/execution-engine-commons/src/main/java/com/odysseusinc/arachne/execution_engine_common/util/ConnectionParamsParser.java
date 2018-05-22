@@ -49,7 +49,7 @@ public final class ConnectionParamsParser {
 
     static class GenericParser implements ConnectionStringParser {
 
-        private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d]+)(:\\d+)?(/(\\w+))?[?;]?(.*)");
+        private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d-]+)(:\\d+)?(/(\\w+))?[?;]?(.*)");
 
         public ConnectionParams parseParams(String connString) {
             ConnectionParams dto = new ConnectionParams();
