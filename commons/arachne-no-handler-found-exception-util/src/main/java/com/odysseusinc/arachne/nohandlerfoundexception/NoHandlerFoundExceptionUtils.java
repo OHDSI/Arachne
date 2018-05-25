@@ -20,7 +20,7 @@
  *
  */
 
-package com.odysseusinc.arachne.commons.utils;
+package com.odysseusinc.arachne.nohandlerfoundexception;
 
 import java.io.IOException;
 import java.util.Collections;
