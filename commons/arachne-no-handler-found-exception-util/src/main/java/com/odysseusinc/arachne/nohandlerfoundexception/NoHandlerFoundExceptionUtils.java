@@ -24,6 +24,7 @@ package com.odysseusinc.arachne.nohandlerfoundexception;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.function.Consumer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,6 @@ public class NoHandlerFoundExceptionUtils {
 
     private static final String STATIC_CONTENT_FOLDER = "public";
     private static final String INDEX_FILE = STATIC_CONTENT_FOLDER + "/index.html";
-    private static final String COOKIE_USER_REQUEST = "Arachne-User-Request";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -51,6 +51,12 @@ public class NoHandlerFoundExceptionUtils {
 
     public void handleNotFoundError(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        handleNotFoundError(request, response, null);
+    }
+
+    public void handleNotFoundError(HttpServletRequest request, HttpServletResponse response, Consumer<HttpServletResponse> addCookie)
+            throws Exception {
+
         ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler() {
             @Override
             protected Resource getResource(HttpServletRequest request) throws IOException {
@@ -61,12 +67,9 @@ public class NoHandlerFoundExceptionUtils {
                 if (!resource.exists()) {
                     resource = new ClassPathResource(INDEX_FILE);
                 }
-                if (Objects.nonNull(LoginRequestContext.getUserName())) {
-                    Cookie cookie = new Cookie(COOKIE_USER_REQUEST, LoginRequestContext.getUserName());
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
+                if (addCookie != null) {
+                    addCookie.accept(response);
                 }
-
                 return resource;
             }
         };
