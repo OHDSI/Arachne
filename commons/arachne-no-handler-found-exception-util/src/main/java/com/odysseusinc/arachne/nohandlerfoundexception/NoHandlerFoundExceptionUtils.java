@@ -20,7 +20,7 @@
  *
  */
 
-package com.odysseusinc.arachne.commons.utils;
+package com.odysseusinc.arachne.nohandlerfoundexception;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,6 +38,7 @@ public class NoHandlerFoundExceptionUtils {
 
     private static final String STATIC_CONTENT_FOLDER = "public";
     private static final String INDEX_FILE = STATIC_CONTENT_FOLDER + "/index.html";
+    private static final String COOKIE_USER_REQUEST = "Arachne-User-Request";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -59,6 +60,11 @@ public class NoHandlerFoundExceptionUtils {
                 ClassPathResource resource = new ClassPathResource(STATIC_CONTENT_FOLDER + requestPath);
                 if (!resource.exists()) {
                     resource = new ClassPathResource(INDEX_FILE);
+                }
+                if (Objects.nonNull(LoginRequestContext.getUserName())) {
+                    Cookie cookie = new Cookie(COOKIE_USER_REQUEST, LoginRequestContext.getUserName());
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
                 }
 
                 return resource;
