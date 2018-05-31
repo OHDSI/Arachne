@@ -49,16 +49,16 @@ public final class ConnectionParamsParser {
 
     static class GenericParser implements ConnectionStringParser {
 
-        private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d-]+)(:\\d+)?(/(\\w+))?[?;]?(.*)");
+        private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d-]+)(:(\\d+))?(/(\\w+))?[?;]?(.*)");
 
         public ConnectionParams parseParams(String connString) {
             ConnectionParams dto = new ConnectionParams();
             Matcher matcher = pattern.matcher(connString);
-            if (matcher.matches() && matcher.groupCount() == 6){
+            if (matcher.matches() && matcher.groupCount() == 7){
                 dto.setServer(matcher.group(2));
-                dto.setPort(matcher.group(3));
-                dto.setSchema(matcher.group(5));
-                String paramString = matcher.group(6); //params
+                dto.setPort(matcher.group(4));
+                dto.setSchema(matcher.group(6));
+                String paramString = matcher.group(7); //params
                 dto.setExtraSettings(paramString);
                 if (Objects.nonNull(paramString)) {
                     List<String> paramValues = Arrays.asList(paramString.split("[&;]"));
