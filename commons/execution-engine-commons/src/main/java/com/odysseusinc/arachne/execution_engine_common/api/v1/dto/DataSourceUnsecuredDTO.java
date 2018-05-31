@@ -37,6 +37,12 @@ public class DataSourceUnsecuredDTO {
     private String targetSchema;
     private String resultSchema;
     private String cohortTargetTable;
+    private Boolean useKerberos = false;
+    private String krbRealm;
+    private String krbFQDN;
+    private String krbUser;
+    private byte[] krbKeytab;
+    private String krbPassword;
 
     public String getConnectionString() {
 
@@ -133,5 +139,65 @@ public class DataSourceUnsecuredDTO {
     public String getCohortTargetTable() {
 
         return cohortTargetTable;
+    }
+
+    public Boolean getUseKerberos() {
+
+        return useKerberos;
+    }
+
+    public void setUseKerberos(Boolean useKerberos) {
+
+        this.useKerberos = useKerberos;
+    }
+
+    public String getKrbRealm() {
+
+        return krbRealm;
+    }
+
+    public void setKrbRealm(String krbRealm) {
+
+        this.krbRealm = krbRealm;
+    }
+
+    public String getKrbFQDN() {
+
+        return krbFQDN;
+    }
+
+    public void setKrbFQDN(String krbFQDN) {
+
+        this.krbFQDN = krbFQDN;
+    }
+
+    public String getKrbUser() {
+
+        return krbUser;
+    }
+
+    public void setKrbUser(String krbUser) {
+
+        this.krbUser = krbUser;
+    }
+
+    public byte[] getKrbKeytab() {
+
+        return krbKeytab;
+    }
+
+    public void setKrbKeytab(byte[] krbKeytab) {
+
+        this.krbKeytab = krbKeytab;
+    }
+
+    public String getKrbPassword() {
+
+        return krbPassword;
+    }
+
+    public void setKrbPassword(String krbPassword) {
+
+        this.krbPassword = krbPassword;
     }
 }
