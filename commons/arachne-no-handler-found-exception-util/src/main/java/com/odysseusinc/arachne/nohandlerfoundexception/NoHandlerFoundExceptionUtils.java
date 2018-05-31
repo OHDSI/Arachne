@@ -24,6 +24,7 @@ package com.odysseusinc.arachne.nohandlerfoundexception;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.function.Consumer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,12 @@ public class NoHandlerFoundExceptionUtils {
 
     public void handleNotFoundError(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        handleNotFoundError(request, response, null);
+    }
+
+    public void handleNotFoundError(HttpServletRequest request, HttpServletResponse response, Consumer<HttpServletResponse> addCookie)
+            throws Exception {
+
         ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler() {
             @Override
             protected Resource getResource(HttpServletRequest request) throws IOException {
@@ -60,7 +67,9 @@ public class NoHandlerFoundExceptionUtils {
                 if (!resource.exists()) {
                     resource = new ClassPathResource(INDEX_FILE);
                 }
-
+                if (addCookie != null) {
+                    addCookie.accept(response);
+                }
                 return resource;
             }
         };
