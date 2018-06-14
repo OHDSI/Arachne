@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.restart.RestartEndpoint;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,7 +53,6 @@ public class SystemSettingsController {
     @Autowired
     private SystemSettingsService systemSettingsService;
 
-
     @RequestMapping(value = "/api/v1/admin/system-settings", method = RequestMethod.GET)
     public JsonResult<SystemSettingsGroupListDTO> systemSettings() {
 
@@ -69,7 +69,8 @@ public class SystemSettingsController {
 
     @RequestMapping(value = "/api/v1/admin/system-settings", method = RequestMethod.POST)
     public JsonResult saveSystemSettings(
-            @RequestBody SystemSettingsListDTO systemSettingListDTO) throws NoSuchSystemSettingException {
+            @RequestBody SystemSettingsListDTO systemSettingListDTO)
+            throws NoSuchSystemSettingException, BindException {
 
         if (systemSettingListDTO != null) {
             systemSettingsService.saveSystemSetting(systemSettingListDTO.getValues());

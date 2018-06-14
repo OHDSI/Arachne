@@ -25,5 +25,6 @@ package com.odysseusinc.arachne.system.settings.model;
 public enum SystemSettingType {
     text,
     password,
-    checkbox;
+    checkbox,
+    patterns
 }

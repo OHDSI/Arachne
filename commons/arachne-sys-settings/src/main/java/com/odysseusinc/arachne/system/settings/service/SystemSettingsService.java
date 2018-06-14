@@ -26,6 +26,7 @@ import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingExce
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingsGroup;
 import java.util.Map;
+import org.springframework.validation.BindException;
 
 public interface SystemSettingsService {
 
@@ -35,7 +36,7 @@ public interface SystemSettingsService {
 
     String getEncryptedValue(String value);
 
-    void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException;
+    void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException, BindException;
 
     boolean isSecuredSetting(SystemSetting systemSetting);
 

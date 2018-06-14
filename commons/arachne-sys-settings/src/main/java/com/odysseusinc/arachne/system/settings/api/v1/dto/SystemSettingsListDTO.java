@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.system.settings.api.v1.dto;
 
-
 import java.util.Map;
 
 public class SystemSettingsListDTO {
