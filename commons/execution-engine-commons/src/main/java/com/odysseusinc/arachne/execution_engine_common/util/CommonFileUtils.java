@@ -46,6 +46,7 @@ import org.springframework.util.AntPathMatcher;
 public class CommonFileUtils {
 
     private static final Logger log = LoggerFactory.getLogger(CommonFileUtils.class);
+    private static final AntPathMatcher matcher = new AntPathMatcher();
 
     private CommonFileUtils() {
 
@@ -114,15 +115,14 @@ public class CommonFileUtils {
     private static ArrayList<File> filterFiles(Path folderPath, String exclusions) throws IOException {
 
         List<String> patterns = Lists.newArrayList(split(exclusions, ","));
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
 
         return Files.walk(folderPath)
-                .filter(path -> noneMatch(antPathMatcher, patterns, folderPath.relativize(path).toString()))
+                .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))
                 .filter(path -> !Files.isDirectory(path))
                 .map(Path::toFile).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static boolean noneMatch(AntPathMatcher matcher, List<String> patterns, String fileName) {
+    private static boolean noneMatch(List<String> patterns, String fileName) {
 
         return patterns.stream()
                 .filter(matcher::isPattern)
