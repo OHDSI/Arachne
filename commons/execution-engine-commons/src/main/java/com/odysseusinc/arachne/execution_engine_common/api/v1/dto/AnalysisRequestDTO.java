@@ -50,7 +50,7 @@ public class AnalysisRequestDTO {
     @NotNull
     private Date requested;
 
-    private String exclusions = "";
+    private String resultExclusions = "";
 
     public Long getId() {
 
@@ -122,13 +122,13 @@ public class AnalysisRequestDTO {
         this.requested = requested;
     }
 
-    public String getExclusions() {
+    public String getResultExclusions() {
 
-        return exclusions;
+        return resultExclusions;
     }
 
-    public void setExclusions(String exclusions) {
+    public void setResultExclusions(String resultExclusions) {
 
-        this.exclusions = exclusions;
+        this.resultExclusions = resultExclusions;
     }
 }

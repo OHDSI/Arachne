@@ -54,8 +54,6 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
     private static String encryptedPrefix = "ENC(";
     private static String encryptedSuffix = ")";
 
-    private static String PATTERN_SETTING_NAME = "submission.result.files.exclusions";
-
     private boolean isConfigChanged;
 
     @Autowired
@@ -140,7 +138,7 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
             if (isSecuredSetting(systemProperty)) {
                 value = getEncryptedValue(value);
             }
-            if (PATTERN_SETTING_NAME.equals(systemProperty.getName())) {
+            if (systemProperty.getType() == SystemSettingType.patterns) {
                 checkPatterns(entry.getValue(), systemProperty.getId());
             }
         }
