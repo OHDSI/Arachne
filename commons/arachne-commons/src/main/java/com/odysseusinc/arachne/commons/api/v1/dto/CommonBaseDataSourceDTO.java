@@ -47,7 +47,7 @@ public class CommonBaseDataSourceDTO implements Serializable {
     private CommonCDMVersionDTO cdmVersion;
 
     private Boolean published;
-
+    @NotNull
     private DBMSType dbmsType;
 
     public Long getId() {
