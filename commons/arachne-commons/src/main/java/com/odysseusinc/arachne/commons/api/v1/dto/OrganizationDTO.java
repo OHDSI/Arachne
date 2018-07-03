@@ -22,12 +22,19 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 public class OrganizationDTO {
-
-    @NotBlank
+    private Long id;
     private String name;
+
+    public Long getId() {
+
+        return id;
+    }
+
+    public void setId(Long id) {
+
+        this.id = id;
+    }
 
     public String getName() {
 

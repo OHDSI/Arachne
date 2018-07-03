@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -35,7 +34,6 @@ public class CommonDataNodeRegisterDTO {
     @NotBlank
     private String description;
     @NotNull
-    @Valid
     private OrganizationDTO organization;
 
     public CommonDataNodeRegisterDTO() {
