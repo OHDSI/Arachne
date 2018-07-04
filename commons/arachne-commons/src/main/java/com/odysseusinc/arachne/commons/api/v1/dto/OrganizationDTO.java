@@ -22,8 +22,11 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 public class OrganizationDTO {
     private Long id;
+    @NotBlank
     private String name;
 
     public Long getId() {
