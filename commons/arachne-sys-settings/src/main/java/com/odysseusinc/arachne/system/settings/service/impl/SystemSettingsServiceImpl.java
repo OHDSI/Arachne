@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,9 @@
 
 package com.odysseusinc.arachne.system.settings.service.impl;
 
+import static org.apache.commons.lang3.StringUtils.split;
+
+import com.google.common.collect.Lists;
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingType;
@@ -39,6 +42,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 
 @Service
 @Transactional
@@ -83,7 +89,7 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
     }
 
     @Override
-    public void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException {
+    public void saveSystemSetting(Map<Long, String> values) throws NoSuchSystemSettingException, BindException {
 
         if (values != null) {
             List<SystemSetting> forUpdate = new LinkedList<>();
@@ -123,16 +129,34 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
         return systemSetting.getType() == SystemSettingType.password;
     }
 
-    private void updateProperty(List<SystemSetting> forUpdate, Map.Entry<Long, String> entry, SystemSetting systemProperty) {
+    private void updateProperty(List<SystemSetting> forUpdate, Map.Entry<Long, String> entry,
+                                SystemSetting systemProperty) throws BindException {
 
         String value = entry.getValue();
         if (value != null) {
             if (isSecuredSetting(systemProperty)) {
                 value = getEncryptedValue(value);
             }
+            if (systemProperty.getType() == SystemSettingType.patterns) {
+                checkPatterns(entry.getValue(), systemProperty.getId());
+            }
         }
         systemProperty.setValue(value);
         forUpdate.add(systemProperty);
+    }
+
+    private void checkPatterns(String newValue, Long systemPropertyId) throws BindException {
+
+        List<String> patterns = Lists.newArrayList(split(newValue, ","));
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        boolean allValid = patterns.stream().allMatch(antPathMatcher::isPattern);
+
+        if (!allValid) {
+            BindException bindException = new BindException(systemPropertyId, "invalid pattern");
+            bindException.addError(new FieldError(String.valueOf(systemPropertyId), String.valueOf(systemPropertyId),
+                    "Invalid pattern. Please use * or ?"));
+            throw bindException;
+        }
     }
 
     @Override

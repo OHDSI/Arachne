@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -34,6 +35,7 @@ public class CommonDataNodeRegisterDTO {
     @NotBlank
     private String description;
     @NotNull
+    @Valid
     private OrganizationDTO organization;
 
     public CommonDataNodeRegisterDTO() {
