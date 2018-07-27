@@ -1,7 +1,6 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class ConnectionParamsParser {
+    public final static int AUTHENTICATION_BY_PASSWORD = 3;
+    public final static int AUTHENTICATION_BY_KEYTAB = 1;
 
     public static ConnectionParams parse(DBMSType dbmsType, String connString) {
 
@@ -27,13 +28,12 @@ public final class ConnectionParamsParser {
             case MS_SQL_SERVER:
             case NETEZZA:
             case PDW:
+            case IMPALA:
                 return new GenericParser();
             case REDSHIFT:
                 return new RedshiftParser();
             case ORACLE:
                 return new OracleParser();
-            case IMPALA:
-                return new ImpalaParser();
             default:
                 return connString -> {
                     ConnectionParams dto = new ConnectionParams();
@@ -52,9 +52,10 @@ public final class ConnectionParamsParser {
         private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d-]+)(:(\\d+))?(/(\\w+))?[?;]?(.*)");
 
         public ConnectionParams parseParams(String connString) {
+
             ConnectionParams dto = new ConnectionParams();
             Matcher matcher = pattern.matcher(connString);
-            if (matcher.matches() && matcher.groupCount() == 7){
+            if (matcher.matches() && matcher.groupCount() == 7) {
                 dto.setServer(matcher.group(2));
                 dto.setPort(matcher.group(4));
                 dto.setSchema(matcher.group(6));
@@ -65,6 +66,7 @@ public final class ConnectionParamsParser {
                     Map<String, String> params = paramValues.stream()
                             .filter(v -> Objects.nonNull(v) && v.contains("="))
                             .map(v -> v.split("=")).collect(Collectors.toMap(x -> x[0], x -> x[1]));
+                    setAuthMechanism(dto, params);
                     parseCredentials(dto, params);
                 }
             }
@@ -72,40 +74,40 @@ public final class ConnectionParamsParser {
         }
 
         protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
-            dto.setUser(params.getOrDefault(getUserParamName(), dto.getUser()));
-            dto.setPassword(params.getOrDefault(getPasswordParamName(), dto.getPassword()));
+
+            try {
+                dto.setUser(params.getOrDefault(getUserParamName(), dto.getUser()));
+                dto.setPassword(params.getOrDefault(getPasswordParamName(), dto.getPassword()));
+            } catch (NumberFormatException ignored) {
+            }
         }
 
         protected String getUserParamName() {
+
             return "user";
         }
 
         protected String getPasswordParamName() {
+
             return "password";
         }
-    }
 
-    static class ImpalaParser extends RedshiftParser {
-        @Override
-        protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
-            try {
-                Integer authMech = Integer.valueOf(params.getOrDefault("AuthMech", "0"));
-                if (3 == authMech) {
-                    super.parseCredentials(dto, params);
-                }
-            }catch (NumberFormatException ignored){
-            }
+        protected void setAuthMechanism(ConnectionParams dto, Map<String, String> params) {
+
+            dto.setAuthMechanism(Integer.valueOf(params.getOrDefault("AuthMech", "0")));
         }
     }
 
     static class RedshiftParser extends GenericParser {
         @Override
         protected String getUserParamName() {
+
             return "UID";
         }
 
         @Override
         protected String getPasswordParamName() {
+
             return "PWD";
         }
     }
@@ -116,6 +118,7 @@ public final class ConnectionParamsParser {
 
         @Override
         public ConnectionParams parseParams(String connString) {
+
             ConnectionParams dto = new ConnectionParams();
             Matcher matcher = pattern.matcher(connString);
             if (matcher.matches() && matcher.groupCount() == 4) {

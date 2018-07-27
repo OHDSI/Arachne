@@ -9,6 +9,7 @@ public class ConnectionParams {
     private String schema;
     private String extraSettings;
     private String connectionString;
+    private Integer authMechanism;
 
     public String getConnectionString() {
         return connectionString;
@@ -86,5 +87,15 @@ public class ConnectionParams {
     public void setExtraSettings(String extraSettings) {
 
         this.extraSettings = extraSettings;
+    }
+
+    public Integer getAuthMechanism() {
+
+        return authMechanism;
+    }
+
+    public void setAuthMechanism(Integer authMechanism) {
+
+        this.authMechanism = authMechanism;
     }
 }
