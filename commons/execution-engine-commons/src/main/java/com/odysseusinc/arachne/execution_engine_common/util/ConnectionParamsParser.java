@@ -28,9 +28,9 @@ public final class ConnectionParamsParser {
             case MS_SQL_SERVER:
             case NETEZZA:
             case PDW:
-            case IMPALA:
                 return new GenericParser();
             case REDSHIFT:
+            case IMPALA:
                 return new RedshiftParser();
             case ORACLE:
                 return new OracleParser();
