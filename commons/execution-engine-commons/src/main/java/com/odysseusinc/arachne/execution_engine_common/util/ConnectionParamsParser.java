@@ -1,10 +1,7 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
-import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.AUTHENTICATION_BY_KEYTAB;
-import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.AUTHENTICATION_BY_PASSWORD;
-import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.DEFAULT;
-
 import com.odysseusinc.arachne.commons.types.DBMSType;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMethod;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -108,14 +105,9 @@ public final class ConnectionParamsParser {
 
             try {
                 Integer authMech = Integer.valueOf(params.getOrDefault("AuthMech", "0"));
-                if (authMech.equals(AUTHENTICATION_BY_KEYTAB.getType())) {
-                    dto.setAuthMechanism(AUTHENTICATION_BY_KEYTAB);
-                } else if (authMech.equals(AUTHENTICATION_BY_PASSWORD.getType())) {
-                    dto.setAuthMechanism(AUTHENTICATION_BY_PASSWORD);
-                } else {
-                    dto.setAuthMechanism(DEFAULT);
-                }
+                dto.setAuthMechanism(KerberosAuthMethod.getByAuthType(authMech));
             } catch (NumberFormatException ignored) {
+                dto.setAuthMechanism(KerberosAuthMethod.DEFAULT);
             }
         }
     }

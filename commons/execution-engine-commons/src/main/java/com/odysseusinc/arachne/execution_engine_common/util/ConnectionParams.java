@@ -1,6 +1,6 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
-import com.odysseusinc.arachne.execution_engine_common.KrbAuthType;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMethod;
 
 public class ConnectionParams {
     private String dbms;
@@ -11,7 +11,7 @@ public class ConnectionParams {
     private String schema;
     private String extraSettings;
     private String connectionString;
-    private KrbAuthType authMechanism;
+    private KerberosAuthMethod authMechanism;
     private String krbFQDN;
     private String krbAdminFQDN;
     private String krbRealm;
@@ -94,12 +94,12 @@ public class ConnectionParams {
         this.extraSettings = extraSettings;
     }
 
-    public KrbAuthType getAuthMechanism() {
+    public KerberosAuthMethod getAuthMechanism() {
 
         return authMechanism;
     }
 
-    public void setAuthMechanism(KrbAuthType authMechanism) {
+    public void setAuthMechanism(KerberosAuthMethod authMechanism) {
 
         this.authMechanism = authMechanism;
     }
