@@ -1,5 +1,9 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
+import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.AUTHENTICATION_BY_KEYTAB;
+import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.AUTHENTICATION_BY_PASSWORD;
+import static com.odysseusinc.arachne.execution_engine_common.KrbAuthType.DEFAULT;
+
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +14,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class ConnectionParamsParser {
-    public final static int AUTHENTICATION_BY_PASSWORD = 3;
-    public final static int AUTHENTICATION_BY_KEYTAB = 1;
 
     public static ConnectionParams parse(DBMSType dbmsType, String connString) {
 
@@ -30,8 +32,9 @@ public final class ConnectionParamsParser {
             case PDW:
                 return new GenericParser();
             case REDSHIFT:
-            case IMPALA:
                 return new RedshiftParser();
+            case IMPALA:
+                return new ImpalaParser();
             case ORACLE:
                 return new OracleParser();
             default:
@@ -66,7 +69,6 @@ public final class ConnectionParamsParser {
                     Map<String, String> params = paramValues.stream()
                             .filter(v -> Objects.nonNull(v) && v.contains("="))
                             .map(v -> v.split("=")).collect(Collectors.toMap(x -> x[0], x -> x[1]));
-                    setAuthMechanism(dto, params);
                     parseCredentials(dto, params);
                 }
             }
@@ -75,11 +77,8 @@ public final class ConnectionParamsParser {
 
         protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
 
-            try {
-                dto.setUser(params.getOrDefault(getUserParamName(), dto.getUser()));
-                dto.setPassword(params.getOrDefault(getPasswordParamName(), dto.getPassword()));
-            } catch (NumberFormatException ignored) {
-            }
+            dto.setUser(params.getOrDefault(getUserParamName(), dto.getUser()));
+            dto.setPassword(params.getOrDefault(getPasswordParamName(), dto.getPassword()));
         }
 
         protected String getUserParamName() {
@@ -91,10 +90,33 @@ public final class ConnectionParamsParser {
 
             return "password";
         }
+    }
 
-        protected void setAuthMechanism(ConnectionParams dto, Map<String, String> params) {
+    static class ImpalaParser extends RedshiftParser {
 
-            dto.setAuthMechanism(Integer.valueOf(params.getOrDefault("AuthMech", "0")));
+        @Override
+        protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
+
+            setAuthMechanism(dto, params);
+            dto.setKrbFQDN(params.getOrDefault("KrbHostFQDN", dto.getKrbFQDN()));
+            dto.setKrbAdminFQDN(params.getOrDefault("KrbHostFQDN", dto.getKrbFQDN()));
+            dto.setKrbRealm(params.getOrDefault("KrbRealm", dto.getKrbRealm()));
+            super.parseCredentials(dto, params);
+        }
+
+        private void setAuthMechanism(ConnectionParams dto, Map<String, String> params) {
+
+            try {
+                Integer authMech = Integer.valueOf(params.getOrDefault("AuthMech", "0"));
+                if (authMech.equals(AUTHENTICATION_BY_KEYTAB.getType())) {
+                    dto.setAuthMechanism(AUTHENTICATION_BY_KEYTAB);
+                } else if (authMech.equals(AUTHENTICATION_BY_PASSWORD.getType())) {
+                    dto.setAuthMechanism(AUTHENTICATION_BY_PASSWORD);
+                } else {
+                    dto.setAuthMechanism(DEFAULT);
+                }
+            } catch (NumberFormatException ignored) {
+            }
         }
     }
 

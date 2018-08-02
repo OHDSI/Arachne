@@ -39,6 +39,7 @@ public class DataSourceUnsecuredDTO {
     private String cohortTargetTable;
     private Boolean useKerberos = false;
     private String krbRealm;
+    private String krbAdminFQDN;
     private String krbFQDN;
     private String krbUser;
     private byte[] krbKeytab;
@@ -210,5 +211,15 @@ public class DataSourceUnsecuredDTO {
     public void setKrbAuthMethod(KerberosAuthMethod krbAuthMethod) {
 
         this.krbAuthMethod = krbAuthMethod;
+    }
+
+    public String getKrbAdminFQDN() {
+
+        return krbAdminFQDN;
+    }
+
+    public void setKrbAdminFQDN(String krbAdminFQDN) {
+
+        this.krbAdminFQDN = krbAdminFQDN;
     }
 }

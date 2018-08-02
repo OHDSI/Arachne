@@ -1,5 +1,7 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
+import com.odysseusinc.arachne.execution_engine_common.KrbAuthType;
+
 public class ConnectionParams {
     private String dbms;
     private String server;
@@ -9,7 +11,10 @@ public class ConnectionParams {
     private String schema;
     private String extraSettings;
     private String connectionString;
-    private Integer authMechanism;
+    private KrbAuthType authMechanism;
+    private String krbFQDN;
+    private String krbAdminFQDN;
+    private String krbRealm;
 
     public String getConnectionString() {
         return connectionString;
@@ -89,13 +94,43 @@ public class ConnectionParams {
         this.extraSettings = extraSettings;
     }
 
-    public Integer getAuthMechanism() {
+    public KrbAuthType getAuthMechanism() {
 
         return authMechanism;
     }
 
-    public void setAuthMechanism(Integer authMechanism) {
+    public void setAuthMechanism(KrbAuthType authMechanism) {
 
         this.authMechanism = authMechanism;
+    }
+
+    public String getKrbFQDN() {
+
+        return krbFQDN;
+    }
+
+    public void setKrbFQDN(String krbFQDN) {
+
+        this.krbFQDN = krbFQDN;
+    }
+
+    public String getKrbAdminFQDN() {
+
+        return krbAdminFQDN;
+    }
+
+    public void setKrbAdminFQDN(String krbAdminFQDN) {
+
+        this.krbAdminFQDN = krbAdminFQDN;
+    }
+
+    public String getKrbRealm() {
+
+        return krbRealm;
+    }
+
+    public void setKrbRealm(String krbRealm) {
+
+        this.krbRealm = krbRealm;
     }
 }
