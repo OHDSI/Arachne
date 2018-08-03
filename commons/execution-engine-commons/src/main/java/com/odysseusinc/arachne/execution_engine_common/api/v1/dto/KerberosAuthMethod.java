@@ -12,13 +12,12 @@ public enum KerberosAuthMethod {
 
     public static KerberosAuthMethod getByAuthType(Integer type) {
 
-        if (type.equals(KEYTAB.getType())) {
-            return KEYTAB;
-        } else if (type.equals(PASSWORD.getType())) {
-            return PASSWORD;
-        } else {
-            return DEFAULT;
+        for (KerberosAuthMethod auth : values()) {
+            if (auth.getType() == type) {
+                return auth;
+            }
         }
+        return DEFAULT;
     }
 
     public int getType() {
