@@ -44,7 +44,7 @@ public class DataSourceUnsecuredDTO {
     private String krbUser;
     private byte[] krbKeytab;
     private String krbPassword;
-    private KerberosAuthMethod krbAuthMethod;
+    private KerberosAuthMechanism krbAuthMethod;
 
     public String getConnectionString() {
 
@@ -203,12 +203,12 @@ public class DataSourceUnsecuredDTO {
         this.krbPassword = krbPassword;
     }
 
-    public KerberosAuthMethod getKrbAuthMethod() {
+    public KerberosAuthMechanism getKrbAuthMethod() {
 
         return krbAuthMethod;
     }
 
-    public void setKrbAuthMethod(KerberosAuthMethod krbAuthMethod) {
+    public void setKrbAuthMethod(KerberosAuthMechanism krbAuthMethod) {
 
         this.krbAuthMethod = krbAuthMethod;
     }

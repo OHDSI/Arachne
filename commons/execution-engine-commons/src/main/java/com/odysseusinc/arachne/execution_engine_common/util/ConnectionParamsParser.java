@@ -1,7 +1,8 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMethod;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AuthMethod;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -105,9 +106,9 @@ public final class ConnectionParamsParser {
 
             try {
                 Integer authMech = Integer.valueOf(params.getOrDefault("AuthMech", "0"));
-                dto.setAuthMechanism(KerberosAuthMethod.getByAuthType(authMech));
+                dto.setAuthMethod(AuthMethod.getByAuthType(authMech));
             } catch (NumberFormatException ignored) {
-                dto.setAuthMechanism(KerberosAuthMethod.DEFAULT);
+                dto.setAuthMethod(AuthMethod.DEFAULT);
             }
         }
     }

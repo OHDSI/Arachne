@@ -1,18 +1,17 @@
 package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
 
-public enum KerberosAuthMethod {
-    PASSWORD(3), KEYTAB(1), DEFAULT(0);
+public enum AuthMethod {
+    DEFAULT(0), KERBEROS(1), USERNAME(2), LDAP(3);
 
     private final int type;
 
-    KerberosAuthMethod(int type) {
-
+    AuthMethod(int type) {
         this.type = type;
     }
 
-    public static KerberosAuthMethod getByAuthType(Integer type) {
+    public static AuthMethod getByAuthType(Integer type) {
 
-        for (KerberosAuthMethod auth : values()) {
+        for (AuthMethod auth : values()) {
             if (auth.getType() == type) {
                 return auth;
             }
@@ -21,7 +20,6 @@ public enum KerberosAuthMethod {
     }
 
     public int getType() {
-
         return type;
     }
 }

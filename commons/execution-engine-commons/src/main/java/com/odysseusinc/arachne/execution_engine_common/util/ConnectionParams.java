@@ -1,6 +1,7 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMethod;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AuthMethod;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
 
 public class ConnectionParams {
     private String dbms;
@@ -11,7 +12,8 @@ public class ConnectionParams {
     private String schema;
     private String extraSettings;
     private String connectionString;
-    private KerberosAuthMethod authMechanism;
+    private KerberosAuthMechanism krbAuthMechanism;
+    private AuthMethod authMethod;
     private String krbFQDN;
     private String krbAdminFQDN;
     private String krbRealm;
@@ -94,14 +96,14 @@ public class ConnectionParams {
         this.extraSettings = extraSettings;
     }
 
-    public KerberosAuthMethod getAuthMechanism() {
+    public KerberosAuthMechanism getKrbAuthMechanism() {
 
-        return authMechanism;
+        return krbAuthMechanism;
     }
 
-    public void setAuthMechanism(KerberosAuthMethod authMechanism) {
+    public void setKrbAuthMechanism(KerberosAuthMechanism krbAuthMechanism) {
 
-        this.authMechanism = authMechanism;
+        this.krbAuthMechanism = krbAuthMechanism;
     }
 
     public String getKrbFQDN() {
@@ -132,5 +134,13 @@ public class ConnectionParams {
     public void setKrbRealm(String krbRealm) {
 
         this.krbRealm = krbRealm;
+    }
+
+    public AuthMethod getAuthMethod() {
+        return authMethod;
+    }
+
+    public void setAuthMethod(AuthMethod authMethod) {
+        this.authMethod = authMethod;
     }
 }
