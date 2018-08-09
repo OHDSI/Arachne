@@ -15,7 +15,6 @@ public class ConnectionParams {
     private KerberosAuthMechanism krbAuthMechanism;
     private AuthMethod authMethod;
     private String krbFQDN;
-    private String krbAdminFQDN;
     private String krbRealm;
 
     public String getConnectionString() {
@@ -114,16 +113,6 @@ public class ConnectionParams {
     public void setKrbFQDN(String krbFQDN) {
 
         this.krbFQDN = krbFQDN;
-    }
-
-    public String getKrbAdminFQDN() {
-
-        return krbAdminFQDN;
-    }
-
-    public void setKrbAdminFQDN(String krbAdminFQDN) {
-
-        this.krbAdminFQDN = krbAdminFQDN;
     }
 
     public String getKrbRealm() {

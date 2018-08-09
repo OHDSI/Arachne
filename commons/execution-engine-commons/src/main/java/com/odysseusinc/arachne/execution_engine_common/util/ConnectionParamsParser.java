@@ -2,7 +2,6 @@ package com.odysseusinc.arachne.execution_engine_common.util;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AuthMethod;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +96,6 @@ public final class ConnectionParamsParser {
 
             setAuthMechanism(dto, params);
             dto.setKrbFQDN(params.getOrDefault("KrbHostFQDN", dto.getKrbFQDN()));
-            dto.setKrbAdminFQDN(params.getOrDefault("KrbHostFQDN", dto.getKrbFQDN()));
             dto.setKrbRealm(params.getOrDefault("KrbRealm", dto.getKrbRealm()));
             super.parseCredentials(dto, params);
         }
