@@ -15,7 +15,7 @@
         <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
         <springfox.swagger2.version>2.6.0</springfox.swagger2.version>
         <postgresql.version>42.2.1</postgresql.version>
-        <flyway.version>3.1</flyway.version>
+        <flyway.version>4.2.0</flyway.version>
         <spring.jasypt.version>1.12</spring.jasypt.version>
     </properties>
 
