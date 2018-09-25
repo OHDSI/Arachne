@@ -15,6 +15,7 @@
         <module>execution-engine-commons</module>
         <module>arachne-storage</module>
         <module>arachne-no-handler-found-exception-util</module>
+        <module>logging</module>
     </modules>
 
     <properties>
