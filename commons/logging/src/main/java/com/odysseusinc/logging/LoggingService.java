@@ -23,7 +23,8 @@
 package com.odysseusinc.logging;
 
 import com.odysseusinc.logging.event.LoggingEvent;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import java.util.function.Consumer;
 
 public class LoggingService {
     private LoggingEventMessageFactory factory;
-    private final Logger log = Logger.getLogger(LoggingService.class);
+    private final Logger log = LoggerFactory.getLogger(LoggingService.class);
     private Map<LogLevel, Consumer<String>> logLevelAction = new HashMap<>();
 
     public LoggingService(LoggingEventMessageFactory factory) {
