@@ -101,7 +101,7 @@ public class LoggingEventMessageFactory {
     }
 
     private String roleUnassigned(UnassignRoleEvent event) {
-        return format.apply("Role id = %d was unassigned from user id = %d", () -> new Object[]{event.getUserId(), event.getUserId()});
+        return format.apply("Role id = %d was unassigned from user id = %d", () -> new Object[]{event.getRoleId(), event.getUserId()});
     }
 
     private String logonSucceeded(SuccessLogonEvent event) {
@@ -153,23 +153,23 @@ public class LoggingEventMessageFactory {
     }
 
     private String roleAssigned(AssignRoleEvent event) {
-        return format.apply("Role id = %d was assigned to user id = %d", () -> new Object[]{event.getUserId(), event.getUserId()});
+        return format.apply("Role id = %d was assigned to user id = %d", () -> new Object[]{event.getRoleId(), event.getUserId()});
     }
 
     private String userAdded(AddUserEvent event) {
         return format.apply("User id = %d, login = %s was created", () -> new Object[]{event.getId(), event.getLogin()});
     }
 
-    private String roleAdded(AddRoleEvent e) {
-        return format.apply("Role id = %d, name = %s was created", () -> new Object[]{e.getId(), e.getName()});
+    private String roleAdded(AddRoleEvent event) {
+        return format.apply("Role id = %d, name = %s was created", () -> new Object[]{event.getId(), event.getName()});
     }
 
-    private String dataSourceAdded(AddDataSourceEvent e) {
-        return format.apply("Data source id = %d, name = %s was created", () -> new Object[]{e.getId(), e.getName()});
+    private String dataSourceAdded(AddDataSourceEvent event) {
+        return format.apply("Data source id = %d, name = %s was created", () -> new Object[]{event.getId(), event.getName()});
     }
 
-    private String permissionAdded(AddPermissionEvent e) {
-        return format.apply("Permission id = %d was added to role id = %d", () -> new Object[]{e.getPermissionId(), e.getRoleId()});
+    private String permissionAdded(AddPermissionEvent event) {
+        return format.apply("Permission id = %d was added to role id = %d", () -> new Object[]{event.getPermissionId(), event.getRoleId()});
     }
 
     public List<Class> getSupportedEventTypes() {
