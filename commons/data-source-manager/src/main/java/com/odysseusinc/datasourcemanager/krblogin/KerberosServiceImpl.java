@@ -219,22 +219,24 @@ public class KerberosServiceImpl implements KerberosService {
 
     private String removeInconsistentDomainRealm(DataSourceUnsecuredDTO dataSource, String confStr) {
 
+        String tmpConf = confStr;
         Pattern realmPattern = Pattern.compile(".*?( " + dataSource.getKrbFQDN() + " = (\\S*)\\s*?)\\S*.*", Pattern.DOTALL);
         Matcher realmMatcher = realmPattern.matcher(confStr.toLowerCase());
         if (realmMatcher.matches() && !(realmMatcher.group(2).equalsIgnoreCase(dataSource.getKrbRealm()))) {
-            confStr = confStr.replaceAll("(?i)" + Pattern.quote(realmMatcher.group(1)), "  ");
+            tmpConf = tmpConf.replaceAll("(?i)" + Pattern.quote(realmMatcher.group(1)), "  ");
         }
-        return confStr;
+        return tmpConf;
     }
 
     private String removeInconsistentRealm(DataSourceUnsecuredDTO dataSource, String confStr) {
 
+        String tmpConf = confStr;
         Pattern pattern = Pattern.compile(".*?( " + dataSource.getKrbRealm().toLowerCase() + " = \\{\\s*?admin_server = (.*?)\\s*?kdc = (.*?)\\s*?}.*?)\\S.*", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(confStr.toLowerCase());
         if (matcher.matches() && (!matcher.group(2).equalsIgnoreCase(dataSource.getKrbAdminFQDN()) || !matcher.group(3).equalsIgnoreCase(dataSource.getKrbFQDN()))) {
-            confStr = confStr.replaceAll("(?i)" + Pattern.quote(matcher.group(1)), "  ");
+            tmpConf = tmpConf.replaceAll("(?i)" + Pattern.quote(matcher.group(1)), "  ");
         }
-        return confStr;
+        return tmpConf;
     }
 
     private String buildKrbConfHeader(String defaultRealmName) throws IOException {
