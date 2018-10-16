@@ -48,7 +48,7 @@ public class KerberosServiceImpl implements KerberosService {
 
     private static final Logger log = LoggerFactory.getLogger(KerberosService.class);
     private static final String LOG_FILE = "kinit_out.txt";
-    private static final String KINIT_COMMAND = "kinit";
+    public static final String KINIT_COMMAND = "kinit";
     private final static String REALMS = "[realms]";
     private final static String DOMAIIN_REALM = "[domain_realm]";
     private long timeout;
@@ -71,7 +71,7 @@ public class KerberosServiceImpl implements KerberosService {
         Process process = pb.directory(workDir)
                 .redirectOutput(ProcessBuilder.Redirect.to(stdout))
                 .redirectError(ProcessBuilder.Redirect.appendTo(stdout))
-                .command(krbConfig.getKinitCommand()).start();
+                .command(krbConfig.getComponents().getKinitCommand()).start();
         try {
             process.waitFor(timeout, TimeUnit.SECONDS);
             if (process.exitValue() != 0) {
@@ -109,16 +109,15 @@ public class KerberosServiceImpl implements KerberosService {
             try (OutputStream out = new FileOutputStream(keytabPath.toFile())) {
                 IOUtils.write(dataSource.getKrbKeytab(), out);
             }
-            krbConfig.setKeytabPath(keytabPath);
         }
 
-        String[] kinitCommand = buildKinitCommand(dataSource, keytabPath);
-        krbConfig.setKinitCommand(kinitCommand);
+        KinitComponents components = buildKinitCommand(dataSource, keytabPath);
+        krbConfig.setComponents(components);
 
         return krbConfig;
     }
 
-    private String[] buildKinitCommand(DataSourceUnsecuredDTO dataSource, Path keytab) {
+    private KinitComponents buildKinitCommand(DataSourceUnsecuredDTO dataSource, Path keytab) {
 
         CommandBuilder builder = CommandBuilder.newCommand();
         if (StringUtils.isBlank(dataSource.getKrbUser())) {
@@ -135,7 +134,7 @@ public class KerberosServiceImpl implements KerberosService {
                             .statement("echo " + dataSource.getKrbPassword() + " | " + kinitPath + KINIT_COMMAND + " " +
                                     dataSource.getKrbUser() + "@" + dataSource.getKrbRealm());
                 } else if (SystemUtils.IS_OS_WINDOWS) {
-                    //todo implement https://github.com/Waffle/waffle solution for this case
+                    //todo: implement https://github.com/Waffle/waffle solution for this case
                     throw new RuntimeException("PASSWORD authentication is forbidden for Windows, use KEYTAB instead");
                 }
                 break;
@@ -149,9 +148,19 @@ public class KerberosServiceImpl implements KerberosService {
             default:
                 throw new IllegalArgumentException("Unsupported authentication type");
         }
-        String[] command = builder.build();
-        log.info("Kerberos init command: {}", StringUtils.join(command, " "));
-        return command;
+        return createKinitComponents(dataSource, builder.build(), keytab, kinitPath);
+    }
+
+    private KinitComponents createKinitComponents(DataSourceUnsecuredDTO dataSource, String[] kinitCommand, Path keytab, String kinitPath) {
+        KinitComponents components = new KinitComponents();
+        components.setKrbPassword(dataSource.getKrbPassword());
+        components.setKrbUser(dataSource.getKrbUser());
+        components.setKrbRealm(dataSource.getKrbRealm());
+        components.setKinitCommand(kinitCommand);
+        components.setKeytabPath(keytab);
+        components.setAuthMechanism(dataSource.getKrbAuthMethod());
+        components.setKinitPath(kinitPath);
+        return components;
     }
 
     private Path buildTempKrbConf(DataSourceUnsecuredDTO dataSource) throws IOException {
@@ -213,6 +222,9 @@ public class KerberosServiceImpl implements KerberosService {
     private String addNewDomainRealm(DataSourceUnsecuredDTO dataSource, String confStr) {
 
         String newDomain = "  " + dataSource.getKrbFQDN() + " = " + dataSource.getKrbRealm();
+        if (!confStr.contains(DOMAIIN_REALM)) {
+            confStr += System.lineSeparator() + DOMAIIN_REALM + System.lineSeparator();
+        }
         int startPosition = confStr.indexOf(DOMAIIN_REALM) + DOMAIIN_REALM.length();
         return confStr.replace(confStr.substring(0, startPosition), confStr.substring(0, startPosition) + System.lineSeparator() + newDomain);
     }

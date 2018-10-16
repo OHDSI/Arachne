@@ -32,6 +32,7 @@ public class DataSourceUnsecuredDTO {
     private String connectionString;
     private DBMSType type;
     private String cdmSchema;
+    private String vocabularySchema;
     private String username;
     private String password;
     private String targetSchema;
@@ -91,6 +92,16 @@ public class DataSourceUnsecuredDTO {
     public void setCdmSchema(String cdmSchema) {
 
         this.cdmSchema = cdmSchema;
+    }
+
+    public String getVocabularySchema() {
+
+        return vocabularySchema;
+    }
+
+    public void setVocabularySchema(String vocabularySchema) {
+
+        this.vocabularySchema = vocabularySchema;
     }
 
     public String getUsername() {

@@ -30,42 +30,44 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.odysseusinc.datasourcemanager.krblogin.KerberosServiceImpl.KINIT_COMMAND;
+
 public class KrbConfig {
     private static final String RUNTIME_ENV_KRB_KEYTAB = "KRB_KEYTAB";
     private static final String RUNTIME_ENV_KRB_CONF = "KRB_CONF";
     private static final String RUNTIME_ENV_KINIT_PARAMS = "KINIT_PARAMS";
+    private static final String RUNTIME_ENV_KRB_PWD = "KRB_PASSWORD";
     private static final String KRB_KEYTAB_PATH = "/etc/krb.keytab";
 
-    private Path keytabPath = Paths.get("");
     private Path confPath = Paths.get("");
-    private String[] kinitCommand;
     private RuntimeServiceMode mode;
+    private KinitComponents components;
 
     public Map<String, String> getIsolatedRuntimeEnvs() {
 
         Map<String, String> krbEnvProps = new HashMap<>();
-        krbEnvProps.put(RUNTIME_ENV_KRB_KEYTAB, keytabPath.toString());
+        krbEnvProps.put(RUNTIME_ENV_KRB_KEYTAB, components.getKeytabPath().toString());
         krbEnvProps.put(RUNTIME_ENV_KRB_CONF, confPath.toString());
 
-        String kinitParamsLine;
-        if (kinitCommand == null) {
-            kinitParamsLine = "";
-        } else {
-            String[] kinitParams = Arrays.copyOfRange(getKinitCommand(), 1, getKinitCommand().length);
-            kinitParamsLine = StringUtils.join(kinitParams, " ").replace(keytabPath.toString(), KRB_KEYTAB_PATH);
+        String kinitParamsLine = "";
+        String[] kinitCommand = components.getKinitCommand();
+        if (kinitCommand != null) {
+
+            switch (components.getAuthMechanism()) {
+                case PASSWORD: {
+                    krbEnvProps.put(RUNTIME_ENV_KRB_PWD, components.getKrbPassword());
+                    kinitParamsLine = components.getKinitPath() + KINIT_COMMAND + " " + components.getKrbUser() + "@" + components.getKrbRealm();
+                    break;
+                }
+                case KEYTAB: {
+                    String[] kinitParams = Arrays.copyOfRange(kinitCommand, 1, kinitCommand.length);
+                    kinitParamsLine = StringUtils.join(kinitParams, " ").replace(components.getKeytabPath().toString(), KRB_KEYTAB_PATH);
+                    break;
+                }
+            }
         }
         krbEnvProps.put(RUNTIME_ENV_KINIT_PARAMS, kinitParamsLine);
         return krbEnvProps;
-    }
-
-    public Path getKeytabPath() {
-
-        return keytabPath;
-    }
-
-    public void setKeytabPath(Path keytabPath) {
-
-        this.keytabPath = keytabPath;
     }
 
     public Path getConfPath() {
@@ -78,16 +80,6 @@ public class KrbConfig {
         this.confPath = confPath;
     }
 
-    public String[] getKinitCommand() {
-
-        return kinitCommand;
-    }
-
-    public void setKinitCommand(String[] kinitCommand) {
-
-        this.kinitCommand = kinitCommand;
-    }
-
     public RuntimeServiceMode getMode() {
 
         return mode;
@@ -96,5 +88,13 @@ public class KrbConfig {
     public void setMode(RuntimeServiceMode mode) {
 
         this.mode = mode;
+    }
+
+    public KinitComponents getComponents() {
+        return components;
+    }
+
+    public void setComponents(KinitComponents components) {
+        this.components = components;
     }
 }
