@@ -109,7 +109,7 @@ public class LoggingEventMessageFactory {
     }
 
     private String logoffSucceded(SuccessLogoffEvent event) {
-        return format.apply("User login = %s was logged off", () -> new Object[]{event.getLogin()});
+        return format.apply("User login = %s was logged out", () -> new Object[]{event.getLogin()});
     }
 
     private String lockoutStopped(LockoutStopEvent event) {
