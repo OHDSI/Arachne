@@ -44,12 +44,12 @@ public class LoggingEventMessageFactory {
             DeleteRoleEvent.class,
             DeleteUserEvent.class,
             FailedDbConnectEvent.class,
-            FailedLogoffEvent.class,
-            FailedLogonEvent.class,
+            FailedLogoutEvent.class,
+            FailedLoginEvent.class,
             LockoutStartEvent.class,
             LockoutStopEvent.class,
-            SuccessLogoffEvent.class,
-            SuccessLogonEvent.class,
+            SuccessLogoutEvent.class,
+            SuccessLoginEvent.class,
             UnassignRoleEvent.class);
 
     private BiFunction<String, Supplier<Object[]>, String> format = (t, e) -> String.format(t, e.get());
@@ -82,18 +82,18 @@ public class LoggingEventMessageFactory {
             message = userDeleted((DeleteUserEvent) event);
         } else if (event instanceof FailedDbConnectEvent) {
             message = ((FailedDbConnectEvent) event).getException();
-        } else if (event instanceof FailedLogoffEvent) {
-            message = logoffFailed((FailedLogoffEvent) event);
-        } else if (event instanceof FailedLogonEvent) {
-            message = logonFailed((FailedLogonEvent) event);
+        } else if (event instanceof FailedLogoutEvent) {
+            message = logoutFailed((FailedLogoutEvent) event);
+        } else if (event instanceof FailedLoginEvent) {
+            message = loginFailed((FailedLoginEvent) event);
         } else if (event instanceof LockoutStartEvent) {
             message = lockoutStarted((LockoutStartEvent) event);
         } else if (event instanceof LockoutStopEvent) {
             message = lockoutStopped((LockoutStopEvent) event);
-        } else if (event instanceof SuccessLogoffEvent) {
-            message = logoffSucceded((SuccessLogoffEvent) event);
-        } else if (event instanceof SuccessLogonEvent) {
-            message = logonSucceeded((SuccessLogonEvent) event);
+        } else if (event instanceof SuccessLogoutEvent) {
+            message = logoutSucceeded((SuccessLogoutEvent) event);
+        } else if (event instanceof SuccessLoginEvent) {
+            message = loginSucceeded((SuccessLoginEvent) event);
         } else if (event instanceof UnassignRoleEvent) {
             message = roleUnassigned((UnassignRoleEvent) event);
         }
@@ -104,11 +104,11 @@ public class LoggingEventMessageFactory {
         return format.apply("Role id = %d was unassigned from user id = %d", () -> new Object[]{event.getRoleId(), event.getUserId()});
     }
 
-    private String logonSucceeded(SuccessLogonEvent event) {
+    private String loginSucceeded(SuccessLoginEvent event) {
         return format.apply("User login = %s was logged in", () -> new Object[]{event.getLogin()});
     }
 
-    private String logoffSucceded(SuccessLogoffEvent event) {
+    private String logoutSucceeded(SuccessLogoutEvent event) {
         return format.apply("User login = %s was logged out", () -> new Object[]{event.getLogin()});
     }
 
@@ -120,12 +120,12 @@ public class LoggingEventMessageFactory {
         return format.apply("Lockout started for user login = %s", () -> new Object[]{event.getLogin()});
     }
 
-    private String logonFailed(FailedLogonEvent event) {
-        return format.apply("Logon failed for user login = %s", () -> new Object[]{event.getLogin()});
+    private String loginFailed(FailedLoginEvent event) {
+        return format.apply("Log in failed for user login = %s", () -> new Object[]{event.getLogin()});
     }
 
-    private String logoffFailed(FailedLogoffEvent event) {
-        return format.apply("Logoff failed for user login = %s", () -> new Object[]{event.getLogin()});
+    private String logoutFailed(FailedLogoutEvent event) {
+        return format.apply("Log out failed for user login = %s", () -> new Object[]{event.getLogin()});
     }
 
     private String userDeleted(DeleteUserEvent event) {

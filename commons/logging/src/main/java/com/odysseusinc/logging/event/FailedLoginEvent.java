@@ -24,15 +24,15 @@ package com.odysseusinc.logging.event;
 
 import com.odysseusinc.logging.LogLevel;
 
-public class SuccessLogonEvent extends LoggingEvent {
+public class FailedLoginEvent extends LoggingEvent {
     private String login;
 
-    public SuccessLogonEvent(Object source, LogLevel logLevel, String login) {
+    public FailedLoginEvent(Object source, LogLevel logLevel, String login) {
         super(source, logLevel);
         this.login = login;
     }
 
-    public SuccessLogonEvent(Object source, String login) {
+    public FailedLoginEvent(Object source, String login) {
         this(source, LogLevel.INFO, login);
     }
 
