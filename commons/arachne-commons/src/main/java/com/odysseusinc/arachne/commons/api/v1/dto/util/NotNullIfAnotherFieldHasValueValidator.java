@@ -5,6 +5,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.InvocationTargetException;
+import org.apache.commons.beanutils.NestedNullException;
 
 
 public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidator<NotNullIfAnotherFieldHasValue,
@@ -28,7 +29,12 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             return true;
         }
         try {
-            final String fieldValue = BeanUtils.getProperty(value, fieldName);
+            String fieldValue;
+            try {
+                fieldValue = BeanUtils.getProperty(value, fieldName);
+            }catch (NestedNullException e) {
+                fieldValue = null;
+            }
             final String dependentFieldValue = BeanUtils.getProperty(value, dependentFieldName);
             if (expectedFieldValue.equals(fieldValue) && dependentFieldValue == null) {
                 ctx.disableDefaultConstraintViolation();
