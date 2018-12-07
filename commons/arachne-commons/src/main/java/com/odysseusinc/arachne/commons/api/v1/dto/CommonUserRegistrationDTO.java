@@ -22,6 +22,7 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
@@ -64,8 +65,18 @@ public class CommonUserRegistrationDTO {
     })
     private String organization;
 
+    @Length.List({
+            @Length(min = 2, message = "The department must be at least 2 characters"),
+            @Length(max = 255, message = "The field must be less than 255 characters")
+    })
+    private String department;
+
     @NotNull(message = "{validation.professionalTypeId.NotNull}")
     private Long professionalTypeId;
+
+    @NotNull
+    @Valid
+    private CommonAddressDTO address;
 
     @Length(max = 50)
     private String uuid;
@@ -158,5 +169,25 @@ public class CommonUserRegistrationDTO {
     public void setOrganization(String organization) {
 
         this.organization = organization;
+    }
+
+    public String getDepartment() {
+
+        return department;
+    }
+
+    public void setDepartment(String department) {
+
+        this.department = department;
+    }
+
+    public CommonAddressDTO getAddress() {
+
+        return address;
+    }
+
+    public void setAddress(CommonAddressDTO address) {
+
+        this.address = address;
     }
 }

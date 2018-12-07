@@ -18,9 +18,17 @@ public class AnyFieldNotBlankValidator implements ConstraintValidator<AnyFieldNo
 	}
 
 	@Override
-	public boolean isValid(Object dto, ConstraintValidatorContext constraintValidatorContext) {
+	public boolean isValid(Object dto, ConstraintValidatorContext context) {
 
-		return Objects.nonNull(dto) && Arrays.stream(fields).anyMatch(f -> notBlank(f, dto));
+		boolean result = Objects.nonNull(dto) && Arrays.stream(fields).anyMatch(f -> notBlank(f, dto));
+		if (!result) {
+			context.disableDefaultConstraintViolation();
+			Arrays.stream(fields).forEach(f -> context
+							.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+							.addNode(f)
+							.addConstraintViolation());
+		}
+		return result;
 	}
 
 	private boolean notBlank(String field, Object dto) {
@@ -35,8 +43,8 @@ public class AnyFieldNotBlankValidator implements ConstraintValidator<AnyFieldNo
 
 	private Object getFieldValue(Object object, String fieldName) throws Exception {
 		Class<?> clazz = object.getClass();
-		Field passwordField = clazz.getDeclaredField(fieldName);
-		passwordField.setAccessible(true);
-		return passwordField.get(object);
+		Field field = clazz.getDeclaredField(fieldName);
+		field.setAccessible(true);
+		return field.get(object);
 	}
 }
