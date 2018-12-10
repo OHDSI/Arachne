@@ -73,6 +73,12 @@ public class DataSourceUnsecuredDTO {
         return null;
     }
 
+    @JsonIgnore
+    public String getConnectionStringAndUserAndPassword() {
+
+        return getConnectionString() + "&" + getUsername() + "&" + getPassword();
+    }
+
     public DBMSType getType() {
 
         return type;
