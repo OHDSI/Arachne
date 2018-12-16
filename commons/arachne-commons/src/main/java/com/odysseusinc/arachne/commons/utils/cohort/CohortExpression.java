@@ -10,6 +10,8 @@ import com.odysseusinc.arachne.commons.utils.cohort.Types.Limit;
 import com.odysseusinc.arachne.commons.utils.cohort.Types.Rule;
 import com.odysseusinc.arachne.commons.utils.cohort.Types.Settings;
 
+import java.time.Period;
+
 public class CohortExpression extends CommonObjectJson {
     @OptionalField
     public String Title;
@@ -24,6 +26,8 @@ public class CohortExpression extends CommonObjectJson {
     public Object EndStrategy;
     public Criteria CensoringCriteria;
     public Settings CollapseSettings;
+    @OptionalField // To support back-compatibility
+    public Period censorWindow;
 
     public CohortExpression(@JsonProperty(value = "Title") String title,
                             @JsonProperty(value = "ConceptSets", required = true) ConceptSet[] conceptSets,
@@ -34,7 +38,8 @@ public class CohortExpression extends CommonObjectJson {
                             @JsonProperty(value = "InclusionRules", required = true) Rule[] inclusionRules,
                             @JsonProperty(value = "EndStrategy") Object endStrategy,
                             @JsonProperty(value = "CensoringCriteria", required = true) Criteria censoringCriteria,
-                            @JsonProperty(value = "CollapseSettings", required = true) Settings collapseSettings) {
+                            @JsonProperty(value = "CollapseSettings", required = true) Settings collapseSettings,
+                            @JsonProperty(value = "CensorWindow", required = false) Period censorWindow) {
 
         this.Title = title;
         this.ConceptSets = conceptSets;
@@ -46,5 +51,6 @@ public class CohortExpression extends CommonObjectJson {
         this.EndStrategy = endStrategy;
         this.CensoringCriteria = censoringCriteria;
         this.CollapseSettings = collapseSettings;
+        this.censorWindow = censorWindow;
     }
 }
