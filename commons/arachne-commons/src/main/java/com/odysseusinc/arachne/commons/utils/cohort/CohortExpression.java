@@ -27,7 +27,7 @@ public class CohortExpression extends CommonObjectJson {
     public Criteria CensoringCriteria;
     public Settings CollapseSettings;
     @OptionalField // To support back-compatibility
-    public Period censorWindow;
+    public Period CensorWindow;
 
     public CohortExpression(@JsonProperty(value = "Title") String title,
                             @JsonProperty(value = "ConceptSets", required = true) ConceptSet[] conceptSets,
@@ -51,6 +51,6 @@ public class CohortExpression extends CommonObjectJson {
         this.EndStrategy = endStrategy;
         this.CensoringCriteria = censoringCriteria;
         this.CollapseSettings = collapseSettings;
-        this.censorWindow = censorWindow;
+        this.CensorWindow = censorWindow;
     }
 }
