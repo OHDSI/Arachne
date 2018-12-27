@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,14 @@ public class DataSourceUnsecuredDTO {
     private String targetSchema;
     private String resultSchema;
     private String cohortTargetTable;
+    private Boolean useKerberos = false;
+    private String krbRealm;
+    private String krbAdminFQDN;
+    private String krbFQDN;
+    private String krbUser;
+    private byte[] krbKeytab;
+    private String krbPassword;
+    private KerberosAuthMechanism krbAuthMethod;
 
     public String getConnectionString() {
 
@@ -63,6 +71,12 @@ public class DataSourceUnsecuredDTO {
             return clearConnString;
         }
         return null;
+    }
+
+    @JsonIgnore
+    public String getConnectionStringAndUserAndPassword() {
+
+        return getConnectionString() + "&" + getUsername() + "&" + getPassword();
     }
 
     public DBMSType getType() {
@@ -133,5 +147,85 @@ public class DataSourceUnsecuredDTO {
     public String getCohortTargetTable() {
 
         return cohortTargetTable;
+    }
+
+    public Boolean getUseKerberos() {
+
+        return useKerberos;
+    }
+
+    public void setUseKerberos(Boolean useKerberos) {
+
+        this.useKerberos = useKerberos;
+    }
+
+    public String getKrbRealm() {
+
+        return krbRealm;
+    }
+
+    public void setKrbRealm(String krbRealm) {
+
+        this.krbRealm = krbRealm;
+    }
+
+    public String getKrbFQDN() {
+
+        return krbFQDN;
+    }
+
+    public void setKrbFQDN(String krbFQDN) {
+
+        this.krbFQDN = krbFQDN;
+    }
+
+    public String getKrbUser() {
+
+        return krbUser;
+    }
+
+    public void setKrbUser(String krbUser) {
+
+        this.krbUser = krbUser;
+    }
+
+    public byte[] getKrbKeytab() {
+
+        return krbKeytab;
+    }
+
+    public void setKrbKeytab(byte[] krbKeytab) {
+
+        this.krbKeytab = krbKeytab;
+    }
+
+    public String getKrbPassword() {
+
+        return krbPassword;
+    }
+
+    public void setKrbPassword(String krbPassword) {
+
+        this.krbPassword = krbPassword;
+    }
+
+    public KerberosAuthMechanism getKrbAuthMethod() {
+
+        return krbAuthMethod;
+    }
+
+    public void setKrbAuthMethod(KerberosAuthMechanism krbAuthMethod) {
+
+        this.krbAuthMethod = krbAuthMethod;
+    }
+
+    public String getKrbAdminFQDN() {
+
+        return krbAdminFQDN;
+    }
+
+    public void setKrbAdminFQDN(String krbAdminFQDN) {
+
+        this.krbAdminFQDN = krbAdminFQDN;
     }
 }

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,9 @@
 
 package com.odysseusinc.arachne.execution_engine_common.util;
 
+import static org.apache.commons.lang3.StringUtils.split;
+
+import com.google.common.collect.Lists;
 import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,10 +41,12 @@ import net.lingala.zip4j.util.Zip4jConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.util.AntPathMatcher;
 
 public class CommonFileUtils {
 
     private static final Logger log = LoggerFactory.getLogger(CommonFileUtils.class);
+    private static final AntPathMatcher matcher = new AntPathMatcher();
 
     private CommonFileUtils() {
 
@@ -70,6 +75,12 @@ public class CommonFileUtils {
 
     public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) throws ZipException {
 
+        return compressAndSplit(folder, zipArchive, maximumSize, "");
+    }
+
+    public static File compressAndSplit(File folder, File zipArchive, Long maximumSize, String exclusions)
+            throws ZipException {
+
         File zipDir = new File(zipArchive.getParent());
         try {
             Files.createDirectories(zipDir.toPath());
@@ -84,13 +95,7 @@ public class CommonFileUtils {
             parameters.setReadHiddenFiles(false);
 
             parameters.setDefaultFolderPath(folder.getAbsolutePath());
-
-            ArrayList<File> filesToAdd = new ArrayList<>(
-                    Files.walk(folder.toPath())
-                            .filter(path -> !Files.isDirectory(path))
-                            .map(Path::toFile)
-                            .collect(Collectors.toList())
-            );
+            ArrayList<File> filesToAdd = filterFiles(folder.toPath(), exclusions);
 
             if (maximumSize != null) {
                 zipFile.createZipFile(filesToAdd, parameters, true, maximumSize);
@@ -106,4 +111,22 @@ public class CommonFileUtils {
         }
         return zipDir;
     }
+
+    private static ArrayList<File> filterFiles(Path folderPath, String exclusions) throws IOException {
+
+        List<String> patterns = Lists.newArrayList(split(exclusions, ","));
+
+        return Files.walk(folderPath)
+                .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))
+                .filter(path -> !Files.isDirectory(path))
+                .map(Path::toFile).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private static boolean noneMatch(List<String> patterns, String fileName) {
+
+        return patterns.stream()
+                .filter(matcher::isPattern)
+                .noneMatch(e -> matcher.match(e.trim(), fileName));
+    }
+
 }

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2017 Observational Health Data Sciences and Informatics
+ * Copyright 2018 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
@@ -57,8 +58,25 @@ public class CommonUserRegistrationDTO {
     })
     private String lastname;
 
+    @NotBlank
+    @Length.List({
+            @Length(min = 2, message = "The organization must be at least 2 characters"),
+            @Length(max = 255, message = "The field must be less than 255 characters")
+    })
+    private String organization;
+
+    @Length.List({
+            @Length(min = 2, message = "The department must be at least 2 characters"),
+            @Length(max = 255, message = "The field must be less than 255 characters")
+    })
+    private String department;
+
     @NotNull(message = "{validation.professionalTypeId.NotNull}")
     private Long professionalTypeId;
+
+    @NotNull
+    @Valid
+    private CommonAddressDTO address;
 
     @Length(max = 50)
     private String uuid;
@@ -141,5 +159,35 @@ public class CommonUserRegistrationDTO {
     public void setCallbackUrl(String callbackUrl) {
 
         this.callbackUrl = callbackUrl;
+    }
+
+    public String getOrganization() {
+
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+
+        this.organization = organization;
+    }
+
+    public String getDepartment() {
+
+        return department;
+    }
+
+    public void setDepartment(String department) {
+
+        this.department = department;
+    }
+
+    public CommonAddressDTO getAddress() {
+
+        return address;
+    }
+
+    public void setAddress(CommonAddressDTO address) {
+
+        this.address = address;
     }
 }

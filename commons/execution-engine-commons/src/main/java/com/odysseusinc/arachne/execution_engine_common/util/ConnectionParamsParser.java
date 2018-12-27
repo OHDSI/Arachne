@@ -1,7 +1,7 @@
 package com.odysseusinc.arachne.execution_engine_common.util;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
-
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AuthMethod;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +30,10 @@ public final class ConnectionParamsParser {
                 return new GenericParser();
             case REDSHIFT:
                 return new RedshiftParser();
-            case ORACLE:
-                return new OracleParser();
             case IMPALA:
                 return new ImpalaParser();
+            case ORACLE:
+                return new OracleParser();
             default:
                 return connString -> {
                     ConnectionParams dto = new ConnectionParams();
@@ -52,9 +52,10 @@ public final class ConnectionParamsParser {
         private Pattern pattern = Pattern.compile("^jdbc:\\w+(:\\w+)?://([\\w.\\d-]+)(:(\\d+))?(/(\\w+))?[?;]?(.*)");
 
         public ConnectionParams parseParams(String connString) {
+
             ConnectionParams dto = new ConnectionParams();
             Matcher matcher = pattern.matcher(connString);
-            if (matcher.matches() && matcher.groupCount() == 7){
+            if (matcher.matches() && matcher.groupCount() == 7) {
                 dto.setServer(matcher.group(2));
                 dto.setPort(matcher.group(4));
                 dto.setSchema(matcher.group(6));
@@ -72,28 +73,40 @@ public final class ConnectionParamsParser {
         }
 
         protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
+
             dto.setUser(params.getOrDefault(getUserParamName(), dto.getUser()));
             dto.setPassword(params.getOrDefault(getPasswordParamName(), dto.getPassword()));
         }
 
         protected String getUserParamName() {
+
             return "user";
         }
 
         protected String getPasswordParamName() {
+
             return "password";
         }
     }
 
     static class ImpalaParser extends RedshiftParser {
+
         @Override
         protected void parseCredentials(ConnectionParams dto, Map<String, String> params) {
+
+            setAuthMechanism(dto, params);
+            dto.setKrbFQDN(params.getOrDefault("KrbHostFQDN", dto.getKrbFQDN()));
+            dto.setKrbRealm(params.getOrDefault("KrbRealm", dto.getKrbRealm()));
+            super.parseCredentials(dto, params);
+        }
+
+        private void setAuthMechanism(ConnectionParams dto, Map<String, String> params) {
+
             try {
                 Integer authMech = Integer.valueOf(params.getOrDefault("AuthMech", "0"));
-                if (3 == authMech) {
-                    super.parseCredentials(dto, params);
-                }
-            }catch (NumberFormatException ignored){
+                dto.setAuthMethod(AuthMethod.getByAuthType(authMech));
+            } catch (NumberFormatException ignored) {
+                dto.setAuthMethod(AuthMethod.DEFAULT);
             }
         }
     }
@@ -101,11 +114,13 @@ public final class ConnectionParamsParser {
     static class RedshiftParser extends GenericParser {
         @Override
         protected String getUserParamName() {
+
             return "UID";
         }
 
         @Override
         protected String getPasswordParamName() {
+
             return "PWD";
         }
     }
@@ -116,6 +131,7 @@ public final class ConnectionParamsParser {
 
         @Override
         public ConnectionParams parseParams(String connString) {
+
             ConnectionParams dto = new ConnectionParams();
             Matcher matcher = pattern.matcher(connString);
             if (matcher.matches() && matcher.groupCount() == 4) {
