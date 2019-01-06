@@ -41,7 +41,7 @@ public class KrbConfig {
 
     private Path confPath = Paths.get("");
     private RuntimeServiceMode mode;
-    private KinitComponents components;
+    private KinitComponents components = new KinitComponents();
 
     public Map<String, String> getIsolatedRuntimeEnvs() {
 
