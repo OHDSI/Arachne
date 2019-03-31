@@ -102,12 +102,12 @@ public class KerberosServiceImpl implements KerberosService {
 
         Path keytabPath = Paths.get("");
         if (dataSource.getKrbAuthMethod().equals(KerberosAuthMechanism.KEYTAB)) {
-            if (Objects.isNull(dataSource.getKrbKeytab())) {
+            if (Objects.isNull(dataSource.getKeyfile())) {
                 throw new IllegalArgumentException("Kerberos keytab file is required for KEYTAB authentication");
             }
             keytabPath = Files.createTempFile("", ".keytab");
             try (OutputStream out = new FileOutputStream(keytabPath.toFile())) {
-                IOUtils.write(dataSource.getKrbKeytab(), out);
+                IOUtils.write(dataSource.getKeyfile(), out);
             }
         }
 

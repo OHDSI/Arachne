@@ -43,7 +43,7 @@ public class DataSourceUnsecuredDTO {
     private String krbAdminFQDN;
     private String krbFQDN;
     private String krbUser;
-    private byte[] krbKeytab;
+    private byte[] keyfile;
     private String krbPassword;
     private KerberosAuthMechanism krbAuthMethod;
 
@@ -200,14 +200,35 @@ public class DataSourceUnsecuredDTO {
         this.krbUser = krbUser;
     }
 
+
+    /**
+     * @deprecated Use {@link #getKeyfile()} instead
+     * @return
+     */
+    @Deprecated
     public byte[] getKrbKeytab() {
 
-        return krbKeytab;
+        return keyfile;
     }
 
-    public void setKrbKeytab(byte[] krbKeytab) {
+    public byte[] getKeyfile() {
 
-        this.krbKeytab = krbKeytab;
+        return keyfile;
+    }
+
+    /**
+     * @deprecated Use {@link #setKeyfile(byte[])} instead
+     * @param keyfile
+     */
+    @Deprecated
+    public void setKrbKeytab(byte[] keyfile) {
+
+        this.setKeyfile(keyfile);
+    }
+
+    public void setKeyfile(byte[] keyfile) {
+
+        this.keyfile = keyfile;
     }
 
     public String getKrbPassword() {
