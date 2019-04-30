@@ -29,6 +29,7 @@ import com.odysseusinc.arachne.execution_engine_common.util.ConnectionParamsPars
 
 public class DataSourceUnsecuredDTO {
 
+    private String name;
     private String connectionString;
     private DBMSType type;
     private String cdmSchema;
@@ -46,6 +47,16 @@ public class DataSourceUnsecuredDTO {
     private byte[] keyfile;
     private String krbPassword;
     private KerberosAuthMechanism krbAuthMethod;
+
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
 
     public String getConnectionString() {
 
