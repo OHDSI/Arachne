@@ -6,7 +6,7 @@
 
     <groupId>com.odysseusinc.arachne</groupId>
     <artifactId>arachne-no-handler-found-exception-util</artifactId>
-    <version>1.13.1-QA</version>
+    <version>1.14.0-QA</version>
     <packaging>jar</packaging>
 
     <properties>

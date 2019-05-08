@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.13.1-QA</version>
+    <version>1.14.0-QA</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,6 +15,9 @@
         <module>execution-engine-commons</module>
         <module>arachne-storage</module>
         <module>arachne-no-handler-found-exception-util</module>
+        <module>logging</module>
+        <module>data-source-manager</module>
+        <module>arachne-scheduler</module>
     </modules>
 
     <properties>
