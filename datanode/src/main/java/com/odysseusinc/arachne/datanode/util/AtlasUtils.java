@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2018 Odysseus Data Services, inc.
+ * Copyright 2019 Odysseus Data Services, inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,25 +15,25 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: July 17, 2017
+ * Authors: Pavel Grafkin, Vitaly Koulakov, Anastasiia Klochkova, Sergej Suvorov, Anton Stepanov
+ * Created: Apr 29, 2019
  *
  */
 
-package com.odysseusinc.arachne.datanode.service;
+package com.odysseusinc.arachne.datanode.util;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonEntityDTO;
-
+import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.model.atlas.Atlas;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public interface AtlasRequestHandler<L extends CommonEntityDTO, T> {
-    List<L> getObjectsList(List<Atlas> atlasList);
+public final class AtlasUtils {
+	private AtlasUtils() {}
 
-    T getAtlasObject(String guid);
+	public static List<Atlas> filterAtlasByVersion27(List<Atlas> atlasList) {
 
-    abstract CommonAnalysisType getAnalysisType();
-
-    void sendResponse(T response, String id);
+		return atlasList.stream()
+						.filter(atlas -> Constants.Atlas.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion()))
+						.collect(Collectors.toList());
+	}
 }
