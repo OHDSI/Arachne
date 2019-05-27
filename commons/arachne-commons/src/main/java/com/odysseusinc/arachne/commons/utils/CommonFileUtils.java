@@ -27,8 +27,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odysseusinc.arachne.commons.utils.cohort.CohortDefinitionMatcher;
 import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -43,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,5 +264,16 @@ public class CommonFileUtils {
     public static String convertToUnixPath(String path) {
 
         return path.replace('\\', '/');
+    }
+
+    public static File copyResourceToTempFile(String resource, String prefix, String suffix) throws IOException {
+
+        File tempFile = File.createTempFile(prefix, suffix);
+        try(InputStream in = CommonFileUtils.class.getResourceAsStream(resource)) {
+            try(OutputStream out = new FileOutputStream(tempFile)) {
+                IOUtils.copy(in, out);
+            }
+        }
+        return tempFile;
     }
 }

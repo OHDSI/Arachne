@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.13.0</version>
+    <version>1.14.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -15,6 +15,7 @@
         <commons.io.version>2.5</commons.io.version>
         <swagger.springmvc.version>1.0.2</swagger.springmvc.version>
         <springfox.swagger2.version>2.6.0</springfox.swagger2.version>
+        <flyway.version>4.2.0</flyway.version>
     </properties>
 
     <dependencies>
@@ -97,6 +98,17 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

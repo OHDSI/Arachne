@@ -29,9 +29,11 @@ import com.odysseusinc.arachne.execution_engine_common.util.ConnectionParamsPars
 
 public class DataSourceUnsecuredDTO {
 
+    private String name;
     private String connectionString;
     private DBMSType type;
     private String cdmSchema;
+    private String vocabularySchema;
     private String username;
     private String password;
     private String targetSchema;
@@ -42,9 +44,19 @@ public class DataSourceUnsecuredDTO {
     private String krbAdminFQDN;
     private String krbFQDN;
     private String krbUser;
-    private byte[] krbKeytab;
+    private byte[] keyfile;
     private String krbPassword;
     private KerberosAuthMechanism krbAuthMethod;
+
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
 
     public String getConnectionString() {
 
@@ -97,6 +109,16 @@ public class DataSourceUnsecuredDTO {
     public void setCdmSchema(String cdmSchema) {
 
         this.cdmSchema = cdmSchema;
+    }
+
+    public String getVocabularySchema() {
+
+        return vocabularySchema;
+    }
+
+    public void setVocabularySchema(String vocabularySchema) {
+
+        this.vocabularySchema = vocabularySchema;
     }
 
     public String getUsername() {
@@ -189,14 +211,35 @@ public class DataSourceUnsecuredDTO {
         this.krbUser = krbUser;
     }
 
+
+    /**
+     * @deprecated Use {@link #getKeyfile()} instead
+     * @return
+     */
+    @Deprecated
     public byte[] getKrbKeytab() {
 
-        return krbKeytab;
+        return keyfile;
     }
 
-    public void setKrbKeytab(byte[] krbKeytab) {
+    public byte[] getKeyfile() {
 
-        this.krbKeytab = krbKeytab;
+        return keyfile;
+    }
+
+    /**
+     * @deprecated Use {@link #setKeyfile(byte[])} instead
+     * @param keyfile
+     */
+    @Deprecated
+    public void setKrbKeytab(byte[] keyfile) {
+
+        this.setKeyfile(keyfile);
+    }
+
+    public void setKeyfile(byte[] keyfile) {
+
+        this.keyfile = keyfile;
     }
 
     public String getKrbPassword() {

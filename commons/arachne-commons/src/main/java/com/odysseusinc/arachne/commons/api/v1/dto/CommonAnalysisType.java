@@ -28,8 +28,11 @@ public enum CommonAnalysisType {
     CUSTOM("Custom"),
     PREDICTION("Patient Level Prediction"),
     COHORT_CHARACTERIZATION("Cohort (Characterization)"),
+    COHORT_HERACLES("Cohort (Heracles)"),
     COHORT("Cohort (Simple Counts)"),
-    INCIDENCE("Incidence rates");
+    INCIDENCE("Incidence rates"),
+    COHORT_PATHWAY("Cohort Pathway");
+
 
     private String title;
 
