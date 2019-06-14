@@ -24,7 +24,6 @@ package com.odysseusinc.arachne.execution_engine_common.util;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-import com.google.common.collect.Lists;
 import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.lingala.zip4j.core.ZipFile;
@@ -114,7 +114,7 @@ public class CommonFileUtils {
 
     private static ArrayList<File> filterFiles(Path folderPath, String exclusions) throws IOException {
 
-        List<String> patterns = Lists.newArrayList(split(exclusions, ","));
+        List<String> patterns = Arrays.asList(split(exclusions, ","));
 
         return Files.walk(folderPath)
                 .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))

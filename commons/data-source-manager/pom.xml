@@ -43,6 +43,11 @@
             <version>${version}</version>
         </dependency>
         <dependency>
+            <artifactId>arachne-common-utils</artifactId>
+            <groupId>com.odysseusinc.arachne</groupId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
