@@ -254,7 +254,7 @@ public class KerberosServiceImpl implements KerberosService {
     private String buildKrbConfHeader(String defaultRealmName) throws IOException {
 
         return TemplateUtils
-                .loadTemplate("templates/krb5ConfHeader.mustache")
+                .loadTemplate("/templates/krb5ConfHeader.mustache")
                 .apply(Collections.singletonMap("defaultRealmName", defaultRealmName));
     }
 
@@ -265,7 +265,7 @@ public class KerberosServiceImpl implements KerberosService {
         parameters.put("adminServer", dataSource.getKrbAdminFQDN());
         parameters.put("kdcServer", dataSource.getKrbFQDN());
 
-        Template confTemplate = TemplateUtils.loadTemplate("templates/krb5ConfRealm.mustache");
+        Template confTemplate = TemplateUtils.loadTemplate("/templates/krb5ConfRealm.mustache");
         return confTemplate.apply(parameters);
     }
 
