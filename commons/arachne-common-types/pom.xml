@@ -12,4 +12,17 @@
 
     <artifactId>arachne-common-types</artifactId>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>artifactory</id>
+            <name>Odysseus community snapshots</name>
+            <url>http://repo.odysseusinc.com/artifactory/community-libs-snapshot-local</url>
+        </snapshotRepository>
+        <repository>
+            <id>artifactory</id>
+            <name>Odysseus community releases</name>
+            <url>http://repo.odysseusinc.com/artifactory/community-libs-release-local</url>
+        </repository>
+    </distributionManagement>
+
 </project>
