@@ -5,7 +5,7 @@
 
     <artifactId>arachne-scheduler</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.14.0</version>
+    <version>1.14.1-alpha1</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
