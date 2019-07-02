@@ -1,23 +1,17 @@
 package com.odysseusinc.datasourcemanager.jdbc;
 
-import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
-import com.odysseusinc.arachne.execution_engine_common.util.BigQueryUtils;
 import com.odysseusinc.datasourcemanager.jdbc.auth.BigQueryAuthResolver;
 import com.odysseusinc.datasourcemanager.jdbc.auth.DataSourceAuthResolver;
 import com.odysseusinc.datasourcemanager.jdbc.auth.KerberosAuthResolver;
 import com.odysseusinc.datasourcemanager.krblogin.KerberosService;
-import com.odysseusinc.datasourcemanager.krblogin.RuntimeServiceMode;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -30,6 +24,15 @@ public class DataSourceJdbcExecutor {
 
 		this.kerberosService = kerberosService;
 		initDefaultResolvers();
+	}
+
+	public DataSourceJdbcExecutor(KerberosService kerberosService, List<DataSourceAuthResolver> authResolvers) {
+
+		if (Objects.isNull(authResolvers)) {
+			throw new IllegalArgumentException("authResolvers should not be null");
+		}
+		this.kerberosService = kerberosService;
+		this.authResolvers = authResolvers;
 	}
 
 	private void initDefaultResolvers() {

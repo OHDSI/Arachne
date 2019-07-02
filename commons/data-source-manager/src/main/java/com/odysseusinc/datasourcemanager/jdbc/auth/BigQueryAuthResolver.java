@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BigQueryAuthResolver implements DataSourceAuthResolver {
+public class BigQueryAuthResolver implements DataSourceAuthResolver<File> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BigQueryAuthResolver.class);
 
@@ -25,7 +26,7 @@ public class BigQueryAuthResolver implements DataSourceAuthResolver {
 	}
 
 	@Override
-	public void resolveAuth(DataSourceUnsecuredDTO dataSourceData, File workDir) {
+	public Optional<File> resolveAuth(DataSourceUnsecuredDTO dataSourceData, File workDir) {
 
 		try {
 			File keyFile = Files.createTempFile(workDir.toPath(), "", ".json").toFile();
@@ -34,6 +35,7 @@ public class BigQueryAuthResolver implements DataSourceAuthResolver {
 			}
 			String connStr = BigQueryUtils.replaceBigQueryKeyPath(dataSourceData.getConnectionString(), keyFile.getAbsolutePath());
 			dataSourceData.setConnectionString(connStr);
+			return Optional.of(keyFile);
 		} catch (IOException e) {
 			logger.error("Failed to resolve BigQuery authentication for Source: [{}]", dataSourceData.getName(), e);
 			throw new RuntimeException(e);
