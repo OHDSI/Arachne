@@ -65,7 +65,7 @@ public final class ConnectionParamsParser {
                     List<String> paramValues = Arrays.asList(paramString.split("[&;]"));
                     Map<String, String> params = paramValues.stream()
                             .filter(v -> Objects.nonNull(v) && v.contains("="))
-                            .map(v -> v.split("=")).collect(Collectors.toMap(x -> x[0], x -> x[1]));
+                            .map(v -> v.split("=")).collect(Collectors.toMap(x -> x[0], x -> x.length > 1 ? x[1] : ""));
                     parseCredentials(dto, params);
                 }
             }
