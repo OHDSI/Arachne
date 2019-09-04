@@ -24,7 +24,6 @@ package com.odysseusinc.arachne.execution_engine_common.util;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-import com.google.common.collect.Lists;
 import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,12 +31,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.lingala.zip4j.core.ZipFile;
+
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -59,7 +61,7 @@ public class CommonFileUtils {
                 .collect(Collectors.toList());
     }
 
-    public static void unzipFiles(File zipArchive, File destination) throws FileNotFoundException, ZipException {
+    public static void unzipFiles(File zipArchive, File destination) throws FileNotFoundException {
 
         if (destination == null || !destination.exists()) {
             throw new FileNotFoundException("Destination directory must be exist");
@@ -87,10 +89,10 @@ public class CommonFileUtils {
             ZipFile zipFile = new ZipFile(zipArchive);
 
             ZipParameters parameters = new ZipParameters();
-            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+            parameters.setCompressionMethod(CompressionMethod.DEFLATE);
             // High compression level was set selected as possible fix for a bug:
             // http://www.lingala.net/zip4j/forum/index.php?topic=225.0
-            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
+            parameters.setCompressionLevel(CompressionLevel.MAXIMUM);
             parameters.setIncludeRootFolder(false);
             parameters.setReadHiddenFiles(false);
 
@@ -98,23 +100,23 @@ public class CommonFileUtils {
             ArrayList<File> filesToAdd = filterFiles(folder.toPath(), exclusions);
 
             if (maximumSize != null) {
-                zipFile.createZipFile(filesToAdd, parameters, true, maximumSize);
+                zipFile.createSplitZipFile(filesToAdd, parameters, true, maximumSize);
             } else {
-                zipFile.createZipFile(filesToAdd, parameters);
+                zipFile.addFiles(filesToAdd, parameters);
             }
-        } catch (IOException ioException) {
-            log.error(ioException.getMessage(), ioException);
-            throw new IORuntimeException(ioException.getMessage());
         } catch (ZipException zipException) {
             throw new ZipException(String.format("Zip exception [folder: %s, zipArchive: %s]: %s",
                     folder.getAbsolutePath(), zipArchive.getAbsolutePath(), zipException.getMessage()), zipException);
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage(), ioException);
+            throw new IORuntimeException(ioException.getMessage());
         }
         return zipDir;
     }
 
     private static ArrayList<File> filterFiles(Path folderPath, String exclusions) throws IOException {
 
-        List<String> patterns = Lists.newArrayList(split(exclusions, ","));
+        List<String> patterns = Arrays.asList(split(exclusions, ","));
 
         return Files.walk(folderPath)
                 .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))

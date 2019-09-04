@@ -25,7 +25,6 @@ import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 
 public class TempHolder {
 
@@ -42,7 +41,6 @@ public class TempHolder {
      * if it faces file or directory that hasn't been changed
      * for last 10days it will delete it.
      */
-    @Scheduled(cron = "${tmp.holder.cron}")
     public void hold() throws IOException {
         final File tmp = getTmpFolder();
         if (tmp.exists() && tmp.isDirectory()) {

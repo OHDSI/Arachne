@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.14.0-QA</version>
+    <version>1.15.0-QA</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -18,10 +18,28 @@
         <module>logging</module>
         <module>data-source-manager</module>
         <module>arachne-scheduler</module>
+        <module>arachne-common-types</module>
+        <module>arachne-common-utils</module>
     </modules>
 
     <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <spring.version>5.1.7.RELEASE</spring.version>
+        <spring.cloud.version>1.2.0.RELEASE</spring.cloud.version>
+        <spring.boot.version>1.5.20.RELEASE</spring.boot.version>
+        <java.version>1.8</java.version>
     </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>artifactory</id>
+            <name>Odysseus community snapshots</name>
+            <url>http://repo.odysseusinc.com/artifactory/community-libs-snapshot-local</url>
+        </snapshotRepository>
+        <repository>
+            <id>artifactory</id>
+            <name>Odysseus community releases</name>
+            <url>http://repo.odysseusinc.com/artifactory/community-libs-release-local</url>
+        </repository>
+    </distributionManagement>
 
 </project>
