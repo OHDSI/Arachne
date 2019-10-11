@@ -20,8 +20,8 @@
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.commons.types;
 
 public enum CommonCDMVersionDTO {
-    V4_0, V5_0, V5_0_1, V5_1, V5_2, V5_3
+    V4_0, V5_0, V5_0_1, V5_1, V5_2, V5_3, V5_3_1
 }

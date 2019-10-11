@@ -22,9 +22,15 @@
 
 package com.odysseusinc.arachne.execution_engine_common.api.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.concurrent.Future;
+
 public class AnalysisRequestStatusDTO {
     private Long id;
     private AnalysisRequestTypeDTO type;
+    @JsonIgnore
+    private Future executionFuture;
 
     public AnalysisRequestStatusDTO() {
 
@@ -34,6 +40,12 @@ public class AnalysisRequestStatusDTO {
 
         this.id = id;
         this.type = type;
+    }
+
+    public AnalysisRequestStatusDTO(Long id, AnalysisRequestTypeDTO type, Future executionFuture) {
+
+        this(id, type);
+        this.executionFuture = executionFuture;
     }
 
     public Long getId() {
@@ -54,5 +66,15 @@ public class AnalysisRequestStatusDTO {
     public void setType(AnalysisRequestTypeDTO type) {
 
         this.type = type;
+    }
+
+    public Future getExecutionFuture() {
+
+        return executionFuture;
+    }
+
+    public void setExecutionFuture(Future executionFuture) {
+
+        this.executionFuture = executionFuture;
     }
 }

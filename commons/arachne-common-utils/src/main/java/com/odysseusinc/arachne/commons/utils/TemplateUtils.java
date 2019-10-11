@@ -25,13 +25,10 @@ package com.odysseusinc.arachne.commons.utils;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.Resource;
 
 public class TemplateUtils {
 
@@ -40,17 +37,17 @@ public class TemplateUtils {
 
     public static Template loadTemplate(String path) {
 
-        Resource templateResource = new ClassPathResource(path);
-        return loadTemplate(templateResource);
+        InputStream inputStream = TemplateUtils.class.getResourceAsStream(path);
+        return loadTemplate(inputStream);
     }
 
-    public static Template loadTemplate(InputStreamSource inputStreamSource) {
+    public static Template loadTemplate(InputStream inputStream) {
 
-        try (Reader r = new InputStreamReader(inputStreamSource.getInputStream())) {
+        try (Reader r = new InputStreamReader(inputStream)) {
             return handlebars.compileInline(IOUtils.toString(r));
         } catch (IOException e) {
             String message = "Failed to initailize template";
-            throw new BeanInitializationException(message);
+            throw new IllegalArgumentException(message);
         }
     }
 }

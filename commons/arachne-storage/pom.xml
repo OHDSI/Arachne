@@ -4,22 +4,27 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.odysseusinc.arachne</groupId>
+        <artifactId>arachne-commons-bundle</artifactId>
+        <version>1.15.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <artifactId>arachne-storage</artifactId>
-    <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.14.1-alpha1</version>
     <packaging>jar</packaging>
 
     <properties>
         <java.version>1.8</java.version>
-        <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
-        <commons.lang3.version>3.5</commons.lang3.version>
+        <spring.boot.version>1.5.20.RELEASE</spring.boot.version>
+        <commons.lang3.version>3.8.1</commons.lang3.version>
     </properties>
 
     <dependencies>
         <dependency>
             <artifactId>arachne-commons</artifactId>
             <groupId>com.odysseusinc.arachne</groupId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
