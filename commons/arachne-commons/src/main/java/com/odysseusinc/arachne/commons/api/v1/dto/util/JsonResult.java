@@ -26,6 +26,7 @@ package com.odysseusinc.arachne.commons.api.v1.dto.util;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class JsonResult<T> implements Serializable {
     public enum ErrorCode {
@@ -37,7 +38,7 @@ public class JsonResult<T> implements Serializable {
         ALREADY_EXIST(5),
         DEPENDENCY_EXISTS(6),
         UNACTIVATED(7);
-        Integer code;
+        private Integer code;
 
         ErrorCode(Integer code) {
 
@@ -59,6 +60,12 @@ public class JsonResult<T> implements Serializable {
 
             this.code = code;
         }
+
+        public boolean hasEqualCode(JsonResult jsonResult) {
+
+            return jsonResult != null && Objects.equals(this.code, jsonResult.getErrorCode());
+        }
+
     }
 
     public JsonResult() {
