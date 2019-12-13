@@ -23,28 +23,33 @@ package com.odysseusinc.arachne.commons.config.flyway;
 import java.sql.Connection;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Adapter for executing migrations implementing ApplicationContextAwareSpringMigration.
  */
 public class ApplicationContextAwareSpringJdbcMigrationExecutor implements MigrationExecutor {
-    /**
-     * The ApplicationContextAwareSpringMigration to execute.
-     */
-    private final ApplicationContextAwareSpringMigration springJdbcMigration;
+
+    private final ApplicationContext applicationContext;
+
+    private final String className;
 
     /**
      * Creates a new ApplicationContextAwareSpringMigration.
      *
      * @param springJdbcMigration The Application Context Aware Spring Jdbc Migration to execute.
+     * @param applicationContext
      */
-    public ApplicationContextAwareSpringJdbcMigrationExecutor(ApplicationContextAwareSpringMigration springJdbcMigration) {
-        this.springJdbcMigration = springJdbcMigration;
+    public ApplicationContextAwareSpringJdbcMigrationExecutor(ApplicationContext applicationContext, String className) {
+
+        this.applicationContext = applicationContext;
+        this.className = className;
     }
 
     @Override
     public void execute(Connection connection) {
         try {
+            ApplicationContextAwareSpringMigration springJdbcMigration = (ApplicationContextAwareSpringMigration)applicationContext.getBean(className);
             springJdbcMigration.migrate();
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
