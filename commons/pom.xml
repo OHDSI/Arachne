@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.15.1-QA</version>
+    <version>1.16.0-QA</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -25,8 +25,11 @@
     <properties>
         <spring.version>5.1.7.RELEASE</spring.version>
         <spring.cloud.version>1.2.0.RELEASE</spring.cloud.version>
-        <spring.boot.version>1.5.20.RELEASE</spring.boot.version>
+        <spring.boot.version>1.5.22.RELEASE</spring.boot.version>
+        <tomcat.version>8.5.50</tomcat.version>
         <java.version>1.8</java.version>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
     <distributionManagement>
@@ -41,5 +44,20 @@
             <url>http://repo.odysseusinc.com/artifactory/community-libs-release-local</url>
         </repository>
     </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

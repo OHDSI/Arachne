@@ -23,26 +23,32 @@
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation"),
-    REPORTING("Reporting"),
-    CUSTOM("Custom"),
-    PREDICTION("Patient Level Prediction"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)"),
-    COHORT_HERACLES("Cohort (Heracles)"),
-    COHORT("Cohort (Simple Counts)"),
-    INCIDENCE("Incidence rates"),
-    COHORT_PATHWAY("Cohort Pathway");
-
+    ESTIMATION("Population Level Effect Estimation", "ple"),
+    CUSTOM("Custom", "cstm"),
+    PREDICTION("Patient Level Prediction", "plp"),
+    COHORT_CHARACTERIZATION("Cohort (Characterization)", "cc"),
+    COHORT_HERACLES("Cohort (Heracles)", "cc_hrcls"),
+    COHORT("Cohort (Simple Counts)", "c"),
+    INCIDENCE("Incidence rates", "ir"),
+    COHORT_PATHWAY("Cohort Pathway", "txp");
 
     private String title;
 
-    CommonAnalysisType(String title) {
+    private String code;
+
+    CommonAnalysisType(String title, String code) {
 
         this.title = title;
+        this.code = code;
     }
 
     public String getTitle() {
 
         return title;
+    }
+
+    public String getCode() {
+
+        return code;
     }
 }

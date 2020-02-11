@@ -38,6 +38,8 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -62,16 +64,16 @@ public class ApplicationContextAwareSpringJdbcMigrationResolver implements Migra
     @SuppressWarnings("unchecked")
     @Override
     public Collection<ResolvedMigration> resolveMigrations() {
-        // get all beans of type ApplicationContextAwareSpringMigration from the application context
-        Map<String, ApplicationContextAwareSpringMigration> springJdbcMigrationBeans = this.applicationContext.getBeansOfType(ApplicationContextAwareSpringMigration.class);
+
+        String[] springJdbcMigrationBeanNames = this.applicationContext.getBeanNamesForType(ApplicationContextAwareSpringMigration.class);
 
         ArrayList<ResolvedMigration> resolvedMigrations = new ArrayList<ResolvedMigration>();
-
         // resolve the migration and populate it with the migration info
-        for (ApplicationContextAwareSpringMigration springJdbcMigrationBean : springJdbcMigrationBeans.values()) {
-            ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(springJdbcMigrationBean);
-            resolvedMigration.setPhysicalLocation(ClassUtils.getLocationOnDisk(springJdbcMigrationBean.getClass()));
-            resolvedMigration.setExecutor(new ApplicationContextAwareSpringJdbcMigrationExecutor(springJdbcMigrationBean));
+        for (String springJdbcMigrationBeanName : springJdbcMigrationBeanNames) {
+            BeanDefinition beanDefinition = ((BeanDefinitionRegistry) this.applicationContext).getBeanDefinition(springJdbcMigrationBeanName);
+
+            ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(beanDefinition);
+            resolvedMigration.setExecutor(new ApplicationContextAwareSpringJdbcMigrationExecutor(this.applicationContext, springJdbcMigrationBeanName));
 
             resolvedMigrations.add(resolvedMigration);
         }
@@ -86,7 +88,7 @@ public class ApplicationContextAwareSpringJdbcMigrationResolver implements Migra
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(ApplicationContextAwareSpringMigration springJdbcMigration) {
+    ResolvedMigrationImpl extractMigrationInfo(BeanDefinition springJdbcMigration) {
 
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
@@ -104,7 +106,13 @@ public class ApplicationContextAwareSpringJdbcMigrationResolver implements Migra
                 throw new FlywayException("Missing description for migration " + version);
             }
         } else {
-            String shortName = ClassUtils.getShortName(springJdbcMigration.getClass());
+            Class<?> beanClass;
+            try {
+                beanClass = Class.forName(springJdbcMigration.getBeanClassName());
+            } catch (ClassNotFoundException e) {
+                throw new FlywayException("Cannot find bean by class name : " + springJdbcMigration.getBeanClassName());
+            }
+            String shortName = ClassUtils.getShortName(beanClass);
             String prefix;
             boolean repeatable = shortName.startsWith("R");
             if (shortName.startsWith("V") || repeatable) {

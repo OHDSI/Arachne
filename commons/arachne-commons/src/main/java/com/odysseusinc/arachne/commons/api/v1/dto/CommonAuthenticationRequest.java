@@ -23,9 +23,13 @@
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 
+import org.hibernate.validator.constraints.NotBlank;
+
 public class CommonAuthenticationRequest {
 
+	@NotBlank(message = "Username cannot be empty")
 	private String username;
+	@NotBlank(message = "Password cannot be empty")
 	private String password;
 
 	public CommonAuthenticationRequest() {

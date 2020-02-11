@@ -31,7 +31,8 @@ public enum DBMSType {
     ORACLE("Oracle", "oracle"),
     IMPALA("Impala", "impala"),
     BIGQUERY("Google BigQuery", "bigquery"),
-    NETEZZA("Netezza", "netezza");
+    NETEZZA("Netezza", "netezza"),
+    HIVE("Apache Hive", "hive");
 
     private String label;
     // For further pass into SqlRender.translateSql as "targetDialect" and DatabaseConnector as "dbms"
