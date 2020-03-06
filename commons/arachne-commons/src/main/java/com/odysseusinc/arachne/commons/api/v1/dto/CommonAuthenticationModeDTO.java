@@ -16,12 +16,29 @@
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
  * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
- * Created: January 13, 2017
+ * Created: April 24, 2017
  *
  */
 
-package com.odysseusinc.arachne.commons.types;
+package com.odysseusinc.arachne.commons.api.v1.dto;
 
-public enum CommonCDMVersionDTO {
-    V4_0, V5_0, V5_0_1, V5_1, V5_2, V5_3, V5_3_1, V6_0
+public class CommonAuthenticationModeDTO {
+
+    private String mode;
+
+    public CommonAuthenticationModeDTO(String mode) {
+
+        this.mode = mode;
+    }
+
+
+    public String getMode() {
+
+        return mode;
+    }
+
+    public void setMode(String mode) {
+
+        this.mode = mode;
+    }
 }

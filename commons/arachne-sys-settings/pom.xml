@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.odysseusinc.arachne</groupId>
         <artifactId>arachne-commons-bundle</artifactId>
-        <version>1.15.0</version>
+        <version>1.16.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -19,7 +19,7 @@
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
         <postgresql.version>42.2.1</postgresql.version>
         <flyway.version>4.2.0</flyway.version>
-        <spring.jasypt.version>1.12</spring.jasypt.version>
+        <spring.jasypt.version>1.18</spring.jasypt.version>
     </properties>
 
     <dependencies>
@@ -87,19 +87,7 @@
             <version>${spring.jasypt.version}</version>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 
     <repositories>
         <repository>

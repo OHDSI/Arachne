@@ -76,6 +76,7 @@ public class CommonFileUtils {
     public static final String OHDSI_SQL_EXT = ".ohdsi.sql";
     public static final String OHDSI_JSON_EXT = ".ohdsi.json";
     public static final String ESTIMATION_EXT = ".json";
+    public static final String ANALYSIS_INFO_FILE_DESCRIPTION = "ANALYSIS_INFO_FILE.description";
 
     private static List<String> TEXT_MIMES = new ArrayList<>();
 
