@@ -20,6 +20,7 @@ library(DatabaseConnector)
 library({{packageName}})
 
 tryCatch({
+  workDir <- getwd()
   dbms <- Sys.getenv("DBMS_TYPE")
   connectionString <- Sys.getenv("CONNECTION_STRING")
   user <- Sys.getenv("DBMS_USERNAME")
@@ -27,42 +28,17 @@ tryCatch({
   cdmDatabaseSchema <- Sys.getenv("DBMS_SCHEMA")
   resultsDatabaseSchema <- Sys.getenv("RESULT_SCHEMA")
   cohortsDatabaseSchema <- Sys.getenv("TARGET_SCHEMA")
-  driversPath <- (function(path) if (path == "") NULL else path)( Sys.getenv("JDBC_DRIVER_PATH") )
   analysisId <- (function(id) if (id == "") {{analysisId}} else id)( Sys.getenv("ANALYSIS_ID") )
-
-  outputFolder <- file.path(getwd(), 'results')
-  dir.create(outputFolder)
-
+  driversPath <- (function(path) if (path == "") NULL else path)( Sys.getenv("JDBC_DRIVER_PATH") )
+  cohorts <- list({{{cohortDefinitions}}})
   connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
     connectionString = connectionString,
     user = user,
     password = pwd,
-    pathToDriver = driversPath)
-
-  cohortTable <- createCohorts(
-    pckg = "{{packageName}}",
-    connectionDetails = connectionDetails,
-    cdmSchema = cdmDatabaseSchema,
-    vocabularySchema = cdmDatabaseSchema,
-    resultSchema = resultsDatabaseSchema,
-    tempSchema = resultsDatabaseSchema
+    pathToDriver = driversPath
   )
-
-  runAnalysis(connectionDetails = connectionDetails,
-      cdmSchema = cdmDatabaseSchema,
-      vocabularySchema = cdmDatabaseSchema,
-      resultsSchema = resultsDatabaseSchema,
-      cohortTable = cohortTable,
-      sessionId = NULL,
-      analysisId = analysisId,
-      outputFolder = outputFolder)
-
-  cleanupCohortTable(
-    connectionDetails = connectionDetails,
-    resultSchema = resultsDatabaseSchema,
-    cohortTable = cohortTable,
-    tempSchema = resultsDatabaseSchema
-  )
+  run_pathways(workDir, connectionDetails, cdmDatabaseSchema = cdmDatabaseSchema, resultsSchema = resultsDatabaseSchema, cohortDefinitions = cohorts,
+    cohortTable = "cohort", analysisId = analysisId, outputFolder = "results")
 }, finally = {
   remove.packages('{{packageName}}', lib = libs_local)
   unlink(libs_local, recursive = TRUE, force = TRUE)
