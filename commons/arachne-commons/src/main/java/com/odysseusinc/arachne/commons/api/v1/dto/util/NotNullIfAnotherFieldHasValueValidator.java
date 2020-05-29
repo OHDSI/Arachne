@@ -29,17 +29,12 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             return true;
         }
         try {
-            String fieldValue;
-            try {
-                fieldValue = BeanUtils.getProperty(value, fieldName);
-            }catch (NestedNullException e) {
-                fieldValue = null;
-            }
+            String fieldValue = getFieldValue(value);
             final String dependentFieldValue = BeanUtils.getProperty(value, dependentFieldName);
             if (expectedFieldValue.equals(fieldValue) && dependentFieldValue == null) {
                 ctx.disableDefaultConstraintViolation();
                 ctx.buildConstraintViolationWithTemplate(ctx.getDefaultConstraintMessageTemplate())
-                        .addNode(dependentFieldName)
+                        .addPropertyNode(dependentFieldName)
                         .addConstraintViolation();
                 return false;
             }
@@ -48,5 +43,13 @@ public class NotNullIfAnotherFieldHasValueValidator implements ConstraintValidat
             return false;
         }
 
+    }
+
+    private String getFieldValue(Object value) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        try {
+            return BeanUtils.getProperty(value, fieldName);
+        } catch (NestedNullException e) {
+            return null;
+        }
     }
 }
