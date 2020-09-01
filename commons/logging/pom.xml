@@ -29,7 +29,7 @@
     <parent>
         <groupId>com.odysseusinc.arachne</groupId>
         <artifactId>arachne-commons-bundle</artifactId>
-        <version>1.16.1-QA</version>
+        <version>1.16.2-QA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
