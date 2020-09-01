@@ -25,7 +25,7 @@ public class AnyFieldNotBlankValidator implements ConstraintValidator<AnyFieldNo
 			context.disableDefaultConstraintViolation();
 			Arrays.stream(fields).forEach(f -> context
 							.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-							.addNode(f)
+							.addPropertyNode(f)
 							.addConstraintViolation());
 		}
 		return result;

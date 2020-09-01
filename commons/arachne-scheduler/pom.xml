@@ -43,12 +43,12 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
-            <version>1.13.9.RELEASE</version>
+            <version>1.13.13.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>1.11.9.RELEASE</version>
+            <version>1.11.23.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.cosium.spring.data</groupId>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.13.RELEASE</version>
+            <version>4.3.19.RELEASE</version>
         </dependency>
     </dependencies>
 

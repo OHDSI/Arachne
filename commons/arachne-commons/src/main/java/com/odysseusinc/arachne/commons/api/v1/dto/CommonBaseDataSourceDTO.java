@@ -22,19 +22,21 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType.CDM_NAME;
-
 import com.odysseusinc.arachne.commons.api.v1.dto.util.NotNullIfAnotherFieldHasValue;
 import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.commons.types.DBMSType;
-import java.io.Serializable;
-import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+
+import static com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType.CDM_NAME;
 
 @NotNullIfAnotherFieldHasValue(
         fieldName = "modelType",
         fieldValue = CDM_NAME,
-        dependentFieldName = "cdmVersion")
+        dependentFieldName = "cdmVersion",
+        message = "CDM version should be detected")
 public class CommonBaseDataSourceDTO implements Serializable {
     private Long id;
 

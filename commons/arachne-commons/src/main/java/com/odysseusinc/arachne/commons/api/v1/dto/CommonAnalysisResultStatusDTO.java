@@ -42,4 +42,8 @@ public enum  CommonAnalysisResultStatusDTO {
 
         return title;
     }
+
+    public String getTitle() {
+        return title;
+    }
 }
