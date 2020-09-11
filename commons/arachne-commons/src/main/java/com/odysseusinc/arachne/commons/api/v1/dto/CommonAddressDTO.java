@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-@AnyFieldNotBlank(fields = {"phone", "mobile"}, message = "Either mobile or phone number is required")
 @AnyFieldNotBlank(fields = {"address1", "address2"}, message = "May not be empty")
 @NotNullIfAnotherFieldHasValue(fieldName = "country.isoCode", fieldValue = "US", dependentFieldName = "stateProvince", message = "May not be empty")
 public class CommonAddressDTO {
