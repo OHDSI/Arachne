@@ -15,16 +15,21 @@
  *
  * Company: Odysseus Data Services, Inc.
  * Product Owner/Architecture: Gregory Klebanov
- * Authors: Pavel Grafkin, Alexander Saltykov, Vitaly Koulakov, Anton Gackovka, Alexandr Ryabokon, Mikhail Mironov
- * Created: Nov 8, 2017
+ * Authors: Sergey Suvorov
+ * Created: July 16, 2020
  *
  */
 
-package com.odysseusinc.arachne.datanode.service.client.atlas;
+package com.odysseusinc.arachne.datanode.exception;
 
-public enum AtlasAuthSchema {
-    NONE,
-    DATABASE,
-    LDAP,
-    ACCESS_TOKEN
+public class AtlasAuthException extends RuntimeException {
+    public AtlasAuthException() {
+
+        super();
+    }
+
+    public AtlasAuthException(String message) {
+
+        super(message);
+    }
 }
