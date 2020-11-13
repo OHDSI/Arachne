@@ -64,6 +64,7 @@ public abstract class BaseJobServiceImpl<T extends ArachneJob> implements BaseJo
         final boolean isClosed = isClosed(job);
         job.setClosed(isClosed);
         final T saved = jobRepository.save(job);
+        saveAdditionalFields(saved);
         if (!isClosed && saved.getEnabled()) {
             addToScheduler(saved);
         }
@@ -146,6 +147,9 @@ public abstract class BaseJobServiceImpl<T extends ArachneJob> implements BaseJo
     }
 
     protected void beforeUpdate(T exists, T updated) {
+    }
+
+    protected void saveAdditionalFields(T job) {
     }
 
     protected abstract void updateAdditionalFields(T exists, T job);
