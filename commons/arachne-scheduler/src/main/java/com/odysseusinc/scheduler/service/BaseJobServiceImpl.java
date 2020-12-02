@@ -15,11 +15,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -165,7 +165,11 @@ public abstract class BaseJobServiceImpl<T extends ArachneJob> implements BaseJo
         }
         final ExecutionTime executionTime = getExecutionTime(job);
         final ZonedDateTime lastExecuted = ZonedDateTime.now();
-        final ZonedDateTime nextExecution = executionTime.nextExecution(lastExecuted);
+        final Optional<ZonedDateTime> nextExecutionOptional = executionTime.nextExecution(lastExecuted);
+        if (!nextExecutionOptional.isPresent()) {
+            return true;
+        }
+        ZonedDateTime nextExecution = nextExecutionOptional.get();
         if (JobExecutingType.ONCE.equals(job.getFrequency())) {
             return !Objects.equals(job.getStartDate(), Date.from(nextExecution.toInstant()));
         }
@@ -180,23 +184,22 @@ public abstract class BaseJobServiceImpl<T extends ArachneJob> implements BaseJo
 
     protected T assignNextExecution(T job) {
 
-        ZonedDateTime nextExecution = getNextExecution(job);
-        job.setNextExecution(Objects.nonNull(nextExecution) ? Date.from(nextExecution.toInstant()) : null);
+        Optional<ZonedDateTime> nextExecution = getNextExecution(job);
+        job.setNextExecution(nextExecution.isPresent() ? Date.from(nextExecution.get().toInstant()) : null);
         return job;
     }
 
-    protected ZonedDateTime getNextExecution(T job) {
+    protected Optional<ZonedDateTime> getNextExecution(T job) {
 
-        ZonedDateTime result = null;
         if (job.getEnabled()) {
             if (Objects.equals(JobExecutingType.ONCE, job.getFrequency())) {
-                result = ZonedDateTime.ofInstant(job.getStartDate().toInstant(), ZoneId.systemDefault());
+                return Optional.of(ZonedDateTime.ofInstant(job.getStartDate().toInstant(), ZoneId.systemDefault()));
             } else {
                 final ExecutionTime executionTime = getExecutionTime(job);
-                result = executionTime.nextExecution(ZonedDateTime.now());
+                return executionTime.nextExecution(ZonedDateTime.now());
             }
         }
-        return result;
+        return Optional.empty();
     }
 
     protected final ExecutionTime getExecutionTime(T job) {
