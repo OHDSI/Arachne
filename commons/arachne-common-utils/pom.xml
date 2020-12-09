@@ -5,7 +5,7 @@
     <parent>
         <artifactId>arachne-commons-bundle</artifactId>
         <groupId>com.odysseusinc.arachne</groupId>
-        <version>1.16.2</version>
+        <version>1.16.3-QA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
