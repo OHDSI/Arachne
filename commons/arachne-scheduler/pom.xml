@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.odysseusinc.arachne</groupId>
         <artifactId>arachne-commons-bundle</artifactId>
-        <version>1.17.0-QA</version>
+        <version>1.17.1-QA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.21.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
