@@ -5,7 +5,7 @@
     <parent>
         <artifactId>arachne-commons-bundle</artifactId>
         <groupId>com.odysseusinc.arachne</groupId>
-        <version>1.17.1-QA</version>
+        <version>1.17.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
