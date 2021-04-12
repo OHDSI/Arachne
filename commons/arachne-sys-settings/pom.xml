@@ -78,11 +78,10 @@
         </dependency>
     </dependencies>
 
-
     <repositories>
         <repository>
-            <id>odysseus.community.snapshots</id>
-            <name>Odysseus community snapshots</name>
+            <id>community-libs-snapshot-local</id>
+            <name>community-libs-snapshot-local</name>
             <releases>
                 <enabled>false</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -91,11 +90,11 @@
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-            <url>http://repo.odysseusinc.com/artifactory/community-libs-snapshot-local</url>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
         </repository>
         <repository>
-            <id>odysseus.community.releases</id>
-            <name>Odysseus community releases</name>
+            <id>community-libs-releases-local</id>
+            <name>community-libs-releases-local</name>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -104,21 +103,21 @@
                 <enabled>false</enabled>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-            <url>http://repo.odysseusinc.com/artifactory/community-libs-release-local</url>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
         </repository>
     </repositories>
 
+
     <distributionManagement>
         <snapshotRepository>
-            <id>artifactory</id>
-            <name>Odysseus community snapshots</name>
-            <url>http://repo.odysseusinc.com/artifactory/community-libs-snapshot-local</url>
+            <id>community-libs-snapshot-local</id>
+            <name>community-libs-snapshot-local</name>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
         </snapshotRepository>
         <repository>
-            <id>artifactory</id>
-            <name>Odysseus community releases</name>
-            <url>http://repo.odysseusinc.com/artifactory/community-libs-release-local</url>
+            <id>community-libs-snapshot-local</id>
+            <name>community-libs-snapshot-local</name>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
         </repository>
     </distributionManagement>
-
 </project>
