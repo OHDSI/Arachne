@@ -127,7 +127,7 @@ public class CommonFileUtils {
 
         files.stream()
                 .filter(file -> ZIP_FILES_MATCHER.matches(file.toPath()))
-                .forEach(file -> filterFilesInZip(file.toPath(), patterns));
+                .forEach(file -> filterFilesInZip(patterns, file));
 
         return files;
     }
@@ -139,9 +139,9 @@ public class CommonFileUtils {
                 .noneMatch(e -> matcher.match(e.trim(), fileName));
     }
 
-    public static void filterFilesInZip(Path path, List<String> patterns) {
+    public static void filterFilesInZip(List<String> patterns, File file) {
         try {
-            ZipFile zipFile = new ZipFile(path.toFile());
+            ZipFile zipFile = new ZipFile(file);
             List<FileHeader> headersList = zipFile.getFileHeaders();
             List<String> headersToDelete = new ArrayList<>();
             headersList.forEach(header -> {
