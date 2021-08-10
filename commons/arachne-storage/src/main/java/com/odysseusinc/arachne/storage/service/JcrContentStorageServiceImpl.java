@@ -40,6 +40,7 @@ import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.core.fs.FileSystemPathUtil;
 import org.apache.jackrabbit.util.Text;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,8 @@ public class JcrContentStorageServiceImpl implements ContentStorageService {
     public String getLocationForEntity(Object domainObject, List<String> additionalPathParts) {
 
         String entityId = String.valueOf(entityManagerFactory.getPersistenceUnitUtil().getIdentifier(domainObject));
-        return getLocationForEntity(domainObject.getClass(), entityId, additionalPathParts);
+        final Object cleanModelObject = Hibernate.unproxy(domainObject);
+        return getLocationForEntity(cleanModelObject.getClass(), entityId, additionalPathParts);
     }
 
     @Override

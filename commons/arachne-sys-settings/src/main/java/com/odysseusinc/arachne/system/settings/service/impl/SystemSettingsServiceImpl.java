@@ -95,7 +95,7 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
             List<SystemSetting> forUpdate = new LinkedList<>();
             for (Map.Entry<Long, String> entry : values.entrySet()) {
                 if (entry.getValue() != null) {
-                    SystemSetting systemProperty = systemSettingRepository.findOne(entry.getKey());
+                    SystemSetting systemProperty = systemSettingRepository.findById(entry.getKey()).orElse(null);
                     if (systemProperty != null) {
                         if (systemProperty.getType() == SystemSettingType.checkbox) {
                             entry.setValue(String.valueOf(Boolean.parseBoolean(entry.getValue())));
@@ -115,7 +115,7 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
                 }
             }
             if (!forUpdate.isEmpty()) {
-                systemSettingRepository.save(forUpdate);
+                systemSettingRepository.saveAll(forUpdate);
                 isConfigChanged = true;
             }
         } else {

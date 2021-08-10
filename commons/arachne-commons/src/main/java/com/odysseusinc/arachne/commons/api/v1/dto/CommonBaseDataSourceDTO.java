@@ -52,6 +52,8 @@ public class CommonBaseDataSourceDTO implements Serializable {
     private Boolean published;
     @NotNull
     private DBMSType dbmsType;
+    @NotNull
+    private CommonDataSourceAccessType accessType;
 
     public Long getId() {
 
@@ -115,5 +117,13 @@ public class CommonBaseDataSourceDTO implements Serializable {
 
     public void setDbmsType(DBMSType dbmsType) {
         this.dbmsType = dbmsType;
+    }
+
+    public CommonDataSourceAccessType getAccessType() {
+        return accessType;
+    }
+
+    public void setAccessType(CommonDataSourceAccessType accessType) {
+        this.accessType = accessType;
     }
 }
