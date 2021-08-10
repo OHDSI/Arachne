@@ -5,7 +5,7 @@
     <parent>
         <artifactId>arachne-commons-bundle</artifactId>
         <groupId>com.odysseusinc.arachne</groupId>
-        <version>1.17.1</version>
+        <version>1.18.0-QA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -19,7 +19,7 @@
             <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
         </snapshotRepository>
         <repository>
-            <id>community-libs-releases-local</id>
+            <id>community-libs-release-local</id>
             <name>community-libs-release-local</name>
             <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
         </repository>

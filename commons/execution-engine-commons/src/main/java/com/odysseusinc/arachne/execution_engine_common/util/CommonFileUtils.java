@@ -28,8 +28,7 @@ import com.odysseusinc.arachne.execution_engine_common.exception.IORuntimeExcept
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +36,7 @@ import java.util.stream.Collectors;
 
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
@@ -49,6 +49,8 @@ public class CommonFileUtils {
 
     private static final Logger log = LoggerFactory.getLogger(CommonFileUtils.class);
     private static final AntPathMatcher matcher = new AntPathMatcher();
+    private static final String DELETE_IN_ZIP_ERROR = "Error deleting file in zip archive. Skipped";
+    private static final PathMatcher ZIP_FILES_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.zip");
 
     private CommonFileUtils() {
 
@@ -118,10 +120,16 @@ public class CommonFileUtils {
 
         List<String> patterns = Arrays.asList(split(exclusions, ","));
 
-        return Files.walk(folderPath)
+        ArrayList<File> files = Files.walk(folderPath)
                 .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))
                 .filter(path -> !Files.isDirectory(path))
                 .map(Path::toFile).collect(Collectors.toCollection(ArrayList::new));
+
+        files.stream()
+                .filter(file -> ZIP_FILES_MATCHER.matches(file.toPath()))
+                .forEach(file -> filterFilesInZip(patterns, file));
+
+        return files;
     }
 
     private static boolean noneMatch(List<String> patterns, String fileName) {
@@ -131,4 +139,28 @@ public class CommonFileUtils {
                 .noneMatch(e -> matcher.match(e.trim(), fileName));
     }
 
+    public static void filterFilesInZip(List<String> patterns, File file) {
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            List<FileHeader> headersList = zipFile.getFileHeaders();
+            List<String> headersToDelete = new ArrayList<>();
+            headersList.forEach(header -> {
+                String fileName = header.getFileName();
+                if (patterns.stream()
+                        .filter(matcher::isPattern)
+                        .anyMatch(e -> matcher.match(e.trim(), fileName))) {
+                    headersToDelete.add(fileName);
+                }
+            });
+            headersToDelete.forEach(header -> {
+                try {
+                    zipFile.removeFile(header);
+                } catch (final ZipException e) {
+                    log.warn(DELETE_IN_ZIP_ERROR, e);
+                }
+            });
+        } catch (final ZipException e) {
+            log.warn(DELETE_IN_ZIP_ERROR, e);
+        }
+    }
 }
