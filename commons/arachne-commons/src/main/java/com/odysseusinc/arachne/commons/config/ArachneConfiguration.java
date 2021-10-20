@@ -1,6 +1,5 @@
 package com.odysseusinc.arachne.commons.config;
 
-import com.odysseusinc.arachne.commons.conditions.modules.Module;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -20,12 +19,8 @@ public class ArachneConfiguration {
     public void setDisabledModules(List<String> disabledModules) {
         this.disabledModules = disabledModules;
     }
-    
-    public boolean isInsightDisabled() {
-        return isModuleDisabled(Module.INSIGHT);
-    }
-    
-    public boolean isModuleDisabled(Module module) {
-        return this.disabledModules != null && this.disabledModules.contains(module.getModuleName());
+
+    public boolean isModuleDisabled(String module) {
+        return this.disabledModules != null && this.disabledModules.contains(module);
     }
 }
