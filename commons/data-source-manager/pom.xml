@@ -29,8 +29,8 @@
     <parent>
         <groupId>com.odysseusinc.arachne</groupId>
         <artifactId>arachne-commons-bundle</artifactId>
-        <version>1.17.1-QA</version>
-        <relativePath>../</relativePath>
+        <version>1.17.2</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>com.odysseusinc</groupId>
