@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.18.0</version>
+    <version>1.19.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -59,6 +59,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
