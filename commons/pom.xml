@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.17.333-SNAPSHOT</version>
+    <version>1.19.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -23,15 +23,15 @@
     </modules>
 
     <properties>
-        <spring.version>5.1.17.RELEASE</spring.version>
-        <spring.cloud.version>1.2.0.RELEASE</spring.cloud.version>
-        <spring.boot.version>1.5.22.RELEASE</spring.boot.version>
-        <tomcat.version>8.5.75</tomcat.version>
-        <java.version>1.8</java.version>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
         <commons.io.version>2.8.0</commons.io.version>
         <commons.lang.version>3.11</commons.lang.version>
+        <guava.version>30.1-jre</guava.version>
+        <java.version>1.8</java.version>
+        <spring.boot.version>2.1.18.RELEASE</spring.boot.version>
+        <spring.cloud.version>2.1.6.RELEASE</spring.cloud.version>
+        <spring.jasypt.version>3.0.3</spring.jasypt.version>
+        <spring.version>5.1.20.RELEASE</spring.version>
+        <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
     </properties>
 
     <distributionManagement>
@@ -50,14 +50,21 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>${tomcat.version}</version>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -69,7 +76,30 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>2.2</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

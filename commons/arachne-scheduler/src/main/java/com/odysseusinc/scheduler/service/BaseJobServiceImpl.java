@@ -77,7 +77,7 @@ public abstract class BaseJobServiceImpl<T extends ArachneJob> implements BaseJo
     @Transactional
     public T updateJob(T job) throws JobNotFoundException {
 
-        final T exists = jobRepository.findOne(job.getId());
+        final T exists = jobRepository.getOne(job.getId());
         if (exists == null) {
             final String message = String.format(NOT_EXISTS_EXCEPTION, job.getId());
             removeFromScheduler(job.getId());
