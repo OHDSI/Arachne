@@ -33,6 +33,8 @@ public enum DBMSType {
     BIGQUERY("Google BigQuery", "bigquery"),
     NETEZZA("Netezza", "netezza"),
     HIVE("Apache Hive", "hive"),
+    SNOWFLAKE("Snowflake", "snowflake"),
+    SYNAPSE("Azure Synapse", "synapse"),
     SPARK("Spark", "spark");
 
     private String label;

@@ -26,6 +26,8 @@ public final class ConnectionParamsParser {
             case POSTGRESQL:
             case MS_SQL_SERVER:
             case NETEZZA:
+            case SNOWFLAKE:
+            case SYNAPSE:
             case PDW:
                 return new GenericParser();
             case REDSHIFT:
