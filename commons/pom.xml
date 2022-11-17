@@ -32,6 +32,7 @@
         <spring.jasypt.version>3.0.3</spring.jasypt.version>
         <spring.version>5.3.20</spring.version>
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
     <distributionManagement>
