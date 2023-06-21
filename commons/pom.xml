@@ -6,7 +6,7 @@
 
     <artifactId>arachne-commons-bundle</artifactId>
     <groupId>com.odysseusinc.arachne</groupId>
-    <version>1.19.1-SNAPSHOT</version>
+    <version>1.20.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -27,11 +27,12 @@
         <commons.lang.version>3.11</commons.lang.version>
         <guava.version>30.1-jre</guava.version>
         <java.version>1.8</java.version>
-        <spring.boot.version>2.1.18.RELEASE</spring.boot.version>
-        <spring.cloud.version>2.1.6.RELEASE</spring.cloud.version>
+        <spring.boot.version>2.5.14</spring.boot.version>
+        <spring.cloud.version>3.1.4</spring.cloud.version>
         <spring.jasypt.version>3.0.3</spring.jasypt.version>
-        <spring.version>5.1.20.RELEASE</spring.version>
+        <spring.version>5.3.20</spring.version>
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
     <distributionManagement>
