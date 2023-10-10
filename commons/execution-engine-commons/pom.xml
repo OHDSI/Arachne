@@ -38,11 +38,6 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-core</artifactId>
-            <version>${feign.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>arachne-common-types</artifactId>
             <version>${project.version}</version>

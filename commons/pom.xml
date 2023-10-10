@@ -23,6 +23,7 @@
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <commons.io.version>2.8.0</commons.io.version>
         <commons.lang.version>3.11</commons.lang.version>
         <guava.version>30.1-jre</guava.version>
