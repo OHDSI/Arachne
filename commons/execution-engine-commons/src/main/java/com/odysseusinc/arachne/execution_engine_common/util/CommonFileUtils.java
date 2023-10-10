@@ -51,6 +51,8 @@ public class CommonFileUtils {
     private static final AntPathMatcher matcher = new AntPathMatcher();
     private static final String DELETE_IN_ZIP_ERROR = "Error deleting file in zip archive. Skipped";
     private static final PathMatcher ZIP_FILES_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.zip");
+    private static final PathMatcher RENV_FILES_MATCHER = FileSystems.getDefault()
+            .getPathMatcher("glob:{,**/}renv{,/**}");
 
     private CommonFileUtils() {
 
@@ -75,6 +77,11 @@ public class CommonFileUtils {
         } catch (ZipException ex) {
             log.error(ex.getMessage(), ex);
         }
+    }
+
+    public static boolean isValidZipFile(File file) {
+        ZipFile zipFile = new ZipFile(file);
+        return zipFile.isValidZipFile();
     }
 
     public static File compressAndSplit(File folder, File zipArchive, Long maximumSize) throws ZipException {
@@ -121,7 +128,8 @@ public class CommonFileUtils {
         List<String> patterns = Arrays.asList(split(exclusions, ","));
 
         ArrayList<File> files = Files.walk(folderPath)
-                .filter(path -> noneMatch(patterns, folderPath.relativize(path).toString()))
+                .filter(path -> !RENV_FILES_MATCHER.matches(folderPath.relativize(path))
+                        && noneMatch(patterns, folderPath.relativize(path).toString()))
                 .filter(path -> !Files.isDirectory(path))
                 .map(Path::toFile).collect(Collectors.toCollection(ArrayList::new));
 
