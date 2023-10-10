@@ -19,6 +19,8 @@ public class AnalysisSyncRequestDTO {
     @NotNull
     private Date requested;
 
+    private String requestedDescriptorId;
+
     private String resultExclusions = "";
 
     public Long getId() {
@@ -69,5 +71,13 @@ public class AnalysisSyncRequestDTO {
     public void setResultExclusions(String resultExclusions) {
 
         this.resultExclusions = resultExclusions;
+    }
+
+    public String getRequestedDescriptorId() {
+        return requestedDescriptorId;
+    }
+
+    public void setRequestedDescriptorId(String requestedDescriptorId) {
+        this.requestedDescriptorId = requestedDescriptorId;
     }
 }
