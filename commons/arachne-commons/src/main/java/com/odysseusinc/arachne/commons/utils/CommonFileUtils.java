@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.odysseusinc.arachne.commons.utils.strategus.StrategusMatcher;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
@@ -70,6 +72,7 @@ public class CommonFileUtils {
 
     public static final String TYPE_COHORT_SQL = "cohort";
     public static final String TYPE_COHORT_JSON = "cohortdefinitionjson";
+    public static final String TYPE_STRATEGUS_JSON = "strategusjson";
     public static final String TYPE_ESTIMATION = "estimation";
     public static final String TYPE_PACKRAT = "packrat";
 
@@ -82,6 +85,8 @@ public class CommonFileUtils {
 
     private static CohortCharacterizationMatcher cohortCharacterizationMatcher = new CohortCharacterizationMatcher();
     private static CohortDefinitionMatcher cohortDefinitionMatcher = new CohortDefinitionMatcher();
+
+    private static StrategusMatcher strategusMatcher = new StrategusMatcher();
 
     static {
         TEXT_MIMES.add("text");
@@ -169,6 +174,8 @@ public class CommonFileUtils {
             contentType = jsonContentType;
         } else if ((jsonContentType
                 = cohortCharacterizationMatcher.getContentType(realName, inputStreamSource)) != null) {
+            contentType = jsonContentType;
+        } else if ((jsonContentType = strategusMatcher.getContentType(realName, inputStreamSource)) != null) {
             contentType = jsonContentType;
         } else if (isPackratBundle(realName, inputStreamSource)) {
             contentType = TYPE_PACKRAT;

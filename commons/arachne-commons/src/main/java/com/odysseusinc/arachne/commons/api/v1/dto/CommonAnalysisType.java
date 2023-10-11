@@ -31,6 +31,7 @@ public enum CommonAnalysisType {
     COHORT("Cohort (Simple Counts)", "c"),
     INCIDENCE("Incidence rates", "ir"),
     COHORT_PATHWAY("Cohort Pathway", "txp"),
+    STRATEGUS("Strategus", "strgs"),
 
     /**
      * REPORTING is currently unsupported. This left for backward compatibility only.
