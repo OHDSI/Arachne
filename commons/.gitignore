@@ -8,3 +8,4 @@
 /data-source-manager/target/
 /execution-engine-commons/target/
 /logging/target/
+*.iml
