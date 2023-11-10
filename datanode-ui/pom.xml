@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.odysseusinc.arachne</groupId>
+    <artifactId>datanode-ui</artifactId>
+    <version>2.x-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>datanode-ui</name>
+
+    <properties>
+        <frontend.plugin.version>1.10.0</frontend.plugin.version>
+        <node.version>v16.16.0</node.version>
+        <npm.version>8.11.0</npm.version>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/build</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.plugin.version}</version>
+                <configuration>
+                    <nodeVersion>${node.version}</nodeVersion>
+                    <npmVersion>${npm.version}</npmVersion>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                    </execution>
+<!--                    <execution>-->
+<!--                        <id>rush install</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npx</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <arguments>run-node common/scripts/install-run-rush.js install &#45;&#45;no-link &#45;&#45;bypass-policy</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>rush link</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npx</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <arguments>run-node common/scripts/install-run-rush.js link</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>rush clean</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npx</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <arguments>run-node common/scripts/install-run-rush.js build:clean &#45;&#45;verbose</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>rush build</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npx</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            &lt;!&ndash; Do not use rebuild here. Warnings during build process will cause maven build failure &ndash;&gt;-->
+<!--                            <arguments>run-node common/scripts/install-run-rush.js build &#45;&#45;verbose</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}/build</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>update</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>rush update</id>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js update</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>preview</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>rush preview</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js preview</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>preview-node</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>rush preview-node</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js preview:node</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>purge</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>rush build:clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js build:clean</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rush unlink</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js unlink</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rush purge --unsafe</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>npx</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-node common/scripts/install-run-rush.js purge --unsafe</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
