@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>arachne-commons-bundle</artifactId>
+    <groupId>com.odysseusinc.arachne</groupId>
+    <version>1.20.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>arachne-commons</module>
+        <module>arachne-sys-settings</module>
+        <module>execution-engine-commons</module>
+        <module>arachne-storage</module>
+        <module>arachne-no-handler-found-exception-util</module>
+        <module>logging</module>
+        <module>data-source-manager</module>
+        <module>arachne-scheduler</module>
+        <module>arachne-common-types</module>
+        <module>arachne-common-utils</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <commons.io.version>2.8.0</commons.io.version>
+        <commons.lang.version>3.11</commons.lang.version>
+        <guava.version>30.1-jre</guava.version>
+        <java.version>1.8</java.version>
+        <spring.boot.version>2.5.14</spring.boot.version>
+        <spring.cloud.version>3.1.4</spring.cloud.version>
+        <spring.jasypt.version>3.0.3</spring.jasypt.version>
+        <spring.version>5.3.20</spring.version>
+        <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
+    </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>community-libs-snapshot-local</id>
+            <name>community-libs-snapshot-local</name>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
+        </snapshotRepository>
+        <repository>
+            <id>community-libs-release-local</id>
+            <name>community-libs-release-local</name>
+            <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>2.2</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
