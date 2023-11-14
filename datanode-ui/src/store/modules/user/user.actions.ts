@@ -1,4 +1,4 @@
-// import { UserDTO } from '@prometheus/types';
+
 import { UserActions } from './user.constants';
 
 export const userSignIn = (userName: string, password: string) => ({

@@ -9,11 +9,7 @@ export type InputProps = Omit<MuiInputProps, 'size'> & {
   pattern?: any;
   size?: MuiInputProps['size'] | 'large';
 };
-// declare module '@mui/material/TextField' {
-//   interface TextFieldPropsSizeOverrides {
-//     large: true;
-//   }
-// }
+
 export const Input: React.FC<InputProps> = props => {
   const {
     type = 'text',

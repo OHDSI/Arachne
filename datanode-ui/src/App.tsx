@@ -9,6 +9,8 @@ import { AppLayout } from './components/AppLayout';
 import { appConfig } from './app.config';
 import './App.css'
 import { Welcome } from './components/Welcome';
+import { IndexDataSource } from './modules/DataSources';
+import { IndexModuleSubmissions } from './modules/Submissions';
 
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -43,13 +45,13 @@ export const App: React.FC = () => {
           <Route
             path="cdm-source-list/*"
             element={
-              <>scdm data sources</>
+              <IndexDataSource />
             }
           />
           <Route
             path="submissions/*"
             element={
-              <>submissions</>
+              <IndexModuleSubmissions />
             }
           />
         </Route>

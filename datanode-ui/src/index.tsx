@@ -7,6 +7,8 @@ import { history, store } from './store';
 import { Provider } from 'react-redux';
 import { theme } from './utils/theme';
 import { ThemeProvider } from '@emotion/react';
+import { DialogProvider } from './libs/hooks/useDialog';
+import { ModalProvider } from './libs/hooks/useModal';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,7 +17,9 @@ root.render(
   <Provider store={store}>
     <Router history={history}>
       <ThemeProvider theme={theme}>
-        <App />
+        <DialogProvider>
+          <ModalProvider><App /></ModalProvider>
+        </DialogProvider>
       </ThemeProvider>
     </Router>
   </Provider>

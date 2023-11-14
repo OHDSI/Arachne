@@ -4,7 +4,7 @@ import {
   ThemeOptions
 } from '@mui/material/styles';
 
-const DARK_BLUE = '#35174d';
+const DARK_BLUE = '#00B3C2';
 const BLUE = '#41204f';
 const DARK_GREY = '#474850';
 const LIGHT_GREY = '#798395';
@@ -19,7 +19,7 @@ export const theme = createTheme({
     },
     primary: {
       dark: '#3b1a4d',
-      main: '#7145a5',
+      main: '#006c75',
       light: '#7145a5',
       contrastText: '#ffffff',
     },

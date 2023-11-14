@@ -49,7 +49,7 @@ export const Welcome: FC<any> = props => {
         container
         justifyContent="space-around"
         sx={{
-          backgroundColor: '#432753',
+          backgroundColor: '#00B3C2',
           backgroundImage: 'url("torch.svg")',
           backgroundRepeat: 'no-repeat',
           height: 240,
@@ -81,7 +81,7 @@ export const Welcome: FC<any> = props => {
               px: 1.5,
               py: 0.5,
               borderRadius: 1,
-              color: '#432753',
+              color: '#006c75',
               fontSize: 24,
               letterSpacing: 1,
               width: 166,
