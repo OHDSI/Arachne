@@ -4,6 +4,7 @@ import React, { FC, useEffect, useMemo } from 'react';
 import { resetBreadcrumbs } from '../../store/modules';
 import { useDispatch } from 'react-redux';
 import { Grid } from '../../libs/components';
+import { LogoLarge } from '../Logo';
 
 export const Welcome: FC<any> = props => {
   const { modulesSideNavigation: list } = props;
@@ -70,6 +71,7 @@ export const Welcome: FC<any> = props => {
           textAlign="right"
           my="auto"
         >
+          {/* <LogoLarge color="white" /> */}
           <Grid item fontFamily={"'Rosario', sans-serif"} pt={3}>
             Arachne
           </Grid>
