@@ -40,6 +40,18 @@ export const App: React.FC = () => {
               />
             }
           />
+          <Route
+            path="cdm-source-list/*"
+            element={
+              <>scdm data sources</>
+            }
+          />
+          <Route
+            path="submissions/*"
+            element={
+              <>submissions</>
+            }
+          />
         </Route>
       </Route>
     </Routes>
