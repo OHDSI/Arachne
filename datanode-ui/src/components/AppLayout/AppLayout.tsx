@@ -6,10 +6,18 @@ import {
   LayoutContainer,
   NavigationSubContainer,
   PageContainer,
+  UserActionsContainer,
 } from './AppLayout.styles';
+import { useSelector } from 'react-redux';
+import { Breadcrumbs } from '../Breadcrumbs';
+import { signOutUser } from '../../store/modules';
+import { UserForm } from '../UserForm';
+
 export const AppLayout: React.FC<{ modulesSideNavigation: any }> = ({
   modulesSideNavigation,
 }) => {
+
+  const currentUser = useSelector<any, any>(state => state.user.data?.result);
 
   return (
     <LayoutContainer>
@@ -17,14 +25,14 @@ export const AppLayout: React.FC<{ modulesSideNavigation: any }> = ({
 
       <ContentContainer>
         <NavigationSubContainer>
-          {/* {currentUser?.email && (
+          {currentUser?.username && (
             <>
               <Breadcrumbs />
               <UserActionsContainer>
                 <UserForm onLogout={signOutUser} />
               </UserActionsContainer>
             </>
-          )} */}
+          )}
         </NavigationSubContainer>
 
         <PageContainer>

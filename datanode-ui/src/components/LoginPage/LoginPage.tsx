@@ -15,6 +15,7 @@ import {
   LogoContainer,
   WelcomeText,
 } from './LoginPage.styles';
+import { userSignIn } from '../../store/modules';
 
 export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    dispatch(userSignIn(userName, password));
   };
 
   return (

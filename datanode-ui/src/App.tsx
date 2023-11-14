@@ -8,6 +8,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { AppLayout } from './components/AppLayout';
 import { appConfig } from './app.config';
 import './App.css'
+import { Welcome } from './components/Welcome';
 
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -33,7 +34,10 @@ export const App: React.FC = () => {
           <Route
             index
             element={
-              <>Welcome</>
+              <Welcome
+                modulesSideNavigation={appConfig}
+                subModulesLoad={[]}
+              />
             }
           />
         </Route>

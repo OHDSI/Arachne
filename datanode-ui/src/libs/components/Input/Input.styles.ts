@@ -3,7 +3,7 @@ import TextField, { TextFieldProps } from '@mui/material/TextField';
 import { styled } from '@mui/material/styles';
 import { StyledComponent } from '@emotion/styled';
 
-export const StyledInput: StyledComponent<TextFieldProps> = styled(TextField)`
+export const StyledInput: any = styled(TextField)`
   margin: 0;
   background-color: ${({ theme }: any) =>
     theme.palette?.backgroundColor.paper || '#fff'};

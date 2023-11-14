@@ -9,21 +9,22 @@ import { LayoutSpinner } from '../AppLayout/AppLayout.styles';
 // import { getUser } from '@prometheus/redux';
 import { Status } from '../../libs/enums';
 import { SpinnerWidgetContainer } from '../../libs/components/Spinner/SpinnerContainers';
+import { getUser } from '../../store/modules';
 
 export const PrivateRoute = (props: any) => {
   const { ...passProps } = props;
-  // const dispatch = useDispatch();
-  // const getCurrentUser = () => dispatch(getUser());
+  const dispatch = useDispatch();
+  const getCurrentUser = () => dispatch(getUser());
 
   useEffect(() => {
-    // getCurrentUser();
+    getCurrentUser();
   }, []);
 
   const status = useSelector<any, Status>(
-    (state: any) => Status.ERROR
+    (state: any) => state.user.status
   );
   const loginStatus = useSelector<any, Status>(
-    (state: any) => Status.SUCCESS
+    (state: any) => state.user.loginStatus
   );
 
   if (status === Status.IN_PROGRESS || status === Status.INITIAL) {
@@ -39,4 +40,5 @@ export const PrivateRoute = (props: any) => {
   }
 
   return <LoginPage hasError={loginStatus === Status.ERROR} />;
+  // return <Outlet {...passProps} />;
 };
