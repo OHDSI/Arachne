@@ -1,3 +1,4 @@
+import { getDataSources, removeDataSource } from '../../../api/data-sources';
 import { Button, Icon } from '../../../libs/components';
 import { StatusTag } from '../../../libs/components/Table';
 import { NameCell } from '../../../libs/components/cells';
@@ -14,7 +15,8 @@ export const listConfig: any = {
   importButtonTitle: 'Import',
   listInitialSort: null,
   iconName: 'dataCatalog',
-
+  fewtch: getDataSources,
+  remove: removeDataSource,
   getCols: (settings: any) => {
     return [
       {

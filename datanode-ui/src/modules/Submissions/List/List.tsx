@@ -1,33 +1,32 @@
-import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { listConfig } from './List.config';
 
-import { createDataSource, updateDataSource } from '../../../api/data-sources';
 import { ModalContext, UseModalContext } from '../../../libs/hooks/useModal';
 import { getUUID } from '../../../libs/utils/getUUID';
 import { PageList } from '../../../libs/components/PageList';
-import { SecondaryContentWrapper } from '@/libs/components/wrappers';
+import { SecondaryContentWrapper } from '../../../libs/components/wrappers';
+import CreateSubmissionForm from '../CreateSubmissionForm';
+import { createSubmission } from '../../../api/submissions';
+import { FileExplorer } from '../../../libs/components/FileExplorer';
+import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
+import { getFormatDateAndTime } from '../../../libs/utils/getFormatDate';
 
 export const List: FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState();
 
-  const { createEntityModal, getCols } = listConfig;
-
 
   const onCreateSubmission = () => {
     openModal(
       () => (
-        <>create</>
-        // <CreateSubmissionForm
-        //   parentId={config?.parentId}
-        //   createMethod={createApi?.create}
-        //   subModules={moduleConfig.subModules}
-        //   onCancel={closeModal}
-        //   afterCreate={values => {
-        //     setIdReload(getUUID());
-        //     closeModal();
-        //   }}
-        // />
+        <CreateSubmissionForm
+          createMethod={createSubmission}
+          onCancel={closeModal}
+          afterCreate={values => {
+            setIdReload(getUUID());
+            closeModal();
+          }}
+        />
       ),
       'Create submission',
       {
@@ -38,25 +37,25 @@ export const List: FC = () => {
     );
   };
 
-  // const onOpenResultSubmission = useCallback(item => {
-  //   openModal(
-  //     () => (
-  //       <SecondaryContentWrapper>
-  //         <FileExplorer submissionId={item.id} url={'datanode/submissions'} />
-  //       </SecondaryContentWrapper>
-  //     ),
-  //     <SubmissionHeader key="modal-header">
-  //       <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
-  //       <SubmissionHeaderItem smallFont>
-  //         {getFormatDateAndTime(item.createdDate)}
-  //       </SubmissionHeaderItem>
-  //     </SubmissionHeader>,
-  //     {
-  //       closeOnClickOutside: true,
-  //       onClose: closeModal,
-  //     }
-  //   );
-  // }, []);
+  const onOpenResultSubmission = useCallback(item => {
+    openModal(
+      () => (
+        <SecondaryContentWrapper>
+          <FileExplorer submissionId={item.id} url={'datanode/submissions'} />
+        </SecondaryContentWrapper>
+      ),
+      <SubmissionHeader key="modal-header">
+        <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
+        <SubmissionHeaderItem smallFont>
+          {getFormatDateAndTime(item.createdDate)}
+        </SubmissionHeaderItem>
+      </SubmissionHeader>,
+      {
+        closeOnClickOutside: true,
+        onClose: closeModal,
+      }
+    );
+  }, []);
 
   // useInterval(() => {
   //   setIdReload(getUUID());
@@ -68,9 +67,12 @@ export const List: FC = () => {
       isImport={false}
       onCreate={onCreateSubmission}
       onRowClick={row => {
-        // onOpenResultSubmission(row.original);
+        onOpenResultSubmission(row.original);
       }}
-      listConfig={listConfig}
+      listConfig={{
+        ...listConfig,
+        cols: listConfig.getCols(),
+      }}
       isSilentReload={true}
       allowDelete={false}
       variant="primary"

@@ -1,7 +1,13 @@
-import { Button, Icon } from '../../../libs/components';
-import { NameCell } from '../../../libs/components/cells';
+import { Button, Icon, Tooltip } from '../../../libs/components';
+import { DateCell, NameCell } from '../../../libs/components/cells';
 import React from 'react';
 import { StatusTag } from '../../../libs/components/Table';
+import { getSubmissions } from '../../../api/submissions';
+import { removeDataSource } from '../../../api/data-sources';
+import { getItemFromConstantArray } from '../../../libs/utils/getItemFromConstantArray';
+import { originSubmissions } from '../../../libs/constants';
+import { getSubmissionStatusInfo } from '../../../libs/utils/getSubmissionStatusInfo';
+import { IconButton } from '@mui/material';
 
 export const listConfig: any = {
   rowId: 'id',
@@ -10,87 +16,118 @@ export const listConfig: any = {
   tableTitle: 'Submissions',
   importButtonTitle: 'Import',
   iconName: 'library',
+  fetch: getSubmissions,
+  remove: removeDataSource,
   listInitialSort: { id: 'modified.timestamp', desc: true },
-  getCols: (settings: any) => {
+  getCols: () => {
     return [
+      {
+        Header: 'No',
+        accessor: 'centralId',
+        id: 'centralId',
+      },
+      {
+        Header: 'Origin',
+        accessor: 'origin',
+        id: 'origin',
+        width: '3%',
+        minWidth: 120,
+        Cell: (props: any) => {
+          return getItemFromConstantArray(originSubmissions, props.value).name;
+        },
+      },
+      {
+        Header: 'Author',
+        accessor: row => row.created?.user.name || '-',
+        id: 'created.user.name',
+      },
       // {
-      //   Header: 'Id',
-      //   accessor: 'shortcut',
-      //   id: 'id',
+      //   Header: 'Study',
+      //   accessor: 'studyTitle',
+      //   maxWidth: 120,
+      //   isCropped: true,
       // },
       {
-        Header: 'Name',
-        accessor: 'name',
-        id: 'name',
+        Header: 'Analysis',
+        accessor: row => row.analysisTitle || '-',
+        id: 'analysisId',
+        maxWidth: 200,
         minWidth: 200,
         width: '30%',
-        isCropped: true,
         Cell: NameCell,
-      },
-      {
-        Header: 'DBMS type',
-        accessor: 'type',
-        id: 'type',
-        width: '10%',
-        minWidth: 110,
         isCropped: true,
       },
       {
-        Header: 'Database',
-        accessor: 'connectionString',
-        id: 'connectionString',
-        minWidth: 120,
-        maxWidth: 240,
+        Header: 'Data source',
+        accessor: 'dataSourceTitle',
+        id: 'dataSource',
+        maxWidth: 200,
+        minWidth: 200,
         isCropped: true,
       },
       {
-        Header: 'CDM schema',
-        accessor: 'cdmSchema',
-        id: 'cdmSchema',
+        Header: 'Submitted',
+        accessor: 'submitted',
+        id: 'created.timestamp',
+        Cell: DateCell,
+        isCropped: true,
+        minWidth: 150,
+        maxWidth: 150,
+      },
+      {
+        Header: 'Finished',
+        accessor: 'finished',
+        id: 'modified.timestamp',
+        Cell: props => {
+          return props.value ? <DateCell {...props} /> : '-';
+        },
+        isCropped: true,
+        minWidth: 150,
+        maxWidth: 150,
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        id: 'status',
+        minWidth: 100,
         width: '5%',
-        minWidth: 80,
-      },
-      {
-        Header: 'Model',
-        accessor: 'modelType',
-        id: 'modelType',
-        width: '5%',
-        minWidth: 80,
-      },
-      {
-        Header: '',
-        accessor: 'published',
-        id: 'published',
-        width: '7%',
-        minWidth: 110,
-        isCropped: true,
-        Cell: (props: any) => {
-          return !props.value || props.value.length === 0 ? (
-            <Button
-              size="xsmall"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                settings?.onPublish(props.row.original.id);
-              }}
-              color="info"
-              variant="outlined"
-              startIcon={<Icon iconName="publish" />}
-              sx={{
-                px: 2,
-                py: 0.25,
-                borderRadius: 0.5,
-                fontSize: 12,
-                minWidth: 98,
-              }}
-            >
-              Publish
-            </Button>
+        Cell: ({ value }) => {
+          const status = getSubmissionStatusInfo(value);
+          return status ? (
+            <StatusTag text={status.name} color={status.color} />
           ) : (
-            <StatusTag text="Published" color="success" />
+            <></>
           );
         },
       },
-    ];
+      {
+        Header: 'Results',
+        accessor: 'status',
+        id: 'actionCell',
+        width: '3%',
+        minWidth: 80,
+        Cell: (props: any) => {
+          const id = props?.row?.original?.id;
+          const status = props?.row?.original?.status;
+          return status === 'EXECUTED' || status === 'FAILED' ? (
+            <Tooltip text="Download results">
+              <IconButton
+                color="info"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  window.location.href = `/api/datanode/submissions/${id}/results/download`;
+                }}
+                sx={{ my: -1 }}
+              >
+                <Icon iconName="import" fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <></>
+          );
+        },
+      },
+    ]
   },
 
 };

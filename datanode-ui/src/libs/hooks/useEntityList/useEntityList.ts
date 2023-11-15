@@ -15,7 +15,7 @@ const reducer = (initialState: IEntityList, action: any) => {
             : Status.IN_PROGRESS_RELOAD;
         break;
       case EntityListConstants.FETCH_REQUEST_DONE:
-        draft.data.tableData = action.payload.content || action.payload;
+        draft.data.tableData = action.payload.result || action.payload.content;
         draft.data.filtersData = action.payload.filters;
         draft.actions = action.payload.actions;
         draft.pageCount = action.payload.totalPages || 1;
@@ -90,6 +90,8 @@ export const useEntityList = <T extends object = object>(
           // sort,
           // query
         );
+
+        console.log(result)
 
         // const filters: any =
         //   (await methods.getFilters?.(query).then(formatFilterListNoFiql)) ||

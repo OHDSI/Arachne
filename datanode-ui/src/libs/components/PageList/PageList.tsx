@@ -68,13 +68,6 @@ export const PageList: React.FC<any> = (
   const [isInitial, setIsInitial] = React.useState(true);
   const fullSearch = searchParams.get('fullSearch');
 
-  // if (!moduleConfig) {
-  //   return (
-  //     <SpinnerWidgetContainer>
-  //       <Spinner size={70} />
-  //     </SpinnerWidgetContainer>
-  //   );
-  // }
   const {
     disableSort,
     addButtonTitle,
@@ -89,6 +82,8 @@ export const PageList: React.FC<any> = (
     // createFiltersPanel,
     // createSortingMethod,
     // metadataFilter,
+    fetch,
+    remove,
     iconName,
   } = listConfig;
 
@@ -139,8 +134,8 @@ export const PageList: React.FC<any> = (
     error,
   } = useEntityList(
     {
-      get: getDataSources,
-      remove: removeDataSource,
+      get: fetch,
+      remove: remove,
       // getFilters: entityFilterPanel.getFilters,
       // getSorting: entityAllowedSorting,
     },
@@ -328,53 +323,52 @@ export const PageList: React.FC<any> = (
             </Grid> */}
             <Grid
               item
-              sx={{
-                width: {
-                  md: 'calc(100% - 250px)',
-                  lg: 'calc(100% - 280px)',
-                  xl: 'calc(100% - 300px)',
-                },
-              }}
+              xs={12}
+              // sx={{
+              //   width: {
+              //     md: 'calc(100% - 250px)',
+              //     lg: 'calc(100% - 280px)',
+              //     xl: 'calc(100% - 300px)',
+              //   },
+              // }}
               className={'table-data-' + className}
             >
-              {!isInitial && (
-                <Table
-                  enableSorting={!disableSort}
-                  manualSortBy
-                  enablePagination
-                  manualPagination
-                  noDataText={'No data currently available'}
-                  data={tableData}
-                  columns={getCols()}
-                  pageCount={pageCount}
-                  pageSize={pageSize}
-                  setPageSize={size => {
-                    useStorage?.setStorage('pageSize', size);
-                  }}
-                  isLoading={
-                    isSilentReload
-                      ? status === Status.IN_PROGRESS
-                      : status === Status.IN_PROGRESS ||
-                      status === Status.IN_PROGRESS_RELOAD
-                  }
-                  isInitial={status === Status.INITIAL}
-                  loadingMessage={loadingMessage}
-                  showColumnToggle
-                  onRowClick={onRowClick}
-                  fetchData={getEntity}
-                  totalElements={totalElements}
-                  // numberOfElements={numberOfElements}
-                  initialSort={listInitialSort}
-                  tileComponent={tileComponent}
-                  setVisibleColumns={(columns: any[]) => {
-                    useStorage.setStorage(
-                      'columns',
-                      columns.map(elem => elem.id)
-                    );
-                  }}
-                  hiddenColumns={useStorage?.storage.columns}
-                />
-              )}
+              <Table
+                enableSorting={!disableSort}
+                manualSortBy
+                enablePagination
+                manualPagination
+                noDataText={'No data currently available'}
+                data={tableData}
+                columns={getCols()}
+                pageCount={pageCount}
+                pageSize={pageSize}
+                setPageSize={size => {
+                  useStorage?.setStorage('pageSize', size);
+                }}
+                isLoading={
+                  isSilentReload
+                    ? status === Status.IN_PROGRESS
+                    : status === Status.IN_PROGRESS ||
+                    status === Status.IN_PROGRESS_RELOAD
+                }
+                isInitial={status === Status.INITIAL}
+                loadingMessage={loadingMessage}
+                showColumnToggle
+                onRowClick={onRowClick}
+                fetchData={getEntity}
+                totalElements={totalElements}
+                // numberOfElements={numberOfElements}
+                initialSort={listInitialSort}
+                tileComponent={tileComponent}
+                setVisibleColumns={(columns: any[]) => {
+                  useStorage.setStorage(
+                    'columns',
+                    columns.map(elem => elem.id)
+                  );
+                }}
+                hiddenColumns={useStorage?.storage.columns}
+              />
             </Grid>
           </Grid>
         </Grid>
