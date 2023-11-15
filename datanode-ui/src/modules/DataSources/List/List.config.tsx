@@ -15,7 +15,7 @@ export const listConfig: any = {
   importButtonTitle: 'Import',
   listInitialSort: null,
   iconName: 'dataCatalog',
-  fewtch: getDataSources,
+  fetch: getDataSources,
   remove: removeDataSource,
   getCols: (settings: any) => {
     return [

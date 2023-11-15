@@ -29,7 +29,7 @@ export const FileItem: React.FC<any> = props => {
   };
 
   const titleFileItem = (file: any) => {
-    const bytes = formatBytes(item?.fileMetadata?.length, 2);
+    const bytes = formatBytes(0, 2);
 
     return file.__type__ === 'FILE'
       ? `${item.__name__} (${bytes})`
@@ -54,7 +54,7 @@ export const FileItem: React.FC<any> = props => {
             </FileItemIcon>
             <FileName
               selectedFile={
-                item.id && selectedFile && selectedFile.id === item.id
+                item.__name__ && selectedFile && selectedFile.__name__ === item.__name__
               }
             >
               {item.__name__}
@@ -64,7 +64,7 @@ export const FileItem: React.FC<any> = props => {
         )}
         {item.__type__ === 'FILE' && (
           <>
-            {selectedFile?.id === item.id &&
+            {selectedFile?.__name__ === item.__name__ &&
               status === UseFileExplorerStatus.LOADING_FILE ? (
               <Spinner size={18} />
             ) : (
@@ -73,10 +73,10 @@ export const FileItem: React.FC<any> = props => {
                 sx={{ '&.MuiSvgIcon-root': { fontSize: 20 } }}
               />
             )}
-            <FileName selectedFile={item.id && selectedFile?.id === item.id}>
+            <FileName selectedFile={item.__name__ && selectedFile?.__name__ === item.__name__}>
               {item.__name__}{' '}
               <FileSize>
-                {' (' + formatBytes(item.fileMetadata.length, 2) + ')'}
+                {' (' + formatBytes(0, 2) + ')'}
               </FileSize>
             </FileName>
           </>

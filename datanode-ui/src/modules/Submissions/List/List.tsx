@@ -41,7 +41,7 @@ export const List: FC = () => {
     openModal(
       () => (
         <SecondaryContentWrapper>
-          <FileExplorer submissionId={item.id} url={'datanode/submissions'} />
+          <FileExplorer submissionId={item.id} url={'analysis'} />
         </SecondaryContentWrapper>
       ),
       <SubmissionHeader key="modal-header">

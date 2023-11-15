@@ -38,6 +38,8 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
     );
   }
 
+  console.log(filesContent, selectedFile)
+
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
       {fileTree?.__size__ === 0 ? (
@@ -120,7 +122,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
               </Grid>
               <Grid item xs={9} sx={{ height: 'calc(100vh - 250px)' }}>
                 <FileViewer
-                  fileContent={filesContent?.[selectedFile.id]}
+                  fileContent={filesContent?.[selectedFile.__name__]}
                   fileMetadata={selectedFile}
                   status={status}
                   pdfLink={`/api/${url}/${submissionId}/results/${selectedFile?.id}/download`}

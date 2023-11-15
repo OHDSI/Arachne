@@ -74,7 +74,7 @@ export const createStructure = (files: any[]) => {
 
   files.forEach(file => {
     // split realName (path) into separate dir names
-    const path = file.fileMetadata.realName.split('/');
+    const path = file.path.split('/');
     setElement(path, fileTree, file);
   });
 
