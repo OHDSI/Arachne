@@ -7,9 +7,9 @@ import React, {
   useEffect,
 } from 'react';
 
-// import { downloadFile, debounce, isObject, isString } from '@prometheus/utils';
+
 import Editor from '@monaco-editor/react';
-// import { IconButton } from '../Button';
+
 import {
   CodeEditorContainer,
   CodeEditorTitle,

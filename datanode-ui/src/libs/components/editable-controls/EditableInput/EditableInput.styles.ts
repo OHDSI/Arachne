@@ -1,0 +1,63 @@
+import { InputBase, InputBaseProps, Theme, styled } from '@mui/material';
+import { darken, position } from 'polished';
+
+export const StyledInput = styled(InputBase, {
+  shouldForwardProp: prop =>
+    prop != 'active' && prop != 'color' && prop !== 'size',
+})<{ active: boolean; color?: string; size: 'small' | 'medium' | 'large' }>(
+  ({ active, theme, size, color }: any) => ({
+    '&.input-root': {
+      input: {
+        lineHeight: { small: '20px', medium: '24px', large: '28px' }[size],
+        color: color || theme.palette.textColor.secondary,
+        textOverflow: 'ellipsis',
+      },
+      textarea: {
+        color: color || theme.palette.textColor.secondary,
+        lineHeight: { small: '20px', medium: '24px', large: '28px' }[size],
+      },
+      '.select-root, input, textarea': {
+        padding: '0',
+      },
+      '.select-icon': {
+        right: 0,
+      },
+      ...(active
+        ? {
+            border: '1px solid ' + theme.palette.secondary.main,
+            '&:hover': {
+              border: '1px solid ' + darken(0.1, theme.palette.secondary.main),
+            },
+          }
+        : {
+            border: '1px solid transparent',
+            '&:not(.Mui-disabled):hover': {
+              backgroundColor: theme.palette.backgroundColor?.dark,
+            },
+          }),
+      '&.Mui-disabled, &.Mui-disabled input': {
+        color: color || theme.palette.textColor.secondary,
+        WebkitTextFillColor: 'unset',
+      },
+      '.end-adornment': {
+        visibility: active ? 'visible' : 'hidden',
+        '.MuiButtonBase-root': {
+          color: darken(0.2, theme.palette.secondary.main),
+        },
+      },
+      '&:not(.Mui-disabled):hover .end-adornment': {
+        visibility: 'visible',
+      },
+
+      transition: 'background-color 300ms',
+      fontSize: { small: 14, medium: 20, large: 24 }[size],
+      lineHeight: { small: '20px', medium: '24px', large: '28px' }[size],
+      fontWeight: { small: 400, medium: 300, large: 300 }[size],
+      borderRadius: '4px',
+      padding: '4px 8px',
+      // width: '100%',
+      boxSizing: 'border-box',
+      height: 'auto',
+    },
+  })
+);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusItem } from './StatusTag.styles';
+import { Spinner } from '../../Spinner';
 
 export interface StatusTagProps {
   text: string;
@@ -11,7 +12,7 @@ export const StatusTag: React.FC<StatusTagProps> = props => {
   const { text, color, light } = props;
   return (
     <StatusItem color={color} light={light} className="status-tag">
-      {text}
+      <span>{text}</span> {text === 'Executing' && <Spinner size={9} />}
     </StatusItem>
   );
 };

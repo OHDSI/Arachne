@@ -22,6 +22,9 @@ import { Select } from '../../../libs/components/Select/Select';
 import { analysisTypes } from '../../../libs/constants';
 import { FormActionsContainer } from '../../../libs/components/Content';
 import { TabsNavigationNew } from '../../../libs/components/TabsNavigation';
+import { ImportJsonFile } from '../../../libs/components/ImportJsonFile';
+import { ImportZipFile } from '../../../libs/components/ImportZipFile';
+import { getDescriptors } from '../../../api/submissions';
 
 export enum DBMSType {
   POSTGRESQL = 'POSTGRESQL',
@@ -108,16 +111,16 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     );
 
     useEffect(() => {
-      // getDescriptors().then(res => {
-      //   setEnv(
-      //     res.content.map(elem => {
-      //       return {
-      //         name: elem.label,
-      //         value: elem.id,
-      //       };
-      //     })
-      //   );
-      // });
+      getDescriptors().then((res: any) => {
+        setEnv(
+          res.map(elem => {
+            return {
+              name: elem.label,
+              value: elem.id,
+            };
+          })
+        );
+      });
     }, []);
 
     useEffect(() => {
@@ -148,7 +151,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
 
     const handleCheckMetadata = useCallback(
       async (file, name?) => {
-        console.log(file, name);
+        // console.log(file, name);
         // setStatus(Status.IN_PROGRESS);
         // let fd = new FormData();
         // fd.append('file', file);
@@ -213,39 +216,31 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
               {activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE && (
                 <>
                   <Grid item xs={12}>
-                    {/* <subModules.documents
-                      type="component"
-                      name="import-zip-file"
-                      subModules={subModules}
-                      config={{
-                        titleButton: 'Upload zip',
-                        onChange: (zipFolder: any, zip: any) => {
-                          const simple_files = Object.keys(zipFolder.files)
-                            .map(fileId => zipFolder.files[fileId])
-                            .filter(file => {
-                              return (
-                                file.name.toLowerCase().includes('.sql') ||
-                                file.name.toLowerCase().includes('.r')
-                              );
-                            })
-                            .map(file => {
-                              return {
-                                name: file.name,
-                                value: file.name,
-                              };
-                            });
-                          setFilesEntryPoint(simple_files);
-                          const analysisName = zip.name.split('.');
-                          analysisName.pop();
-                          setState({
-                            ...state,
-                            analysisTitle: analysisName.join(),
-                          });
-                          setFileState(zip);
-                          handleCheckMetadata(zip, analysisName.join());
-                        },
-                      }}
-                    /> */}
+                    <ImportZipFile titleButton='Upload zip' onChange={(zipFolder: any, zip: any) => {
+                      const simple_files = Object.keys(zipFolder.files)
+                        .map(fileId => zipFolder.files[fileId])
+                        .filter(file => {
+                          return (
+                            file.name.toLowerCase().includes('.sql') ||
+                            file.name.toLowerCase().includes('.r')
+                          );
+                        })
+                        .map(file => {
+                          return {
+                            name: file.name,
+                            value: file.name,
+                          };
+                        });
+                      setFilesEntryPoint(simple_files);
+                      const analysisName = zip.name.split('.');
+                      analysisName.pop();
+                      setState({
+                        ...state,
+                        analysisTitle: analysisName.join(),
+                      });
+                      setFileState(zip);
+                      handleCheckMetadata(zip, analysisName.join());
+                    }} />
                   </Grid>
                   <Grid item xs={12}>
                     <FormElement name="type" textLabel="Entry point" required>
@@ -273,7 +268,6 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                       textLabel="ARACHNE Runtime Environment"
                       required
                     >
-                      {/* <ChooseRuntime /> */}
                       <Select
                         className=""
                         name="env"
@@ -367,17 +361,9 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
               {activeTab === CreateSubmissionFormTabs.SEPARATE_FILES && (
                 <>
                   <Grid item xs={12}>
-                    {/* <subModules.documents
-                      type="component"
-                      name="import-json-file"
-                      subModules={subModules}
-                      config={{
-                        titleButton: 'Upload json',
-                        onChange: (parsedJson: any, file: any) => {
-                          handleCheckMetadata(file);
-                        },
-                      }}
-                    /> */}
+                    <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
+                      handleCheckMetadata(file);
+                    }} />
                   </Grid>
                   <Grid item xs={12}>
                     <FormElement

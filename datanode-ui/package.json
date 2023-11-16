@@ -42,7 +42,8 @@
     "react-dropzone": "11.3.2",
     "react-pdf": "5.7.2",
     "react-viewer": "3.2.2",
-    "@ohdsi/atlascharts": "2.1.0"
+    "@ohdsi/atlascharts": "2.1.0",
+    "jszip": "3.10.1"
   },
   "proxy": "https://qacommunitynode.arachnenetwork.com",
   "devDependencies": {

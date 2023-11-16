@@ -1,7 +1,6 @@
 import React from 'react';
 import { parse } from 'papaparse';
-// import { getUUID, startCase } from '@prometheus/utils';
-// import { Column } from '@prometheus/components';
+
 import { TableCell } from './components';
 import { IParseCsvFnReturn } from './CsvViewer.types';
 import { startCase } from 'lodash';

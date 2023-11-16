@@ -1,17 +1,15 @@
-
-
-// TODO 17-11-2022
-
+// CHECKED
 import { sortBy } from "lodash";
 import { DBMSType } from "../enums";
+import { DBMSTypesInterface, SelectInterface } from "../types";
 
 export const parseDbmsTypesForSelectForm = (
-  list: any
-): any[] => {
-  const listSelect = Object.keys(list).map((itemId: DBMSType) => {
+  list: DBMSTypesInterface[]
+): SelectInterface<DBMSType>[] => {
+  const listSelect: SelectInterface<DBMSType>[] = list.map((item: DBMSTypesInterface) => {
     return {
-      name: list[itemId]?.label || itemId,
-      value: itemId,
+      name: item.name,
+      value: item.id,
     };
   });
   return sortBy(listSelect, elem => elem.name);

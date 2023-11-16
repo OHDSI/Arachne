@@ -4,8 +4,8 @@ import {
   ThemeOptions
 } from '@mui/material/styles';
 
-const DARK_BLUE = '#00B3C2';
-const BLUE = '#41204f';
+const DARK_BLUE = '#019cb3';
+const BLUE = '#006c75';
 const DARK_GREY = '#474850';
 const LIGHT_GREY = '#798395';
 export const theme = createTheme({

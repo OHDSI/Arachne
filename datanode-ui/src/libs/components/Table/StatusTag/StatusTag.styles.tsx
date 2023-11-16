@@ -25,4 +25,9 @@ export const StatusItem: StyledComponent<any> = styled.div<any>`
   font-weight: 600;
   min-width: 90px;
   cursor: default;
+
+  span {
+    display: inline-block;
+    margin-right: 3px;
+  }
 `;

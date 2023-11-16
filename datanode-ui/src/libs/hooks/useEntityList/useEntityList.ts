@@ -85,10 +85,9 @@ export const useEntityList = <T extends object = object>(
       try {
         // const query = parseFiltersToStringParams(state.filters);
         const result: any = await methods.get(
-          // pageNumber,
-          // pageSize,
-          // sort,
-          // query
+          pageNumber,
+          pageSize,
+          sort,
         );
 
         console.log(result)

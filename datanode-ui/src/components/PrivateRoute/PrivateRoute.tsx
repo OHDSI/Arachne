@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
 
 import { Outlet } from 'react-router-dom';
-// import { SpinnerWidgetContainer } from '@prometheus/features';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginPage } from '../LoginPage';
 import { LayoutSpinner } from '../AppLayout/AppLayout.styles';
-// import { getUser } from '@prometheus/redux';
 import { Status } from '../../libs/enums';
 import { SpinnerWidgetContainer } from '../../libs/components/Spinner/SpinnerContainers';
 import { getUser } from '../../store/modules';

@@ -4,7 +4,21 @@ import { StyledAutocomplete } from './Autocomplete.styles';
 import { Global } from '@emotion/react';
 import { CircularProgress } from '@mui/material';
 
-export const AutocompleteInput: any = props => {
+export interface AutocompleteInput {
+  id: string;
+  name: string;
+  options: any;
+  value: any;
+  onChange: (value: any) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  size?: any;
+  sx?: any;
+  className?: any;
+}
+
+export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
   const {
     id,
     name = 'auto-select',
@@ -38,8 +52,8 @@ export const AutocompleteInput: any = props => {
       inputValue === 'all' || inputValue === 'undefined'
         ? undefined
         : isNaN(+inputValue)
-        ? undefined
-        : +inputValue
+          ? undefined
+          : +inputValue
     );
   }, [inputValue]);
 

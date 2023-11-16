@@ -53,7 +53,7 @@ export const PageList: React.FC<any> = (
     onCreate,
     // moduleConfig,
     listConfig,
-    // allowDelete,
+    allowDelete,
     // isEnableMetadata,
     tileComponent,
     onRowClick: onRowClickOutSide,
@@ -75,6 +75,7 @@ export const PageList: React.FC<any> = (
     // moduleDescription,
     importButtonTitle,
     getCols,
+    cols,
     loadingMessage,
     rowId,
     listInitialSort,
@@ -88,7 +89,7 @@ export const PageList: React.FC<any> = (
   } = listConfig;
 
 
-  const storageName = `dataSources`;
+  const storageName = `${tableTitle}`;
 
   // const { entityBreadcrumbs, columns: listCols } = pageListConfig;
 
@@ -166,7 +167,7 @@ export const PageList: React.FC<any> = (
 
 
   React.useEffect(() => {
-    document.title = `Prometheus Data Sources`;
+    document.title = `Arachne ${tableTitle}`;
   }, []);
 
   const onRowClick = (e: any) => {
@@ -185,42 +186,23 @@ export const PageList: React.FC<any> = (
     minWidth: 80,
     width: '5%',
     Cell: (props: any) => {
-      const actions = props.row.original.actions;
-      // const CAN_UPDATE = React.useMemo(
-      //   () =>
-      //     Boolean(
-      //       config?.typeContainer === TypesOfContainer.STUDY && actions
-      //         ? actions?.includes(ListActions.UPDATE)
-      //         : true
-      //     ),
-      //   [actions]
-      // );
       return (
-        <>
-          {true ? (
-            <ActionCell
-              onRemove={() => removeEntity(props.row.original.id)}
-              withConfirmation
-              entityName={props.row.original.title || props.row.original.name}
-            />
-          ) : (
-            <></>
-          )}
-        </>
+        <ActionCell
+          onRemove={() => removeEntity(props.row.original.id)}
+          withConfirmation
+          entityName={props.row.original.title || props.row.original.name}
+        />
       );
     },
   };
 
-  // const columns = React.useMemo(
-  //   () => [
-  //     ...populateColumnsConfigWithSort(
-  //       listConfig?.cols || getCols?.({ metaAttributes }) || listCols,
-  //       allowedSorting
-  //     ),
-  //     ...(allowDelete ? [ACTION_CELL] : []),
-  //   ],
-  //   [allowedSorting, metaAttributes, removeEntity]
-  // );
+  const columns = React.useMemo(
+    () => [
+      ...cols,
+      ...(allowDelete ? [ACTION_CELL] : []),
+    ],
+    [removeEntity]
+  );
 
   // const CAN_CREATE = React.useMemo(
   //   () => actions?.includes(ListActions.CREATE) || isCreate,
@@ -340,7 +322,7 @@ export const PageList: React.FC<any> = (
                 manualPagination
                 noDataText={'No data currently available'}
                 data={tableData}
-                columns={getCols()}
+                columns={columns}
                 pageCount={pageCount}
                 pageSize={pageSize}
                 setPageSize={size => {
