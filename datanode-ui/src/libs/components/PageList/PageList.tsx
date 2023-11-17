@@ -167,7 +167,7 @@ export const PageList: React.FC<any> = (
 
 
   React.useEffect(() => {
-    document.title = `Arachne ${tableTitle}`;
+    document.title = `Arachne Data Node - ${tableTitle}`;
   }, []);
 
   const onRowClick = (e: any) => {

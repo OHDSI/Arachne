@@ -27,6 +27,10 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
     dispatch(userSignIn(userName, password));
   };
 
+  React.useEffect(() => {
+    document.title = `Arachne Data Node`;
+  }, []);
+
   return (
     <Grid container height="100vh">
       <LogoContainer

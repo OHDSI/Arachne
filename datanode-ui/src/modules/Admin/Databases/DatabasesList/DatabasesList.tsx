@@ -48,11 +48,11 @@ export const DatabasesList: FC<{
       setBreadcrumbs([
         {
           name: 'Admin',
-          path: ``,
+          path: `/administration`,
         },
         {
           name: 'Databases',
-          path: `/databases`,
+          path: `/administration/databases`,
         },
       ])
     );

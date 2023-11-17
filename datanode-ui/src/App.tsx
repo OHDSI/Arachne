@@ -45,13 +45,13 @@ export const App: React.FC = () => {
           <Route
             path="administration/*"
             element={
-              <IndexAdmin />
+              <IndexAdmin root={{ name: 'Admin', path: '/administration' }} />
             }
           />
           <Route
             path="submissions/*"
             element={
-              <IndexModuleSubmissions />
+              <IndexModuleSubmissions root={{ name: 'Submissions', path: '/submissions' }} />
             }
           />
         </Route>

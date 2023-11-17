@@ -23,7 +23,7 @@ export const List: FC = () => {
       setBreadcrumbs([
         {
           name: 'Submissions',
-          path: ``,
+          path: `/submissions`,
         }
       ])
     );
