@@ -69,11 +69,11 @@ export const useEntity = (
   const getEntity = useCallback(async () => {
     dispatch({ type: EntityActions.GET_ENTITY });
     try {
-      let data = await methods.get(id);
+      let data: any = await methods.get(id);
 
       dispatch({
         type: EntityActions.GET_ENTITY_SUCCESS,
-        payload: { data },
+        payload: { data: data.result },
       });
     } catch (e) {
       dispatch({

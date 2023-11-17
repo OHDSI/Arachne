@@ -10,10 +10,25 @@ import { createSubmission } from '../../../api/submissions';
 import { FileExplorer } from '../../../libs/components/FileExplorer';
 import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
 import { getFormatDateAndTime } from '../../../libs/utils/getFormatDate';
+import { setBreadcrumbs } from '../../../store/modules';
+import { useDispatch } from 'react-redux';
 
 export const List: FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(
+      setBreadcrumbs([
+        {
+          name: 'Submissions',
+          path: ``,
+        }
+      ])
+    );
+  }, []);
+
 
 
   const onCreateSubmission = () => {

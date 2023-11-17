@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router';
 import { ModalContext, UseModalContext } from '../../../libs/hooks/useModal';
 import { setBreadcrumbs } from '../../../store/modules';
 import { useDispatch } from 'react-redux';
+import { UsersList } from './UsersList/UsersList';
 
 
 export const Users: FC<any> = ({ root }) => {
@@ -30,11 +31,7 @@ export const Users: FC<any> = ({ root }) => {
       <Routes>
         <Route
           path="*"
-          element={<>Users</>}
-        />
-        <Route
-          path=":id/*"
-          element={<>User entity</>}
+          element={<UsersList />}
         />
       </Routes>
     </>

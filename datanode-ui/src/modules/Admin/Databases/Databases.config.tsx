@@ -9,7 +9,7 @@ import { StatusTag } from '../../../libs/components/Table';
 export const databasesConfig: any = {
   rowId: 'id',
   loadingMessage: 'Loading databases...',
-  addButtonTitle: 'Add databases',
+  addButtonTitle: 'Add database',
   tableTitle: 'Databases',
   importButtonTitle: 'Import',
   listInitialSort: null,

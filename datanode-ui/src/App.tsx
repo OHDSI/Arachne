@@ -43,7 +43,7 @@ export const App: React.FC = () => {
             }
           />
           <Route
-            path="cdm-source-list/*"
+            path="administration/*"
             element={
               <IndexAdmin />
             }
