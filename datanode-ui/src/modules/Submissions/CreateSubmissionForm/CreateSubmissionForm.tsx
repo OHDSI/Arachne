@@ -16,7 +16,6 @@ import { AnalysisTypes } from '../../../libs/enums/AnalysisTypes';
 import { Button, Grid, Icon, Input } from '../../../libs/components';
 import { Paper } from '@mui/material';
 import { Spinner } from '../../../libs/components/Spinner';
-import { Block } from '../../../libs/components/FilterPanel/FilterPanel.styles';
 import { FormElement } from '../../../libs/components/FormElement';
 import { Select } from '../../../libs/components/Select/Select';
 import { analysisTypes } from '../../../libs/constants';
@@ -24,7 +23,9 @@ import { FormActionsContainer } from '../../../libs/components/Content';
 import { TabsNavigationNew } from '../../../libs/components/TabsNavigation';
 import { ImportJsonFile } from '../../../libs/components/ImportJsonFile';
 import { ImportZipFile } from '../../../libs/components/ImportZipFile';
-import { getDescriptors } from '../../../api/submissions';
+import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
+import { Block } from '../../../libs/components/Block';
+import { getDataSources } from '../../../api';
 
 export enum DBMSType {
   POSTGRESQL = 'POSTGRESQL',
@@ -101,6 +102,12 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [controlsList, setControlsList] = useState({
+      status: Status.INITIAL,
+      envs: [],
+      analysisTypes: [],
+      dataSources: []
+    })
     const [filesEntryPoint, setFilesEntryPoint] = useState([]);
     const [status, setStatus] = useState(Status.INITIAL);
     const [env, setEnv] = useState([]);
@@ -111,21 +118,45 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     );
 
     useEffect(() => {
-      getDescriptors().then((res: any) => {
-        setEnv(
-          res.map(elem => {
-            return {
-              name: elem.label,
-              value: elem.id,
-            };
-          })
-        );
-      });
+      getControlsList();
     }, []);
 
     useEffect(() => {
       setState(defaultState);
     }, [activeTab]);
+
+    const getControlsList = async () => {
+      try {
+        const envs: any = await getDescriptors();
+        const types: any = await getAnalysisTypes();
+        const dataSources: any = await getDataSources();
+
+        setControlsList({
+          status: Status.SUCCESS,
+          envs: envs.map(elem => {
+            return {
+              name: elem.label,
+              value: elem.id,
+            };
+          }),
+          analysisTypes: types.map(elem => {
+            return {
+              name: elem.name,
+              value: elem.id,
+            };
+          }),
+          dataSources: dataSources.result.map(elem => {
+            return {
+              name: elem.name,
+              value: elem.id,
+            };
+          })
+        })
+
+      } catch (e) {
+
+      }
+    }
 
     const handleSave = useCallback(() => {
       setIsLoading(true);
@@ -151,50 +182,50 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
 
     const handleCheckMetadata = useCallback(
       async (file, name?) => {
-        // console.log(file, name);
-        // setStatus(Status.IN_PROGRESS);
-        // let fd = new FormData();
-        // fd.append('file', file);
-        // try {
-        //   const result = await tempUploadFiles(fd);
-        //   if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
-        //     try {
-        //       const metadata: any = await getMetadataFile(result[0]);
-        //       setState({
-        //         ...state,
-        //         analysisType: metadata?.analysisType,
-        //         analysisTitle: metadata?.analysisName,
-        //         studyName: metadata?.studyName,
-        //         executableFileName: metadata?.entryPoint,
-        //         runtimeEnvironmentId:
-        //           metadata?.runtimeEnvironmentId || env?.[0]?.value,
-        //         fileIds: result,
-        //       });
-        //       setStatus(Status.SUCCESS);
-        //     } catch (e) {
-        //       setState({
-        //         ...state,
-        //         runtimeEnvironmentId:
-        //           state.runtimeEnvironmentId || env?.[0]?.value,
-        //         fileIds: result,
-        //         analysisTitle: name,
-        //       });
-        //       setStatus(Status.SUCCESS);
-        //     }
-        //   } else {
-        //     setState({
-        //       ...state,
-        //       runtimeEnvironmentId:
-        //         state.runtimeEnvironmentId || env?.[0]?.value,
-        //       fileIds: result,
-        //       analysisType: AnalysisTypes.STRATEGUS,
-        //     });
-        //     setStatus(Status.SUCCESS);
-        //   }
-        // } catch (e) {
-        //   setStatus(Status.ERROR);
-        //   console.log(e);
-        // }
+        console.log(file, name);
+        setStatus(Status.IN_PROGRESS);
+        let fd = new FormData();
+        fd.append('file', file);
+        try {
+          // const result = await tempUploadFiles(fd);
+          if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
+            try {
+              // const metadata: any = await getMetadataFile(result[0]);
+              // setState({
+              //   ...state,
+              //   analysisType: metadata?.analysisType,
+              //   analysisTitle: metadata?.analysisName,
+              //   studyName: metadata?.studyName,
+              //   executableFileName: metadata?.entryPoint,
+              //   runtimeEnvironmentId:
+              //     metadata?.runtimeEnvironmentId || env?.[0]?.value,
+              //   fileIds: result,
+              // });
+              setStatus(Status.SUCCESS);
+            } catch (e) {
+              // setState({
+              //   ...state,
+              //   runtimeEnvironmentId:
+              //     state.runtimeEnvironmentId || controlsList.envs?.[0]?.value,
+              //   fileIds: result,
+              //   analysisTitle: name,
+              // });
+              setStatus(Status.SUCCESS);
+            }
+          } else {
+            // setState({
+            //   ...state,
+            //   runtimeEnvironmentId:
+            //     state.runtimeEnvironmentId || controlsList.envs?.[0]?.value,
+            //   fileIds: result,
+            //   analysisType: AnalysisTypes.STRATEGUS,
+            // });
+            setStatus(Status.SUCCESS);
+          }
+        } catch (e) {
+          setStatus(Status.ERROR);
+          console.log(e);
+        }
       },
       [activeTab, state, env]
     );
@@ -273,7 +304,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                         name="env"
                         disablePortal
                         id="env"
-                        options={env}
+                        options={controlsList.envs}
                         value={state.runtimeEnvironmentId}
                         placeholder="Select env..."
                         onChange={(env: any) => {
@@ -287,19 +318,28 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     </FormElement>
                   </Grid>
                   <Grid item xs={12}>
-                    {/* <subModules.dataSources
-                      type="component"
-                      name="data-sources-list-select"
-                      subModules={subModules}
-                      config={{
-                        onChange: (id: string) => {
+                    <FormElement
+                      name="data-source"
+                      textLabel="Data source"
+                      required
+                    >
+                      <Select
+                        className=""
+                        name="data-source"
+                        disablePortal
+                        id="data-source"
+                        options={controlsList.dataSources}
+                        value={state.dataSourceId}
+                        placeholder="Select source..."
+                        onChange={(dataSourceId: any) => {
                           setState({
                             ...state,
-                            dataSourceId: id,
+                            dataSourceId: dataSourceId,
                           });
-                        },
-                      }}
-                    /> */}
+                        }}
+                        fullWidth
+                      />
+                    </FormElement>
                   </Grid>
                   <Grid item xs={12}>
                     <FormElement

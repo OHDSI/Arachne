@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const successResponse = (res: any) => res.data;
+const successResponse = (res: any) => {
+  console.log(res)
+  return res.data
+};
 const fileSuccessResponse = (res: any) => res;
 const errorResponse = (error: any) => Promise.reject(error);
 
@@ -47,3 +50,8 @@ export const setupInterceptors = (store: any) => {
     }
   );
 };
+
+export * from './admin';
+export * from './auth';
+export * from './data-sources';
+// export * from './submissions';

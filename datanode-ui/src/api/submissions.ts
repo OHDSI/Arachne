@@ -6,7 +6,7 @@ export const getDescriptors = () => {
 }
 
 export const getAnalysisTypes = () => {
-  return api.get('/analysis/types');
+  return api.get('analysis/types')
 }
 
 export const getSubmissions = (pageNumber = 1, pageSize = 15, sortBy = { id: 'name', desc: true }): Promise<any> => {

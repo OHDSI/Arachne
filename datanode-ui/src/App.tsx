@@ -4,13 +4,13 @@ import { Routes, Route } from 'react-router-dom';
 import { LayoutSpinner } from './App.styled';
 import { SpinnerWidgetContainer } from './libs/components/Spinner/SpinnerContainers';
 
-import { PrivateRoute } from './components/PrivateRoute';
-import { AppLayout } from './components/AppLayout';
 import { appConfig } from './app.config';
-import './App.css'
-import { Welcome } from './components/Welcome';
+
 import { IndexModuleSubmissions } from './modules/Submissions';
 import { IndexAdmin } from './modules/Admin';
+import { AppLayout, PrivateRoute, Welcome } from './components';
+
+import './App.css'
 
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
