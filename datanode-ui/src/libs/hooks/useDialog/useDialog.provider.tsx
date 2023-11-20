@@ -1,8 +1,8 @@
-import React, { createContext } from 'react';
+import React from 'react';
 import { useDialog } from './useDialog';
 import { UseDialogContext, DialogState } from './useDialog.types';
 
-export const DialogContext = createContext<UseDialogContext>(null);
+export const DialogContext = React.createContext<UseDialogContext>(null);
 export const DialogProvider = ({
   // initialComponent,
   children,

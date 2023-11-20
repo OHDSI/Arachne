@@ -1,19 +1,18 @@
-import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { listConfig } from './List.config';
-
-import { ModalContext, UseModalContext } from '../../../libs/hooks/useModal';
-import { getUUID } from '../../../libs/utils/getUUID';
-import { PageList } from '../../../libs/components/PageList';
-import { SecondaryContentWrapper } from '../../../libs/components/wrappers';
-import CreateSubmissionForm from '../CreateSubmissionForm';
-import { createSubmission } from '../../../api/submissions';
-import { FileExplorer } from '../../../libs/components/FileExplorer';
-import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
-import { getFormatDateAndTime } from '../../../libs/utils/getFormatDate';
-import { setBreadcrumbs } from '../../../store/modules';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-export const List: FC = () => {
+import { ModalContext, UseModalContext } from '../../../libs/hooks';
+import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
+import { PageList, FileExplorer, SecondaryContentWrapper } from '../../../libs/components';
+import { createSubmission } from '../../../api/submissions';
+import { setBreadcrumbs } from '../../../store/modules';
+
+import { CreateSubmissionForm } from '../CreateSubmissionForm';
+import { listConfig } from './List.config';
+import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
+
+
+export const List: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState();
   const dispatch = useDispatch();

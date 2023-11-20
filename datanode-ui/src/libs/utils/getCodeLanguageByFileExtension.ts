@@ -1,4 +1,4 @@
-import { FileExtension } from "../enums/FileExtension";
+import { FileExtension } from "../enums";
 
 export type GetCodeLanguageByFileExtensionType = (
   extension: FileExtension

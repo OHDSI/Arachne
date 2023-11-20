@@ -1,4 +1,3 @@
-
 import { Status } from '../../enums';
 import type { IEntityList } from './useEntityList.types';
 

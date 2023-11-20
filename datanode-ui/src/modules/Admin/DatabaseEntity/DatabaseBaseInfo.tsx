@@ -81,6 +81,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
                 }}
                 color="info"
                 variant="outlined"
+                disabled={true}
                 startIcon={<Icon iconName="publish" />}
                 sx={{
                   px: 2,

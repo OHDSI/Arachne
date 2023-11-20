@@ -1,6 +1,5 @@
 import { FC, ReactNode } from 'react';
 
-
 export interface ModalState {
   modal?: ModalEntity;
   children?: ReactNode;

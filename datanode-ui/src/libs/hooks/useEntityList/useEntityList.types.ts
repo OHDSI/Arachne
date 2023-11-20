@@ -1,7 +1,4 @@
 import { Status } from "../../enums";
-import { AnyCnameRecord } from "dns";
-
-
 export interface IEntityList<T extends object = object> {
   data: { tableData: T[]; filtersData: any };
   filters: any;

@@ -1,1 +1,1 @@
-export { CreateSubmissionForm as default } from './CreateSubmissionForm';
+export { CreateSubmissionForm } from './CreateSubmissionForm';

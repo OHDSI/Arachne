@@ -1,6 +1,5 @@
 import { Reducer, useCallback, useEffect, useReducer } from 'react';
 import {
-  // convertFilesExplorerFormat,
   createStructure,
 } from './useFileExplorer.utils';
 import { resultFileSubmission, resultsSubmission } from './useFileExplorer.api';
@@ -38,14 +37,6 @@ export const useFileExplorer = (
       });
     }
   }, []);
-
-  // TODO - check id needed, not used anywhere
-  // const initialFiles = (files: any) => {
-  //   dispatch({
-  //     type: UseFileExplorer.SAVE_FILES_REQUEST_DONE,
-  //     payload: convertFilesExplorerFormat(files),
-  //   });
-  // };
 
   const selectFile = (fileId: string) => {
     dispatch({
@@ -98,8 +89,6 @@ export const useFileExplorer = (
 
   useEffect(() => {
     if (files && files.length > 0) {
-      // TODO - check id needed, not used anywhere
-      // initialFiles(files);
     } else {
       getFiles();
     }

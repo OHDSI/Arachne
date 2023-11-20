@@ -1,4 +1,4 @@
-import { getReducerWithProduce } from '../../utils/getReducerWithProduce';
+import { getReducerWithProduce } from '../../utils';
 import { Status } from '../../enums';
 import { UseFileExplorer, UseFileExplorerStatus } from './useFileExplorer.enum';
 

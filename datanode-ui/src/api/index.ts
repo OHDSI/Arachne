@@ -50,8 +50,3 @@ export const setupInterceptors = (store: any) => {
     }
   );
 };
-
-export * from './admin';
-export * from './auth';
-export * from './data-sources';
-// export * from './submissions';

@@ -1,13 +1,12 @@
-import { Button, Icon, Tooltip } from '../../../libs/components';
-import { DateCell, NameCell } from '../../../libs/components/cells';
 import React from 'react';
-import { StatusTag } from '../../../libs/components/Table';
+
+import { IconButton } from '@mui/material';
+
 import { getSubmissions } from '../../../api/submissions';
 import { removeDataSource } from '../../../api/data-sources';
-import { getItemFromConstantArray } from '../../../libs/utils/getItemFromConstantArray';
+import { getItemFromConstantArray, getSubmissionStatusInfo } from '../../../libs/utils';
+import { Icon, Tooltip, DateCell, NameCell, StatusTag } from '../../../libs/components';
 import { originSubmissions } from '../../../libs/constants';
-import { getSubmissionStatusInfo } from '../../../libs/utils/getSubmissionStatusInfo';
-import { IconButton } from '@mui/material';
 
 export const listConfig: any = {
   rowId: 'id',

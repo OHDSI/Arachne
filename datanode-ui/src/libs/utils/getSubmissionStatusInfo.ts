@@ -1,4 +1,4 @@
-import { SubmissionStatus } from "../enums/SubmissionStatus";
+import { SubmissionStatus } from "../enums";
 
 
 export function getSubmissionStatusInfo(value: SubmissionStatus) {

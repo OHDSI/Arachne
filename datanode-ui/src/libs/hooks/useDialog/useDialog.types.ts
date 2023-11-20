@@ -1,14 +1,14 @@
-import { FC, ReactNode } from 'react';
+import React from 'react';
 
 export interface DialogState {
-  initialComponent?: FC<any>;
-  children?: ReactNode;
+  initialComponent?: React.FC<any>;
+  children?: React.ReactNode;
 }
 
 export interface UseDialogContext extends DialogState {
-  initialComponent?: FC<any>;
-  children?: ReactNode;
-  showDialog: <T>(component: FC<T>, props: T) => void;
+  initialComponent?: React.FC<any>;
+  children?: React.ReactNode;
+  showDialog: <T>(component: React.FC<T>, props: T) => void;
   hideDialog: () => void;
   destroyDialog: () => any;
 }

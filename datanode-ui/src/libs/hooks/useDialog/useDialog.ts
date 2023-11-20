@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback, ReactNode, Reducer } from 'react';
+import React, { useReducer, useCallback, Reducer } from 'react';
 import { DialogActions } from './useDialog.constants';
 import { reducer } from './useDialog.reducer';
 
@@ -12,13 +12,6 @@ export const useDialog = () => {
     reducer,
     INITIAL_STATE
   );
-
-  //   const setDialogComponent = useCallback(
-  //     (component?: ReactNode) => {
-  //       dispatch({ type: DialogActions.SET_COMPONENT, payload: component });
-  //     },
-  //     [dispatch]
-  //   );
 
   const showDialog = useCallback(
     <T extends object>(component: React.FC<T>, props: T) => {

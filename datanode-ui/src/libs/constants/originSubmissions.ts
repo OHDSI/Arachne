@@ -1,5 +1,6 @@
-import { OriginSubmission } from "../enums/OriginSubmission";
+// checked
 
+import { OriginSubmission } from "../enums";
 
 export const originSubmissions = [
   {

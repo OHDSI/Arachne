@@ -1,8 +1,8 @@
-import { produce } from 'immer';
 import { DialogActions } from './useDialog.constants';
+import { getReducerWithProduce } from '../../utils';
 
 export const reducer = (initialState, action) => {
-  return produce(initialState, draft => {
+  return getReducerWithProduce(initialState, draft => {
     switch (action.type) {
       case DialogActions.SET_COMPONENT: {
         draft.component = action.payload;

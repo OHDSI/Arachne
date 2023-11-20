@@ -1,17 +1,18 @@
-import { ImportJsonFile } from '../../../libs/components/ImportJsonFile';
 import { getDbmsTypes, updateDataSource } from '../../../api/data-sources';
-import { Button, Grid, Icon, Input, Tooltip } from '../../../libs/components';
-import { FormElement } from '../../../libs/components/FormElement';
-import { Select } from '../../../libs/components/Select/Select';
-import { SecondaryContentWrapper } from '../../../libs/components/wrappers';
-import { parseDbmsTypesForSelectForm } from '../../../libs/utils/parseDbmsTypesForSelectForm';
+import {
+  ImportJsonFile,
+  ContentBlock,
+  Spinner,
+  useNotifications,
+  SecondaryContentWrapper,
+  Button,
+  Grid, Icon, Input, Tooltip, FormElement, Select
+} from '../../../libs/components';
+import { parseDbmsTypesForSelectForm } from '../../../libs/utils';
 import { isEmpty } from 'lodash';
 import React, { FC, useState, memo, useCallback, useEffect } from 'react';
 import { DBMSType } from '../../../libs/enums';
 import { BaseResponceInterface, DBMSTypesInterface, DataSourceDTOInterface, SelectInterface } from '../../../libs/types';
-import { useNotifications } from '../../../libs/components/Notification';
-import { Spinner } from '../../../libs/components/Spinner';
-import { ContentBlock } from '../../../libs/components/Block';
 
 interface CreateCdmDataSourceFormPropsInterface {
   afterCreate: () => void;

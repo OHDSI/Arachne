@@ -1,7 +1,5 @@
-import { Grid } from '../../../../libs/components';
-import { FormLabel } from '../../../../libs/components/FormElement';
-import { ImportJsonFile } from '../../../../libs/components/ImportJsonFile';
-import { EditableInput } from '../../../../libs/components/editable-controls/EditableInput';
+import { DBMSType } from '../../../../libs/enums';
+import { Grid, FormLabel, ImportJsonFile, EditableInput } from '../../../../libs/components';
 
 import { FC } from 'react';
 
@@ -70,9 +68,9 @@ export const OmopCdmSettings: FC<{
           spacing={2}
           alignContent="flex-start"
         >
-          {entity.type !== 'bigquery' ? (
+          {entity.type !== DBMSType.BIGQUERY ? (
             <>
-              <FormLabel
+              {/* <FormLabel
                 htmlFor="adminUsername"
                 label="Admin Username"
                 required
@@ -120,7 +118,7 @@ export const OmopCdmSettings: FC<{
                   color="textColor.primary"
                   required
                 />
-              </FormLabel>
+              </FormLabel> */}
             </>
           ) : (
             <Grid item xs={12}>

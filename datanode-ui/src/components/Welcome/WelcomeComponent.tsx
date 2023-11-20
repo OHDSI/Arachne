@@ -5,6 +5,8 @@ import { resetBreadcrumbs } from '../../store/modules';
 import { useDispatch } from 'react-redux';
 import { Grid } from '../../libs/components';
 import { LogoLarge } from '../Logo';
+import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
+import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
 
 export const Welcome: FC<any> = props => {
   const { modulesSideNavigation: list } = props;
@@ -21,6 +23,10 @@ export const Welcome: FC<any> = props => {
     });
 
     return hashMap;
+  }, []);
+
+  React.useEffect(() => {
+    document.title = `Arachne Data Node`;
   }, []);
 
   if (!modules) {
@@ -97,14 +103,10 @@ export const Welcome: FC<any> = props => {
 
       <Grid container px={{ xs: 4, lg: 8, xl: 10 }} py={4} spacing={2}>
         <Grid item xs={12} md={6}>
-          {/* <modules.submissions.component
-            {...modules.submissions}
-            type="component"
-            name="home-widget"
-          /> */}
+          <HomeWidgetSubmission />
         </Grid>
         <Grid item xs={12} md={6}>
-          {/* <HomeWidget /> */}
+          <HomeWidgetAdmin />
         </Grid>
       </Grid>
     </Grid>

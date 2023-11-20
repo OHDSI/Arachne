@@ -1,6 +1,6 @@
 
 import moment from 'moment';
-import { DateFormat } from '../enums/DateFormat';
+import { DateFormat } from '../enums';
 
 export const getFormatDate = (date: any) => {
   return moment(date).format(DateFormat.DATE);

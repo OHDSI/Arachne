@@ -1,6 +1,6 @@
-import { AntivirusFileStatus } from '../../enums/AntivirusFileStatus';
+import { AntivirusFileStatus } from '../../enums';
 import { FileExplorerTypes } from './useFileExplorer.enum';
-import { FileExtension } from '../../enums/FileExtension';
+import { FileExtension } from '../../enums';
 
 interface FileExplorerElement {
   id: string;

@@ -9,17 +9,14 @@ import { OmopCdmSettings } from './OmopCdmSettings';
 import { useDispatch } from 'react-redux';
 
 import { ConnectionDetails } from './ConnectionDetails';
-import { DialogContext, UseDialogContext } from '../../../libs/hooks/useDialog';
-import { useEntity } from '../../../libs/hooks/useEntity';
+import { DialogContext, UseDialogContext, useEntity } from '../../../libs/hooks';
+
 import { setBreadcrumbs } from '../../../store/modules';
-import { ConfirmationDialog } from '../../../libs/components/Dialogs';
-import { Spinner, SpinnerContainer } from '../../../libs/components/Spinner';
 import { Status } from '../../../libs/enums';
-import { NestedInfoWrapper, SecondaryContentWrapper } from '../../../libs/components/wrappers';
-import { Grid } from '../../../libs/components';
-import { TabsNavigationNew } from '../../../libs/components/TabsNavigation';
+import { ConfirmationDialog, Grid, TabsNavigationNew, Block, NestedInfoWrapper, SecondaryContentWrapper, Spinner, SpinnerContainer } from '../../../libs/components';
+
 import { Divider } from '@mui/material';
-import { Block } from '../../../libs/components/Block';
+
 import { DatabaseBaseInfo } from './DatabaseBaseInfo';
 import { getDataSource, removeDataSource, updateDataSource } from '../../../api/data-sources';
 

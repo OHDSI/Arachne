@@ -1,4 +1,3 @@
-/** Put data in a file and download from browser */
 export const downloadFile = (
   content: any,
   fileName: string,

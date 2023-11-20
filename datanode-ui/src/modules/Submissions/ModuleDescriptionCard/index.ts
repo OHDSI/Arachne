@@ -1,0 +1,1 @@
+export { ModuleDescriptionCard } from './ModuleDescriptionCard';

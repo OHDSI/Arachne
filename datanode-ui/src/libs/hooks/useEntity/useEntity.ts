@@ -1,51 +1,9 @@
-import { useNotifications } from '../../components/Notification';
+import { useNotifications } from '../../components';
 import { Status } from '../../enums';
-import { produce } from 'immer';
 import { Reducer, useCallback, useEffect, useReducer } from 'react';
+import { reducer } from './useEntity.reducer';
+import { EntityActions } from './useEntity.constants';
 
-export enum EntityActions {
-  GET_ENTITY = 'GET_ENTITY',
-  GET_ENTITY_SUCCESS = 'GET_ENTITY_SUCCESS',
-  GET_ENTITY_ERROR = 'GET_ENTITY_ERROR',
-
-  DELETE_ENTITY = 'DELETE_ENTITY',
-  DELETE_ENTITY_SUCCESS = 'DELETE_ENTITY_SUCCESS',
-  DELETE_ENTITY_ERROR = 'DELETE_ENTITY_ERROR',
-
-  UPDATE_ENTITY = 'UPDATE_ENTITY',
-  UPDATE_ENTITY_SUCCESS = 'UPDATE_ENTITY_SUCCESS',
-  UPDATE_ENTITY_ERROR = 'UPDATE_ENTITY_ERROR',
-
-  SET_VERSION = 'SET_VERSION',
-  REVERT_VERSION = 'REVERT_VERSION',
-
-  COPY_ENTITY = 'COPY_ENTITY',
-  COPY_ENTITY_SUCCESS = 'COPY_ENTITY_SICCESS',
-  COPY_ENTITY_ERROR = 'COPY_ENTITY_ERROR',
-}
-
-export interface EntityState<T, E = any> {
-  entity: T;
-  version: T;
-  draft: T;
-  isVersionMode: boolean;
-  status: Status;
-  error: E;
-}
-export interface EntityHook<T> extends EntityState<T> {
-  getEntity: () => Promise<void>;
-  deleteEntity: () => Promise<void>;
-  updateEntity: (data: T) => Promise<void>;
-  setVersionEntity: (data: T) => void;
-  copyEntity: (data: T) => Promise<T>;
-  revertEntity: () => void;
-}
-export interface EntityMethods<T> {
-  get: (id?: string) => Promise<T>;
-  delete?: (id: string) => Promise<void>;
-  update: (data: T, id?: string) => Promise<T>;
-  copy?: (id: string, name: string) => Promise<T>;
-}
 export const INITIAL_STATE = {
   entity: null,
   version: null,
@@ -205,61 +163,3 @@ export const useEntity = (
   };
 };
 
-export const reducer = <T extends object>(
-  state: EntityState<T>,
-  action: any
-) => {
-  return produce(state, (draft: EntityState<T>) => {
-    switch (action.type) {
-      case EntityActions.GET_ENTITY:
-        draft.status =
-          state.status === Status.INITIAL
-            ? Status.IN_PROGRESS
-            : Status.IN_PROGRESS_RELOAD;
-        break;
-      case EntityActions.GET_ENTITY_SUCCESS:
-        draft.entity = action.payload.data;
-        draft.draft = action.payload.data;
-        draft.status = Status.SUCCESS;
-        break;
-      case EntityActions.GET_ENTITY_ERROR:
-        draft.error = { ...action.payload.error, message: 'Not found' };
-        draft.status = Status.ERROR;
-        break;
-      case EntityActions.DELETE_ENTITY:
-        draft.status = Status.IN_PROGRESS;
-        break;
-      case EntityActions.DELETE_ENTITY_SUCCESS:
-        draft.status = Status.SUCCESS;
-        break;
-      case EntityActions.DELETE_ENTITY_ERROR:
-        // draft.error = action.payload.error;
-        draft.status = Status.ERROR;
-        break;
-      case EntityActions.UPDATE_ENTITY:
-        draft.status = Status.IN_PROGRESS_RELOAD;
-        break;
-      case EntityActions.UPDATE_ENTITY_SUCCESS:
-        draft.isVersionMode = false;
-        draft.version = null;
-        draft.entity = action.payload.data;
-        draft.draft = action.payload.data;
-        draft.status = Status.SUCCESS;
-        break;
-      case EntityActions.UPDATE_ENTITY_ERROR:
-        // draft.error = action.payload.error;
-        draft.status = Status.ERROR;
-        break;
-      case EntityActions.SET_VERSION:
-        draft.version = action.payload;
-        draft.draft = action.payload;
-        draft.isVersionMode = true;
-        break;
-      case EntityActions.REVERT_VERSION:
-        draft.version = null;
-        draft.isVersionMode = false;
-        draft.draft = draft.entity;
-        break;
-    }
-  });
-};

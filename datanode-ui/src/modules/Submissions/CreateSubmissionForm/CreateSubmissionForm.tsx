@@ -10,22 +10,19 @@ import React, {
 import { tabs } from './CreateSubmissionForm.config';
 
 import { SpinnerFormContainer } from './ChooseRuntime.styles';
-import { CreateSubmissionFormTabs } from '../../../libs/enums/CreateSubmissionFormTabs';
-import { Status } from '../../../libs/enums';
-import { AnalysisTypes } from '../../../libs/enums/AnalysisTypes';
-import { Button, Grid, Icon, Input } from '../../../libs/components';
+import { CreateSubmissionFormTabs, Status, AnalysisTypes } from '../../../libs/enums';
+
+import {
+  Button,
+  Grid,
+  Icon, Input, Spinner,
+  FormElement, Select, FormActionsContainer,
+  TabsNavigationNew, ImportJsonFile, ImportZipFile, Block
+} from '../../../libs/components';
 import { Paper } from '@mui/material';
-import { Spinner } from '../../../libs/components/Spinner';
-import { FormElement } from '../../../libs/components/FormElement';
-import { Select } from '../../../libs/components/Select/Select';
 import { analysisTypes } from '../../../libs/constants';
-import { FormActionsContainer } from '../../../libs/components/Content';
-import { TabsNavigationNew } from '../../../libs/components/TabsNavigation';
-import { ImportJsonFile } from '../../../libs/components/ImportJsonFile';
-import { ImportZipFile } from '../../../libs/components/ImportZipFile';
 import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
-import { Block } from '../../../libs/components/Block';
-import { getDataSources } from '../../../api';
+import { getDataSources } from '../../../api/data-sources';
 
 export enum DBMSType {
   POSTGRESQL = 'POSTGRESQL',

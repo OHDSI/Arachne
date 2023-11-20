@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import { LayoutSpinner } from './App.styled';
 import { SpinnerWidgetContainer } from './libs/components/Spinner/SpinnerContainers';
 
-import { appConfig } from './app.config';
-
-import { IndexModuleSubmissions } from './modules/Submissions';
-import { IndexAdmin } from './modules/Admin';
+import { IndexModuleSubmissions, IndexAdmin } from './modules';
 import { AppLayout, PrivateRoute, Welcome } from './components';
+
+import { appConfig } from './app.config';
+import { LayoutSpinner } from './App.styled';
 
 import './App.css'
 

@@ -1,12 +1,7 @@
 import { getDbmsTypes } from '../../../../api/data-sources';
-import { Grid } from '../../../../libs/components';
-import { Block } from '../../../../libs/components/Block';
-import { FormLabel } from '../../../../libs/components/FormElement';
-import { ImportJsonFile } from '../../../../libs/components/ImportJsonFile';
-import { EditableInput } from '../../../../libs/components/editable-controls/EditableInput';
-import { EditableSelect } from '../../../../libs/components/editable-controls/EditableSelect';
+import { Grid, Block, FormLabel, ImportJsonFile, EditableInput, EditableSelect } from '../../../../libs/components';
 import { DBMSTypesInterface } from '../../../../libs/types';
-import { parseDbmsTypesForSelectForm } from '../../../../libs/utils/parseDbmsTypesForSelectForm';
+import { parseDbmsTypesForSelectForm } from '../../../../libs/utils';
 
 import { FC, useEffect, useState } from 'react';
 
@@ -20,13 +15,16 @@ export const ConnectionDetails: FC<{
       setDbsmTypes(parseDbmsTypesForSelectForm(res));
     });
   }, []);
+  console.log(entity, dbsmTypes)
+
+  if (dbsmTypes.length === 0) return;
   return (
     <Block>
       <Grid container spacing={2} item xs={12} p={2}>
         <Grid item xs={12} sm={6} container spacing={2}>
           <FormLabel htmlFor="database-type" label="Database Type" required>
             <EditableSelect
-              value={entity.type}
+              value={entity.dbmsType}
               className=""
               fullWidth
               id="database-type"
@@ -35,7 +33,7 @@ export const ConnectionDetails: FC<{
               size="small"
               onSubmit={
                 (newVal: any) => {
-                  updateEntity({ ...entity, type: newVal });
+                  updateEntity({ ...entity, dbmsType: newVal });
                 }
                 // updateFiled('type', newVal)
               }
