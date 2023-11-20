@@ -76,23 +76,35 @@ export const dbsmTypes = [
 ];
 
 const defaultState = {
-  dataSourceId: null,
   title: null,
-  analysisType: null,
-  analysisTitle: null,
-  studyId: null,
-  studyName: null,
   executableFileName: null,
-  runtimeEnvironmentId: null,
-  fileIds: null,
+  study: null,
+  environmentId: null,
+  datasourceId: null,
+  type: null
 };
 
-interface CreateSubmissionFormInterfaceProps {
+interface SubmissionFormStateInterface {
+  executableFileName: string;
+  study: string;
+  type: AnalysisTypes;
+  environmentId: string;
+  datasourceId: string;
+  title: string;
+}
 
+/*
+    {"executableFileName":"runAnalysis.R",
+    "datasourceId":"47","title":"[HIV_TP] Combination Medications",
+    "study":"LEGEND and the others",
+    "type":"COHORT_CHARACTERIZATION",
+    "environmentId":"5"}
+    */
+
+interface CreateSubmissionFormInterfaceProps {
   afterCreate: (analysis: any) => void;
   onCancel: () => void;
   createMethod: (data: any) => Promise<any>;
-  subModules?: any;
 }
 
 export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
@@ -103,13 +115,14 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
       status: Status.INITIAL,
       envs: [],
       analysisTypes: [],
-      dataSources: []
+      dataSources: [],
+      entryFiles: [],
     })
     const [filesEntryPoint, setFilesEntryPoint] = useState([]);
     const [status, setStatus] = useState(Status.INITIAL);
     const [env, setEnv] = useState([]);
     const [fileState, setFileState] = useState();
-    const [state, setState] = useState<any>(defaultState);
+    const [state, setState] = useState<SubmissionFormStateInterface>(defaultState);
     const [activeTab, setActiveTab] = useState<any>(
       CreateSubmissionFormTabs.FILES_IN_ARCHIVE
     );
@@ -128,7 +141,8 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         const types: any = await getAnalysisTypes();
         const dataSources: any = await getDataSources();
 
-        setControlsList({
+        setControlsList(prevState => ({
+          ...prevState,
           status: Status.SUCCESS,
           envs: envs.map(elem => {
             return {
@@ -148,7 +162,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
               value: elem.id,
             };
           })
-        })
+        }))
 
       } catch (e) {
 
@@ -157,7 +171,12 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
 
     const handleSave = useCallback(() => {
       setIsLoading(true);
-      createMethod(state).then((response: any) => {
+      const fd = new FormData();
+
+      fd.append('file', fileState);
+      fd.append('analysis', state as any);
+
+      createMethod(fd).then((response: any) => {
         setIsLoading(false);
         afterCreate?.(response);
       });
@@ -166,66 +185,40 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     const isValid = useMemo(() => {
       if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
         return (
-          state.fileIds &&
-          state.dataSourceId &&
-          state.analysisType &&
+          state.datasourceId &&
+          state.type &&
+          state.environmentId &&
           state.executableFileName
         );
       }
       if (activeTab === CreateSubmissionFormTabs.SEPARATE_FILES) {
-        return state.fileIds && state.dataSourceId && state.analysisType;
+        return state.datasourceId && state.environmentId && state.type;
       }
     }, [state, activeTab]);
 
-    const handleCheckMetadata = useCallback(
-      async (file, name?) => {
-        console.log(file, name);
-        setStatus(Status.IN_PROGRESS);
-        let fd = new FormData();
-        fd.append('file', file);
-        try {
-          // const result = await tempUploadFiles(fd);
-          if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
-            try {
-              // const metadata: any = await getMetadataFile(result[0]);
-              // setState({
-              //   ...state,
-              //   analysisType: metadata?.analysisType,
-              //   analysisTitle: metadata?.analysisName,
-              //   studyName: metadata?.studyName,
-              //   executableFileName: metadata?.entryPoint,
-              //   runtimeEnvironmentId:
-              //     metadata?.runtimeEnvironmentId || env?.[0]?.value,
-              //   fileIds: result,
-              // });
-              setStatus(Status.SUCCESS);
-            } catch (e) {
-              // setState({
-              //   ...state,
-              //   runtimeEnvironmentId:
-              //     state.runtimeEnvironmentId || controlsList.envs?.[0]?.value,
-              //   fileIds: result,
-              //   analysisTitle: name,
-              // });
-              setStatus(Status.SUCCESS);
-            }
-          } else {
-            // setState({
-            //   ...state,
-            //   runtimeEnvironmentId:
-            //     state.runtimeEnvironmentId || controlsList.envs?.[0]?.value,
-            //   fileIds: result,
-            //   analysisType: AnalysisTypes.STRATEGUS,
-            // });
-            setStatus(Status.SUCCESS);
-          }
-        } catch (e) {
-          setStatus(Status.ERROR);
-          console.log(e);
-        }
-      },
-      [activeTab, state, env]
-    );
+    const unpackZip = (zipFolder) => {
+      return Object.keys(zipFolder.files)
+        .map(fileId => zipFolder.files[fileId])
+        .filter(file => {
+          return (
+            file.name.toLowerCase().includes('.sql') ||
+            file.name.toLowerCase().includes('.r')
+          );
+        })
+        .map(file => {
+          return {
+            name: file.name,
+            value: file.name,
+          };
+        });
+    };
+
+    const getAnalysisName = (zip: any) => {
+      const analysisName = zip.name.split('.');
+      analysisName.pop();
+
+      return analysisName;
+    }
 
     return (
       <Grid container>
@@ -245,29 +238,19 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                 <>
                   <Grid item xs={12}>
                     <ImportZipFile titleButton='Upload zip' onChange={(zipFolder: any, zip: any) => {
-                      const simple_files = Object.keys(zipFolder.files)
-                        .map(fileId => zipFolder.files[fileId])
-                        .filter(file => {
-                          return (
-                            file.name.toLowerCase().includes('.sql') ||
-                            file.name.toLowerCase().includes('.r')
-                          );
-                        })
-                        .map(file => {
-                          return {
-                            name: file.name,
-                            value: file.name,
-                          };
-                        });
-                      setFilesEntryPoint(simple_files);
-                      const analysisName = zip.name.split('.');
-                      analysisName.pop();
+                      const analysisName = getAnalysisName(zip);
+
+                      setControlsList(prevState => ({
+                        ...prevState,
+                        entryFiles: unpackZip(zipFolder)
+                      }))
+
                       setState({
                         ...state,
-                        analysisTitle: analysisName.join(),
+                        title: analysisName.join(),
                       });
+
                       setFileState(zip);
-                      handleCheckMetadata(zip, analysisName.join());
                     }} />
                   </Grid>
                   <Grid item xs={12}>
@@ -277,7 +260,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                         name="entry-point"
                         disablePortal
                         id="entry point"
-                        options={filesEntryPoint}
+                        options={controlsList.entryFiles}
                         value={state.executableFileName}
                         placeholder="Select entry point..."
                         onChange={(type: any) => {
@@ -290,216 +273,124 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                       />
                     </FormElement>
                   </Grid>
-                  <Grid item xs={12}>
-                    <FormElement
-                      name="env"
-                      textLabel="ARACHNE Runtime Environment"
-                      required
-                    >
-                      <Select
-                        className=""
-                        name="env"
-                        disablePortal
-                        id="env"
-                        options={controlsList.envs}
-                        value={state.runtimeEnvironmentId}
-                        placeholder="Select env..."
-                        onChange={(env: any) => {
-                          setState({
-                            ...state,
-                            runtimeEnvironmentId: env,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement
-                      name="data-source"
-                      textLabel="Data source"
-                      required
-                    >
-                      <Select
-                        className=""
-                        name="data-source"
-                        disablePortal
-                        id="data-source"
-                        options={controlsList.dataSources}
-                        value={state.dataSourceId}
-                        placeholder="Select source..."
-                        onChange={(dataSourceId: any) => {
-                          setState({
-                            ...state,
-                            dataSourceId: dataSourceId,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement
-                      name="analysis-name"
-                      textLabel="Analysis name"
-                      required
-                    >
-                      <Input
-                        id="analysis-name"
-                        name="analysis-name"
-                        type="text"
-                        size="medium"
-                        value={state.analysisTitle}
-                        onChange={(e: any) => {
-                          setState({
-                            ...state,
-                            analysisTitle: e.target.value,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement name="type" textLabel="Analysis type" required>
-                      <Select
-                        className=""
-                        name="type"
-                        disablePortal
-                        id="type"
-                        options={analysisTypes}
-                        value={state.analysisType}
-                        placeholder="Select analysis type..."
-                        onChange={(type: any) => {
-                          setState({
-                            ...state,
-                            analysisType: type,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement name="study-name" textLabel="Study name">
-                      <Input
-                        id="study-name"
-                        name="study-name"
-                        type="text"
-                        size="medium"
-                        value={state.studyName}
-                        onChange={(e: any) => { }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
                 </>
               )}
               {activeTab === CreateSubmissionFormTabs.SEPARATE_FILES && (
-                <>
-                  <Grid item xs={12}>
-                    <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
-                      handleCheckMetadata(file);
-                    }} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement
-                      name="env"
-                      textLabel="ARACHNE Runtime Environment"
-                      required
-                    >
-                      {/* <ChooseRuntime /> */}
-                      <Select
-                        className=""
-                        name="env"
-                        disablePortal
-                        id="env"
-                        options={env}
-                        value={state.runtimeEnvironmentId}
-                        placeholder="Select env..."
-                        onChange={(env: any) => {
-                          setState({
-                            ...state,
-                            runtimeEnvironmentId: env,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    {/* <subModules.dataSources
-                      type="component"
-                      name="data-sources-list-select"
-                      subModules={subModules}
-                      config={{
-                        onChange: (id: string) => {
-                          setState({
-                            ...state,
-                            dataSourceId: id,
-                          });
-                        },
-                      }}
-                    /> */}
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement
-                      name="analysis-name"
-                      textLabel="Analysis name"
-                      required
-                    >
-                      <Input
-                        id="analysis-name"
-                        name="analysis-name"
-                        type="text"
-                        size="medium"
-                        value={state.analysisTitle}
-                        onChange={(e: any) => {
-                          setState({
-                            ...state,
-                            analysisTitle: e.target.value,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement name="type" textLabel="Analysis type" required>
-                      <Select
-                        className=""
-                        name="type"
-                        disablePortal
-                        id="type"
-                        disabled
-                        options={analysisTypes}
-                        value={AnalysisTypes.STRATEGUS}
-                        placeholder=""
-                        onChange={(type: any) => {
-                          setState({
-                            ...state,
-                            analysisType: type,
-                          });
-                        }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormElement name="study-name" textLabel="Study name">
-                      <Input
-                        id="study-name"
-                        name="study-name"
-                        type="text"
-                        size="medium"
-                        value={state.studyName}
-                        onChange={(e: any) => { }}
-                        fullWidth
-                      />
-                    </FormElement>
-                  </Grid>
-                </>
+                <Grid item xs={12}>
+                  <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
+                    setFileState(file);
+                    // handleCheckMetadata(file);
+                  }} />
+                </Grid>
               )}
+              <Grid item xs={12}>
+                <FormElement
+                  name="env"
+                  textLabel="ARACHNE Runtime Environment"
+                  required
+                >
+                  <Select
+                    className=""
+                    name="env"
+                    disablePortal
+                    id="env"
+                    options={controlsList.envs}
+                    value={state.environmentId}
+                    placeholder="Select env..."
+                    onChange={(env: any) => {
+                      setState({
+                        ...state,
+                        environmentId: env,
+                      });
+                    }}
+                    fullWidth
+                  />
+                </FormElement>
+              </Grid>
+              <Grid item xs={12}>
+                <FormElement
+                  name="data-source"
+                  textLabel="Data source"
+                  required
+                >
+                  <Select
+                    className=""
+                    name="data-source"
+                    disablePortal
+                    id="data-source"
+                    options={controlsList.dataSources}
+                    value={state.datasourceId}
+                    placeholder="Select source..."
+                    onChange={(dataSourceId: any) => {
+                      setState({
+                        ...state,
+                        datasourceId: dataSourceId,
+                      });
+                    }}
+                    fullWidth
+                  />
+                </FormElement>
+              </Grid>
+              <Grid item xs={12}>
+                <FormElement
+                  name="analysis-name"
+                  textLabel="Analysis name"
+                  required
+                >
+                  <Input
+                    id="analysis-name"
+                    name="analysis-name"
+                    type="text"
+                    size="medium"
+                    value={state.title}
+                    onChange={(e: any) => {
+                      setState({
+                        ...state,
+                        title: e.target.value,
+                      });
+                    }}
+                    fullWidth
+                  />
+                </FormElement>
+              </Grid>
+              <Grid item xs={12}>
+                <FormElement name="type" textLabel="Analysis type" required>
+                  <Select
+                    className=""
+                    name="type"
+                    disablePortal
+                    id="type"
+                    options={analysisTypes}
+                    value={state.type}
+                    placeholder="Select analysis type..."
+                    onChange={(type: any) => {
+                      setState({
+                        ...state,
+                        type: type,
+                      });
+                    }}
+                    fullWidth
+                  />
+                </FormElement>
+              </Grid>
+              <Grid item xs={12}>
+                <FormElement name="study-name" textLabel="Study name">
+                  <Input
+                    id="study-name"
+                    name="study-name"
+                    type="text"
+                    size="medium"
+                    value={state.study}
+                    onChange={(e: any) => {
+                      setState({
+                        ...state,
+                        type: e.target.value,
+                      });
+                    }}
+                    fullWidth
+                  />
+                </FormElement>
+              </Grid>
               <Grid item xs={12}>
                 <FormActionsContainer>
                   <Button

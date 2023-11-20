@@ -17,7 +17,7 @@ export const listConfig: any = {
   iconName: 'library',
   fetch: getSubmissions,
   remove: removeDataSource,
-  listInitialSort: { id: 'finished', desc: true },
+  listInitialSort: { id: 'submitted', desc: true },
   getCols: () => {
     return [
       {
@@ -37,8 +37,8 @@ export const listConfig: any = {
       },
       {
         Header: 'Author',
-        accessor: row => row.created?.user.name || '-',
-        id: 'created.user.name',
+        accessor: row => row.author?.fullName || '-',
+        id: 'author.fullName',
       },
       {
         Header: 'Study',
