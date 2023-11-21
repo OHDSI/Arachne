@@ -468,6 +468,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <mainClass>com.odysseusinc.arachne.datanode.WebApplicationStarter</mainClass>
                     <requiresUnpack>
                         <dependency>
                             <groupId>org.graalvm.sdk</groupId>
