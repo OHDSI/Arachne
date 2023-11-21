@@ -35,6 +35,7 @@
                 <executions>
                     <execution>
                         <id>install-toolchain</id>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
@@ -67,16 +68,16 @@
                             <arguments>run start</arguments>
                         </configuration>
                     </execution>
-                        <execution>
-                            <id>clean</id>
-                            <phase>clean</phase>
-                            <goals>
-                                <goal>npm</goal>
-                            </goals>
-                            <configuration>
-                                <arguments>run clean</arguments>
-                            </configuration>
-                        </execution>
+<!--                        <execution>-->
+<!--                            <id>clean</id>-->
+<!--                            <phase>clean</phase>-->
+<!--                            <goals>-->
+<!--                                <goal>npm</goal>-->
+<!--                            </goals>-->
+<!--                            <configuration>-->
+<!--                                <arguments>run clean</arguments>-->
+<!--                            </configuration>-->
+<!--                        </execution>-->
                 </executions>
             </plugin>
             <plugin>
