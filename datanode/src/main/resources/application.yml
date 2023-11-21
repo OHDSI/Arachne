@@ -1,3 +1,158 @@
+# suppress inspection "SpringBootApplicationProperties" for whole file
+server:
+  port: 8880
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+logging:
+  level:
+    root: INFO
+    org.springframework.web.servlet.PageNotFound: ERROR
+#  com.odysseusinc.arachne.datanode.service.AchillesService: DEBUG
+api:
+  loginEnteryPoint: /api/v1/auth/login
+  logoutEntryPoint: /api/v1/auth/logout
+  registerEntryPoint: /api/v1/auth/register
+
+arachne:
+  token:
+    header: Arachne-Auth-Token
 spring:
-  profiles:
-    active: base, @env@
+  flyway:
+    out-of-order: true
+    table: "schema_version"
+    ignore-missing-migrations: true
+    datasource:
+      driverClassName: org.postgresql.Driver
+      url: ${spring.datasource.url}
+      username: ${spring.datasource.username}
+      password: ${spring.datasource.password}
+    enabled: true
+    validate-on-migrate: false
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQL95Dialect
+      hibernate.temp.use_jdbc_metadata_defaults: false
+  datasource:
+    connection-test-query: select 1
+    max-active: 400
+    hikari:
+      idle-timeout: 10000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      pool-name: ArachneDn-Pool
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  activemq:
+    packages:
+      trust-all: true
+#ms
+files:
+  store:
+    path: /var/arachne/files
+datanode:
+  checkDataSourceTimeout: 45000
+  app:
+    errorsTokenEnabled: false
+  runMode: STANDALONE
+  jwt:
+    header: Arachne-Auth-Token
+    secret: 129DF19C8A91AFD8375A2826A33539K01ACQ778QOJFAA9MGWLWH73PLXVFVHBR7860MTIE2O8EEVF9KCO77P6A7NUNX4XHAGCRFSBWG879XPDOIN6C2LFCKJI002OIABS4D6Q9VMJJIX8UCE48EF
+    expiration: 900
+  baseURL: https://localhost
+  port: 8880
+  httpClient:
+    connectTimeout: 120
+    writeTimeout: 600
+    readTimeout: 600
+swagger:
+  enable: false
+proxy:
+  enabled: false
+  enabledForEngine: false
+  host:
+  port:
+  auth:
+    enabled: false
+    username:
+    password:
+executionEngine:
+  protocol: https
+  port: 8888
+  analysisUri: /api/v1/analyze
+  descriptorsUri: /api/v1/descriptors
+  token:
+  status:
+    period: 60000
+docker:
+#  host: tcp://localhost:2375
+  tls-verify: false
+  registry:
+    host: hub.odysseusinc.com
+    username: user
+    password:
+achilles:
+  image-name: hub.odysseusinc.com/achilles:20190507
+  network-mode: arachnenetwork
+  auth-config:
+    registry-address: hub.odysseusinc.com
+    username: user
+    password:
+  retry:
+    max-attempts: 5
+    backoff:
+      max-interval: 50000
+  scheduler:
+    enabled: false
+    cron: 0 0 12 1/5 * ?
+entities:
+  scheduler:
+    checkListRequestsInterval: 10000
+    checkRequestInterval: 10000
+central:
+  scheduler:
+    checkingInterval: 60000
+
+jasypt:
+  encryptor:
+    algorithm: PBEWITHMD5ANDDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+migration:
+  retry:
+    timeout: 10000
+cohorts:
+  result:
+    countEnabled: true
+    summaryEnabled: false
+    defaultTargetTable: cohort
+tmp:
+  location-on-host:
+  holder:
+    cron: 0 * * ? * *
+analysis:
+  file.maxsize: 1048576
+  scheduler:
+    resendFailuresInterval: 600000
+    invalidateExecutingInterval: 86400000
+    invalidateMaxDaysExecutingInterval: 3
+submission:
+  result:
+    files:
+      exclusions:
+management:
+  health:
+    ldap:
+      enabled: false
+security:
+  jwt.token:
+    secretKey: ${datanode.jwt.secret}
+    validityInSeconds: ${datanode.jwt.expiration}

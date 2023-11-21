@@ -25,6 +25,9 @@ package com.odysseusinc.arachne.datanode.model.user;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.SequenceGenerator;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.Column;
@@ -40,6 +43,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
@@ -71,89 +76,21 @@ public class User implements Serializable {
     @Column
     private Boolean enabled;
 
+    @Column(name = "password")
+    private String password;
+
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new LinkedList<>();
 
-    public Long getId() {
-
-        return id;
-    }
-
-    public void setId(Long id) {
-
-        this.id = id;
-    }
-
-    public String getEmail() {
-
-        return email;
-    }
-
-    public void setEmail(String email) {
-
-        this.email = email;
-    }
-
-    public String getUsername() {
-
-        return username;
-    }
-
-    public void setUsername(String username) {
-
-        this.username = username;
-    }
-
-    public String getFirstName() {
-
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-
-        this.lastName = lastName;
-    }
-
-    public List<Role> getRoles() {
-
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-
-        this.roles = roles;
-    }
-
     public boolean getSync() {
-
         return sync;
     }
 
-    public void setSync(boolean sync) {
-
-        this.sync = sync;
-    }
-
     public Boolean getEnabled() {
-
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-
-        this.enabled = enabled;
-    }
 }

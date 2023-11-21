@@ -58,7 +58,7 @@
                     </execution>
                     <execution>
                         <id>preview</id>
-                        <phase>integration-test</phase>
+                        <phase>site</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>

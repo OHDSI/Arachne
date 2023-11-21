@@ -1,6 +1,23 @@
 # ArachneNodeAPI
 Arachne Data Node is a component that facilitates connection and communication between local databases and Arachne Central
 
+## Running locally
+
+```
+--spring.config.additional-location=file:config/config-dev.yml
+```
+
+## Important Configuration Properties
+
+| Property                     | Default Value                 | Descrition                                                                                            |
+|------------------------------|-------------------------------|-------------------------------------------------------------------------------------------------------|
+| `files.store.path`           | `/var/arachne/files`          | Location to store files. In case of docker container, must be mounted to ensure files are persisted   |
+| `spring.datasource.url`      | -                             | Application database JDBC connection string                                                           |
+| `spring.datasource.username` | -                             | Application database username                                                                         |
+| `spring.datasource.password` | -                             | Application database password                                                                         |
+| `docker.host`                | `unix:///var/run/docker.sock` | Docker host url, used to manipulate docker containers (e.g. Achilles). Default is only good for local |
+
+
 ## Installation
 ### Prerequisites
 For building and run the Data Node please install following applications:
