@@ -29,7 +29,7 @@ import com.odysseusinc.arachne.datanode.model.datanode.FunctionalMode;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.DataNodeRepository;
 import com.odysseusinc.arachne.datanode.repository.UserRepository;
-import com.odysseusinc.arachne.datanode.service.BaseCentralIntegrationService;
+import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +50,14 @@ public class DataNodeServiceImpl implements DataNodeService {
     private static final String ALREADY_EXISTS_EXCEPTION = "DataNode entry already exist, try to update it";
     protected static Logger log = LoggerFactory.getLogger(DataNodeServiceImpl.class);
 
-    private final BaseCentralIntegrationService centralIntegrationService;
+    private final CentralIntegrationService centralIntegrationService;
     private final DataNodeRepository dataNodeRepository;
     private final UserRepository userRepository;
 
     private final FunctionalMode mode;
 
     @Autowired
-    public DataNodeServiceImpl(@Lazy BaseCentralIntegrationService centralIntegrationService,
+    public DataNodeServiceImpl(@Lazy CentralIntegrationService centralIntegrationService,
                                DataNodeRepository dataNodeRepository,
                                UserRepository userRepository, @Value("${datanode.runMode}") String runMode) {
 

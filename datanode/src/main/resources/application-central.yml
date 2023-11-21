@@ -1,4 +1,11 @@
 # Profile to use when central authentication is enabled
+datanode:
+  arachneCentral:
+    authHeader: Arachne-Auth-Token
+    nodeAuthHeader: Arachne-System-Token
+    admin.email: admin@odysseusinc.com
+    host: https://localhost
+    port: 8443
 authenticator:
   methods:
     rest-central:

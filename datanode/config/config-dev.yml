@@ -20,12 +20,6 @@ server:
     key-alias: arachne
     key-password: odysseus
 datanode:
-  arachneCentral:
-    authHeader: Arachne-Auth-Token
-    nodeAuthHeader: Arachne-System-Token
-    admin.email: admin@odysseusinc.com
-    host: https://localhost
-    port: 8443
   users:
     admin:
       email: admin@odysseusinc.com

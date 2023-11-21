@@ -23,7 +23,6 @@
 package com.odysseusinc.arachne.datanode.controller;
 
 import com.odysseusinc.arachne.datanode.BuildNumberDTO;
-import com.odysseusinc.arachne.datanode.util.CentralUtil;
 import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +46,7 @@ public class BuildNumberController {
     private final String centralUrl;
 
     @Autowired
-    public BuildNumberController(CentralUtil centralUtil) {
+    public BuildNumberController() {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream(SOURCE);
         Properties properties = new Properties();
@@ -59,9 +58,10 @@ public class BuildNumberController {
         projectVersion = properties.getProperty("version", "dev");;
         buildNumber = properties.getProperty("buildNumber", "dev");
         buildId = properties.getProperty("buildId", "dev");;
-        centralUrl = centralUtil.getCentralUrl();
+//        centralUrl = centralUtil.getCentralUrl();
+        centralUrl = "";
         log.info("Version [{}], build [{}] @ [{}]", projectVersion, buildNumber, buildId);
-        log.info("Central url [{}]", centralUrl);
+//        log.info("Central url [{}]", centralUrl);
     }
 
     @ApiOperation(value = "Get build number")

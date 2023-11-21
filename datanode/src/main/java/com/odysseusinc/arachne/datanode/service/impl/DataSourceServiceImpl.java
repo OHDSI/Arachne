@@ -37,7 +37,7 @@ import com.odysseusinc.arachne.datanode.model.datasource.AutoDetectedFields;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.DataSourceRepository;
-import com.odysseusinc.arachne.datanode.service.BaseCentralIntegrationService;
+import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
 import com.odysseusinc.arachne.datanode.service.DataSourceService;
@@ -96,7 +96,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     private final DataNodeService dataNodeService;
     private final Map<String, String> dsSortPath = new HashMap<>();
     protected final ApplicationEventPublisher eventPublisher;
-    protected final BaseCentralIntegrationService<DataSource, CommonDataSourceDTO> integrationService;
+    protected final CentralIntegrationService integrationService;
     protected final CentralClient centralClient;
     protected final JmsTemplate jmsTemplate;
     protected final DataSourceHelper dataSourceHelper;
@@ -108,7 +108,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Autowired
     public DataSourceServiceImpl(DataSourceRepository dataSourceRepository,
                                  DataNodeService dataNodeService,
-                                 BaseCentralIntegrationService<DataSource, CommonDataSourceDTO> integrationService,
+                                 CentralIntegrationService integrationService,
                                  ApplicationEventPublisher eventPublisher,
                                  CentralClient centralClient,
                                  JmsTemplate jmsTemplate,

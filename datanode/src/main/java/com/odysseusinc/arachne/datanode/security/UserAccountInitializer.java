@@ -37,7 +37,7 @@ public class UserAccountInitializer {
         if (users != null) {
             log.info("Verifying {} service accounts", users.size());
             users.forEach((name, account) -> {
-                Optional<User> found = userService.findByUsername(account.getUsername());
+                Optional<User> found = userService.findByUsername(name);
                 if (!found.isPresent()) {
                     User user = new User();
                     user.setUsername(name);
