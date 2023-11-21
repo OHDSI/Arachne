@@ -23,6 +23,7 @@
     </scm>
 
     <properties>
+        <revision>2.x-SNAPSHOT</revision>
         <start-class>com.odysseusinc.arachne.datanode.WebApplicationStarter</start-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
@@ -383,22 +384,11 @@
     <build>
         <resources>
             <resource>
-                <filtering>false</filtering>
                 <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <excludes>
-                    <exclude>application*.yml</exclude>
-                </excludes>
             </resource>
             <resource>
-                <filtering>true</filtering>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>application.yml</include>
-                    <include>application-base.yml</include>
-                </includes>
+                <directory>${project.build.directory}/frontend</directory>
+                <targetPath>public</targetPath>
             </resource>
             <resource>
                 <directory>${project.build.directory}/meta</directory>
@@ -410,21 +400,6 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>src/main/resources/public</directory>
-                            <!--<excludes>
-                                <exclude>**/index.html</exclude>
-                            </excludes>-->
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>ru.yaal.maven</groupId>
                 <artifactId>write-text-files-maven-plugin</artifactId>
@@ -444,7 +419,7 @@
                                     <lines>
                                         <line>buildNumber: ${build.number}</line>
                                         <line>buildId: ${maven.build.timestamp}</line>
-                                        <line>version: ${project.version}</line>
+                                        <line>version: ${revision}</line>
                                     </lines>
                                 </file>
                             </files>
@@ -545,7 +520,7 @@
                 </executions>
                 <configuration>
                     <repository>hub.odysseusinc.com/${project.artifactId}</repository>
-                    <tag>${project.version}</tag>
+                    <tag>${revision}</tag>
                 </configuration>
             </plugin>
             <plugin>

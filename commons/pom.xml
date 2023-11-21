@@ -34,6 +34,7 @@
         <spring.version>5.3.20</spring.version>
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <distributionManagement>
