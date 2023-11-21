@@ -5,11 +5,12 @@ import { Global } from '@emotion/react';
 import { CircularProgress } from '@mui/material';
 
 export interface AutocompleteInput {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   options: any;
   value: any;
   onChange: (value: any) => void;
+  onInputChange?: any;
   placeholder?: string;
   disabled?: boolean;
   loading?: boolean;
@@ -25,6 +26,7 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
     options,
     value: initValue,
     onChange,
+    onInputChange,
     placeholder = 'Enter value',
     disabled,
     loading,
@@ -32,7 +34,7 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
 
   const [value, setValue] = React.useState<string | null>(() => {
     if (![undefined, null, ''].includes(initValue)) {
-      const index = options.findIndex(elem => elem.value === initValue);
+      const index = options.findIndex(elem => elem.value === initValue || elem.name === initValue);
       if (index >= 0) {
         return options[index];
       } else {
@@ -48,13 +50,7 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
   const [inputValue, setInputValue] = React.useState(initValue);
 
   useEffect(() => {
-    onChange(
-      inputValue === 'all' || inputValue === 'undefined'
-        ? undefined
-        : isNaN(+inputValue)
-          ? undefined
-          : +inputValue
-    );
+    onChange(inputValue);
   }, [inputValue]);
 
   return (
@@ -73,10 +69,12 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
         value={value}
         disableClearable
         onChange={(event: any, newValue: string | null) => {
+          console.log(event);
           setValue(newValue);
         }}
         inputValue={inputValue}
         onInputChange={(event, newInputValue) => {
+          onInputChange?.(newInputValue)
           setInputValue(newInputValue);
         }}
         id={id}

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { ModalContext, UseModalContext } from '../../../libs/hooks';
+import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
 import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
 import { PageList, FileExplorer, SecondaryContentWrapper } from '../../../libs/components';
 import { createSubmission } from '../../../api/submissions';
@@ -71,9 +71,9 @@ export const List: React.FC = () => {
     );
   }, []);
 
-  // useInterval(() => {
-  //   setIdReload(getUUID());
-  // }, 10000);
+  useInterval(() => {
+    setIdReload(getUUID());
+  }, 10000);
 
   return (
     <PageList

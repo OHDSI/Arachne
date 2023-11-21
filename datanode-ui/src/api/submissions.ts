@@ -1,11 +1,13 @@
-import { getSortDirection } from "../libs/utils/getSortDirection";
 import { api } from ".";
+import { getSortDirection } from "../libs/utils";
+import { DescriptorInterface, IdNameInterface } from "../libs/types";
+import { AnalysisTypes } from "../libs/enums";
 
-export const getDescriptors = () => {
+export const getDescriptors = (): Promise<DescriptorInterface[]> => {
   return api.get('/descriptor');
 }
 
-export const getAnalysisTypes = () => {
+export const getAnalysisTypes = (): Promise<IdNameInterface<AnalysisTypes>[]> => {
   return api.get('analysis/types')
 }
 
@@ -16,7 +18,7 @@ export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: 'su
     `&sort=${sort}`);
 }
 export const createSubmission = (data): Promise<any> =>
-  api.post('/admin/submissions', data);
+  api.post('/analysis', data);
 
 export const updateSubmission = (id, data): Promise<any> =>
   api.post(`/admin/submissions/${id}`, data);

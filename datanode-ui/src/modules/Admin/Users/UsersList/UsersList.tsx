@@ -10,6 +10,7 @@ import { setBreadcrumbs } from '../../../../store/modules';
 import { PageList } from '../../../../libs/components/PageList';
 import { createDataSource } from '../../../../api/data-sources';
 import { usersListConfig } from './UsersList.config'
+import { AddUserForm } from '../AddUserForm';
 
 export const UsersList: FC<any> = () => {
 
@@ -17,17 +18,14 @@ export const UsersList: FC<any> = () => {
   const dispatch = useDispatch();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState(getUUID());
+
   const onCreateCdmDataSource = () => {
     openModal(
       () => (
-        <CreateDatabaseForm
-          createMethod={createDataSource}
-          onCancel={closeModal}
-          afterCreate={() => {
-            closeModal();
-            setIdReload(getUUID());
-          }}
-        />
+        <AddUserForm onCancel={closeModal} afterCreate={() => {
+          setIdReload(getUUID());
+          closeModal();
+        }} />
       ),
       'Create new database',
       {
@@ -45,6 +43,7 @@ export const UsersList: FC<any> = () => {
   return (
     <PageList
       reloadId={idReload}
+      removeId='username'
       isImport={false}
       isCreate={true}
       onCreate={onCreateCdmDataSource}

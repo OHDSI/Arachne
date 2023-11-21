@@ -23,57 +23,8 @@ import { Paper } from '@mui/material';
 import { analysisTypes } from '../../../libs/constants';
 import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
 import { getDataSources } from '../../../api/data-sources';
-
-export enum DBMSType {
-  POSTGRESQL = 'POSTGRESQL',
-  MS_SQL_SERVER = 'MS_SQL_SERVER',
-  PDW = 'PDW',
-  REDSHIFT = 'REDSHIFT',
-  ORACLE = 'ORACLE',
-  IMPALA = 'IMPALA',
-  BIGQUERY = 'BIGQUERY',
-  NETEZZA = 'NETEZZA',
-  HIVE = 'HIVE',
-}
-
-export const dbsmTypes = [
-  {
-    name: 'PostgreSQL',
-    value: DBMSType.POSTGRESQL,
-  },
-  {
-    name: 'MS SQL Server',
-    value: DBMSType.MS_SQL_SERVER,
-  },
-  {
-    name: 'SQL Server Parallel Data Warehouse',
-    value: DBMSType.PDW,
-  },
-  {
-    name: 'Redshift',
-    value: DBMSType.REDSHIFT,
-  },
-  {
-    name: 'Oracle',
-    value: DBMSType.ORACLE,
-  },
-  {
-    name: 'Impala',
-    value: DBMSType.IMPALA,
-  },
-  {
-    name: 'Google BigQuery',
-    value: DBMSType.BIGQUERY,
-  },
-  {
-    name: 'Netezza',
-    value: DBMSType.NETEZZA,
-  },
-  {
-    name: 'Apache Hive',
-    value: DBMSType.HIVE,
-  },
-];
+import { BaseResponceInterface, DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '@/libs/types';
+import { parseToSelectControlOptions } from '../../../libs/utils';
 
 const defaultState = {
   title: null,
@@ -93,37 +44,36 @@ interface SubmissionFormStateInterface {
   title: string;
 }
 
-/*
-    {"executableFileName":"runAnalysis.R",
-    "datasourceId":"47","title":"[HIV_TP] Combination Medications",
-    "study":"LEGEND and the others",
-    "type":"COHORT_CHARACTERIZATION",
-    "environmentId":"5"}
-    */
-
 interface CreateSubmissionFormInterfaceProps {
   afterCreate: (analysis: any) => void;
   onCancel: () => void;
   createMethod: (data: any) => Promise<any>;
 }
 
+interface ControlListInterfaceState {
+  status: Status;
+  envs: SelectInterface<number>[];
+  analysisTypes: SelectInterface<AnalysisTypes>[];
+  dataSources: SelectInterface<number>[];
+  entryFiles: SelectInterface<string>[];
+}
+
 export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [controlsList, setControlsList] = useState({
+    const [state, setState] = useState<SubmissionFormStateInterface>(defaultState);
+    const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
       status: Status.INITIAL,
       envs: [],
       analysisTypes: [],
       dataSources: [],
       entryFiles: [],
-    })
-    const [filesEntryPoint, setFilesEntryPoint] = useState([]);
+    });
+
     const [status, setStatus] = useState(Status.INITIAL);
-    const [env, setEnv] = useState([]);
     const [fileState, setFileState] = useState();
-    const [state, setState] = useState<SubmissionFormStateInterface>(defaultState);
-    const [activeTab, setActiveTab] = useState<any>(
+    const [activeTab, setActiveTab] = useState<CreateSubmissionFormTabs>(
       CreateSubmissionFormTabs.FILES_IN_ARCHIVE
     );
 
@@ -137,31 +87,16 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
 
     const getControlsList = async () => {
       try {
-        const envs: any = await getDescriptors();
-        const types: any = await getAnalysisTypes();
-        const dataSources: any = await getDataSources();
+        const envs: DescriptorInterface[] = await getDescriptors();
+        const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
+        const dataSources: BaseResponceInterface<DataSourceDTOInterface[]> = await getDataSources();
 
         setControlsList(prevState => ({
           ...prevState,
           status: Status.SUCCESS,
-          envs: envs.map(elem => {
-            return {
-              name: elem.label,
-              value: elem.id,
-            };
-          }),
-          analysisTypes: types.map(elem => {
-            return {
-              name: elem.name,
-              value: elem.id,
-            };
-          }),
-          dataSources: dataSources.result.map(elem => {
-            return {
-              name: elem.name,
-              value: elem.id,
-            };
-          })
+          envs: parseToSelectControlOptions(envs, 'label'),
+          analysisTypes: parseToSelectControlOptions(types),
+          dataSources: parseToSelectControlOptions(dataSources.result)
         }))
 
       } catch (e) {
@@ -174,7 +109,17 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
       const fd = new FormData();
 
       fd.append('file', fileState);
-      fd.append('analysis', state as any);
+
+      const str = JSON.stringify({
+        ...state,
+        environmentId: `${state.environmentId}`,
+        datasourceId: `${state.datasourceId}`
+      });
+      const bytes = new TextEncoder().encode(str);
+      const blob = new Blob([bytes], {
+        type: "application/json"
+      });
+      fd.append('analysis', blob);
 
       createMethod(fd).then((response: any) => {
         setIsLoading(false);
@@ -279,7 +224,6 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                 <Grid item xs={12}>
                   <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
                     setFileState(file);
-                    // handleCheckMetadata(file);
                   }} />
                 </Grid>
               )}
@@ -384,7 +328,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     onChange={(e: any) => {
                       setState({
                         ...state,
-                        type: e.target.value,
+                        study: e.target.value,
                       });
                     }}
                     fullWidth

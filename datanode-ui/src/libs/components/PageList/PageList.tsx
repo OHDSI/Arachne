@@ -35,6 +35,7 @@ export interface PageListPropsInterface<I, O, C> {
   variant?: 'primary' | 'secondary' | 'no-header' | 'description';
   uniqName?: string;
   dense?: boolean;
+  removeId?: string;
 }
 
 export const PageList: React.FC<any> = (
@@ -63,6 +64,7 @@ export const PageList: React.FC<any> = (
     hiddenColumns,
     // uniqName,
     dense,
+    removeId
   } = props;
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInitial, setIsInitial] = React.useState(true);
@@ -100,71 +102,25 @@ export const PageList: React.FC<any> = (
     []
   );
 
-  // const crudMethods = React.useMemo(() => {
-  //   return createCrudMethod(config?.typeContainer, config?.parentId);
-  // }, [config?.parentId]);
-
-  // const entityFilterPanel = React.useMemo(() => {
-  //   return createFiltersPanel(config?.typeContainer, config?.parentId);
-  // }, [config?.parentId]);
-
-  // const entityAllowedSorting = React.useMemo(() => {
-  //   return createSortingMethod(config?.typeContainer);
-  // }, [config?.parentId]);
-
-  // const { data: metaAttributes } = useMetadata(
-  //   isEnableMetadata,
-  //   metadataFilter,
-  //   getListMetadata
-  // );
-
   const {
-    data: { tableData, filtersData },
-    filters,
-    allowedSorting,
-    actions,
+    data: { tableData },
     pageCount,
     pageSize,
     getEntity,
     totalElements,
     numberOfElements,
     removeEntity,
-    // updateFilters,
-    setPageSize,
     status,
     error,
   } = useEntityList(
     {
       get: fetch,
-      remove: remove,
-      // getFilters: entityFilterPanel.getFilters,
-      // getSorting: entityAllowedSorting,
+      remove: remove
     },
     reloadId,
     isSilentReload,
     useStorage.storage
   );
-
-  // React.useEffect(() => {
-  // dispatch(
-  //   setBreadcrumbs(
-  //     entityBreadcrumbs({
-  //       title,
-  //       path,
-  //       rootPath,
-  //       rootTitle,
-  //     })
-  //   )
-  // );
-  // }, []);
-
-  // React.useEffect(() => {
-  //   if (fullSearch) {
-  //     updateFilters({ 'filter.search': [fullSearch || ''] });
-  //   }
-  //   setIsInitial(false);
-  // }, [fullSearch]);
-
 
   React.useEffect(() => {
     document.title = `Arachne Data Node - ${tableTitle}`;
@@ -174,10 +130,6 @@ export const PageList: React.FC<any> = (
     onRowClickOutSide ? onRowClickOutSide(e) : navigate(`${e.original[rowId]}`);
   };
 
-  // const FILTERS_APPLIED = Object.values(filters).some(
-  //   item => (item as any[])?.length > 0
-  // );
-
   const ACTION_CELL: any = {
     Header: '',
     accessor: 'actions',
@@ -186,9 +138,10 @@ export const PageList: React.FC<any> = (
     minWidth: 80,
     width: '5%',
     Cell: (props: any) => {
+      console.log(props.row.original)
       return (
         <ActionCell
-          onRemove={() => removeEntity(props.row.original.id)}
+          onRemove={() => removeEntity(props.row.original?.[removeId || 'id'])}
           withConfirmation
           entityName={props.row.original.title || props.row.original.name}
         />
@@ -203,15 +156,6 @@ export const PageList: React.FC<any> = (
     ],
     [removeEntity]
   );
-
-  // const CAN_CREATE = React.useMemo(
-  //   () => actions?.includes(ListActions.CREATE) || isCreate,
-  //   [actions]
-  // );
-  // const CAN_IMPORT = React.useMemo(
-  //   () => actions?.includes(ListActions.IMPORT) || false,
-  //   [actions]
-  // );
 
   if (status === Status.ERROR) {
     return (
@@ -245,74 +189,15 @@ export const PageList: React.FC<any> = (
               count={totalElements}
             />
           )}
-          {/* {variant === 'secondary' && (
-            <ListHeaderSecondary
-              title={tableTitle}
-              canImport={isImport}
-              // wrong logic
-              canCreate={onCreate}
-              importButtonName={importButtonTitle}
-              createButtonName={addButtonTitle}
-              onCreate={onCreate}
-              onImport={onImport}
-              count={totalElements}
-            />
-          )}
-          {variant === 'description' && (
-            <ListHeaderDescription
-              title={moduleDescription}
-              canImport={isImport}
-              // wrong logic
-              canCreate={onCreate}
-              importButtonName={importButtonTitle}
-              createButtonName={addButtonTitle}
-              onCreate={onCreate}
-              onImport={onImport}
-            />
-          )} */}
         </>
       )}
 
       <Grid container className={'table-' + className} mt={2}>
         <Grid item xs={12}>
           <Grid container spacing={4} flexWrap="nowrap">
-            {/* <Grid
-              item
-              className={'filters-' + className}
-              sx={{
-                width: {
-                  md: 250,
-                  lg: 280,
-                  xl: 300,
-                },
-              }}
-            >
-              <FilterPanel
-                showLabel
-                filters={filtersData}
-                value={filters}
-                onChange={(key, value) => {
-                  const filtersItem = { [key]: value };
-                  updateFilters(filtersItem);
-                  useStorage?.setStorage('filters', {
-                    ...filters,
-                    ...filtersItem,
-                  });
-                }}
-                isLoading={status === Status.IN_PROGRESS}
-                isReloading={status === Status.IN_PROGRESS_RELOAD}
-              />
-            </Grid> */}
             <Grid
               item
               xs={12}
-              // sx={{
-              //   width: {
-              //     md: 'calc(100% - 250px)',
-              //     lg: 'calc(100% - 280px)',
-              //     xl: 'calc(100% - 300px)',
-              //   },
-              // }}
               className={'table-data-' + className}
             >
               <Table

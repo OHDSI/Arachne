@@ -9,3 +9,4 @@ export * from './getSortDirection';
 export * from './getSubmissionStatusInfo';
 export * from './getUUID';
 export * from './parseDbmsTypesForSelectForm';
+export * from './parseToSelectControlOptions';

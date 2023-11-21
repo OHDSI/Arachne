@@ -7,8 +7,8 @@ export const tabsAdmin: any = [
     value: 'users',
     title: 'Users',
   },
-  {
-    value: 'system-settings',
-    title: 'System settings',
-  },
+  // {
+  //   value: 'system-settings',
+  //   title: 'System settings',
+  // },
 ];
