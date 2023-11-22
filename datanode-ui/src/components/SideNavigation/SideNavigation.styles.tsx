@@ -36,3 +36,11 @@ export const StyledButton: any = styled(Button)`
 export const LogoContainer = styled(NavLink)`
   padding: 12px 0px 16px;
 `;
+
+export const InfoContainer = styled.div`
+  font-size: 9px;
+  color: ${({ theme }: any) => theme.palette?.primary.main};
+  padding: 5px 10px;
+  position: absolute;
+  bottom: 0;
+`;

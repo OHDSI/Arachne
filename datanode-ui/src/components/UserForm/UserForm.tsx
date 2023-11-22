@@ -41,7 +41,7 @@ export const UserForm: React.FC<{
       <AccountName>
         <AccountAction onClick={handleClick}>
           <UserAvatar>
-            {currentUser.firstname[0] + currentUser.lastname[0]}
+            {currentUser.firstname?.[0] + currentUser.lastname?.[0]}
           </UserAvatar>
           <CurrentUser>{userName}</CurrentUser>
         </AccountAction>

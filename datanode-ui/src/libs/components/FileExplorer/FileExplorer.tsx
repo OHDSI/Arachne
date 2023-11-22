@@ -38,8 +38,6 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
     );
   }
 
-  console.log(filesContent, selectedFile)
-
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
       {fileTree?.__size__ === 0 ? (
@@ -62,7 +60,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                   <HeaderTitle>File Explorer</HeaderTitle>
                   <DowloadLink>
                     <a
-                      href={`/api/${url}/${submissionId}/results/download`}
+                      href={`/api/v1/${url}/${submissionId}/results`}
                       target="_blank"
                     >
                       <Button
@@ -84,7 +82,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                       </HeaderTitle>
                       <DowloadLink>
                         <a
-                          href={`/api/${url}/${submissionId}/results/${selectedFile?.id}/download`}
+                          href={`/api/v1/${url}/${submissionId}/results/${selectedFile?.__name__}`}
                           target="_blank"
                         >
                           <Button

@@ -5,12 +5,16 @@ import {
   StyledButton,
   NavigationContainer,
   LogoContainer,
+  InfoContainer,
 } from './SideNavigation.styles';
 
 import { Logo } from '../Logo/Logo';
 import { MainMenuIcon } from '../../libs/components/Icon/MainMenuIcon';
 import { IconName } from '../../libs/components/Icon/Icon';
 import { Tooltip } from '../../libs/components';
+import { LogoArachne } from '../Logo/LogoArachneVertical';
+import { LogoOHDSI } from '../Logo/LogoOHDSIVerical';
+import { LogoOdysseus } from '../Logo/LogoOdysesusVertical';
 
 export const SideNavigation: FC<any> = props => {
   const { list } = props;
@@ -24,7 +28,7 @@ export const SideNavigation: FC<any> = props => {
   return (
     <NavigationContainer>
       <LogoContainer to="/">
-        <Logo />
+        <LogoArachne />
       </LogoContainer>
 
       {list?.map((item: any) => (
@@ -50,6 +54,10 @@ export const SideNavigation: FC<any> = props => {
           </div>
         </Tooltip>
       ))}
+      <InfoContainer>
+        <LogoOHDSI />
+        <LogoOdysseus />
+      </InfoContainer>
     </NavigationContainer>
   );
 };

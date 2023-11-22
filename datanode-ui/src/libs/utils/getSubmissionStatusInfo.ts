@@ -8,6 +8,7 @@ export function getSubmissionStatusInfo(value: SubmissionStatus) {
     case SubmissionStatus.EXECUTING:
       return { color: 'warning', name: 'Executing' };
     case SubmissionStatus.FAILED:
+    case SubmissionStatus.EXECUTION_FAILURE:
       return { color: 'error', name: 'Failed' };
     case null:
       return { color: 'secondary', name: 'In Progress' };

@@ -126,7 +126,8 @@ export const listConfig: any = {
                 color="info"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  window.location.href = `/api/datanode/submissions/${id}/results/download`;
+                  e.preventDefault();
+                  window.location.href = `/api/v1/analysis/${id}/results`;
                 }}
                 sx={{ my: -1 }}
               >

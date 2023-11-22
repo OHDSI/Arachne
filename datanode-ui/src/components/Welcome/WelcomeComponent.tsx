@@ -7,6 +7,7 @@ import { Grid } from '../../libs/components';
 import { LogoLarge } from '../Logo';
 import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
 import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
+import { LogoLargeArachne } from '../Logo/LogoLargeArachne';
 
 export const Welcome: FC<any> = props => {
   const { modulesSideNavigation: list } = props;
@@ -78,6 +79,9 @@ export const Welcome: FC<any> = props => {
           my="auto"
         >
           {/* <LogoLarge color="white" /> */}
+          <div style={{ position: 'absolute', marginLeft: '-190px' }}>
+            <LogoLargeArachne />
+          </div>
           <Grid item fontFamily={"'Rosario', sans-serif"} pt={3}>
             Arachne
           </Grid>
