@@ -40,7 +40,7 @@ public class ArachneHttpClientBuilder {
     @Value("${proxy.auth.password}")
     private String proxyPassword;
 
-    @Value("${server.ssl.strictMode}")
+    @Value("${server.ssl.strictMode:false}")
     private Boolean sslStrictMode;
 
     public Client build() {

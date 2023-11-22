@@ -1,6 +1,5 @@
 # suppress inspection "SpringBootApplicationProperties" for whole file
 server:
-  port: 8880
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
