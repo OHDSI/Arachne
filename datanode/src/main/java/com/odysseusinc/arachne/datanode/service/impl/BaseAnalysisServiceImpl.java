@@ -82,10 +82,6 @@ public abstract class BaseAnalysisServiceImpl implements AnalysisService {
     private final ExecutionEngineIntegrationService engineIntegrationService;
     @Autowired
     private EnvironmentDescriptorService environmentService;
-    @Value("${datanode.arachneCentral.host}")
-    protected String centralHost;
-    @Value("${datanode.arachneCentral.port}")
-    protected Integer centralPort;
     @Value("${analysis.scheduler.invalidateExecutingInterval}")
     protected Long invalidateExecutingInterval;
     @Value("${analysis.scheduler.invalidateMaxDaysExecutingInterval}")

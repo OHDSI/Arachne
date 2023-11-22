@@ -5,6 +5,7 @@ import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.internal.platform.Platform;
+import org.apache.commons.net.util.TrustManagerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class ArachneHttpClientBuilder {
     @Value("${proxy.auth.password}")
     private String proxyPassword;
 
-    @Value("${server.ssl.strictMode}")
+    @Value("${server.ssl.strictMode:false}")
     private Boolean sslStrictMode;
 
     public Client build() {
@@ -108,19 +109,7 @@ public class ArachneHttpClientBuilder {
         if (!sslStrictMode) {
             try {
                 SSLSocketFactory sslSocketFactory = getTrustAllSSLSocketFactory();
-
-                // We cannot use Platform.get() method, since `private static Platform findPlatform()` has bug and determinate Oracle version wrong. Instead we use new Platform() for Oracle/Open JDK 8
-                final X509TrustManager trustManager;
-                try {
-                    Platform platform = new Platform();
-                    Class<? extends Platform> platformClass = platform.getClass();
-                    Method trustManagerMethod = platformClass.getDeclaredMethod("trustManager", SSLSocketFactory.class);
-                    trustManagerMethod.setAccessible(true);
-                    trustManager = (X509TrustManager) trustManagerMethod.invoke(platform, sslSocketFactory);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                //final X509TrustManager trustManager = platform.trustManager(sslSocketFactory);
+                final X509TrustManager trustManager = TrustManagerUtils.getAcceptAllTrustManager();
                 builder.sslSocketFactory(sslSocketFactory, trustManager);
                 HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
                 builder.hostnameVerifier((hostname, session) -> true);

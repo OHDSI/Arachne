@@ -41,10 +41,9 @@ import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
-import com.odysseusinc.arachne.datanode.model.datanode.FunctionalMode;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.BaseCentralIntegrationService;
+import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceService;
 import com.odysseusinc.arachne.datanode.service.UserService;
@@ -86,7 +85,7 @@ public abstract class BaseDataSourceController<DS extends DataSource, BusinessDT
     private static final String AUTH_ERROR_MESSAGE = "Couldn't autheticate on Central, {}";
     private static final String UNEXPECTED_ERROR = "Unexpected error during request to Central, {}";
     protected final DataSourceService dataSourceService;
-    protected final BaseCentralIntegrationService<DS, CommonDTO> integrationService;
+    protected final CentralIntegrationService integrationService;
     protected final ModelMapper modelMapper;
     protected final GenericConversionService conversionService;
     protected final JmsTemplate jmsTemplate;
@@ -98,7 +97,7 @@ public abstract class BaseDataSourceController<DS extends DataSource, BusinessDT
 
     protected BaseDataSourceController(UserService userService,
                                        ModelMapper modelMapper,
-                                       BaseCentralIntegrationService<DS, CommonDTO> integrationService,
+                                       CentralIntegrationService integrationService,
                                        DataSourceService dataSourceService,
                                        GenericConversionService conversionService,
                                        CentralClient centralClient,

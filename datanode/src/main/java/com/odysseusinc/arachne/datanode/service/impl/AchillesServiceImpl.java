@@ -67,7 +67,6 @@ import com.odysseusinc.arachne.datanode.service.achilles.PersonReport;
 import com.odysseusinc.arachne.datanode.service.achilles.ProcedureReport;
 import com.odysseusinc.arachne.datanode.service.achilles.VisitReport;
 import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
-import com.odysseusinc.arachne.datanode.util.CentralUtil;
 import com.odysseusinc.arachne.datanode.util.DataSourceUtils;
 import com.odysseusinc.arachne.datanode.util.SqlUtils;
 import com.odysseusinc.arachne.datanode.util.datasource.ResultSetContainer;
@@ -150,14 +149,9 @@ public class AchillesServiceImpl implements AchillesService {
     private static final String ACHILLES_RESULTS_AVAILABLE_LOG = "Achilles results available at: {}";
     protected final DockerClientConfig dockerClientConfig;
     protected final AchillesProperties properties;
-    protected final CentralUtil centralUtil;
     protected final RetryTemplate retryTemplate;
     protected final DataNodeService dataNodeService;
     protected final AchillesJobRepository achillesJobRepository;
-    @Value("${datanode.arachneCentral.host}")
-    protected String centralHost;
-    @Value("${datanode.arachneCentral.port}")
-    protected Integer centralPort;
 
     @Value("${tmp.location-on-host:}")
     protected String tmpLocationOnHost;
@@ -199,14 +193,12 @@ public class AchillesServiceImpl implements AchillesService {
     @Autowired
     public AchillesServiceImpl(DockerClientConfig dockerClientConfig,
                                AchillesProperties properties,
-                               CentralUtil centralUtil,
                                @Qualifier("achillesRetryTemplate") RetryTemplate retryTemplate,
                                DataNodeService dataNodeService,
                                AchillesJobRepository achillesJobRepository) {
 
         this.dockerClientConfig = dockerClientConfig;
         this.properties = properties;
-        this.centralUtil = centralUtil;
         this.retryTemplate = retryTemplate;
         this.dataNodeService = dataNodeService;
         this.achillesJobRepository = achillesJobRepository;
@@ -506,7 +498,7 @@ public class AchillesServiceImpl implements AchillesService {
 
     private void sendResultToCentral(DataSource dataSource, Path results) throws IOException {
 
-        LOGGER.debug("Sending results to central: {}", centralHost);
+        LOGGER.debug("Sending results to central");
         final File file = results.toFile();
         final File targetFile = new File("/tmp", "archive" + UUID.randomUUID());
         try {

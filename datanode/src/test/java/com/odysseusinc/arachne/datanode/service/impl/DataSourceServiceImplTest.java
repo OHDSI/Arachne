@@ -3,9 +3,8 @@ package com.odysseusinc.arachne.datanode.service.impl;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
-import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.repository.DataSourceRepository;
-import com.odysseusinc.arachne.datanode.service.BaseCentralIntegrationService;
+import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
@@ -48,7 +47,7 @@ public class DataSourceServiceImplTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
     @Mock
-    private BaseCentralIntegrationService<DataSource, CommonDataSourceDTO> integrationService;
+    private CentralIntegrationService integrationService;
     @Mock
     private CentralClient centralClient;
     @Mock

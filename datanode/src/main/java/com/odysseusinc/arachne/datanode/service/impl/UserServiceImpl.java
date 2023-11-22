@@ -32,7 +32,7 @@ import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.RoleRepository;
 import com.odysseusinc.arachne.datanode.repository.UserRepository;
-import com.odysseusinc.arachne.datanode.service.BaseCentralIntegrationService;
+import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.events.user.UserDeletedEvent;
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
-    private BaseCentralIntegrationService centralIntegrationService;
+    private CentralIntegrationService centralIntegrationService;
     @Autowired
     private DataNodeService dataNodeService;
     @Autowired

@@ -1,0 +1,40 @@
+# Profile to use when central authentication is enabled
+datanode:
+  arachneCentral:
+    authHeader: Arachne-Auth-Token
+    nodeAuthHeader: Arachne-System-Token
+    admin.email: admin@odysseusinc.com
+    host: https://localhost
+    port: 8443
+authenticator:
+  methods:
+    rest-central:
+      service: org.ohdsi.authenticator.service.rest.RestAuthService
+      config:
+        bodyFormat: JSON
+        params:
+          username: username
+          password: password
+        loginSuccessCriteria:
+          status: OK
+          bodyProperty: '$[?(@.errorCode == 0)]'
+        token:
+          source: BODY
+          key: $.result.token
+          targetHeader: Arachne-Auth-Token
+          targetFormat: '%s'
+          copyExpirationDate: true
+        fieldsToExtract:
+          id: result.id
+          email: result.email
+          username: result.username
+          firstName: result.firstname
+          middleName: result.middlename
+          lastName: result.lastname
+        proxy:
+          enabled: ${proxy.enabled}
+          host: ${proxy.enabledForEngine}
+          port: ${proxy.host}
+          authEnabled: ${proxy.auth.enabled}
+          username: ${proxy.auth.username}
+          password: ${proxy.auth.password}

@@ -1,6 +1,7 @@
 package com.odysseusinc.arachne.datanode.environment;
 
 
+import com.odysseusinc.arachne.datanode.service.client.engine.AnalysisExecutionException;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorDTO;
@@ -44,9 +45,7 @@ public class EnvironmentDescriptorService {
     @Scheduled(fixedDelayString = "${execution.descriptors.delayMs:60000}")
     @Transactional
     public void updateDescriptors() {
-        fetchDescriptors.ifPresent(supplier -> {
-            RuntimeEnvironmentDescriptorsDTO descriptorsDTO = supplier.get();
-
+        fetchDescriptors.map(this::getDescriptors).ifPresent(descriptorsDTO -> {
             Map<String, List<EnvironmentDescriptor>> index = getAll().collect(
                     Collectors.groupingBy(EnvironmentDescriptor::getDescriptorId)
             );
@@ -78,6 +77,16 @@ public class EnvironmentDescriptorService {
                 );
             }
         });
+    }
+
+    private RuntimeEnvironmentDescriptorsDTO getDescriptors(Supplier<RuntimeEnvironmentDescriptorsDTO> supplier) {
+        try {
+            return supplier.get();
+        } catch (AnalysisExecutionException e) {
+            // Suppress stacktrace for a known exception to avoid log pollution
+            log.error(e.getMessage());
+            return null;
+        }
     }
 
     @Transactional
