@@ -17,7 +17,7 @@ import {
   Grid,
   Icon, Input, Spinner,
   FormElement, Select, FormActionsContainer,
-  TabsNavigationNew, ImportJsonFile, ImportZipFile, Block
+  TabsNavigationNew, ImportJsonFile, ImportZipFile, Block, useNotifications
 } from '../../../libs/components';
 import { Paper } from '@mui/material';
 import { analysisTypes } from '../../../libs/constants';
@@ -64,6 +64,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { enqueueSnackbar } = useNotifications();
     const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
     const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
       status: Status.INITIAL,
@@ -80,6 +81,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     );
 
     useEffect(() => {
+      setControlsList(prevState => ({ ...prevState, status: Status.IN_PROGRESS }))
       getControlsList();
     }, []);
 
@@ -102,31 +104,43 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         }))
 
       } catch (e) {
-
+        setControlsList(prevState => ({ ...prevState, status: Status.ERROR }))
       }
     }
 
-    const handleSave = useCallback(() => {
+    const handleSave = useCallback(async () => {
       setIsLoading(true);
-      const fd = new FormData();
+      setStatus(Status.IN_PROGRESS)
+      try {
+        const fd = new FormData();
 
-      fd.append('file', fileState);
+        fd.append('file', fileState);
 
-      const str = JSON.stringify({
-        ...state,
-        environmentId: `${state.environmentId}`,
-        datasourceId: `${state.datasourceId}`,
-      });
-      const bytes = new TextEncoder().encode(str);
-      const blob = new Blob([bytes], {
-        type: "application/json"
-      });
-      fd.append('analysis', blob);
+        const str = JSON.stringify({
+          ...state,
+          environmentId: `${state.environmentId}`,
+          datasourceId: `${state.datasourceId}`,
+        });
+        const bytes = new TextEncoder().encode(str);
+        const blob = new Blob([bytes], {
+          type: "application/json"
+        });
+        fd.append('analysis', blob);
 
-      createMethod(fd).then((response: any) => {
+        const result = await createMethod(fd);
+        setStatus(Status.SUCCESS);
+        enqueueSnackbar({
+          message: `Successufully created submission`,
+          variant: 'success',
+        } as any);
         setIsLoading(false);
-        afterCreate?.(response);
-      });
+        afterCreate?.(result);
+      } catch (e) {
+        enqueueSnackbar({
+          message: `Something went wrong`,
+          variant: 'error',
+        } as any);
+      }
     }, [state, createMethod]);
 
     const isValid = useMemo(() => {
@@ -207,6 +221,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                         name="entry-point"
                         disablePortal
                         id="entry point"
+                        disabled={controlsList?.entryFiles?.length === 0}
                         options={controlsList.entryFiles}
                         value={state.executableFileName}
                         placeholder="Select entry point..."
@@ -233,8 +248,6 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                       executableFileName: file.name
                     });
 
-                    console.log(file)
-
                     setFileState(file);
                   }} />
                 </Grid>
@@ -250,6 +263,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     name="env"
                     disablePortal
                     id="env"
+                    disabled={controlsList?.envs?.length === 0}
                     options={controlsList.envs}
                     value={state.environmentId}
                     placeholder="Select env..."
@@ -274,6 +288,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     name="data-source"
                     disablePortal
                     id="data-source"
+                    disabled={controlsList?.dataSources?.length === 0}
                     options={controlsList.dataSources}
                     value={state.datasourceId}
                     placeholder="Select source..."
@@ -316,7 +331,8 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     name="type"
                     disablePortal
                     id="type"
-                    options={analysisTypes}
+                    disabled={controlsList.analysisTypes?.length === 0 || activeTab === CreateSubmissionFormTabs.SEPARATE_FILES}
+                    options={controlsList.analysisTypes}
                     value={state.type}
                     placeholder="Select analysis type..."
                     onChange={(type: any) => {
@@ -365,7 +381,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                     size="small"
                     color="success"
                     startIcon={
-                      !isLoading ? (
+                      status !== Status.IN_PROGRESS ? (
                         <Icon iconName="submit" />
                       ) : (
                         <Spinner size={16} />

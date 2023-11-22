@@ -24,7 +24,6 @@ export const DatabaseEntity: FC<{
   onPublish: (id: string) => void;
 }> = ({ onPublish }) => {
   const { id } = useParams();
-  console.log(id)
   const dispatch = useDispatch();
   const { showDialog, hideDialog } =
     useContext<UseDialogContext>(DialogContext);
@@ -40,6 +39,7 @@ export const DatabaseEntity: FC<{
 
   const handleSave = (newValue: any, keyFile?: any, isAdmin?: boolean) => {
     let fd = new FormData();
+    console.log(newValue)
     fd.append(
       'datasource',
       new Blob([JSON.stringify(newValue)], {
@@ -47,7 +47,7 @@ export const DatabaseEntity: FC<{
       })
     );
 
-    fd.append(isAdmin ? 'adminKeyfile' : 'keyfile', keyFile);
+    fd.append(isAdmin ? 'adminKeyfile' : 'keyfile', keyFile || null);
     updateEntity(fd);
   };
 

@@ -70,7 +70,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
               },
             }}
           >
-            {entity?.published?.length > 0 ? (
+            {/* {entity?.published?.length > 0 ? (
               <StatusTag text="Published" color="success" />
             ) : (
               <Button
@@ -93,7 +93,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
               >
                 Publish
               </Button>
-            )}{' '}
+            )}{' '} */}
           </Grid>
           <Grid item ml={1}>
             <IconActionButton
