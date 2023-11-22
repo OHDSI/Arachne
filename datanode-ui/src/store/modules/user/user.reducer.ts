@@ -15,9 +15,11 @@ export const userReducer = (
   state: UserState = INITIAL_STATE,
   action: any
 ) => {
-  // @ts-ignore
   return produce<any>(state, (draft: UserState) => {
     switch (action.type) {
+      case UserActions.USER_SIGN_IN_REQUEST:
+        draft.loginStatus = Status.IN_PROGRESS;
+        break;
       case UserActions.USER_SIGN_IN_REQUEST_DONE:
         draft.data = action.payload;
         draft.loginStatus = Status.SUCCESS;
@@ -32,7 +34,7 @@ export const userReducer = (
         draft.status = Status.IN_PROGRESS;
         break;
       case UserActions.USER_GET_REQUEST_DONE:
-        draft.data = action.payload.user;
+        draft.data = action.payload;
         draft.status = Status.SUCCESS;
         break;
       case UserActions.USER_GET_REQUEST_FAILED:

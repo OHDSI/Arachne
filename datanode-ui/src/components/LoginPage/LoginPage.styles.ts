@@ -13,6 +13,7 @@ export const LoginFormContainer: StyledComponent<any> = styled(Grid)(
   (props: any) => ({
     backgroundColor: props.theme.palette.backgroundColor.dark,
     alignItems: 'center',
+    position: 'relative'
     // display: 'fex',
     // fontFamily: 'R',
   })
@@ -45,3 +46,14 @@ export const Divider: StyledComponent<any> = styled.div`
   border-top: 1px solid ${({ theme }: any) => theme.palette?.borderColor.main};
   margin-bottom: 16px;
 `;
+
+export const LogInText = styled.span`
+display: inline-block;
+margin-right:10px;
+`
+
+export const WrapperAlert = styled.div`
+position: absolute;
+width:100%;
+
+`

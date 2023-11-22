@@ -13,9 +13,7 @@ export const getAnalysisTypes = (): Promise<IdNameInterface<AnalysisTypes>[]> =>
 
 export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: 'submitted', desc: true }): Promise<any> => {
   const sort = getSortDirection(sortBy);
-  return api.get(`/admin/submissions?` +
-    `page=${pageNumber}` +
-    `&sort=${sort}`);
+  return api.get(`/admin/submissions?${pageNumber ? 'page=' + pageNumber + '&' : ''}` + `sort=${sort}`);
 }
 export const createSubmission = (data): Promise<any> =>
   api.post('/analysis', data);

@@ -1,4 +1,4 @@
-import { Grid, Input, Button } from '../../libs/components';
+import { Grid, Input, Button, Spinner } from '../../libs/components';
 
 import {
   Box,
@@ -10,14 +10,17 @@ import { useDispatch } from 'react-redux';
 import { LogoLarge } from '../Logo/LogoLarge';
 import {
   FormControl,
+  LogInText,
   LoginFormContainer,
   LoginFormHeader,
   LogoContainer,
   WelcomeText,
+  WrapperAlert,
 } from './LoginPage.styles';
 import { userSignIn } from '../../store/modules';
+import { Status } from '../../libs';
 
-export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
+export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
   const [userName, setUserName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
@@ -46,11 +49,13 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
         </Grid>
       </LogoContainer>
       <LoginFormContainer item container xs={12} md={6}>
-        <Box minWidth={450} width="50%" mx="auto">
+        <Box style={{ position: 'relative' }} minWidth={450} width="50%" mx="auto">
           <form onSubmit={handleSubmit}>
             <Paper>
-              {hasError && (
-                <Alert severity="error">Wrong user name or password.</Alert>
+              {loginStatus === Status.ERROR && (
+                <WrapperAlert>
+                  <Alert severity="error">Wrong user name or password.</Alert>
+                </WrapperAlert>
               )}
 
               <Grid container p={4} spacing={3}>
@@ -90,23 +95,17 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
                       size="small"
                       type="submit"
                       fullWidth
+                      disabled={(!userName || !password) || loginStatus === Status.IN_PROGRESS}
                     >
-                      Log in
+                      {loginStatus === Status.IN_PROGRESS ? (
+                        <>
+                          <LogInText>Log in</LogInText><Spinner size={18} />
+                        </>
+                      ) : (
+                        <>Log in</>
+                      )}
                     </Button>
                   </Grid>
-                  {/* <Grid item xs={12}>
-                    <Divider />
-                    <Button
-                      onClick={() => {
-                        location.href = '/oauth2/authorization/azure';
-                      }}
-                      variant="outlined"
-                      fullWidth
-                      size="small"
-                    >
-                      Sign in with Microsoft
-                    </Button>
-                  </Grid> */}
                 </Grid>
               </Grid>
             </Paper>

@@ -32,11 +32,9 @@ export const PrivateRoute = (props: any) => {
       </SpinnerWidgetContainer>
     );
   }
-  // if (true) {
   if (status === Status.SUCCESS) {
     return <Outlet {...passProps} />;
   }
 
-  return <LoginPage hasError={loginStatus === Status.ERROR} />;
-  // return <Outlet {...passProps} />;
+  return <LoginPage loginStatus={loginStatus} />;
 };

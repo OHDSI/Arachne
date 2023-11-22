@@ -53,46 +53,46 @@ export const databasesConfig: any = {
         width: '5%',
         minWidth: 80,
       },
-      {
-        Header: 'Model',
-        accessor: 'modelType',
-        id: 'modelType',
-        width: '5%',
-        minWidth: 80,
-      },
-      {
-        Header: '',
-        accessor: 'published',
-        id: 'published',
-        width: '7%',
-        minWidth: 110,
-        isCropped: true,
-        Cell: (props: any) => {
-          return !props.value || props.value.length === 0 ? (
-            <Button
-              size="xsmall"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                settings?.onPublish(props.row.original.id);
-              }}
-              color="info"
-              variant="outlined"
-              startIcon={<Icon iconName="publish" />}
-              sx={{
-                px: 2,
-                py: 0.25,
-                borderRadius: 0.5,
-                fontSize: 12,
-                minWidth: 98,
-              }}
-            >
-              Publish
-            </Button>
-          ) : (
-            <StatusTag text="Published" color="success" />
-          );
-        },
-      },
+      // {
+      //   Header: 'Model',
+      //   accessor: 'modelType',
+      //   id: 'modelType',
+      //   width: '5%',
+      //   minWidth: 80,
+      // },
+      // {
+      //   Header: '',
+      //   accessor: 'published',
+      //   id: 'published',
+      //   width: '7%',
+      //   minWidth: 110,
+      //   isCropped: true,
+      //   Cell: (props: any) => {
+      //     return !props.value || props.value.length === 0 ? (
+      //       <Button
+      //         size="xsmall"
+      //         onClick={(e: React.MouseEvent) => {
+      //           e.stopPropagation();
+      //           settings?.onPublish(props.row.original.id);
+      //         }}
+      //         color="info"
+      //         variant="outlined"
+      //         startIcon={<Icon iconName="publish" />}
+      //         sx={{
+      //           px: 2,
+      //           py: 0.25,
+      //           borderRadius: 0.5,
+      //           fontSize: 12,
+      //           minWidth: 98,
+      //         }}
+      //       >
+      //         Publish
+      //       </Button>
+      //     ) : (
+      //       <StatusTag text="Published" color="success" />
+      //     );
+      //   },
+      // },
     ];
   },
 

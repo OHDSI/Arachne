@@ -42,6 +42,7 @@ export const listConfig: any = {
       },
       {
         Header: 'Study',
+        id: 'study',
         maxWidth: 120,
         isCropped: true,
         accessor: row => row.study || '-',
@@ -50,7 +51,7 @@ export const listConfig: any = {
       {
         Header: 'Analysis',
         accessor: row => row.analysis || '-',
-        id: 'analysisId',
+        id: 'analysis',
         maxWidth: 100,
         minWidth: 100,
         width: '30%',
@@ -60,7 +61,7 @@ export const listConfig: any = {
       {
         Header: 'Data source',
         accessor: 'dataSource.name',
-        id: 'dataSource',
+        id: 'dataSource.name',
         maxWidth: 150,
         minWidth: 150,
         isCropped: true,
@@ -68,7 +69,7 @@ export const listConfig: any = {
       {
         Header: 'Submitted',
         accessor: 'submitted',
-        id: 'created.timestamp',
+        id: 'submitted',
         Cell: DateCell,
         isCropped: true,
         minWidth: 150,
@@ -77,7 +78,7 @@ export const listConfig: any = {
       {
         Header: 'Finished',
         accessor: 'finished',
-        id: 'modified.timestamp',
+        id: 'finished',
         Cell: props => {
           return props.value ? <DateCell {...props} /> : '-';
         },

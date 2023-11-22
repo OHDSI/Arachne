@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { Outlet } from 'react-router';
 import SideNavigation from '../SideNavigation';
 import {
@@ -17,8 +17,9 @@ export const AppLayout: React.FC<{ modulesSideNavigation: any }> = ({
   modulesSideNavigation,
 }) => {
 
-  const currentUser = useSelector<any, any>(state => state.user.data?.result);
+  const currentUser = useSelector<any, any>(state => state.user.data);
 
+  console.log(currentUser)
   return (
     <LayoutContainer>
       <SideNavigation list={modulesSideNavigation} />

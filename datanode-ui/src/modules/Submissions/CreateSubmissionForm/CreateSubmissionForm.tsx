@@ -26,13 +26,15 @@ import { getDataSources } from '../../../api/data-sources';
 import { BaseResponceInterface, DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '@/libs/types';
 import { parseToSelectControlOptions } from '../../../libs/utils';
 
-const defaultState = {
-  title: null,
-  executableFileName: null,
-  study: null,
-  environmentId: null,
-  datasourceId: null,
-  type: null
+const defaultState = (type = null) => {
+  return {
+    title: null,
+    executableFileName: null,
+    study: null,
+    environmentId: null,
+    datasourceId: null,
+    type: type
+  }
 };
 
 interface SubmissionFormStateInterface {
@@ -62,7 +64,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [state, setState] = useState<SubmissionFormStateInterface>(defaultState);
+    const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
     const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
       status: Status.INITIAL,
       envs: [],
@@ -72,7 +74,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     });
 
     const [status, setStatus] = useState(Status.INITIAL);
-    const [fileState, setFileState] = useState();
+    const [fileState, setFileState] = useState<any>();
     const [activeTab, setActiveTab] = useState<CreateSubmissionFormTabs>(
       CreateSubmissionFormTabs.FILES_IN_ARCHIVE
     );
@@ -82,7 +84,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     }, []);
 
     useEffect(() => {
-      setState(defaultState);
+      setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : null));
     }, [activeTab]);
 
     const getControlsList = async () => {
@@ -113,7 +115,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
       const str = JSON.stringify({
         ...state,
         environmentId: `${state.environmentId}`,
-        datasourceId: `${state.datasourceId}`
+        datasourceId: `${state.datasourceId}`,
       });
       const bytes = new TextEncoder().encode(str);
       const blob = new Blob([bytes], {
@@ -137,7 +139,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         );
       }
       if (activeTab === CreateSubmissionFormTabs.SEPARATE_FILES) {
-        return state.datasourceId && state.environmentId && state.type;
+        return state.datasourceId && state.environmentId && state.type && state.executableFileName;
       }
     }, [state, activeTab]);
 
@@ -223,6 +225,16 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
               {activeTab === CreateSubmissionFormTabs.SEPARATE_FILES && (
                 <Grid item xs={12}>
                   <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
+                    const analysisName = getAnalysisName(file);
+
+                    setState({
+                      ...state,
+                      title: analysisName.join(),
+                      executableFileName: file.name
+                    });
+
+                    console.log(file)
+
                     setFileState(file);
                   }} />
                 </Grid>

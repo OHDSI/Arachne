@@ -17,7 +17,7 @@ export const UserForm: React.FC<{
 }> = ({ onLogout, onContextSwitch, showMenu = false }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(
-    (state: { user: { data: any } }) => state.user.data.result
+    (state: { user: { data: any } }) => state.user.data
   );
 
 
