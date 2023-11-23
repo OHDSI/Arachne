@@ -40,6 +40,7 @@
         <assertj.version>3.18.1</assertj.version>
         <bcprov-jdk15on.version>1.67</bcprov-jdk15on.version>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
     <dependencies>

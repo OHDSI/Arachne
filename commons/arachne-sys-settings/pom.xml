@@ -20,44 +20,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.odysseusinc.arachne</groupId>
-            <artifactId>arachne-commons</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.swagger2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <!-- Intentionally overriding the Spring Boot dependency version -->
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring.boot.version}</version>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.ulisesbocchio</groupId>
@@ -66,46 +34,4 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>community-libs-snapshot-local</id>
-            <name>community-libs-snapshot-local</name>
-            <releases>
-                <enabled>false</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
-        </repository>
-        <repository>
-            <id>community-libs-release-local</id>
-            <name>community-libs-release-local</name>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
-        </repository>
-    </repositories>
-
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>community-libs-snapshot-local</id>
-            <name>community-libs-snapshot-local</name>
-            <url>https://nexus.odysseusinc.com/repository/community-libs-snapshot-local</url>
-        </snapshotRepository>
-        <repository>
-            <id>community-libs-release-local</id>
-            <name>community-libs-release-local</name>
-            <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
-        </repository>
-    </distributionManagement>
 </project>
