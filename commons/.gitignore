@@ -4,7 +4,6 @@
 /arachne-no-handler-found-exception-util/target/
 /arachne-scheduler/target/
 /arachne-sys-settings/target/
-/data-source-manager/target/
 /execution-engine-commons/target/
 /logging/target/
 *.iml
