@@ -22,17 +22,18 @@
 
 package com.odysseusinc.arachne.nohandlerfoundexception;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.function.Consumer;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.function.Consumer;
 
 @Component
 public class NoHandlerFoundExceptionUtils {
