@@ -93,14 +93,14 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
       try {
         const envs: DescriptorInterface[] = await getDescriptors();
         const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
-        const dataSources: BaseResponceInterface<DataSourceDTOInterface[]> = await getDataSources();
+        const dataSources: DataSourceDTOInterface[] = await getDataSources();
 
         setControlsList(prevState => ({
           ...prevState,
           status: Status.SUCCESS,
           envs: parseToSelectControlOptions(envs, 'label'),
           analysisTypes: parseToSelectControlOptions(types),
-          dataSources: parseToSelectControlOptions(dataSources.result)
+          dataSources: parseToSelectControlOptions(dataSources)
         }))
 
       } catch (e) {
@@ -130,7 +130,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         const result = await createMethod(fd);
         setStatus(Status.SUCCESS);
         enqueueSnackbar({
-          message: `Successufully created submission`,
+          message: `Successfully created submission`,
           variant: 'success',
         } as any);
         setIsLoading(false);
@@ -158,6 +158,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     }, [state, activeTab]);
 
     const unpackZip = (zipFolder) => {
+      console.log(Object.values(zipFolder.files))
       return Object.keys(zipFolder.files)
         .map(fileId => zipFolder.files[fileId])
         .filter(file => {

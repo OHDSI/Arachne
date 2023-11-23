@@ -1,7 +1,6 @@
 import { Status } from "../../enums";
 export interface IEntityList<T extends object = object> {
-  data: { tableData: T[]; filtersData: any };
-  filters: any;
+  data: { tableData: T[] };
   allowedSorting: string[];
   actions: any;
   pageCount: number;

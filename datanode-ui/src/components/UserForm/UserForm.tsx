@@ -14,7 +14,7 @@ export const UserForm: React.FC<{
   onLogout: () => any;
   onContextSwitch?: (tenantId: string) => any;
   showMenu?: boolean;
-}> = ({ onLogout, onContextSwitch, showMenu = false }) => {
+}> = ({ onLogout }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(
     (state: { user: { data: any } }) => state.user.data

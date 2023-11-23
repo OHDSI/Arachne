@@ -32,7 +32,7 @@ export const FileItem: React.FC<any> = props => {
     const bytes = formatBytes(0, 2);
 
     return file.__type__ === 'FILE'
-      ? `${item.__name__} (${bytes})`
+      ? `${item.__name__}`
       : `${item.__name__}`;
   };
   // fix to avoid failure

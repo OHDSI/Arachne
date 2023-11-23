@@ -13,16 +13,13 @@ import { Breadcrumbs } from '../Breadcrumbs';
 import { signOutUser } from '../../store/modules';
 import { UserForm } from '../UserForm';
 
-export const AppLayout: React.FC<{ modulesSideNavigation: any }> = ({
-  modulesSideNavigation,
-}) => {
+export const AppLayout: React.FC = () => {
 
   const currentUser = useSelector<any, any>(state => state.user.data);
 
-  console.log(currentUser)
   return (
     <LayoutContainer>
-      <SideNavigation list={modulesSideNavigation} />
+      <SideNavigation />
 
       <ContentContainer>
         <NavigationSubContainer>

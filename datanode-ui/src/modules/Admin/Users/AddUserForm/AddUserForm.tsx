@@ -25,10 +25,10 @@ export const AddUserForm: React.FC<any> =
     const { enqueueSnackbar } = useNotifications();
 
     const search = async (value) => {
-      const result: BaseResponceInterface<UserDTOSearchInterface[]> = await searchUsers(value);
+      const result: UserDTOSearchInterface[] = await searchUsers(value);
       console.log(result);
       setUsers(parseToSelectControlOptions(
-        result.result.map(user => ({ ...user, fullname: `${user.firstname} ${user.lastname}` })),
+        result.map(user => ({ ...user, fullname: `${user.firstname} ${user.lastname}` })),
         'fullname',
         'username'
       ))
@@ -36,9 +36,9 @@ export const AddUserForm: React.FC<any> =
 
     const onAddUser = useCallback(async () => {
       try {
-        const result: BaseResponceInterface<UserDTOSearchInterface> = await addUser(user.value);
+        const result: UserDTOSearchInterface = await addUser(user.value);
         enqueueSnackbar({
-          message: `Successfully added user: ${result.result.firstname} ${result.result.lastname}`,
+          message: `Successfully added user: ${result.firstname} ${result.lastname}`,
           variant: 'success',
         } as any);
         afterCreate?.();

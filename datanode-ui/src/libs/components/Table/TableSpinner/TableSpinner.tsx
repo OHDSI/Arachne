@@ -16,7 +16,7 @@ export const TableSpinner: React.FC<{
           }}
         >
           <div>
-            <Spinner size={80} color="secondary" thickness={6} />
+            <Spinner size={80} color="primary" thickness={6} />
             {loadingMessage && (
               <div className="table-loader-message">{loadingMessage}</div>
             )}

@@ -19,6 +19,7 @@ import {
 } from './LoginPage.styles';
 import { userSignIn } from '../../store/modules';
 import { Status } from '../../libs';
+import { LogoMediumArachne } from '../Logo/LogoMediumArachne';
 
 export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
@@ -44,8 +45,44 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
         sx={{ display: { xs: 'none', md: 'flex' } }}
       >
         <Grid item xs={5} mx="auto" my="auto">
+          <Grid
+            item
+            color="#ffffff"
+            fontSize={62}
+            alignContent="center"
+            fontWeight={600}
+            flexWrap="wrap"
+            textAlign="left"
+            my="auto"
+          >
+            <div style={{ position: 'absolute', marginLeft: '-190px' }}>
+              <LogoMediumArachne />
+            </div>
+            <Grid item fontFamily={"'Rosario', sans-serif"} pt={3} style={{ marginLeft: "14px" }}>
+              Arachne
+            </Grid>
+            <Grid
+              item
+              sx={{
+                bgcolor: '#ffffffd1',
+                height: 29,
+                px: 1.5,
+                py: 0.5,
+                marginLeft: '157px',
+                borderRadius: 1,
+                color: '#006c75',
+                fontSize: 18,
+                letterSpacing: 1,
+                width: 137,
+                textAlign: 'center',
+              }}
+            >
+              DATA NODE
+            </Grid>
+          </Grid>
+          {/* <LogoMediumArachne />
           <span className='temp-logo'>Arachne</span>
-          <LogoLarge color="white" />
+          <LogoLarge color="white" /> */}
         </Grid>
       </LogoContainer>
       <LoginFormContainer item container xs={12} md={6}>

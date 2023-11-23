@@ -249,14 +249,14 @@ export const Table: FC<TableProps> = props => {
       return (
         <TableActions key={'table-actions' + number} className="table-actions">
           <div>
-            {!tileComponent && (
+            {/* {!tileComponent && (
               <ColumnSelect
                 allColumns={allColumns}
                 immutableColumns={immutableColumns}
                 showColumnToggle={showColumnToggle}
                 getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
               />
-            )}
+            )} */}
           </div>
           <Pagination
             canPreviousPage={canPreviousPage}

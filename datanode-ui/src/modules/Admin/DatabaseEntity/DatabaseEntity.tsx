@@ -3,7 +3,7 @@
 
 import { Route, Routes, useParams } from 'react-router';
 import { tabs } from './DatabaseEntity.config';
-import { FC, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { OmopCdmSettings } from './OmopCdmSettings';
 import { useDispatch } from 'react-redux';
@@ -19,16 +19,15 @@ import { Divider } from '@mui/material';
 
 import { DatabaseBaseInfo } from './DatabaseBaseInfo';
 import { getDataSource, removeDataSource, updateDataSource } from '../../../api/data-sources';
+import { ErrorPage } from '../../../libs/components/ErrorPage';
 
-export const DatabaseEntity: FC<{
-  onPublish: (id: string) => void;
-}> = ({ onPublish }) => {
+export const DatabaseEntity: React.FC = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { showDialog, hideDialog } =
     useContext<UseDialogContext>(DialogContext);
 
-  const { entity, status, updateEntity, deleteEntity, ...rest } = useEntity(
+  const { entity, status, updateEntity, deleteEntity, error } = useEntity(
     {
       get: getDataSource,
       update: updateDataSource,
@@ -81,10 +80,6 @@ export const DatabaseEntity: FC<{
     });
   };
 
-  const handlePublish = () => {
-    onPublish(id);
-  };
-
   if (status === Status.INITIAL || status === Status.IN_PROGRESS) {
     return (
       <SpinnerContainer>
@@ -92,6 +87,15 @@ export const DatabaseEntity: FC<{
       </SpinnerContainer>
     );
   }
+
+  if (status === Status.ERROR) {
+    return (
+      <Grid container p={6}>
+        <ErrorPage {...error} noAction />
+      </Grid>
+    );
+  }
+
   return (
     <Grid container px={6} flexGrow={1} flexDirection="column">
       <NestedInfoWrapper>
@@ -99,7 +103,6 @@ export const DatabaseEntity: FC<{
           entity={entity}
           onSubmit={handleSave}
           onDelete={handleDelete}
-          onPublish={handlePublish}
         />
       </NestedInfoWrapper>
       <Grid container>

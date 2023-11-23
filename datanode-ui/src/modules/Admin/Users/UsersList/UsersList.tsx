@@ -30,6 +30,7 @@ export const UsersList: FC<any> = () => {
       'Add user',
       {
         closeOnClickOutside: true,
+        width: 700,
         onClose: closeModal,
       }
     );

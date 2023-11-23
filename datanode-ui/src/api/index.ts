@@ -1,11 +1,65 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
+const tempParserInconsistentResponce = (res: any) => {
+  return res.data.content
+}
+
+const errorParser = (res, errorCode) => {
+
+  switch (errorCode) {
+    case 1:
+      return {
+        status: 401,
+        statusText: 'UNAUTHORIZED'
+      }
+    case 2:
+      return {
+        status: 403,
+        statusText: 'PERMISSION_DENIED'
+      }
+    case 3:
+      return {
+        status: 400,
+        statusText: 'VALIDATION_ERROR'
+      }
+    case 4:
+      return {
+        status: 500,
+        statusText: 'SYSTEM_ERROR'
+      }
+    case 5:
+      return {
+        status: 409,
+        statusText: 'ALREADY_EXIST'
+      }
+    case 6:
+      return {
+        status: 424,
+        statusText: 'DEPENDENCY_EXISTS'
+      }
+    case 7:
+      return {
+        status: 417,
+        statusText: 'UNACTIVATED'
+      }
+  }
+}
+
 const successResponse = (res: AxiosResponse) => {
-  console.log(res)
-  return res.data
+
+  if (tempParserInconsistentResponce(res)) return res.data;
+
+  const errorCode = res.data.errorCode;
+
+  if (!errorCode) return res.data.result || res.data;
+
+  return Promise.reject(errorParser(res, errorCode));
+
 };
-const fileSuccessResponse = (res: AxiosResponse) => res;
-const errorResponse = (error: AxiosError) => Promise.reject(error);
+const errorResponse = (error: AxiosError) => {
+  console.log(error);
+  return Promise.reject(error);
+};
 
 const unauthorizeUser = (error: any, store: any) => {
   const { status } = error?.response || {};

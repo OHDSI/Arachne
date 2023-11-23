@@ -17,7 +17,7 @@ export const listConfig: any = {
   iconName: 'library',
   fetch: getSubmissions,
   remove: removeDataSource,
-  listInitialSort: { id: 'submitted', desc: true },
+  listInitialSort: { id: 'id', desc: true },
   getCols: () => {
     return [
       {
@@ -117,6 +117,7 @@ export const listConfig: any = {
         id: 'actionCell',
         width: '3%',
         minWidth: 80,
+        disableSortBy: true,
         Cell: (props: any) => {
           const id = props?.row?.original?.id;
           const status = props?.row?.original?.status;

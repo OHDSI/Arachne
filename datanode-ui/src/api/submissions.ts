@@ -11,7 +11,7 @@ export const getAnalysisTypes = (): Promise<IdNameInterface<AnalysisTypes>[]> =>
   return api.get('analysis/types')
 }
 
-export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: 'submitted', desc: true }): Promise<any> => {
+export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: 'id', desc: true }): Promise<any> => {
   const sort = getSortDirection(sortBy);
   return api.get(`/admin/submissions?${pageNumber ? 'page=' + pageNumber + '&' : ''}` + `sort=${sort}`);
 }

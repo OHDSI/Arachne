@@ -13,21 +13,14 @@ export const reducer = (initialState: IEntityList, action: any) => {
             : Status.IN_PROGRESS_RELOAD;
         break;
       case EntityListConstants.FETCH_REQUEST_DONE:
-        draft.data.tableData = action.payload.result || action.payload.content;
-        draft.data.filtersData = action.payload.filters;
+        draft.data.tableData = action.payload.content || action.payload.result;
         draft.actions = action.payload.actions;
         draft.pageCount = action.payload.totalPages || 1;
         draft.pageNumber = action.payload.pageable?.pageNumber || 0;
-        draft.numberOfElements = action.payload.numberOfElements;
-        draft.totalElements = action.payload.totalElements;
+        draft.numberOfElements = action.payload.numberOfElements || action.payload.result.length;
+        draft.totalElements = action.payload.totalElements || action.payload.result.length;
         draft.sort = action.payload.sort;
         draft.status = Status.SUCCESS;
-        break;
-      case EntityListConstants.UPDATE_FILTERS:
-        draft.filters = {
-          ...draft.filters,
-          ...action.payload,
-        };
         break;
       case EntityListConstants.FETCH_REQUEST_FAILED:
         draft.data.tableData = [];

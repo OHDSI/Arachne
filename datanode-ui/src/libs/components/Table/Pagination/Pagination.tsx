@@ -77,9 +77,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             fullWidth={false}
             variant="text"
             key={i + '-pagination-btn'}
-            className={`pagination-button ${
-              item === pageIndex + 1 ? 'active' : ''
-            }`}
+            className={`pagination-button ${item === pageIndex + 1 ? 'active' : ''
+              }`}
           >
             {item}
           </ButtonStyled>
@@ -90,9 +89,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   const entries = useMemo(() => {
-    return ` (Showing ${pageIndex * pageSize + 1} to ${
-      pageIndex * pageSize + numberOfElements
-    } of ${totalElements} entries)`;
+    return ` (Showing ${pageIndex * pageSize + 1} to ${pageIndex * pageSize + numberOfElements
+      } of ${totalElements} entries)`;
   }, [pageIndex, numberOfElements, totalElements]);
 
   return (
@@ -121,7 +119,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       <span>{`Page ${pageIndex + 1} of ${pageOptions.length}`}</span>
       <span style={{ marginRight: 10 }}>{numberOfElements > 0 && entries}</span>
-      {!disablePageSize && (
+      {/* {!disablePageSize && (
         <StyledSelect
           size="small"
           value={pageSize}
@@ -135,7 +133,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           name="pageSize"
           fullWidth={false}
         />
-      )}
+      )} */}
     </PaginationStyled>
   );
 };

@@ -59,7 +59,7 @@ export function useList(props: IUseListProps): IUseList {
           type: UseListActionType.GET_ENTITY_LIST_PENDING,
         });
         const response = await Read.method(params || {});
-        const data = response.content || response.result;
+        const data = response.content || response;
         console.log(data)
         const actions = response.actions;
         dispatch({

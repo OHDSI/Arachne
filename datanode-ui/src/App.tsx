@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import { SpinnerWidgetContainer } from './libs/components/Spinner/SpinnerContainers';
+import { SpinnerWidgetContainer } from './libs/components';
 
 import { IndexModuleSubmissions, IndexAdmin } from './modules';
 import { AppLayout, PrivateRoute, Welcome } from './components';
 
-import { appConfig } from './app.config';
 import { LayoutSpinner } from './App.styled';
 
 import './App.css'
@@ -30,15 +29,12 @@ export const App: React.FC = () => {
     <Routes>
       <Route path="/*" element={<PrivateRoute />}>
         <Route
-          element={<AppLayout modulesSideNavigation={appConfig} />}
+          element={<AppLayout />}
         >
           <Route
             index
             element={
-              <Welcome
-                modulesSideNavigation={appConfig}
-                subModulesLoad={[]}
-              />
+              <Welcome />
             }
           />
           <Route

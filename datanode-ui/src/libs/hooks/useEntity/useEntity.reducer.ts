@@ -3,6 +3,15 @@ import { EntityState } from "./useEntity.types";
 import { EntityActions } from "./useEntity.constants";
 import { Status } from "../../enums";
 
+export const INITIAL_STATE = {
+  entity: null,
+  version: null,
+  draft: null,
+  isVersionMode: false,
+  status: Status.INITIAL,
+  error: null,
+};
+
 export const reducer = <T extends object>(
   state: EntityState<T>,
   action: any
@@ -30,9 +39,9 @@ export const reducer = <T extends object>(
       case EntityActions.DELETE_ENTITY_SUCCESS:
         draft.status = Status.SUCCESS;
         break;
-      case EntityActions.DELETE_ENTITY_ERROR:
-        draft.status = Status.ERROR;
-        break;
+      // case EntityActions.DELETE_ENTITY_ERROR:
+      //   draft.status = Status.ERROR;
+      //   break;
       case EntityActions.UPDATE_ENTITY:
         draft.status = Status.IN_PROGRESS_RELOAD;
         break;
@@ -43,9 +52,9 @@ export const reducer = <T extends object>(
         draft.draft = action.payload.data;
         draft.status = Status.SUCCESS;
         break;
-      case EntityActions.UPDATE_ENTITY_ERROR:
-        draft.status = Status.ERROR;
-        break;
+      // case EntityActions.UPDATE_ENTITY_ERROR:
+      //   draft.status = Status.ERROR;
+      //   break;
       case EntityActions.SET_VERSION:
         draft.version = action.payload;
         draft.draft = action.payload;
