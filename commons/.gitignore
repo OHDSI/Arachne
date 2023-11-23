@@ -1,9 +1,3 @@
-/arachne-commons/target/
-/arachne-common-types/target/
-/arachne-common-utils/target/
-/arachne-no-handler-found-exception-util/target/
-/arachne-scheduler/target/
-/arachne-sys-settings/target/
-/execution-engine-commons/target/
-/logging/target/
+*/target/
+/.idea/
 *.iml
