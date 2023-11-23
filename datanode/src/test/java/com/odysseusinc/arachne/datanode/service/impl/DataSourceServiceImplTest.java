@@ -2,7 +2,6 @@ package com.odysseusinc.arachne.datanode.service.impl;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
-import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.datanode.repository.DataSourceRepository;
 import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
@@ -88,7 +87,7 @@ public class DataSourceServiceImplTest {
 
         verify(dataSourceService).putResponseToQueue(any(), any(), dataSourceCaptor.capture());
         assertEquals(CommonModelType.CDM, dataSourceCaptor.getValue().getModelType());
-        assertEquals(CommonCDMVersionDTO.V5_0, dataSourceCaptor.getValue().getCdmVersion());
+        assertEquals("V5_0", dataSourceCaptor.getValue().getCdmVersion());
     }
 
     @Test

@@ -23,7 +23,6 @@
 package com.odysseusinc.arachne.datanode.dto.datasource;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceAccessType;
-import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -46,7 +45,7 @@ public class DataSourceBusinessDTO {
     @NotNull
     private CommonModelType modelType;
 
-    private CommonCDMVersionDTO cdmVersion;
+    private String cdmVersion;
     @NotNull
     private CommonDataSourceAccessType accessType;
 
@@ -90,11 +89,11 @@ public class DataSourceBusinessDTO {
         this.modelType = modelType;
     }
 
-    public CommonCDMVersionDTO getCdmVersion() {
+    public String getCdmVersion() {
         return cdmVersion;
     }
 
-    public void setCdmVersion(CommonCDMVersionDTO cdmVersion) {
+    public void setCdmVersion(String cdmVersion) {
         this.cdmVersion = cdmVersion;
     }
 

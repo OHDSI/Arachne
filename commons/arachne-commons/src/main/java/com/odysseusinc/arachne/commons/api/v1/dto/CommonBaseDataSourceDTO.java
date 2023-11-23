@@ -23,7 +23,6 @@
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.util.NotNullIfAnotherFieldHasValue;
-import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -47,7 +46,7 @@ public class CommonBaseDataSourceDTO implements Serializable {
     @NotNull
     private CommonModelType modelType;
 
-    private CommonCDMVersionDTO cdmVersion;
+    private String cdmVersion;
 
     private Boolean published;
     @NotNull
@@ -95,11 +94,11 @@ public class CommonBaseDataSourceDTO implements Serializable {
         this.modelType = modelType;
     }
 
-    public CommonCDMVersionDTO getCdmVersion() {
+    public String getCdmVersion() {
         return cdmVersion;
     }
 
-    public void setCdmVersion(CommonCDMVersionDTO cdmVersion) {
+    public void setCdmVersion(String cdmVersion) {
         this.cdmVersion = cdmVersion;
     }
 
