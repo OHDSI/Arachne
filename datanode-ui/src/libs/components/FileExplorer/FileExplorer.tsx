@@ -82,7 +82,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                       </HeaderTitle>
                       <DowloadLink>
                         <a
-                          href={`/api/v1/${url}/${submissionId}/results/${selectedFile?.__name__}`}
+                          href={`/api/v1/${url}/${submissionId}/results/list/${selectedFile?.__name__}`}
                           target="_blank"
                         >
                           <Button
