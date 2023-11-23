@@ -30,6 +30,7 @@
         <jjwt.version>0.10.8</jjwt.version>
         <postgresql.version>42.2.25</postgresql.version>
         <javaDockerVersion>3.2.11</javaDockerVersion>
+        <handlebars.version>4.2.0</handlebars.version>
         <springRetryVersion>1.2.4.RELEASE</springRetryVersion>
         <build.number>qa</build.number>
         <jackson.version>2.10.5.20201202</jackson.version>
@@ -74,6 +75,11 @@
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>arachne-common-utils</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>${handlebars.version}</version>
         </dependency>
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
