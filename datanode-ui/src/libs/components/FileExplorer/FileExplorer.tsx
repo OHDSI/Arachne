@@ -58,21 +58,23 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                   }}
                 >
                   <HeaderTitle>File Explorer</HeaderTitle>
-                  <DowloadLink>
-                    <a
-                      href={`/api/v1/${url}/${submissionId}/results`}
-                      target="_blank"
-                    >
-                      <Button
-                        variant="outlined"
-                        size="xsmall"
-                        name="download-all-result-files"
-                        startIcon={<Icon iconName="import" />}
+                  {fileTree?.__size__ === 0 && (
+                    <DowloadLink>
+                      <a
+                        href={`/api/v1/${url}/${submissionId}/results`}
+                        target="_blank"
                       >
-                        Download All
-                      </Button>
-                    </a>
-                  </DowloadLink>
+                        <Button
+                          variant="outlined"
+                          size="xsmall"
+                          name="download-all-result-files"
+                          startIcon={<Icon iconName="import" />}
+                        >
+                          Download All
+                        </Button>
+                      </a>
+                    </DowloadLink>
+                  )}
                 </Grid>
                 <Grid item xs={9}>
                   {selectedFile && (

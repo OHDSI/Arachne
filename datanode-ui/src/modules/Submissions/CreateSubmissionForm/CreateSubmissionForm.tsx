@@ -158,7 +158,6 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     }, [state, activeTab]);
 
     const unpackZip = (zipFolder) => {
-      console.log(Object.values(zipFolder.files))
       return Object.keys(zipFolder.files)
         .map(fileId => zipFolder.files[fileId])
         .filter(file => {

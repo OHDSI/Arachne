@@ -26,7 +26,7 @@ export const AddUserForm: React.FC<any> =
 
     const search = async (value) => {
       const result: UserDTOSearchInterface[] = await searchUsers(value);
-      console.log(result);
+
       setUsers(parseToSelectControlOptions(
         result.map(user => ({ ...user, fullname: `${user.firstname} ${user.lastname}` })),
         'fullname',

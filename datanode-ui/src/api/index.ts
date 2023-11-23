@@ -57,7 +57,6 @@ const successResponse = (res: AxiosResponse) => {
 
 };
 const errorResponse = (error: AxiosError) => {
-  console.log(error);
   return Promise.reject(error);
 };
 

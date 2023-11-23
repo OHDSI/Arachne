@@ -69,7 +69,6 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
         value={value}
         disableClearable
         onChange={(event: any, newValue: string | null) => {
-          console.log(event);
           setValue(newValue);
         }}
         inputValue={inputValue}

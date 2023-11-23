@@ -33,8 +33,6 @@ export const PrivateRoute: React.FC<any> = (props) => {
     }
   }, [status])
 
-  console.log(status);
-
   if (status === Status.IN_PROGRESS || status === Status.INITIAL) {
     return (
       <SpinnerWidgetContainer>

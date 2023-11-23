@@ -60,7 +60,6 @@ export function useList(props: IUseListProps): IUseList {
         });
         const response = await Read.method(params || {});
         const data = response.content || response;
-        console.log(data)
         const actions = response.actions;
         dispatch({
           type: UseListActionType.GET_ENTITY_LIST_SUCCESS,
