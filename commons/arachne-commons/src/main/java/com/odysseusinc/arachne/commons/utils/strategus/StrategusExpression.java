@@ -7,6 +7,7 @@ import java.util.List;
 
 public class StrategusExpression extends CommonObjectJson {
 
+    @OptionalField
     private Metadata metadata;
     private List<SharedResource> sharedResources;
     @OptionalField
