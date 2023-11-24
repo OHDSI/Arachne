@@ -1,5 +1,3 @@
-// CHEKCED
-
 export enum DBMSType {
   POSTGRESQL = 'POSTGRESQL',
   MS_SQL_SERVER = 'MS_SQL_SERVER',

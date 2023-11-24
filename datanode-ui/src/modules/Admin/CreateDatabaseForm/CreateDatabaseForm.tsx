@@ -1,4 +1,7 @@
-import { getDbmsTypes, updateDataSource } from '../../../api/data-sources';
+import React, { useState, memo, useCallback, useEffect } from 'react';
+import { isEmpty } from 'lodash';
+
+import { getDbmsTypes } from '../../../api/data-sources';
 import {
   ImportJsonFile,
   ContentBlock,
@@ -8,11 +11,9 @@ import {
   Button,
   Grid, Icon, Input, Tooltip, FormElement, Select
 } from '../../../libs/components';
-import { parseDbmsTypesForSelectForm } from '../../../libs/utils';
-import { isEmpty } from 'lodash';
-import React, { FC, useState, memo, useCallback, useEffect } from 'react';
+import { parseToSelectControlOptions } from '../../../libs/utils';
 import { DBMSType } from '../../../libs/enums';
-import { BaseResponceInterface, DBMSTypesInterface, DataSourceDTOInterface, SelectInterface } from '../../../libs/types';
+import { DBMSTypesInterface, DataSourceDTOInterface, SelectInterface } from '../../../libs/types';
 
 interface CreateCdmDataSourceFormPropsInterface {
   afterCreate: () => void;
@@ -22,7 +23,7 @@ interface CreateCdmDataSourceFormPropsInterface {
   isUpdate?: boolean;
 }
 
-export const CreateDatabaseForm: FC<CreateCdmDataSourceFormPropsInterface> =
+export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface> =
   memo(props => {
     const {
       afterCreate,
@@ -66,7 +67,7 @@ export const CreateDatabaseForm: FC<CreateCdmDataSourceFormPropsInterface> =
 
     useEffect(() => {
       getDbmsTypes().then((res: DBMSTypesInterface[]) => {
-        setDbsmTypes(parseDbmsTypesForSelectForm(res));
+        setDbsmTypes(parseToSelectControlOptions<DBMSTypesInterface, DBMSType>(res));
       });
     }, []);
 

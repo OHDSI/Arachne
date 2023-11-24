@@ -1,12 +1,2 @@
-export * from './studyStatuses';
-export * from './analysisTypes';
-export * from './metaAttributesTypes';
-export * from './professionalTypes';
 export * from './originSubmissions';
-export * from './entityTypes';
-export * from './invitationTypes';
-export * from './containerTypes';
-export * from './atlasAssetList';
-export * from './iconAnalysis';
-export * from './analysisBaseInfoActions';
-export * from './typesOfCreationBlock';
+

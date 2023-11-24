@@ -1,5 +1,3 @@
-// CHECKED
-
 import { produce } from 'immer';
 
 export const getReducerWithProduce = <T>(

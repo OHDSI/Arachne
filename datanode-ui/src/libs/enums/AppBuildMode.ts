@@ -1,4 +1,3 @@
-// VERSION #3
 export enum AppBuildMode {
   DEV = 'development',
   PROD = 'production',

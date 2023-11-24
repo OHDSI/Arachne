@@ -80,8 +80,8 @@ export const useFileExplorer = (
   );
 
   useEffect(() => {
-    if (state.selectedFile?.__name__) {
-      loadFile(state.selectedFile?.__name__);
+    if (state.selectedFile?.path) {
+      loadFile(state.selectedFile?.path);
     }
   }, [state.selectedFile]);
 

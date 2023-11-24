@@ -1,4 +1,3 @@
-// checked
 export enum AnalysisTypes {
   COHORT = 'COHORT',
   COHORT_HERACLES = 'COHORT_HERACLES',

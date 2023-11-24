@@ -58,7 +58,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                   }}
                 >
                   <HeaderTitle>File Explorer</HeaderTitle>
-                  {fileTree?.__size__ === 0 && (
+                  {fileTree?.__size__ > 0 && (
                     <DowloadLink>
                       <a
                         href={`/api/v1/${url}/${submissionId}/results`}
@@ -84,7 +84,7 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
                       </HeaderTitle>
                       <DowloadLink>
                         <a
-                          href={`/api/v1/${url}/${submissionId}/results/list/${selectedFile?.__name__}`}
+                          href={`/api/v1/${url}/${submissionId}/results/list/${selectedFile?.path}`}
                           target="_blank"
                         >
                           <Button
@@ -122,10 +122,10 @@ export const FileExplorer: React.FC<FileExplorerPropsInterface> = props => {
               </Grid>
               <Grid item xs={9} sx={{ height: 'calc(100vh - 250px)' }}>
                 <FileViewer
-                  fileContent={filesContent?.[selectedFile.__name__]}
+                  fileContent={filesContent?.[selectedFile.path]}
                   fileMetadata={selectedFile}
                   status={status}
-                  pdfLink={`/api/${url}/${submissionId}/results/${selectedFile?.id}/download`}
+                  pdfLink={`/api/${url}/${submissionId}/results/${selectedFile?.path}/download`}
                   height={'calc(100vh - 250px)'}
                 />
               </Grid>

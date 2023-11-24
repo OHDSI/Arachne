@@ -46,6 +46,11 @@ export const signOutUserDone = () => ({
   type: UserActions.USER_SIGN_OUT_REQUEST_DONE,
 });
 
+export const signOutUserFailed = (e: any) => ({
+  type: UserActions.USER_SIGN_OUT_REQUEST_FAILED,
+  payload: e
+});
+
 export const switchTenant = (tenantId: string) => ({
   type: UserActions.SWITCH_TENANT,
   payload: { tenantId },

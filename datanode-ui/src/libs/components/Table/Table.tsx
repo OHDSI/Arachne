@@ -212,8 +212,6 @@ export const Table: FC<TableProps> = props => {
 
   useEffect(() => {
     if (totalElements > 0 && props.data?.length === 0 && pageIndex > 0) {
-      // const num = Math.ceil(totalElements / pageSize) - 1 || 0;
-      // console.log('navigate to page with data:', num);
       gotoPage(0);
     }
   }, [pageIndex, pageSize, props.data]);

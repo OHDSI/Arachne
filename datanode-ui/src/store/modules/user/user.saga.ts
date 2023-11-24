@@ -4,6 +4,7 @@ import {
   getUserDone,
   getUserFailed,
   signOutUserDone,
+  signOutUserFailed,
   userSignInDone,
   userSignInFailed,
 } from './user.actions';
@@ -31,7 +32,7 @@ function* signOutRequest() {
     yield call(logout);
     yield put(signOutUserDone());
   } catch (err) {
-    console.error(err);
+    yield put(signOutUserFailed(err));
   }
 }
 

@@ -1,4 +1,0 @@
-export enum ImportConceptSetTabs {
-  CONCEPT_SET_IN_COHORT = 'CONCEPT_SET_IN_COHORT',
-  IMPORT_CONCEPT_SET = 'IMPORT_CONCEPT_SET',
-}

@@ -4,3 +4,6 @@ export * from './DBMSTypesInterface';
 export * from './DescriptorInterface';
 export * from './UserDTOInterface';
 export * from './UserDTOSearchInterface';
+export * from './PageableDTOInterface';
+export * from './SubmissionDTOInterface';
+export * from './AuthorDTOInterface';

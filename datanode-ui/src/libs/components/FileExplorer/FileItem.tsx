@@ -75,9 +75,6 @@ export const FileItem: React.FC<any> = props => {
             )}
             <FileName selectedFile={item.__name__ && selectedFile?.__name__ === item.__name__}>
               {item.__name__}{' '}
-              {/* <FileSize>
-                {' (' + formatBytes(0, 2) + ')'}
-              </FileSize> */}
             </FileName>
           </>
         )}
@@ -86,8 +83,6 @@ export const FileItem: React.FC<any> = props => {
         <FileListSubContainer>
           <FileList
             subList={true}
-            // files={files}
-            // filesList={item.children}
             fileTree={item}
             selectedFile={selectedFile}
             selectFile={selectFile}

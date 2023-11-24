@@ -1,7 +1,0 @@
-// VERSION #3
-export enum StudyStatuses {
-  INITIATE = 'INITIATE',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
-  ARCHIVED = 'ARCHIVED',
-}

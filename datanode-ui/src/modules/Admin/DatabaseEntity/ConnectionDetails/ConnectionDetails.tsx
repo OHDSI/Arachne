@@ -1,18 +1,27 @@
+import React, { useEffect, useState } from 'react';
+
+import { DBMSType } from '@/libs';
 import { getDbmsTypes } from '../../../../api/data-sources';
-import { Grid, Block, FormLabel, ImportJsonFile, EditableInput, EditableSelect } from '../../../../libs/components';
+import {
+  Grid,
+  Block,
+  FormLabel,
+  ImportJsonFile,
+  EditableInput,
+  EditableSelect
+} from '../../../../libs/components';
 import { DBMSTypesInterface } from '../../../../libs/types';
-import { parseDbmsTypesForSelectForm } from '../../../../libs/utils';
+import { parseToSelectControlOptions } from '../../../../libs/utils';
 
-import { FC, useEffect, useState } from 'react';
 
-export const ConnectionDetails: FC<{
+export const ConnectionDetails: React.FC<{
   entity: any;
   updateEntity: (entity: any, file?: any) => void;
 }> = ({ entity, updateEntity }) => {
   const [dbsmTypes, setDbsmTypes] = useState([]);
   useEffect(() => {
     getDbmsTypes().then((res: DBMSTypesInterface[]) => {
-      setDbsmTypes(parseDbmsTypesForSelectForm(res));
+      setDbsmTypes(parseToSelectControlOptions<DBMSTypesInterface, DBMSType>(res));
     });
   }, []);
 
@@ -34,7 +43,6 @@ export const ConnectionDetails: FC<{
                 (newVal: any) => {
                   updateEntity({ ...entity, dbmsType: newVal });
                 }
-                // updateFiled('type', newVal)
               }
               sx={{ ml: -1 }}
               onCancel={() => { }}

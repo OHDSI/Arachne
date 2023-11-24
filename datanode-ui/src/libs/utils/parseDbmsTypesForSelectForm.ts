@@ -1,4 +1,3 @@
-// CHECKED
 import { sortBy } from "lodash";
 import { DBMSType } from "../enums";
 import { DBMSTypesInterface, SelectInterface } from "../types";

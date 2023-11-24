@@ -1,4 +1,3 @@
-// approved
 export enum FileExtension {
   TXT = 'txt',
   JSON = 'json',

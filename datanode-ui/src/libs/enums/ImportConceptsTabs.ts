@@ -1,4 +1,0 @@
-export enum ImportConceptsTabs {
-  CONCEPT_IDENTIFIERS = 'CONCEPT_IDENTIFIERS',
-  SOURCE_CODES = 'SOURCE_CODES',
-}

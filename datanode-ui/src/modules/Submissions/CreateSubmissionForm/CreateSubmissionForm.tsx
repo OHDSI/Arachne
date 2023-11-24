@@ -20,10 +20,9 @@ import {
   TabsNavigationNew, ImportJsonFile, ImportZipFile, Block, useNotifications
 } from '../../../libs/components';
 import { Paper } from '@mui/material';
-import { analysisTypes } from '../../../libs/constants';
 import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
 import { getDataSources } from '../../../api/data-sources';
-import { BaseResponceInterface, DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '@/libs/types';
+import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '@/libs/types';
 import { parseToSelectControlOptions } from '../../../libs/utils';
 
 const defaultState = (type = null) => {
@@ -162,8 +161,8 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         .map(fileId => zipFolder.files[fileId])
         .filter(file => {
           return (
-            file.name.toLowerCase().includes('.sql') ||
-            file.name.toLowerCase().includes('.r')
+            file.name.toLowerCase().includes('.sql', -5) ||
+            file.name.toLowerCase().includes('.r', -5)
           );
         })
         .map(file => {
@@ -199,17 +198,30 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
                 <>
                   <Grid item xs={12}>
                     <ImportZipFile titleButton='Upload zip' onChange={(zipFolder: any, zip: any) => {
-                      const analysisName = getAnalysisName(zip);
 
-                      setControlsList(prevState => ({
-                        ...prevState,
-                        entryFiles: unpackZip(zipFolder)
-                      }))
+                      if (zip) {
+                        const analysisName = getAnalysisName(zip);
 
-                      setState({
-                        ...state,
-                        title: analysisName.join(),
-                      });
+                        setControlsList(prevState => ({
+                          ...prevState,
+                          entryFiles: unpackZip(zipFolder)
+                        }))
+
+                        setState({
+                          ...state,
+                          title: analysisName.join(),
+                        });
+                      } else {
+                        setControlsList(prevState => ({
+                          ...prevState,
+                          entryFiles: []
+                        }))
+
+                        setState({
+                          ...state,
+                          title: null,
+                        });
+                      }
 
                       setFileState(zip);
                     }} />
@@ -240,13 +252,22 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
               {activeTab === CreateSubmissionFormTabs.SEPARATE_FILES && (
                 <Grid item xs={12}>
                   <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
-                    const analysisName = getAnalysisName(file);
+                    if (file) {
+                      const analysisName = getAnalysisName(file);
 
-                    setState({
-                      ...state,
-                      title: analysisName.join(),
-                      executableFileName: file.name
-                    });
+                      setState({
+                        ...state,
+                        title: analysisName.join(),
+                        executableFileName: file.name
+                      });
+                    } else {
+
+                      setState({
+                        ...state,
+                        title: null,
+                        executableFileName: null
+                      });
+                    }
 
                     setFileState(file);
                   }} />
