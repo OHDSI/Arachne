@@ -21,6 +21,13 @@ public class StrategusMatcherTest {
         assertThat(contentType, is(equalTo(CommonFileUtils.TYPE_STRATEGUS_JSON)));
     }
 
+    @Test
+    public void shouldDetectStrategusWithoutMetadata() throws IOException {
+        StrategusMatcher matcher = new StrategusMatcher();
+        String contentType = matcher.getContentType("strategusStudy.json", getResource("/strategus/strategusStudy2.json"));
+        assertThat(contentType, is(equalTo(CommonFileUtils.TYPE_STRATEGUS_JSON)));
+    }
+
     private InputStreamSource getResource(String path) throws IOException {
         return new ByteArrayResource(IOUtils.resourceToByteArray(path));
     }
