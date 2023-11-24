@@ -23,7 +23,6 @@ export const useFileExplorer = (
 
     try {
       const result = await resultsSubmission(submissionId, url);
-      console.log(result)
       const fileTree = createStructure(result);
       dispatch({
         type: UseFileExplorer.SAVE_FILES_REQUEST_DONE,
@@ -82,7 +81,6 @@ export const useFileExplorer = (
 
   useEffect(() => {
     if (state.selectedFile?.__name__) {
-      console.log(state.selectedFile?.__name__)
       loadFile(state.selectedFile?.__name__);
     }
   }, [state.selectedFile]);

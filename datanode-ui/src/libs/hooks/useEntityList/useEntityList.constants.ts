@@ -18,7 +18,7 @@ export enum EntityListConstants {
 }
 
 export const INITIAL_STATE: IEntityList = {
-  data: { tableData: [], filtersData: [] },
+  data: { tableData: [] },
   pageCount: 1,
   pageSize: 15,
   isLoading: false,
@@ -29,7 +29,6 @@ export const INITIAL_STATE: IEntityList = {
   numberOfElements: 0,
   actions: null,
   allowedSorting: [],
-  filters: {},
   status: Status.INITIAL,
   error: null,
 };

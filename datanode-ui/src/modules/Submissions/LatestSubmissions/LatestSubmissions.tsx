@@ -84,7 +84,7 @@ export const LatestSubmissions: React.FC<any> = props => {
           ) : (
             <LatestSubmissionsListItem light>
               <EmptyTableStub
-                noDataText="No favorite studies found"
+                noDataText="No Submissions"
                 addButtonText="Go to submissions"
                 onAdd={() => navigate('/submissions')}
               />

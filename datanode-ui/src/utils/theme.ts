@@ -14,12 +14,12 @@ export const theme = createTheme({
       light: '#ffffff',
       main: '#f5f3fa',
       dark: '#eeeef4',
-      header: '#3a4451',
+      header: '#28393a',
       icon: '#eeeef4',
     },
     primary: {
       dark: '#3b1a4d',
-      main: '#006c75',
+      main: '#019cb3',
       light: '#7145a5',
       contrastText: '#ffffff',
     },
@@ -27,7 +27,7 @@ export const theme = createTheme({
       main: '#45A5A1',
     },
     info: {
-      main: '#709dfe',
+      main: '#11b7c6',
       contrastText: '#ffffff',
     },
     secondary: {

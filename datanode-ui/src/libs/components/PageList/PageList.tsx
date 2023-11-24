@@ -138,7 +138,6 @@ export const PageList: React.FC<any> = (
     minWidth: 80,
     width: '5%',
     Cell: (props: any) => {
-      console.log(props.row.original)
       return (
         <ActionCell
           onRemove={() => removeEntity(props.row.original?.[removeId || 'id'])}

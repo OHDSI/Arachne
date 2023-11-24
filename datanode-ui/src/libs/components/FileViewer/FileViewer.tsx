@@ -44,8 +44,6 @@ export const Fileviewer: React.FC<any> = props => {
   const { fileContent, fileMetadata, status, pdfLink, height } = props;
   const [viewerType, setViewerType] = useState<ViewerTypes>();
 
-  console.log(fileMetadata)
-
   useEffect(() => {
     if (fileMetadata?.ext) {
       setViewerType(getViewerType(fileMetadata.ext));

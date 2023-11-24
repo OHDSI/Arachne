@@ -1,37 +1,37 @@
 
 
-import React, { FC, useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { resetBreadcrumbs } from '../../store/modules';
 import { useDispatch } from 'react-redux';
 import { Grid } from '../../libs/components';
-import { LogoLarge } from '../Logo';
 import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
 import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
+import { LogoLargeArachne } from '../Logo/LogoLargeArachne';
+import { LogoMediumArachne } from '../Logo/LogoMediumArachne';
 
-export const Welcome: FC<any> = props => {
-  const { modulesSideNavigation: list } = props;
+export const Welcome: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(resetBreadcrumbs());
   }, []);
 
-  const modules = useMemo(() => {
-    const hashMap: any = {};
-    list.forEach((elem: any) => {
-      hashMap[elem.name] = elem;
-    });
+  // const modules = useMemo(() => {
+  //   const hashMap: any = {};
+  //   list.forEach((elem: any) => {
+  //     hashMap[elem.name] = elem;
+  //   });
 
-    return hashMap;
-  }, []);
+  //   return hashMap;
+  // }, []);
 
   React.useEffect(() => {
     document.title = `Arachne Data Node`;
   }, []);
 
-  if (!modules) {
-    return <></>;
-  }
+  // if (!modules) {
+  //   return <></>;
+  // }
 
   return (
     <Grid
@@ -70,14 +70,51 @@ export const Welcome: FC<any> = props => {
         <Grid
           item
           color="#ffffff"
-          fontSize={70}
+          fontSize={62}
+          alignContent="center"
+          fontWeight={600}
+          flexWrap="wrap"
+          textAlign="left"
+          my="auto"
+        >
+          <div style={{ position: 'absolute', marginLeft: '-190px' }}>
+            <LogoMediumArachne />
+          </div>
+          <Grid item fontFamily={"'Rosario', sans-serif"} pt={3} style={{ marginLeft: "14px" }}>
+            Arachne
+          </Grid>
+          <Grid
+            item
+            sx={{
+              bgcolor: '#ffffffd1',
+              height: 29,
+              px: 1.5,
+              py: 0.5,
+              marginLeft: '157px',
+              borderRadius: 1,
+              color: '#006c75',
+              fontSize: 18,
+              letterSpacing: 1,
+              width: 137,
+              textAlign: 'center',
+            }}
+          >
+            DATA NODE
+          </Grid>
+        </Grid>
+        {/* <Grid
+          item
+          color="#ffffff"
+          fontSize={75}
           alignContent="center"
           fontWeight={600}
           flexWrap="wrap"
           textAlign="right"
           my="auto"
         >
-          {/* <LogoLarge color="white" /> */}
+          <div style={{ position: 'absolute', marginLeft: '-110px' }}>
+            <LogoLargeArachne />
+          </div>
           <Grid item fontFamily={"'Rosario', sans-serif"} pt={3}>
             Arachne
           </Grid>
@@ -98,7 +135,7 @@ export const Welcome: FC<any> = props => {
           >
             DATA NODE
           </Grid>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <Grid container px={{ xs: 4, lg: 8, xl: 10 }} py={4} spacing={2}>

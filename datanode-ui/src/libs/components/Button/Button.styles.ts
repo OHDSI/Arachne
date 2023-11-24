@@ -13,13 +13,13 @@ export const StyledButton: StyledComponent<
   font-weight: bold;
   box-shadow: none;
   ${({ buttonSize }: any) => {
-    switch (buttonSize) {
-      case 'xsmall':
-        return `height: 24px; padding: 4px 8px;`;
-      case 'large':
-        return `height: 48px; padding: 12px 24px;`;
-    }
-  }}
+      switch (buttonSize) {
+        case 'xsmall':
+          return `height: 24px; padding: 4px 8px;`;
+        case 'large':
+          return `height: 48px; padding: 12px 24px;`;
+      }
+    }}
   .start-icon,
   .end-icon {
     &-xsmall {

@@ -19,7 +19,7 @@ export const UsersList: FC<any> = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState(getUUID());
 
-  const onCreateCdmDataSource = () => {
+  const onAddUser = () => {
     openModal(
       () => (
         <AddUserForm onCancel={closeModal} afterCreate={() => {
@@ -27,18 +27,14 @@ export const UsersList: FC<any> = () => {
           closeModal();
         }} />
       ),
-      'Create new database',
+      'Add user',
       {
         closeOnClickOutside: true,
+        width: 700,
         onClose: closeModal,
       }
     );
   };
-
-  const onUpdateCdmDataSource = row => {
-    navigate(`${row.original.id}`)
-  };
-
 
   return (
     <PageList
@@ -46,7 +42,7 @@ export const UsersList: FC<any> = () => {
       removeId='username'
       isImport={false}
       isCreate={true}
-      onCreate={onCreateCdmDataSource}
+      onCreate={onAddUser}
       listConfig={{
         ...usersListConfig,
         cols: usersListConfig.getCols({

@@ -18,7 +18,7 @@ interface CreateCdmDataSourceFormPropsInterface {
   afterCreate: () => void;
   onCancel: () => void;
   value?: DataSourceDTOInterface;
-  createMethod: (data: FormData, id?: string) => Promise<BaseResponceInterface<DataSourceDTOInterface>>,
+  createMethod: (data: FormData, id?: string) => Promise<DataSourceDTOInterface>,
   isUpdate?: boolean;
 }
 
@@ -82,14 +82,12 @@ export const CreateDatabaseForm: FC<CreateCdmDataSourceFormPropsInterface> =
         );
         fd.append('keyfile', originFile);
 
-        const res: BaseResponceInterface<DataSourceDTOInterface> =
-          isUpdate ? await updateDataSource(fd, value.id) : await createMethod(fd);
+        const res: DataSourceDTOInterface = await createMethod(fd);
 
         setIsLoading(false);
-        console.log(res)
-        if (res.errorCode == 4) throw new Error();
+
         enqueueSnackbar({
-          message: `${isUpdate ? 'Updated' : 'Created'} data source`,
+          message: `Created data source`,
           variant: 'success',
         } as any);
         afterCreate?.();
@@ -240,7 +238,7 @@ export const CreateDatabaseForm: FC<CreateCdmDataSourceFormPropsInterface> =
             </ContentBlock>
           </Grid>
           <Grid item xs={12} mt={2}>
-            <ContentBlock title="CDM settings" collapsible>
+            <ContentBlock title="CDM settings" collapsible defaultState={false}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <FormElement name="cdmSchema" textLabel="CDM schema" required>

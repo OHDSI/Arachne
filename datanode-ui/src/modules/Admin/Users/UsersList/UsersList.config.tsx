@@ -1,9 +1,6 @@
 import React from 'react';
 
-import { NameCell } from '../../../../libs/components/cells';
-import { DBMSType } from '../../../../libs/enums';
-import { Button, Icon } from '../../../../libs/components';
-import { StatusTag } from '../../../../libs/components/Table';
+import { NameCell } from '../../../../libs/components';
 import { getUsers, removeUser } from '../../../../api/admin';
 
 export const usersListConfig: any = {

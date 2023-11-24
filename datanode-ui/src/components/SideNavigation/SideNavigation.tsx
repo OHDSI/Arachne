@@ -1,19 +1,21 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
   StyledButton,
   NavigationContainer,
   LogoContainer,
+  InfoContainer,
 } from './SideNavigation.styles';
-
-import { Logo } from '../Logo/Logo';
+import { MainNavigationConfigInterface } from '../../libs/types';
 import { MainMenuIcon } from '../../libs/components/Icon/MainMenuIcon';
-import { IconName } from '../../libs/components/Icon/Icon';
-import { Tooltip } from '../../libs/components';
+import { Tooltip, IconName } from '../../libs/components';
+import { LogoArachne } from '../Logo/LogoArachneVertical';
+import { LogoOHDSI } from '../Logo/LogoOHDSIVerical';
+import { LogoOdysseus } from '../Logo/LogoOdysesusVertical';
+import { mainNavigationConfig } from './SideNavigation.config';
 
-export const SideNavigation: FC<any> = props => {
-  const { list } = props;
+export const SideNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,10 +26,10 @@ export const SideNavigation: FC<any> = props => {
   return (
     <NavigationContainer>
       <LogoContainer to="/">
-        <Logo />
+        <LogoArachne />
       </LogoContainer>
 
-      {list?.map((item: any) => (
+      {mainNavigationConfig.map((item: MainNavigationConfigInterface) => (
         <Tooltip placement="right" text={item.title || ''} key={item.name} show>
           <div>
             <StyledButton
@@ -50,6 +52,10 @@ export const SideNavigation: FC<any> = props => {
           </div>
         </Tooltip>
       ))}
+      <InfoContainer>
+        <LogoOHDSI />
+        <LogoOdysseus />
+      </InfoContainer>
     </NavigationContainer>
   );
 };

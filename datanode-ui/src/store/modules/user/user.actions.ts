@@ -1,4 +1,5 @@
 
+import { UserDTOInterface } from '../../../libs/types';
 import { UserActions } from './user.constants';
 
 export const userSignIn = (userName: string, password: string) => ({
@@ -6,9 +7,9 @@ export const userSignIn = (userName: string, password: string) => ({
   payload: { userName, password },
 });
 
-export const userSignInDone = (user: any) => ({
+export const userSignInDone = (token: string) => ({
   type: UserActions.USER_SIGN_IN_REQUEST_DONE,
-  payload: user,
+  payload: token,
 });
 
 export const userSignInFailed = (errorMessage: string) => ({
@@ -20,7 +21,7 @@ export const getUser = () => ({
   type: UserActions.USER_GET_REQUEST,
 });
 
-export const getUserDone = (user: any) => ({
+export const getUserDone = (user: UserDTOInterface) => ({
   type: UserActions.USER_GET_REQUEST_DONE,
   payload: user,
 });

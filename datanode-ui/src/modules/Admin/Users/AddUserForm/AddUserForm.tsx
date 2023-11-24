@@ -1,23 +1,34 @@
-import { AutocompleteInput } from '../../../../libs/components/Autocomplete/AutocompleteInput';
-import { Block, Button, FormActionsContainer, FormElement, Grid, Icon, SecondaryContentWrapper } from '../../../../libs/components';
-import { Autocomplete } from '../../../../libs/components/Autocomplete/Autocomplete';
-import React, { FC, useState, memo, useCallback, useEffect } from 'react';
+import React, { useState, memo, useCallback, useEffect } from 'react';
+
+import {
+  AutocompleteInput,
+  Block,
+  Button,
+  FormActionsContainer,
+  FormElement,
+  Grid,
+  Icon,
+  SecondaryContentWrapper,
+  useNotifications
+} from '../../../../libs/components';
 import { addUser, searchUsers } from '../../../../api/admin';
-import { BaseResponceInterface } from '../../../../libs/types';
+import { BaseResponceInterface, UserDTOSearchInterface } from '../../../../libs/types';
 import { parseToSelectControlOptions } from '../../../../libs/utils';
 
 
-export const AddUserForm: FC<any> =
+export const AddUserForm: React.FC<any> =
   memo(props => {
     const { onCancel, afterCreate } = props;
     const [user, setUser] = useState<any>(null);
     const [users, setUsers] = useState([]);
     const [searchUser, serUserSearch] = useState('');
+    const { enqueueSnackbar } = useNotifications();
 
     const search = async (value) => {
-      const result: BaseResponceInterface<any> = await searchUsers(value);
+      const result: UserDTOSearchInterface[] = await searchUsers(value);
+
       setUsers(parseToSelectControlOptions(
-        result.result.map(user => ({ ...user, fullname: `${user.firstname} ${user.lastname}` })),
+        result.map(user => ({ ...user, fullname: `${user.firstname} ${user.lastname}` })),
         'fullname',
         'username'
       ))
@@ -25,7 +36,11 @@ export const AddUserForm: FC<any> =
 
     const onAddUser = useCallback(async () => {
       try {
-        const result = await addUser(user.value);
+        const result: UserDTOSearchInterface = await addUser(user.value);
+        enqueueSnackbar({
+          message: `Successfully added user: ${result.firstname} ${result.lastname}`,
+          variant: 'success',
+        } as any);
         afterCreate?.();
       } catch (e) {
         console.log(e);

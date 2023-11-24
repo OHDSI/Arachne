@@ -6,30 +6,29 @@ import { reducer } from './useEntityList.reducer';
 
 export const useEntityList = <T extends object = object>(
   methods: {
-    get: any;
+    get: (pageNumber: number, pageSize: number, sort: { id: string, desc: boolean }) => T;
     remove?: any;
     getFilters?: any;
     getSorting?: any;
   },
-  reloadId?: any,
+  reloadId?: string,
   isSilentReload?: boolean,
   initialStorageState?: any
 ) => {
   const [state, dispatch] = useReducer<Reducer<IEntityList, any>>(reducer, {
     ...INITIAL_STATE,
-    filters: initialStorageState?.filters || INITIAL_STATE.filters,
     pageSize: initialStorageState?.pageSize || INITIAL_STATE.pageSize,
   } as IEntityList<T>);
 
   const getEntity = useCallback(
-    async (pageNumber?: number, pageSize?: number, sort?: any) => {
+    async (pageNumber?: number, pageSize?: number, sort?: { id: string, desc: boolean }) => {
       dispatch({
         type: EntityListConstants.FETCH_REQUEST,
         payload: isSilentReload && reloadId,
       });
       try {
 
-        const result: any = await methods.get(
+        const result: T = await methods.get(
           pageNumber,
           pageSize,
           sort,
@@ -39,6 +38,7 @@ export const useEntityList = <T extends object = object>(
           type: EntityListConstants.FETCH_REQUEST_DONE,
           payload: {
             ...result,
+            result: result,
             reload: isSilentReload && reloadId,
             sort,
           },
@@ -51,7 +51,7 @@ export const useEntityList = <T extends object = object>(
         });
       }
     },
-    [methods.get, state.filters, reloadId]
+    [methods.get, reloadId]
   );
 
   const removeEntity = useCallback(

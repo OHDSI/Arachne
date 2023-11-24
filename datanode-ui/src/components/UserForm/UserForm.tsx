@@ -14,10 +14,10 @@ export const UserForm: React.FC<{
   onLogout: () => any;
   onContextSwitch?: (tenantId: string) => any;
   showMenu?: boolean;
-}> = ({ onLogout, onContextSwitch, showMenu = false }) => {
+}> = ({ onLogout }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(
-    (state: { user: { data: any } }) => state.user.data.result
+    (state: { user: { data: any } }) => state.user.data
   );
 
 
@@ -41,7 +41,7 @@ export const UserForm: React.FC<{
       <AccountName>
         <AccountAction onClick={handleClick}>
           <UserAvatar>
-            {currentUser.firstname[0] + currentUser.lastname[0]}
+            {currentUser.firstname?.[0] + currentUser.lastname?.[0]}
           </UserAvatar>
           <CurrentUser>{userName}</CurrentUser>
         </AccountAction>

@@ -1,11 +1,64 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 
-const successResponse = (res: any) => {
-  console.log(res)
-  return res.data
+const tempParserInconsistentResponce = (res: any) => {
+  return res.data.content
+}
+
+const errorParser = (res, errorCode) => {
+
+  switch (errorCode) {
+    case 1:
+      return {
+        status: 401,
+        statusText: 'UNAUTHORIZED'
+      }
+    case 2:
+      return {
+        status: 403,
+        statusText: 'PERMISSION_DENIED'
+      }
+    case 3:
+      return {
+        status: 400,
+        statusText: 'VALIDATION_ERROR'
+      }
+    case 4:
+      return {
+        status: 500,
+        statusText: 'SYSTEM_ERROR'
+      }
+    case 5:
+      return {
+        status: 409,
+        statusText: 'ALREADY_EXIST'
+      }
+    case 6:
+      return {
+        status: 424,
+        statusText: 'DEPENDENCY_EXISTS'
+      }
+    case 7:
+      return {
+        status: 417,
+        statusText: 'UNACTIVATED'
+      }
+  }
+}
+
+const successResponse = (res: AxiosResponse) => {
+
+  if (tempParserInconsistentResponce(res)) return res.data;
+
+  const errorCode = res.data.errorCode;
+
+  if (!errorCode) return res.data.result || res.data;
+
+  return Promise.reject(errorParser(res, errorCode));
+
 };
-const fileSuccessResponse = (res: any) => res;
-const errorResponse = (error: any) => Promise.reject(error);
+const errorResponse = (error: AxiosError) => {
+  return Promise.reject(error);
+};
 
 const unauthorizeUser = (error: any, store: any) => {
   const { status } = error?.response || {};
@@ -17,36 +70,16 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-const fileInstance = axios.create({
-  baseURL: '/api',
-  withCredentials: true,
-});
-
-const actuatorInstance = axios.create({
-  baseURL: '/documentation',
-});
-
 instance.interceptors.response.use(successResponse, errorResponse);
-fileInstance.interceptors.response.use(fileSuccessResponse, errorResponse);
-actuatorInstance.interceptors.response.use(successResponse, errorResponse);
 
 export const api = instance;
-export const fileApi = fileInstance;
-export const actuator = actuatorInstance;
-// provides an ability to setup interceptors after store is initialized, it's not mandatory, default interceptors already work
+
 export const setupInterceptors = (store: any) => {
   instance.interceptors.response.use(
     response => response,
     error => {
       unauthorizeUser(error, store);
       throw error;
-    }
-  );
-  fileInstance.interceptors.response.use(
-    response => response,
-    error => {
-      unauthorizeUser(error, store);
-      return error;
     }
   );
 };

@@ -11,9 +11,7 @@ import { setBreadcrumbs } from '../../../../store/modules';
 import { PageList } from '../../../../libs/components/PageList';
 import { createDataSource } from '../../../../api/data-sources';
 
-export const DatabasesList: FC<{
-  onPublish: (id: string) => void;
-}> = ({ onPublish }) => {
+export const DatabasesList: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -39,10 +37,6 @@ export const DatabasesList: FC<{
     );
   };
 
-  const onUpdateCdmDataSource = row => {
-    navigate(`${row.original.id}`)
-  };
-
   useEffect(() => {
     dispatch(
       setBreadcrumbs([
@@ -66,11 +60,11 @@ export const DatabasesList: FC<{
       onCreate={onCreateCdmDataSource}
       listConfig={{
         ...databasesConfig,
-        cols: databasesConfig.getCols({
-          onPublish: onPublish,
-        }),
+        cols: databasesConfig.getCols(),
       }}
-      onRowClick={onUpdateCdmDataSource}
+      onRowClick={(row: { original: { id: string } }) => {
+        navigate(`${row.original.id}`)
+      }}
       variant="primary"
       allowDelete={true}
     />

@@ -1,21 +1,15 @@
 import { useNotifications } from '../../components';
-import { Status } from '../../enums';
 import { Reducer, useCallback, useEffect, useReducer } from 'react';
-import { reducer } from './useEntity.reducer';
+import { INITIAL_STATE, reducer } from './useEntity.reducer';
 import { EntityActions } from './useEntity.constants';
 
-export const INITIAL_STATE = {
-  entity: null,
-  version: null,
-  draft: null,
-  isVersionMode: false,
-  status: Status.INITIAL,
-  error: null,
-};
-
-export const useEntity = (
-  methods: any,
-  id?: string,
+export const useEntity = <T extends object>(
+  methods: {
+    get: (id: string) => Promise<T>,
+    delete: (id: string) => Promise<boolean>;
+    update: (entity: T, id: string) => Promise<T>;
+  },
+  id: string,
   entityName?: string
 ): any => {
   const { enqueueSnackbar } = useNotifications();
@@ -27,11 +21,11 @@ export const useEntity = (
   const getEntity = useCallback(async () => {
     dispatch({ type: EntityActions.GET_ENTITY });
     try {
-      let data: any = await methods.get(id);
+      let data = await methods.get(id);
 
       dispatch({
         type: EntityActions.GET_ENTITY_SUCCESS,
-        payload: { data: data.result },
+        payload: { data },
       });
     } catch (e) {
       dispatch({
@@ -60,7 +54,7 @@ export const useEntity = (
         payload: { error: e },
       });
       enqueueSnackbar({
-        message: 'Something went wrong. ' + e.message,
+        message: 'Something went wrong. ' + e.statusText,
         variant: 'error',
       });
     }
@@ -86,67 +80,13 @@ export const useEntity = (
           payload: { error: e },
         });
         enqueueSnackbar({
-          message: 'Something went wrong. ' + e.message,
+          message: 'Something went wrong. ' + e.statusText,
           variant: 'error',
         });
       }
     },
     [id]
   );
-
-  const copyEntity = useCallback(
-    async entity => {
-      dispatch({ type: EntityActions.COPY_ENTITY });
-
-      try {
-        let data = await methods.copy(
-          entity.id,
-          `Copy of ${entity.name || entity.title}`
-        );
-
-        dispatch({
-          type: EntityActions.UPDATE_ENTITY_SUCCESS,
-          payload: { data },
-        });
-        enqueueSnackbar({
-          message: (entityName || 'Entity') + ' copied successfully.',
-          variant: 'success',
-        });
-
-        return data;
-      } catch (e) {
-        dispatch({
-          type: EntityActions.UPDATE_ENTITY_ERROR,
-          payload: { error: e },
-        });
-        enqueueSnackbar({
-          message: 'Something went wrong. ' + e.message,
-          variant: 'error',
-        });
-      }
-    },
-    [id]
-  );
-
-  const setVersionEntity = useCallback(
-    entity => {
-      dispatch({
-        type: EntityActions.SET_VERSION,
-        payload: {
-          ...entity,
-          revertVersionId: entity.versionId,
-          versionId: state.draft['versionId'],
-        },
-      });
-    },
-    [state.draft]
-  );
-
-  const revertEntity = () => {
-    dispatch({
-      type: EntityActions.REVERT_VERSION,
-    });
-  };
 
   useEffect(() => {
     id != 'new' && getEntity();
@@ -155,11 +95,8 @@ export const useEntity = (
   return {
     ...state,
     getEntity,
-    copyEntity,
     deleteEntity,
-    updateEntity,
-    setVersionEntity,
-    revertEntity,
+    updateEntity
   };
 };
 

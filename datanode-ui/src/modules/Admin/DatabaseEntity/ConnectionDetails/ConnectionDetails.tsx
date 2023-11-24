@@ -15,7 +15,6 @@ export const ConnectionDetails: FC<{
       setDbsmTypes(parseDbmsTypesForSelectForm(res));
     });
   }, []);
-  console.log(entity, dbsmTypes)
 
   if (dbsmTypes.length === 0) return;
   return (

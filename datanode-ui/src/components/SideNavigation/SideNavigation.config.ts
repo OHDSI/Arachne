@@ -1,11 +1,6 @@
-interface MainNavigationConfigInterface {
-  title: string;
-  name: string;
-  path: string;
-  iconName: string;
-}
+import { MainNavigationConfigInterface } from "../../libs/types";
 
-export const appConfig: MainNavigationConfigInterface[] = [
+export const mainNavigationConfig: MainNavigationConfigInterface[] = [
   {
     title: 'Submissions',
     name: 'submissions',

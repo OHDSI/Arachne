@@ -16,8 +16,6 @@ export const MediaViewer: FC<IMediaViewerProps> = props => {
     pdfLink,
   } = props;
 
-  console.log(data)
-
   if (!data.mediaType) {
     return null;
   }

@@ -1,4 +1,4 @@
-import { Grid, Input, Button } from '../../libs/components';
+import { Grid, Input, Button, Spinner } from '../../libs/components';
 
 import {
   Box,
@@ -10,14 +10,18 @@ import { useDispatch } from 'react-redux';
 import { LogoLarge } from '../Logo/LogoLarge';
 import {
   FormControl,
+  LogInText,
   LoginFormContainer,
   LoginFormHeader,
   LogoContainer,
   WelcomeText,
+  WrapperAlert,
 } from './LoginPage.styles';
 import { userSignIn } from '../../store/modules';
+import { Status } from '../../libs';
+import { LogoMediumArachne } from '../Logo/LogoMediumArachne';
 
-export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
+export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
   const [userName, setUserName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
@@ -41,16 +45,54 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
         sx={{ display: { xs: 'none', md: 'flex' } }}
       >
         <Grid item xs={5} mx="auto" my="auto">
+          <Grid
+            item
+            color="#ffffff"
+            fontSize={62}
+            alignContent="center"
+            fontWeight={600}
+            flexWrap="wrap"
+            textAlign="left"
+            my="auto"
+          >
+            <div style={{ position: 'absolute', marginLeft: '-190px' }}>
+              <LogoMediumArachne />
+            </div>
+            <Grid item fontFamily={"'Rosario', sans-serif"} pt={3} style={{ marginLeft: "14px" }}>
+              Arachne
+            </Grid>
+            <Grid
+              item
+              sx={{
+                bgcolor: '#ffffffd1',
+                height: 29,
+                px: 1.5,
+                py: 0.5,
+                marginLeft: '157px',
+                borderRadius: 1,
+                color: '#006c75',
+                fontSize: 18,
+                letterSpacing: 1,
+                width: 137,
+                textAlign: 'center',
+              }}
+            >
+              DATA NODE
+            </Grid>
+          </Grid>
+          {/* <LogoMediumArachne />
           <span className='temp-logo'>Arachne</span>
-          <LogoLarge color="white" />
+          <LogoLarge color="white" /> */}
         </Grid>
       </LogoContainer>
       <LoginFormContainer item container xs={12} md={6}>
-        <Box minWidth={450} width="50%" mx="auto">
+        <Box style={{ position: 'relative' }} minWidth={450} width="50%" mx="auto">
           <form onSubmit={handleSubmit}>
             <Paper>
-              {hasError && (
-                <Alert severity="error">Wrong user name or password.</Alert>
+              {loginStatus === Status.ERROR && (
+                <WrapperAlert>
+                  <Alert severity="error">Wrong user name or password.</Alert>
+                </WrapperAlert>
               )}
 
               <Grid container p={4} spacing={3}>
@@ -90,23 +132,17 @@ export const LoginPage: React.FC<{ hasError: boolean }> = ({ hasError }) => {
                       size="small"
                       type="submit"
                       fullWidth
+                      disabled={(!userName || !password) || loginStatus === Status.IN_PROGRESS}
                     >
-                      Log in
+                      {loginStatus === Status.IN_PROGRESS ? (
+                        <>
+                          <LogInText>Log in</LogInText><Spinner size={18} />
+                        </>
+                      ) : (
+                        <>Log in</>
+                      )}
                     </Button>
                   </Grid>
-                  {/* <Grid item xs={12}>
-                    <Divider />
-                    <Button
-                      onClick={() => {
-                        location.href = '/oauth2/authorization/azure';
-                      }}
-                      variant="outlined"
-                      fullWidth
-                      size="small"
-                    >
-                      Sign in with Microsoft
-                    </Button>
-                  </Grid> */}
                 </Grid>
               </Grid>
             </Paper>
