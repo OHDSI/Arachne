@@ -23,7 +23,8 @@ datanode:
   users:
     admin:
       email: admin@odysseusinc.com
-      firstName: Admin
+      firstName: Datanode
+      lastName: Admin
       password: $2a$12$FLBjwwU2GOrCAASJg.E7N.uNiYd6rC4lLBN5hYmEiq49IPsMFnRxa
   jwt:
     expiration: 604800
@@ -70,7 +71,7 @@ authenticator:
         jdbcUrl: jdbc:postgresql://test.arachnenetwork.com:5434/arachne_portal
         username: ohdsi
         password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)
-        query: select password, id, firstname, lastname, email from users where email=:username
+        query: select password, id, first_name as firstname, last_name as lastname, email from users where username=:username
         passwordEncoder: org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
         fieldsToExtract:
           firstName: firstname

@@ -1,12 +1,11 @@
 package com.odysseusinc.arachne.datanode.model.datasource;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceAccessType;
-import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 
 public class AutoDetectedFields {
 
-    private CommonCDMVersionDTO cdmVersion;
+    private String cdmVersion;
     private CommonModelType commonModelType;
     private CommonDataSourceAccessType commonAccessType;
 
@@ -17,17 +16,17 @@ public class AutoDetectedFields {
         this.commonModelType = commonModelType;
     }
 
-    public AutoDetectedFields(CommonModelType commonModelType, CommonCDMVersionDTO cdmVersion, CommonDataSourceAccessType commonAccessType) {
+    public AutoDetectedFields(CommonModelType commonModelType, String cdmVersion, CommonDataSourceAccessType commonAccessType) {
         this.cdmVersion = cdmVersion;
         this.commonModelType = commonModelType;
         this.commonAccessType = commonAccessType;
     }
 
-    public CommonCDMVersionDTO getCdmVersion() {
+    public String getCdmVersion() {
         return cdmVersion;
     }
 
-    public void setCdmVersion(CommonCDMVersionDTO cdmVersion) {
+    public void setCdmVersion(String cdmVersion) {
         this.cdmVersion = cdmVersion;
     }
 

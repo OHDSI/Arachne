@@ -61,6 +61,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.ohdsi.authenticator.exception.AuthenticationException;
@@ -301,8 +302,9 @@ public abstract class BaseDataSourceController<DS extends DataSource, BusinessDT
             method = RequestMethod.GET
     )
     public List<OptionDTO> getDBMSTypes() {
-
-        return converterUtils.convertList(asList(DBMSType.values()), OptionDTO.class);
+        return Stream.of(DBMSType.values()).map(
+                type -> new OptionDTO(type.getValue(), type.getLabel())
+        ).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "first check datasource result callback")

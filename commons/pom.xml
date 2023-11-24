@@ -13,11 +13,6 @@
         <module>arachne-commons</module>
         <module>arachne-sys-settings</module>
         <module>execution-engine-commons</module>
-        <module>arachne-storage</module>
-        <module>arachne-no-handler-found-exception-util</module>
-        <module>logging</module>
-        <module>data-source-manager</module>
-        <module>arachne-scheduler</module>
         <module>arachne-common-types</module>
         <module>arachne-common-utils</module>
     </modules>
@@ -32,8 +27,6 @@
         <spring.cloud.version>3.1.4</spring.cloud.version>
         <spring.jasypt.version>3.0.3</spring.jasypt.version>
         <spring.version>5.3.20</spring.version>
-        <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -62,11 +55,6 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aspects</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>

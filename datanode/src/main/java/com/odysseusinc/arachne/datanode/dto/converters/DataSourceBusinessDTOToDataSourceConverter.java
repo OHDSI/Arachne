@@ -49,7 +49,7 @@ public class DataSourceBusinessDTOToDataSourceConverter implements Converter<Dat
     public DataSource convert(DataSourceBusinessDTO source) {
 
         DataSource dataSource = new DataSource();
-        dataSource.setCdmSchema(source.getCdmVersion() != null ? source.getCdmVersion().name() : null);
+        dataSource.setCdmSchema(source.getCdmVersion());
         dataSource.setName(source.getName());
         dataSource.setId(source.getId());
         return dataSource;

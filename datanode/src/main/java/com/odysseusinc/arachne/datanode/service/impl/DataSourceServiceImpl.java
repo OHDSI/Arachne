@@ -28,7 +28,6 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonHealthStatus;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.commons.service.messaging.ConsumerTemplate;
-import com.odysseusinc.arachne.commons.types.CommonCDMVersionDTO;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
@@ -411,7 +410,7 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     protected CommonDataSourceDTO createDataSourceDTO(AnalysisResultDTO result, MultipartFile[] files) {
 
-        CommonCDMVersionDTO cdmVersion = getCdmVersion(files, result);
+        String cdmVersion = getCdmVersion(files, result);
         CommonModelType modelType = getModelType(cdmVersion, result);
 
         final CommonDataSourceDTO dataSourceDTO = new CommonDataSourceDTO();
@@ -465,7 +464,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         }
     }
 
-    private CommonCDMVersionDTO getCdmVersion(MultipartFile[] files, AnalysisResultDTO analysisResult) {
+    private String getCdmVersion(MultipartFile[] files, AnalysisResultDTO analysisResult) {
 
         if (analysisResult == null || analysisResult.getStatus() != EXECUTED || ArrayUtils.isEmpty(files)) {
             return null;
@@ -474,28 +473,17 @@ public class DataSourceServiceImpl implements DataSourceService {
         return Arrays.stream(files)
                 .filter(file -> file.getOriginalFilename().equalsIgnoreCase(CDM_VERSION_FILENAME))
                 .map(this::getVersionFromFile)
-                .map(this::convertToVersionEnum)
                 .filter(Objects::nonNull)
                 .findAny().orElse(null);
 
     }
 
-    private CommonModelType getModelType(CommonCDMVersionDTO cdmVersion, AnalysisResultDTO analysisResult) {
+    private CommonModelType getModelType(String cdmVersion, AnalysisResultDTO analysisResult) {
 
         if (analysisResult == null || analysisResult.getStatus() != EXECUTED) {
             return null;
         }
         return cdmVersion == null ? CommonModelType.OTHER : CommonModelType.CDM;
-    }
-
-    private CommonCDMVersionDTO convertToVersionEnum(String version) {
-
-        if (version == null) {
-            return null;
-        }
-        return Arrays.stream(CommonCDMVersionDTO.values())
-                .filter(enumVersion -> enumVersion.toString().equalsIgnoreCase(version))
-                .findAny().orElse(null);
     }
 
     private String getVersionFromFile(MultipartFile file) {

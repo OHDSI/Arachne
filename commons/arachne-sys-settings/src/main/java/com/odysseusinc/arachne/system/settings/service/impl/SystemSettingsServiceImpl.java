@@ -22,9 +22,6 @@
 
 package com.odysseusinc.arachne.system.settings.service.impl;
 
-import static org.apache.commons.lang3.StringUtils.split;
-
-import com.google.common.collect.Lists;
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingType;
@@ -33,6 +30,8 @@ import com.odysseusinc.arachne.system.settings.repository.SystemSettingRepositor
 import com.odysseusinc.arachne.system.settings.repository.SystemSettingsGroupRepository;
 import com.odysseusinc.arachne.system.settings.service.SystemSettingsService;
 import com.ulisesbocchio.jasyptspringboot.EncryptablePropertyResolver;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 
@@ -146,8 +146,7 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
     }
 
     private void checkPatterns(String newValue, Long systemPropertyId) throws BindException {
-
-        List<String> patterns = Lists.newArrayList(split(newValue, ","));
+        List<String> patterns = Arrays.asList(newValue.split(","));
         AntPathMatcher antPathMatcher = new AntPathMatcher();
         boolean allValid = patterns.stream().allMatch(antPathMatcher::isPattern);
 

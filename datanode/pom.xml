@@ -30,6 +30,8 @@
         <jjwt.version>0.10.8</jjwt.version>
         <postgresql.version>42.2.25</postgresql.version>
         <javaDockerVersion>3.2.11</javaDockerVersion>
+        <handlebars.version>4.2.0</handlebars.version>
+        <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
         <springRetryVersion>1.2.4.RELEASE</springRetryVersion>
         <build.number>qa</build.number>
         <jackson.version>2.10.5.20201202</jackson.version>
@@ -40,6 +42,7 @@
         <assertj.version>3.18.1</assertj.version>
         <bcprov-jdk15on.version>1.67</bcprov-jdk15on.version>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
     <dependencies>
@@ -75,10 +78,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.odysseusinc.arachne</groupId>
-            <artifactId>arachne-no-handler-found-exception-util</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>${handlebars.version}</version>
         </dependency>
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
@@ -111,6 +113,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jms_1.1_spec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-kahadb-store</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -169,6 +195,17 @@
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java-transport-httpclient5</artifactId>
             <version>${javaDockerVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.swagger2.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
