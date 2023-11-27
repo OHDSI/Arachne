@@ -381,6 +381,21 @@
             <version>0.0.3-QA</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <!--
+            Downgraded (from 5.3.31) to prevent "java.lang.IllegalArgumentException: 'expressionString' must not be null or blank"
+            	at org.springframework.expression.common.TemplateAwareExpressionParser.parseExpression(TemplateAwareExpressionParser.java:55) ~[spring-expression-5.3.31.jar:5.3.31]
+                at org.springframework.expression.common.TemplateAwareExpressionParser.parseExpression(TemplateAwareExpressionParser.java:45) ~[spring-expression-5.3.31.jar:5.3.31]
+                at org.ohdsi.authenticator.converter.AttributesToUserConverter$SpringExpresionConverter.getValue(AttributesToUserConverter.java:109) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
+                at org.ohdsi.authenticator.converter.AttributesToUserConverter$SpringExpresionConverter.getStringValue(AttributesToUserConverter.java:103) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
+                at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:51) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
+                at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:34) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
+            -->
+            <version>5.3.26</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>0.20.0</version>
