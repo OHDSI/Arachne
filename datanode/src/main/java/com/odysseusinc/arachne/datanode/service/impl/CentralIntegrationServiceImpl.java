@@ -59,7 +59,7 @@ import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCo
 import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.VALIDATION_ERROR;
 import static com.odysseusinc.arachne.datanode.Constants.DataSourceMessages.CANNOT_CREATE_DATASOURCE;
 import static com.odysseusinc.arachne.datanode.Constants.DataSourceMessages.CANNOT_UPDATE_DATASOURCE;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @Service
