@@ -102,27 +102,14 @@ public class AnalysisServiceImpl implements AnalysisService {
 	@Override
 	@Transactional
 	public Integer invalidateAllUnfinishedAnalyses(final User user) {
-
 		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(finishedStates);
-		List<AnalysisStateEntry> entries = onAnalysesInvalidated(unfinished, user);
-		analysisStateJournalRepository.saveAll(entries);
+		unfinished.forEach(this::invalidate);
 		return unfinished.size();
 	}
 
-	protected List<AnalysisStateEntry> onAnalysesInvalidated(List<Analysis> unfinished, final User user) {
-
-		List<AnalysisStateEntry> entries = new LinkedList<>();
-		unfinished.forEach(analysis -> {
-			analysis.setStatus(AnalysisResultStatusDTO.FAILED);
-			AnalysisStateEntry entry = new AnalysisStateEntry(
-					new Date(),
-					AnalysisState.CLOSED,
-					"Invalidated by user's request",
-					analysis
-			);
-			entries.add(entry);
-		});
-		return entries;
+	private void invalidate(Analysis analysis) {
+		analysis.setStatus(AnalysisResultStatusDTO.FAILED);
+		updateState(analysis, AnalysisState.CLOSED, "Invalidated by user's request");
 	}
 
 	@Async

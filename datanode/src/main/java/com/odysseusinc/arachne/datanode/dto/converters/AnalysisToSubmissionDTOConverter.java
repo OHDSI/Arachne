@@ -27,11 +27,13 @@ import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 /**
@@ -40,6 +42,7 @@ import java.util.Optional;
  */
 @Component
 public class AnalysisToSubmissionDTOConverter {
+    private final static Comparator<AnalysisStateEntry> BY_DATE = Comparator.nullsFirst(Comparator.comparing(AnalysisStateEntry::getDate));
 
     @Autowired
     private GenericConversionService conversionService;
@@ -56,12 +59,18 @@ public class AnalysisToSubmissionDTOConverter {
             dto.setDataSource(conversionService.convert(dataSource, DataSourceDTO.class));
         }
         dto.setAuthor(analysis.getAuthor());
-        AnalysisState state = analysis.getState();
-        if (state != null) {
-            dto.setStatus(state.toString());
-        }
-        dto.setSubmitted(analysis.getSubmitted());
-        dto.setFinished(analysis.getFinished());
+
+        Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {
+            history.stream().filter(entry -> entry.getDate() != null).max(BY_DATE).ifPresent(entry -> {
+                dto.setStatus(entry.getState().toString());
+                if (entry.getState() != AnalysisState.CREATED && entry.getState() != AnalysisState.EXECUTING) {
+                    dto.setFinished(entry.getDate());
+                }
+            });
+            history.stream().filter(entry ->
+                    entry.getState() == AnalysisState.CREATED
+            ).findFirst().map(AnalysisStateEntry::getDate).ifPresent(dto::setSubmitted);
+        });
         EnvironmentDescriptor environment = Optional.ofNullable(analysis.getActualEnvironment()).orElseGet(analysis::getEnvironment);
         dto.setEnvironment(Optional.ofNullable(environment).map(EnvironmentDescriptor::getLabel).orElse(null));
         return dto;
