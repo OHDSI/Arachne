@@ -272,9 +272,7 @@ public class Analysis {
                             .max(Comparator.nullsFirst(comparator));
             latestState.ifPresent(s -> {
                 state = s.getState();
-                if (s.getState() != AnalysisState.CREATED
-                        && s.getState() != AnalysisState.EXECUTING
-                        && s.getState() != AnalysisState.EXECUTION_READY) {
+                if (s.getState() != AnalysisState.CREATED && s.getState() != AnalysisState.EXECUTING) {
                     finished = s.getDate();
                 }
             });

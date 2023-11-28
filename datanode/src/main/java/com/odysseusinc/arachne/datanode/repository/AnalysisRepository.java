@@ -100,7 +100,6 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
             "select a.*, "
                     + "case journal.state "
                     + "  when 'EXECUTING' then null "
-                    + "  when 'EXECUTION_READY' then null "
                     + "  when 'CREATED' then null"
                     + "  else journal.date "
                     + "end as finished FROM analyses a "
