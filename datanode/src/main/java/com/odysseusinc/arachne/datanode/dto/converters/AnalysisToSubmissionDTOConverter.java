@@ -61,10 +61,12 @@ public class AnalysisToSubmissionDTOConverter {
         dto.setAuthor(analysis.getAuthor());
 
         Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {
-            history.stream().filter(entry -> entry.getDate() != null).max(BY_DATE).ifPresent(entry -> {
+            history.stream().filter(entry ->
+                    entry.getDate() != null && entry.getState() != null
+            ).max(BY_DATE).ifPresent(entry -> {
                 AnalysisState state = entry.getState();
-                dto.setStatus(Optional.ofNullable(state).map(Enum::toString).orElse(null));
-                if (state != AnalysisState.CREATED && state != AnalysisState.EXECUTING) {
+                dto.setStatus(state.toString());
+                if (state.isTerminal()) {
                     dto.setFinished(entry.getDate());
                 }
             });

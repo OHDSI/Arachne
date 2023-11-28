@@ -58,7 +58,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,15 +67,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
+	private static final List<String> TERMINAL_STATES = Arrays.stream(AnalysisState.values()).map(Enum::toString).collect(Collectors.toList());
 
 	private static final String ZIP_FILENAME = "analysis.zip";
-	private static List<String> finishedStates = new ArrayList<>(3);
-
-	static {
-		finishedStates.add(AnalysisState.EXECUTED.name());
-		finishedStates.add(AnalysisState.CLOSED.name());
-		finishedStates.add(AnalysisState.DEAD.name());
-	}
 
 	@Autowired
 	private GenericConversionService conversionService;
@@ -102,7 +95,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 	@Override
 	@Transactional
 	public Integer invalidateAllUnfinishedAnalyses(final User user) {
-		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(finishedStates);
+		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(TERMINAL_STATES);
 		unfinished.forEach(this::invalidate);
 		return unfinished.size();
 	}
