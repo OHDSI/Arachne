@@ -3,6 +3,7 @@ package com.odysseusinc.arachne.datanode.service;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisFileDTO;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
@@ -16,5 +17,5 @@ public interface AnalysisResultsService {
 
     Resource getAnalysisResultFile(Long analysisId, String filename);
 
-    Analysis saveResults(Analysis analysis, File resultDir);
+    Analysis markExecuted(Long id, File resultDir, AnalysisResultStatusDTO status, String stdout);
 }

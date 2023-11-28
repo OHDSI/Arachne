@@ -23,35 +23,27 @@
 package com.odysseusinc.arachne.datanode.dto.converters;
 
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
-import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
-import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
+import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
-import java.util.Optional;
-import org.springframework.beans.factory.InitializingBean;
+import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * @author vkoulakov
  * @since 4/12/17.
  */
 @Component
-public class AnalysisToSubmissionDTOConverter implements Converter<Analysis, SubmissionDTO>, InitializingBean {
+public class AnalysisToSubmissionDTOConverter {
 
     @Autowired
     private GenericConversionService conversionService;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        conversionService.addConverter(this);
-    }
-
-    @Override
     public SubmissionDTO convert(Analysis analysis) {
 
         SubmissionDTO dto = new SubmissionDTO();

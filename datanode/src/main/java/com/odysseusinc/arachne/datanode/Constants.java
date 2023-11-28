@@ -131,7 +131,6 @@ public interface Constants {
 
     interface AnalysisMessages {
         String ANALYSIS_ALREADY_EXISTS_LOG = "Analysis with id='{}' is already exists, skipping";
-        String ANALYSIS_IS_NOT_EXISTS_LOG = "Analysis with id='{}' is not exists";
         String CANT_REMOVE_RESULT_DIR_LOG = "Can't remove resultDir='{}' for analysis with id='{}'";
         String CANT_REMOVE_ANALYSIS_DIR_LOG = "Can't remove analysisDir='{}' for analysis with id='{}'";
         String RETRYING_DOWNLOAD_FILES_FOR_ANALYSIS_WITH_ID =

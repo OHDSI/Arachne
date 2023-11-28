@@ -23,9 +23,9 @@
 package com.odysseusinc.arachne.datanode.dto.converters;
 
 
+import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.utils.UUIDGenerator;
-import com.odysseusinc.arachne.datanode.controller.analysis.BaseCallbackAnalysisController;
-import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
+import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
@@ -39,20 +39,18 @@ import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
+
+@Slf4j
 @Component
-public class AnalysisRequestDTOToAnalysisConverter implements Converter<AnalysisRequestDTO, Analysis> {
-
-    private static final Logger logger = LoggerFactory.getLogger(AnalysisRequestDTOToAnalysisConverter.class);
-
+public class AnalysisRequestDTOToAnalysisConverter  {
     @Value("${datanode.baseURL}")
     private String datanodeBaseURL;
     @Value("${datanode.port}")
@@ -65,30 +63,25 @@ public class AnalysisRequestDTOToAnalysisConverter implements Converter<Analysis
     @Autowired
     private EnvironmentDescriptorService descriptorService;
 
-    public AnalysisRequestDTOToAnalysisConverter(GenericConversionService conversionService) {
-        conversionService.addConverter(this);
-    }
-
-    @Override
-    public Analysis convert(AnalysisRequestDTO dto) {
+    public Analysis convert(String title, String study, String executableFile, CommonAnalysisType type, Long environmentId, @NotNull Long datasourceId) {
 
         Analysis analysis = new Analysis();
 
-        analysis.setExecutableFileName(dto.getExecutableFileName());
+        analysis.setExecutableFileName(executableFile);
         final String analysisFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
         analysis.setAnalysisFolder(analysisFolder);
 
-        analysis.setTitle(dto.getTitle());
-        if (StringUtils.isNotBlank(dto.getStudy())) {
-            analysis.setStudyTitle(dto.getStudy());
+        analysis.setTitle(title);
+        if (StringUtils.isNotBlank(study)) {
+            analysis.setStudyTitle(study);
         }
 
-        analysis.setType(dto.getType());
+        analysis.setType(type);
 
-        analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).map(this::findEnvironment).orElse(null));
-        DataSource dataSource = dataSourceService.getById(dto.getDatasourceId());
+        analysis.setEnvironment(Optional.ofNullable(environmentId).map(this::findEnvironment).orElse(null));
+        DataSource dataSource = dataSourceService.getById(datasourceId);
         if (Objects.isNull(dataSource)) {
-            logger.error("Cannot find datasource with id: {}", dto.getDatasourceId());
+            log.error("Cannot find datasource with id: {}", datasourceId);
             throw new NotExistException(DataSource.class);
         }
         analysis.setDataSource(dataSource);
@@ -104,13 +97,13 @@ public class AnalysisRequestDTOToAnalysisConverter implements Converter<Analysis
                 "%s:%s%s",
                 datanodeBaseURL,
                 datanodePort,
-                BaseCallbackAnalysisController.UPDATE_URI
+                AnalysisCallbackController.UPDATE_URI
         );
         String resultCallback = String.format(
                 "%s:%s%s",
                 datanodeBaseURL,
                 datanodePort,
-                BaseCallbackAnalysisController.RESULT_URI
+                AnalysisCallbackController.RESULT_URI
         );
         analysis.setUpdateStatusCallback(updateStatusCallback);
         analysis.setResultCallback(resultCallback);
