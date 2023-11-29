@@ -36,10 +36,7 @@ import javax.validation.ValidatorFactory;
 import java.util.Map;
 
 @Configuration
-public class ValidatorConfig implements HibernatePropertiesCustomizer {
-
-    @Autowired
-    private ValidatorFactory validatorFactory;
+public class ValidatorConfig {
 
     @Bean
     public ValidatorFactory validatorFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory) {
@@ -55,8 +52,4 @@ public class ValidatorConfig implements HibernatePropertiesCustomizer {
         return validatorFactory.getValidator();
     }
 
-    @Override
-    public void customize(Map<String, Object> hibernateProperties) {
-        hibernateProperties.put("javax.persistence.validation.factory", validatorFactory);
-    }
 }

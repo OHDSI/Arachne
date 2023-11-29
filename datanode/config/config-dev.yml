@@ -68,15 +68,16 @@ authenticator:
     db:
       service: org.ohdsi.authenticator.service.jdbc.JdbcAuthService
       config:
-        jdbcUrl: jdbc:postgresql://test.arachnenetwork.com:5434/arachne_portal
+        jdbcUrl: jdbc:postgresql://localhost:5432/datanode
         username: ohdsi
         password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)
-        query: select password, id, first_name as firstname, last_name as lastname, email from users where username=:username
+        query: select password, id, username, first_name as firstname, last_name as lastname, email from users where username=:username
         passwordEncoder: org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
         fieldsToExtract:
+          username: username
           firstName: firstname
           lastName: lastname
           email: email
 
 security:
-  method: rest-central
+  method: db
