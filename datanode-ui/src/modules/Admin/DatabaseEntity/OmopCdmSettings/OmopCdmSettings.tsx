@@ -1,12 +1,14 @@
 import { DBMSType } from '../../../../libs/enums';
 import { Grid, FormLabel, ImportJsonFile, EditableInput } from '../../../../libs/components';
 
-import { FC } from 'react';
+import React from 'react';
+import { DataSourceDTOInterface } from '../../../../libs/types';
 
-export const OmopCdmSettings: FC<{
-  entity: any;
+export const OmopCdmSettings: React.FC<{
+  entity: DataSourceDTOInterface;
   updateEntity: (newEntity: any, keyFile?: string, isAdmin?: boolean) => void;
 }> = ({ entity, updateEntity }) => {
+
   const handleSave = (fieldName: string) => (value: any) => {
     updateEntity({ ...entity, [fieldName]: value });
   };
@@ -68,63 +70,11 @@ export const OmopCdmSettings: FC<{
           spacing={2}
           alignContent="flex-start"
         >
-          {entity.type !== DBMSType.BIGQUERY ? (
-            <>
-              {/* <FormLabel
-                htmlFor="adminUsername"
-                label="Admin Username"
-                required
-              >
-                <EditableInput
-                  value={entity.dbUsername}
-                  className=""
-                  fullWidth
-                  id="adminUsernamee"
-                  placeholder="Enter admin username..."
-                  size="small"
-                  onSubmit={(newVal: any) => {
-                    updateEntity({
-                      ...entity,
-                      dbUsername: newVal
-                    });
-                  }}
-                  sx={{ ml: -1 }}
-                  onCancel={() => { }}
-                  color="textColor.primary"
-                  required
-                />
-              </FormLabel>
-              <FormLabel
-                htmlFor="adminPassword"
-                label="Admin Password"
-                required
-              >
-                <EditableInput
-                  value={entity.dbPassword}
-                  className=""
-                  fullWidth
-                  id="adminPassword"
-                  type="password"
-                  placeholder="Enter admin password..."
-                  size="small"
-                  onSubmit={(newVal: any) => {
-                    updateEntity({
-                      ...entity,
-                      dbPassword: newVal,
-                    });
-                  }}
-                  sx={{ ml: -1 }}
-                  onCancel={() => { }}
-                  color="textColor.primary"
-                  required
-                />
-              </FormLabel> */}
-            </>
-          ) : (
+          {entity.dbmsType === DBMSType.BIGQUERY && (
             <Grid item xs={12}>
               <ImportJsonFile
                 titleButton={'Upload keyfile'}
-                initialTextFile={entity?.adminKeyfileName} onChange={(parsedJson: any, file: any) => {
+                initialTextFile={entity.hasKeytab} onChange={(parsedJson: any, file: any) => {
                   updateEntity(entity, file, true);
                 }} />
             </Grid>

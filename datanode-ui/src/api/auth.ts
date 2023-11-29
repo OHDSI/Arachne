@@ -9,6 +9,3 @@ export const getUser = (): Promise<UserDTOInterface> =>
 
 export const logout = (): Promise<boolean> =>
   api.post('/auth/logout');
-
-// qaadmin@arachnenetwork.com
-// {"username":"qaadmin@arachnenetwork.com","password":"FKkGY8wx28xy9d"}

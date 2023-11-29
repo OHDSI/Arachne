@@ -4,18 +4,23 @@ import { useDispatch } from 'react-redux';
 import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
 import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
 import { PageList, FileExplorer, SecondaryContentWrapper } from '../../../libs/components';
-import { createSubmission } from '../../../api/submissions';
+import { createSubmission, getSubmissions } from '../../../api/submissions';
 import { setBreadcrumbs } from '../../../store/modules';
 
 import { CreateSubmissionForm } from '../CreateSubmissionForm';
-import { listConfig } from './List.config';
 import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
+import { removeDataSource } from '../../../api/data-sources';
+import { colsTableSubmissions } from '../../../config';
 
 
 export const List: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
-  const [idReload, setIdReload] = useState();
+  const [idReload, setIdReload] = useState<string>(getUUID());
   const dispatch = useDispatch();
+
+  const cols = React.useMemo(() => {
+    return colsTableSubmissions;
+  }, []);
 
   useEffect(() => {
     dispatch(
@@ -30,13 +35,13 @@ export const List: React.FC = () => {
 
 
 
-  const onCreateSubmission = () => {
+  const onCreate = () => {
     openModal(
       () => (
         <CreateSubmissionForm
           createMethod={createSubmission}
           onCancel={closeModal}
-          afterCreate={values => {
+          afterCreate={() => {
             setIdReload(getUUID());
             closeModal();
           }}
@@ -51,7 +56,7 @@ export const List: React.FC = () => {
     );
   };
 
-  const onOpenResultSubmission = useCallback(item => {
+  const onOpenResult = useCallback(item => {
     openModal(
       () => (
         <SecondaryContentWrapper>
@@ -78,14 +83,19 @@ export const List: React.FC = () => {
   return (
     <PageList
       reloadId={idReload}
-      isImport={false}
-      onCreate={onCreateSubmission}
-      onRowClick={row => {
-        onOpenResultSubmission(row.original);
-      }}
+      onCreate={onCreate}
+      onRowClick={row => onOpenResult(row.original)}
       listConfig={{
-        ...listConfig,
-        cols: listConfig.getCols(),
+        rowId: 'id',
+        loadingMessage: 'Loading submission...',
+        addButtonTitle: 'Add submission',
+        tableTitle: 'Submissions',
+        importButtonTitle: 'Import',
+        iconName: 'library',
+        fetch: getSubmissions,
+        remove: removeDataSource,
+        listInitialSort: { id: 'id', desc: true },
+        cols: cols
       }}
       isSilentReload={true}
       allowDelete={false}

@@ -67,7 +67,7 @@ export const LatestSubmissions: React.FC<any> = props => {
                     <div className="list-item-section">
                       <span>
                         {item.analysis}{' '}
-                        <span style={{ fontWeight: 300, color: '#654774' }}>
+                        <span style={{ fontWeight: 300, color: '#016c75' }}>
                           {`[ ${origin.name} ]`}
                         </span>
                       </span>

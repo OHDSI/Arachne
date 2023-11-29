@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
-
 import LatestSubmissions from '../LatestSubmissions';
 
 import {
@@ -17,7 +15,7 @@ import { ModuleDescriptionCard } from '../ModuleDescriptionCard';
 import { Button, Grid, Icon, SecondaryContentWrapper, FileExplorer } from '../../../libs/components';
 import { createSubmission as createSubmissionApi } from '../../../api/submissions';
 
-export const HomeWidget = props => {
+export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
 

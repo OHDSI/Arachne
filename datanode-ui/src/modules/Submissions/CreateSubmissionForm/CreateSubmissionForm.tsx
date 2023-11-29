@@ -129,14 +129,14 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         const result = await createMethod(fd);
         setStatus(Status.SUCCESS);
         enqueueSnackbar({
-          message: `Successfully created submission`,
+          message: `Submission successfully created`,
           variant: 'success',
         } as any);
         setIsLoading(false);
         afterCreate?.(result);
       } catch (e) {
         enqueueSnackbar({
-          message: `Something went wrong`,
+          message: `Submission was not created, please try again`,
           variant: 'error',
         } as any);
       }

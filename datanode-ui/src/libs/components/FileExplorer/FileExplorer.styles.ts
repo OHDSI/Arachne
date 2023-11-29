@@ -60,7 +60,7 @@ export const FileSize = styled.span`
 export const FileChildrenCount = styled.div`
   padding: 0px 7px 0px;
   font-size: 11px;
-  background: #3a4452;
+  background: #28393a;
   color: #ffffff;
   /* width: 18px; */
   /* height: 16px; */
@@ -75,7 +75,7 @@ export const FileChildrenCount = styled.div`
 export const FileItemIcon = styled.div``;
 
 export const HeaderFileReader = styled.div`
-  background: #3a4452;
+  background: #28393a;
   color: #ffffff;
   padding: 10px 10px;
 `;

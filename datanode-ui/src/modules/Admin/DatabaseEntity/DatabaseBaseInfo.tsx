@@ -1,20 +1,15 @@
 
 import React from 'react';
-
 import { useNavigate } from 'react-router';
+import { useTheme } from '@mui/material';
 
-import { Button, Grid } from '../../../libs/components';
-import { Typography, useTheme } from '@mui/material';
-import { EditableInput } from '../../../libs/components/editable-controls/EditableInput';
-import { IconActionButton } from '../../../libs/components/action-buttons';
-import { getFormatDateAndTime } from '../../../libs/utils/getFormatDate';
+import { Button, Grid, IconActionButton, EditableInput } from '../../../libs/components';
+import { DataSourceDTOInterface } from '../../../libs/types';
 
 export interface DatabaseBaseInfoProps {
-  entity: any;
-  Status?: React.ReactNode;
-  onSubmit: (val: any) => any;
-  onDelete: () => any;
-  onExecute?: () => any;
+  entity: DataSourceDTOInterface;
+  onSubmit: (val: DataSourceDTOInterface) => void;
+  onDelete: () => void;
 }
 export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
   entity,
@@ -24,7 +19,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
   const navigate = useNavigate();
   const theme: any = useTheme();
 
-  const updateFiled = (fieldName: any, newValue: any) => {
+  const updateFiled = (fieldName: string, newValue: string) => {
     onSubmit({ ...entity, [fieldName]: newValue });
   };
 
@@ -34,10 +29,10 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
         <Grid item flexGrow={1} mx={-1}>
           <EditableInput
             size="medium"
-            value={entity?.name}
+            value={entity.name}
             fullWidth
             color={theme.palette.textColor.primary}
-            onSubmit={function (value): void {
+            onSubmit={(value) => {
               updateFiled('name', value);
             }}
             name="database-name"
@@ -69,41 +64,15 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
           justifyContent="space-between"
           alignItems="center"
         >
-          {/* <Grid item flexGrow={1} display="flex">
-            <Grid item mr={2}>
-              <Typography
-                variant="subtitle2"
-                component="label"
-                sx={{ mr: 0.5 }}
-              >
-                Created date:
-              </Typography>
-              <Typography variant="subtitle2" component="span" fontWeight={600}>
-                {getFormatDateAndTime(entity?.created?.timestamp)}
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography
-                variant="subtitle2"
-                component="label"
-                sx={{ mr: 0.5 }}
-              >
-                Updated date:
-              </Typography>
-              <Typography variant="subtitle2" component="span" fontWeight={600}>
-                {getFormatDateAndTime(entity?.modified?.timestamp)}
-              </Typography>
-            </Grid>
-          </Grid> */}
         </Grid>
       </Grid>
       <Grid item xs={12} mx={-1}>
         <EditableInput
           size="small"
-          value={entity?.description}
+          value={entity.description}
           fullWidth
           color={theme.palette.textColor.primary}
-          onSubmit={function (value): void {
+          onSubmit={(value) => {
             updateFiled('description', value);
           }}
           name="database-description"

@@ -4,7 +4,7 @@ import { SubmissionStatus } from "../enums";
 export function getSubmissionStatusInfo(value: SubmissionStatus) {
   switch (value) {
     case SubmissionStatus.CREATED:
-      return { color: 'success', name: 'Created' };
+      return { color: 'default', name: 'Created' };
     case SubmissionStatus.EXECUTED:
       return { color: 'success', name: 'Executed' };
     case SubmissionStatus.EXECUTING:

@@ -2,8 +2,9 @@ import { getReducerWithProduce } from "../../utils";
 import { EntityState } from "./useEntity.types";
 import { EntityActions } from "./useEntity.constants";
 import { Status } from "../../enums";
+import { ActionInterface } from "@/libs/types";
 
-export const INITIAL_STATE = {
+export const INITIAL_STATE: EntityState = {
   entity: null,
   version: null,
   draft: null,
@@ -14,7 +15,7 @@ export const INITIAL_STATE = {
 
 export const reducer = <T extends object>(
   state: EntityState<T>,
-  action: any
+  action: ActionInterface<EntityActions>
 ) => {
   return getReducerWithProduce(state, (draft: EntityState<T>) => {
     switch (action.type) {

@@ -8,11 +8,9 @@ import {
   InfoContainer,
 } from './SideNavigation.styles';
 import { MainNavigationConfigInterface } from '../../libs/types';
-import { MainMenuIcon } from '../../libs/components/Icon/MainMenuIcon';
+import { MainMenuIcon } from '../../libs/components';
 import { Tooltip, IconName } from '../../libs/components';
-import { LogoArachne } from '../Logo/LogoArachneVertical';
-import { LogoOHDSI } from '../Logo/LogoOHDSIVerical';
-import { LogoOdysseus } from '../Logo/LogoOdysesusVertical';
+import { LogoArachne, LogoOHDSI, LogoOdysseus } from '../Logo';
 import { mainNavigationConfig } from './SideNavigation.config';
 
 export const SideNavigation: React.FC = () => {

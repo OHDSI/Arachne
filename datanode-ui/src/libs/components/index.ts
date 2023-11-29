@@ -7,6 +7,7 @@ export * from './Autocomplete/Autocomplete';
 export * from './Autocomplete/AutocompleteInput'
 export * from './Icon/Icon.old';
 export { Icon, icons } from './Icon/Icon';
+export { MainMenuIcon } from './Icon/MainMenuIcon';
 export type { IconName, IconProps } from './Icon/Icon';
 
 export * from './Spinner';
@@ -28,4 +29,5 @@ export * from './cells';
 export * from './Table';
 export * from './Block';
 export * from './Dialogs';
-export * from './editable-controls'
+export * from './editable-controls';
+export * from './action-buttons';

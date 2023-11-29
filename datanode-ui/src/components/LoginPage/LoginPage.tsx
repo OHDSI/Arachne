@@ -7,7 +7,6 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { LogoLarge } from '../Logo/LogoLarge';
 import {
   FormControl,
   LogInText,
@@ -19,7 +18,7 @@ import {
 } from './LoginPage.styles';
 import { userSignIn } from '../../store/modules';
 import { Status } from '../../libs';
-import { LogoMediumArachne } from '../Logo/LogoMediumArachne';
+import { LogoMediumArachne } from '../Logo';
 
 export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();

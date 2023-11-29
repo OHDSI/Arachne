@@ -20,6 +20,7 @@ import { Divider } from '@mui/material';
 import { DatabaseBaseInfo } from './DatabaseBaseInfo';
 import { getDataSource, removeDataSource, updateDataSource } from '../../../api/data-sources';
 import { ErrorPage } from '../../../libs/components/ErrorPage';
+import { DataSourceDTOInterface } from '@/libs/types';
 
 export const DatabaseEntity: React.FC = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ export const DatabaseEntity: React.FC = () => {
   const { showDialog, hideDialog } =
     useContext<UseDialogContext>(DialogContext);
 
-  const { entity, status, updateEntity, deleteEntity, error } = useEntity(
+  const { entity, status, updateEntity, deleteEntity, error } = useEntity<DataSourceDTOInterface>(
     {
       get: getDataSource,
       update: updateDataSource,

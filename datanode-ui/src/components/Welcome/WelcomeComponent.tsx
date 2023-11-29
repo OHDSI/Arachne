@@ -1,13 +1,10 @@
-
-
 import React, { useEffect } from 'react';
 import { resetBreadcrumbs } from '../../store/modules';
 import { useDispatch } from 'react-redux';
 import { Grid } from '../../libs/components';
 import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
 import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
-import { LogoLargeArachne } from '../Logo/LogoLargeArachne';
-import { LogoMediumArachne } from '../Logo/LogoMediumArachne';
+import { LogoMediumArachne } from '../Logo';
 
 export const Welcome: React.FC = () => {
   const dispatch = useDispatch();
@@ -16,22 +13,9 @@ export const Welcome: React.FC = () => {
     dispatch(resetBreadcrumbs());
   }, []);
 
-  // const modules = useMemo(() => {
-  //   const hashMap: any = {};
-  //   list.forEach((elem: any) => {
-  //     hashMap[elem.name] = elem;
-  //   });
-
-  //   return hashMap;
-  // }, []);
-
   React.useEffect(() => {
     document.title = `Arachne Data Node`;
   }, []);
-
-  // if (!modules) {
-  //   return <></>;
-  // }
 
   return (
     <Grid
@@ -102,40 +86,6 @@ export const Welcome: React.FC = () => {
             DATA NODE
           </Grid>
         </Grid>
-        {/* <Grid
-          item
-          color="#ffffff"
-          fontSize={75}
-          alignContent="center"
-          fontWeight={600}
-          flexWrap="wrap"
-          textAlign="right"
-          my="auto"
-        >
-          <div style={{ position: 'absolute', marginLeft: '-110px' }}>
-            <LogoLargeArachne />
-          </div>
-          <Grid item fontFamily={"'Rosario', sans-serif"} pt={3}>
-            Arachne
-          </Grid>
-          <Grid
-            item
-            sx={{
-              bgcolor: '#ffffffd1',
-              height: 38,
-              px: 1.5,
-              py: 0.5,
-              borderRadius: 1,
-              color: '#006c75',
-              fontSize: 24,
-              letterSpacing: 1,
-              width: 166,
-              textAlign: 'center',
-            }}
-          >
-            DATA NODE
-          </Grid>
-        </Grid> */}
       </Grid>
 
       <Grid container px={{ xs: 4, lg: 8, xl: 10 }} py={4} spacing={2}>

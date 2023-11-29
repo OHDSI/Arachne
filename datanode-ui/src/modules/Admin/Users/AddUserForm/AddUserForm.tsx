@@ -12,7 +12,7 @@ import {
   useNotifications
 } from '../../../../libs/components';
 import { addUser, searchUsers } from '../../../../api/admin';
-import { BaseResponceInterface, UserDTOSearchInterface } from '../../../../libs/types';
+import { UserDTOSearchInterface } from '../../../../libs/types';
 import { parseToSelectControlOptions } from '../../../../libs/utils';
 
 

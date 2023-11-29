@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-// import { setLightness } from 'polished';
 
 export const WelcomeContainer: any = styled.div`
   display: flex;

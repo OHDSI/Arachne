@@ -88,13 +88,13 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
         setIsLoading(false);
 
         enqueueSnackbar({
-          message: `Created data source`,
+          message: `Database successfully created`,
           variant: 'success',
         } as any);
         afterCreate?.();
       } catch (e) {
         enqueueSnackbar({
-          message: 'OOps!!! Something wrong',
+          message: 'Database was not created, please try again',
           variant: 'error',
         } as any);
       }

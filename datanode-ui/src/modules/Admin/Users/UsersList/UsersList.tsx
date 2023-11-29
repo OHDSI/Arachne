@@ -1,23 +1,19 @@
 
-import { FC, useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
-
-import { CreateDatabaseForm } from '../../CreateDatabaseForm';
-import { ModalContext, UseModalContext } from '../../../../libs/hooks/useModal';
-import { getUUID } from '../../../../libs/utils/getUUID';
-import { setBreadcrumbs } from '../../../../store/modules';
-import { PageList } from '../../../../libs/components/PageList';
-import { createDataSource } from '../../../../api/data-sources';
-import { usersListConfig } from './UsersList.config'
+import React, { useContext, useState } from 'react';
+import { ModalContext, UseModalContext } from '../../../../libs/hooks';
+import { getUUID } from '../../../../libs/utils';
+import { PageList } from '../../../../libs/components';
 import { AddUserForm } from '../AddUserForm';
+import { getUsers, removeUser } from '../../../../api/admin';
+import { colsTableUsers } from '../../../../config';
 
-export const UsersList: FC<any> = () => {
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+export const UsersList: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
-  const [idReload, setIdReload] = useState(getUUID());
+  const [idReload, setIdReload] = useState<string>(getUUID());
+
+  const cols = React.useMemo(() => {
+    return colsTableUsers;
+  }, []);
 
   const onAddUser = () => {
     openModal(
@@ -40,14 +36,18 @@ export const UsersList: FC<any> = () => {
     <PageList
       reloadId={idReload}
       removeId='username'
-      isImport={false}
-      isCreate={true}
       onCreate={onAddUser}
       listConfig={{
-        ...usersListConfig,
-        cols: usersListConfig.getCols({
-          onPublish: () => { },
-        }),
+        rowId: 'id',
+        loadingMessage: 'Loading users...',
+        addButtonTitle: 'Add user',
+        tableTitle: 'Users',
+        importButtonTitle: 'Import',
+        listInitialSort: null,
+        iconName: 'users',
+        fetch: getUsers,
+        remove: removeUser,
+        cols: cols
       }}
       onRowClick={() => { }}
       variant="primary"

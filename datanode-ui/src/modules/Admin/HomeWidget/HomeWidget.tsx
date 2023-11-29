@@ -8,7 +8,7 @@ import { createDataSource } from '../../../api/data-sources';
 import { ModuleDescriptionCard } from '../../Submissions/ModuleDescriptionCard';
 import { Button, Icon } from '../../../libs/components';
 
-export const HomeWidget = () => {
+export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
 

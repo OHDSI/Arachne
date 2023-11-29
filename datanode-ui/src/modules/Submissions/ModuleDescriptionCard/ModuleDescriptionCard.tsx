@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper } from '@mui/material';
 import { Grid, Icon } from '../../../libs/components';
-import { IconButtonStyled } from '../SimpleRedirectBlock/SimpleRedirectBlock.styles';
+import { IconButtonStyled } from '../SimpleRedirectBlock';
 
 export const ModuleDescriptionCard: React.FC<{
   title: string;

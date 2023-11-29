@@ -1,6 +1,6 @@
 import { Status } from "../../enums";
 
-export interface EntityState<T, E = any> {
+export interface EntityState<T = any, E = any> {
   entity: T;
   version: T;
   draft: T;
@@ -11,14 +11,11 @@ export interface EntityState<T, E = any> {
 export interface EntityHook<T> extends EntityState<T> {
   getEntity: () => Promise<void>;
   deleteEntity: () => Promise<void>;
-  updateEntity: (data: T) => Promise<void>;
-  setVersionEntity: (data: T) => void;
-  copyEntity: (data: T) => Promise<T>;
-  revertEntity: () => void;
+  updateEntity: (data: any) => Promise<void>;
 }
-export interface EntityMethods<T> {
-  get: (id?: string) => Promise<T>;
-  delete?: (id: string) => Promise<void>;
-  update: (data: T, id?: string) => Promise<T>;
-  copy?: (id: string, name: string) => Promise<T>;
+
+export interface MethodsUseEntityInterface<T> {
+  get: (id: string) => Promise<T>;
+  delete: (id: string) => Promise<boolean>;
+  update: (entity: T, id: string) => Promise<T>;
 }

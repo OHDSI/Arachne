@@ -23,8 +23,8 @@ export const LatestSubmissionsListItem: any = styled(props => (
 ))(({ theme, light }: any) => ({
   fontSize: 13,
   fontWeight: 'bold',
-  color: '#41204f',
-  backgroundColor: light ? '#f6f8fa' : theme.palette.backgroundColor.main,
+  color: '#016c75',
+  backgroundColor: light ? '#e9fbfc' : theme.palette.backgroundColor.main,
   padding: '8px 12px',
   borderRadius: '4px',
   display: 'flex',

@@ -3,24 +3,19 @@ import React from 'react';
 import { pageListConfig, useLocalStorage } from './PageList.config';
 
 import { useNavigate } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
 
-import { useDispatch, useSelector } from 'react-redux';
-
-// import { setBreadcrumbs } from 'store/modules';
 import { Status } from '../../enums';
-import { Spinner, SpinnerWidgetContainer } from '../Spinner';
+
 import { Grid } from '../Grid';
 import { Table } from '../Table';
 import { ErrorPage } from '../ErrorPage';
 import { ActionCell } from '../cells';
 import { ListHeaderPrimary } from '../headers';
 import { useEntityList } from '../../hooks/useEntityList';
-import { getDataSources, removeDataSource } from '../../../api/data-sources';
+
+import { ColumnInterface } from '../../types';
 
 export interface PageListPropsInterface<I, O, C> {
-  isImport?: boolean;
-  isCreate?: boolean;
   onImport?: () => void;
   onCreate?: () => void;
   moduleConfig: any;
@@ -48,43 +43,29 @@ export const PageList: React.FC<any> = (
   // );
 
   const {
-    isImport,
-    isCreate = false,
     onImport,
     onCreate,
-    // moduleConfig,
     listConfig,
     allowDelete,
-    // isEnableMetadata,
     tileComponent,
     onRowClick: onRowClickOutSide,
     reloadId,
     isSilentReload,
     variant = 'secondary',
     hiddenColumns,
-    // uniqName,
     dense,
     removeId
   } = props;
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [isInitial, setIsInitial] = React.useState(true);
-  const fullSearch = searchParams.get('fullSearch');
 
   const {
     disableSort,
     addButtonTitle,
     tableTitle,
-    // moduleDescription,
     importButtonTitle,
-    getCols,
     cols,
     loadingMessage,
     rowId,
     listInitialSort,
-    // createCrudMethod,
-    // createFiltersPanel,
-    // createSortingMethod,
-    // metadataFilter,
     fetch,
     remove,
     iconName,
@@ -92,8 +73,6 @@ export const PageList: React.FC<any> = (
 
 
   const storageName = `${tableTitle}`;
-
-  // const { entityBreadcrumbs, columns: listCols } = pageListConfig;
 
   const useStorage: any = useLocalStorage(storageName, hiddenColumns);
 
@@ -108,7 +87,6 @@ export const PageList: React.FC<any> = (
     pageSize,
     getEntity,
     totalElements,
-    numberOfElements,
     removeEntity,
     status,
     error,
@@ -127,10 +105,11 @@ export const PageList: React.FC<any> = (
   }, []);
 
   const onRowClick = (e: any) => {
+    console.log(e);
     onRowClickOutSide ? onRowClickOutSide(e) : navigate(`${e.original[rowId]}`);
   };
 
-  const ACTION_CELL: any = {
+  const ACTION_CELL: ColumnInterface = {
     Header: '',
     accessor: 'actions',
     isCropped: true,
@@ -178,7 +157,6 @@ export const PageList: React.FC<any> = (
             <ListHeaderPrimary
               iconName={iconName}
               title={tableTitle}
-              canImport={isImport}
               // wrong logic
               canCreate={onCreate}
               importButtonName={importButtonTitle}

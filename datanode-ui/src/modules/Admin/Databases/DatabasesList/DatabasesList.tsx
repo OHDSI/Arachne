@@ -1,23 +1,28 @@
 
-import { FC, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
-import { databasesConfig } from '../Databases.config';
 import { CreateDatabaseForm } from '../../CreateDatabaseForm';
-import { ModalContext, UseModalContext } from '../../../../libs/hooks/useModal';
-import { getUUID } from '../../../../libs/utils/getUUID';
+import { ModalContext, UseModalContext } from '../../../../libs/hooks';
+import { getUUID } from '../../../../libs/utils';
 import { setBreadcrumbs } from '../../../../store/modules';
-import { PageList } from '../../../../libs/components/PageList';
-import { createDataSource } from '../../../../api/data-sources';
+import { PageList } from '../../../../libs/components';
+import { createDataSource, getDataSources, removeDataSource } from '../../../../api/data-sources';
+import { colsTableDatabase } from '../../../../config';
 
 export const DatabasesList: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
-  const [idReload, setIdReload] = useState(getUUID());
-  const onCreateCdmDataSource = () => {
+  const [idReload, setIdReload] = useState<string>(getUUID());
+
+  const cols = React.useMemo(() => {
+    return colsTableDatabase;
+  }, []);
+
+  const onCreate = () => {
     openModal(
       () => (
         <CreateDatabaseForm
@@ -55,16 +60,20 @@ export const DatabasesList: React.FC = () => {
   return (
     <PageList
       reloadId={idReload}
-      isImport={false}
-      isCreate={true}
-      onCreate={onCreateCdmDataSource}
+      onCreate={onCreate}
       listConfig={{
-        ...databasesConfig,
-        cols: databasesConfig.getCols(),
+        rowId: 'id',
+        loadingMessage: 'Loading databases...',
+        addButtonTitle: 'Add database',
+        tableTitle: 'Databases',
+        importButtonTitle: 'Import',
+        // listInitialSort: { id: 'id', desc: true },
+        iconName: 'dataCatalog',
+        fetch: getDataSources,
+        remove: removeDataSource,
+        cols: cols
       }}
-      onRowClick={(row: { original: { id: string } }) => {
-        navigate(`${row.original.id}`)
-      }}
+      onRowClick={(row: { original: { id: string } }) => navigate(`${row.original.id}`)}
       variant="primary"
       allowDelete={true}
     />

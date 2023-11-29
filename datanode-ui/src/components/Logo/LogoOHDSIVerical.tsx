@@ -9,8 +9,11 @@ export const LogoOHDSI: FC<any> = props => {
       strokeMiterlimit="10"
       style={{
         clipRule: 'evenodd',
-        strokeLinecap: 'round',
-        strokeLinejoin: 'round',
+        fillRule: 'evenodd',
+        // strokeLinecap: 'round',
+        // strokeLinejoin: 'round',
+        shapeRendering: 'geometricPrecision',
+        textRendering: 'geometricPrecision'
       }}
       version="1.1"
       viewBox="0 0 60 80"

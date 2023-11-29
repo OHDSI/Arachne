@@ -1,5 +1,6 @@
+import { TabsInterface } from "../../../libs/types";
 
-export const tabs: any = [
+export const tabs: TabsInterface[] = [
   {
     title: 'Connection',
     value: '',
