@@ -40,9 +40,8 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisReques
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -65,10 +64,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+@Slf4j
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
 
-	protected static final Logger LOGGER = LoggerFactory.getLogger(AnalysisServiceImpl.class);
 	private static final String ZIP_FILENAME = "analysis.zip";
 	private static List<String> finishedStates = new ArrayList<>(3);
 
@@ -126,7 +126,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		try {
 			AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true);
 			String descriptorId = exchange.getActualDescriptorId();
-			LOGGER.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
+			log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
 			analysis.setActualEnvironment(Optional.ofNullable(descriptorId).flatMap(environmentService::byDescriptorId).orElse(null));
 			reason = String.format(Constants.AnalysisMessages.SEND_REQUEST_TO_ENGINE_SUCCESS_REASON, id, exchange.getType());
 			state = AnalysisState.EXECUTING;
@@ -134,7 +134,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 			reason = String.format(Constants.AnalysisMessages.SEND_REQUEST_TO_ENGINE_FAILED_REASON,
 					id,
 					e.getMessage());
-			LOGGER.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage());
+			log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage());
 			state = AnalysisState.EXECUTION_FAILURE;
 		}
 		updateState(analysis, state, reason);
@@ -151,7 +151,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
 		Analysis exists = Objects.nonNull(analysis.getId()) ? analysisRepository.getOne(analysis.getId()) : null;
 		if (exists == null) {
-			LOGGER.debug("Analysis with id: '{}' is not exist. Saving...", analysis.getId());
+			log.debug("Analysis with id: '{}' is not exist. Saving...", analysis.getId());
 			return analysisRepository.save(analysis);
 		} else {
 			return exists;
@@ -194,12 +194,12 @@ public class AnalysisServiceImpl implements AnalysisService {
 		List<AnalysisStateEntry> entries = new ArrayList<>();
 		Date expirationDate = calculateDate(invalidateMaxDaysExecutingInterval);
 		allExecutingMoreThan.forEach(analysis -> {
-			LOGGER.warn("EXECUTING State being invalidated for analysis with id='{}'", analysis.getId());
+			log.warn("EXECUTING State being invalidated for analysis with id='{}'", analysis.getId());
 			Optional<AnalysisStateEntry> state = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId());
 			state.ifPresent(s -> {
 				AnalysisState analysisState = AnalysisState.EXECUTION_FAILURE;
 				if (s.getDate().before(expirationDate)) {
-					LOGGER.warn("Analysis id={} is being EXECUTING more than {} days, one will marked as DEAD",
+					log.warn("Analysis id={} is being EXECUTING more than {} days, one will marked as DEAD",
 							analysis.getId(), invalidateMaxDaysExecutingInterval);
 					analysisState = AnalysisState.DEAD;
 				}
