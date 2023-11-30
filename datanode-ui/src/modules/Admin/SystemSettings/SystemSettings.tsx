@@ -37,12 +37,12 @@ export const SystemSettings: FC<any> = ({ root }) => {
   }, []);
 
   useEffect(() => {
-    // if (status === Status.SUCCESS) {
-    //   enqueueSnackbar({
-    //     message: `Settings successfully edited`,
-    //     variant: 'success',
-    //   } as any);
-    // }
+    if (status === Status.SUCCESS) {
+      enqueueSnackbar({
+        message: `Settings successfully edited`,
+        variant: 'success',
+      } as any);
+    }
 
     if (status === Status.ERROR) {
       enqueueSnackbar({

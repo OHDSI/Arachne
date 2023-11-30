@@ -26,8 +26,7 @@ export const reducer = (state, action) => {
         draft.status = Status.IN_PROGRESS_RELOAD;
         break;
       case UseSystemSettings.GET_LIST_DONE:
-        draft.status = Status.SUCCESS;
-        console.log(action.payload)
+        draft.status = Status.DISABLED;
         draft.settings = action.payload;
         break;
       case UseSystemSettings.GET_LIST_FAILED:
@@ -37,8 +36,10 @@ export const reducer = (state, action) => {
         draft.status = Status.IN_PROGRESS;
         break;
       case UseSystemSettings.UPDATED_VALUE_DONE:
+        draft.status = Status.SUCCESS;
         break;
       case UseSystemSettings.UPDATED_VALUE_FAILED:
+        draft.status = Status.ERROR;
         break;
     }
   })
@@ -65,16 +66,19 @@ export const useSystemSettings = () => {
   }, []);
 
   const editSystemSettings = useCallback(async (values) => {
+    const res = {
+      values: {}
+    }
     dispatch({
       type: UseSystemSettings.UPDATED_VALUE
     })
 
-    console.log(values)
+    Object.values(values).forEach((elem: any) => {
+      res.values[elem.id] = elem.value
+    })
 
     try {
-      await updateSystemSettings({
-        values: values
-      });
+      await updateSystemSettings(res);
       dispatch({
         type: UseSystemSettings.UPDATED_VALUE_DONE
       })
