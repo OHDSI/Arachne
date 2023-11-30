@@ -36,11 +36,11 @@ export const UsersList: React.FC = () => {
     <PageList
       reloadId={idReload}
       removeId='username'
-      onCreate={onAddUser}
+      // onCreate={onAddUser}
       listConfig={{
         rowId: 'id',
         loadingMessage: 'Loading users...',
-        addButtonTitle: 'Add user',
+        addButtonTitle: '',
         tableTitle: 'Users',
         importButtonTitle: 'Import',
         listInitialSort: null,

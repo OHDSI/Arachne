@@ -12,3 +12,8 @@ export const addUser = (id: string): Promise<UserDTOSearchInterface> =>
 
 export const removeUser = (id: string): Promise<null> =>
   api.delete(`/admin/admins/${id}`)
+
+export const systemSettings = (): Promise<any> => api.get('/admin/system-settings');
+
+export const updateSystemSettings = (value): Promise<any> => api.post('/admin/system-settings', value);
+
