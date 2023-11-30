@@ -49,7 +49,7 @@ interface SubmissionFormStateInterface {
 interface CreateSubmissionFormInterfaceProps {
   afterCreate: (analysis: any) => void;
   onCancel: () => void;
-  createMethod: (data: any) => Promise<any>;
+  createMethod: (typeFile: CreateSubmissionFormTabs, data: any) => Promise<any>;
 }
 
 interface ControlListInterfaceState {
@@ -127,7 +127,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
         });
         fd.append('analysis', blob);
 
-        const result = await createMethod(fd);
+        const result = await createMethod(activeTab, fd);
         setStatus(Status.SUCCESS);
         enqueueSnackbar({
           message: `Submission successfully created`,

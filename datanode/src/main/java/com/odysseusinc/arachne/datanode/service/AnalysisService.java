@@ -24,12 +24,7 @@ package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import net.lingala.zip4j.exception.ZipException;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 public interface AnalysisService {
@@ -50,5 +45,4 @@ public interface AnalysisService {
 
     void invalidateExecutingLong();
 
-    void saveAnalysisFiles(Analysis analysis, List<MultipartFile> files, @NotNull String analysisFolder) throws IOException, ZipException;
 }
