@@ -7,7 +7,9 @@ public enum AnalysisState {
     EXECUTION_FAILURE(true),
     EXECUTING(false),
     EXECUTED(true),
-    CLOSED(true),
+    ABORTING(false),
+    ABORT_FAILURE(true),
+    ABORTED(true),
     DEAD(true);
 
     @Getter

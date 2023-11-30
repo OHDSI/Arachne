@@ -25,6 +25,7 @@ package com.odysseusinc.arachne.datanode.service.impl;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
+import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
@@ -44,6 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -61,15 +66,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
-	private static final List<String> TERMINAL_STATES = Arrays.stream(AnalysisState.values()).map(Enum::toString).collect(Collectors.toList());
+	private static final List<String> FINISHED_STATES = Stream.concat(
+			Stream.of(AnalysisState.ABORTED),
+			Stream.of(AnalysisState.values()).filter(AnalysisState::isTerminal)
+	).map(AnalysisState::toString).collect(Collectors.toList());
 
 	private static final String ZIP_FILENAME = "analysis.zip";
+
+	private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
 
 	@Autowired
 	private GenericConversionService conversionService;
@@ -92,17 +107,59 @@ public class AnalysisServiceImpl implements AnalysisService {
 	@Value("${submission.result.files.exclusions}")
 	private String resultExclusions;
 
+	@PersistenceContext
+	private EntityManager em;
+
+	@EventListener(ApplicationReadyEvent.class)
+	@Transactional
+	public void init() {
+		List<Analysis> closing = analysisRepository.findAllByState(AnalysisState.ABORTING.name());
+		log.info("Found {} submissions pending to be aborted", closing.size());
+		closing.forEach(analysis -> executor.submit(() -> sendToEngineCancel(analysis.getId())));
+	}
+
 	@Override
 	@Transactional
 	public Integer invalidateAllUnfinishedAnalyses(final User user) {
-		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(TERMINAL_STATES);
-		unfinished.forEach(this::invalidate);
+		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(FINISHED_STATES);
+		unfinished.forEach(analysis -> {
+			analysis.setStatus(AnalysisResultStatusDTO.FAILED);
+			updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "] (mass invalidation)");
+			executor.submit(() -> sendToEngineCancel(analysis.getId()));
+		});
 		return unfinished.size();
 	}
 
-	private void invalidate(Analysis analysis) {
-		analysis.setStatus(AnalysisResultStatusDTO.FAILED);
-		updateState(analysis, AnalysisState.CLOSED, "Invalidated by user's request");
+	@Override
+	@Transactional
+	public void cancel(Long id, User user) {
+		Analysis analysis = find(id);
+		AnalysisState state = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).orElseThrow(() ->
+				new ValidationException("Analysis not running: " + id)
+		).getState();
+		if (state == AnalysisState.EXECUTING) {
+			analysis.setStatus(AnalysisResultStatusDTO.FAILED);
+			updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "]");
+			executor.submit(() -> sendToEngineCancel(analysis.getId()));
+		} else {
+			throw new ValidationException("Analysis not running: " + id + ", current state [" + state + "]");
+		}
+
+	}
+
+	@Transactional
+	public void sendToEngineCancel(Long id) {
+		Analysis analysis = find(id);
+		log.info("Analysis {} [{}] cancellation attempt to send to engine", id, analysis.getTitle());
+		try {
+			long duration = engineIntegrationService.sendCancel(id);
+			log.info("Analysis {} cancelled with {} ms of reported runtime", id, duration);
+			updateState(analysis, AnalysisState.ABORTED, "Aborted as requested");
+		} catch (Exception e) {
+			log.warn("Analysis {} failed to abort: {}: {}", id, e.getClass(), e.getMessage());
+			log.debug(e.getMessage(), e);
+			updateState(analysis, AnalysisState.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
+		}
 	}
 
 	@Async
@@ -134,8 +191,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 	}
 
 	protected void updateState(Analysis analysis, AnalysisState state, String reason) {
-
 		AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(new Date(), state, reason, analysis);
+		log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), state.name(), reason);
 		analysisStateJournalRepository.save(analysisStateEntry);
 	}
 
@@ -267,4 +324,9 @@ public class AnalysisServiceImpl implements AnalysisService {
 			FileUtils.deleteQuietly(zipDir);
 		}
 	}
+
+	private Analysis find(Long id) {
+		return analysisRepository.findById(id).orElseThrow(() -> new ValidationException("Analysis not found: " + id));
+	}
+
 }

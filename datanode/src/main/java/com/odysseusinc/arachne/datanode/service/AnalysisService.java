@@ -22,22 +22,22 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
-import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import java.io.File;
+import com.odysseusinc.arachne.datanode.model.user.User;
+import net.lingala.zip4j.exception.ZipException;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import net.lingala.zip4j.exception.ZipException;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface AnalysisService {
 
     Integer invalidateAllUnfinishedAnalyses(final User user);
 
     Optional<Analysis> findAnalysis(Long id);
+
+    void cancel(Long id, User user);
 
     void sendToEngine(Analysis analysis);
 
