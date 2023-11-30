@@ -1,0 +1,1 @@
+ALTER TABLE analyses ADD COLUMN source_folder VARCHAR;

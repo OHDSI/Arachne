@@ -4,16 +4,17 @@ import com.odysseusinc.arachne.commons.annotations.PreprocessorComponent;
 import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.datanode.dto.atlas.CohortDefinition;
+import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.service.CohortService;
 import com.odysseusinc.arachne.datanode.service.SqlRenderService;
-import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
+import org.apache.commons.io.FileUtils;
+import org.ohdsi.circe.cohortdefinition.CohortExpressionQueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
-import org.apache.commons.io.FileUtils;
-import org.ohdsi.circe.cohortdefinition.CohortExpressionQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @PreprocessorComponent(contentType = CommonFileUtils.TYPE_COHORT_JSON)
 public class CohortDefinitionPreprocessor implements Preprocessor<Analysis> {
@@ -40,7 +41,7 @@ public class CohortDefinitionPreprocessor implements Preprocessor<Analysis> {
             CohortDefinition definition = new CohortDefinition();
             definition.setExpression(FileUtils.readFileToString(file, "UTF-8"));
             String expressionSql = sqlRenderService.renderSql(definition);
-            File sqlFile = new File(analysis.getAnalysisFolder(), analysis.getTitle() + ".sql");
+            File sqlFile = new File(analysis.getSourceFolder(), analysis.getTitle() + ".sql");
             FileUtils.write(sqlFile, expressionSql, Charset.forName("UTF-8"));
             cohortPreprocessor.preprocess(analysis, sqlFile);
             analysis.setExecutableFileName(sqlFile.getName());
