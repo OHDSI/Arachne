@@ -29,16 +29,15 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.repository.AnalysisFileRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -52,7 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,7 +63,6 @@ import java.util.zip.ZipFile;
 
 import static com.odysseusinc.arachne.datanode.Constants.Analysis.ERROR_REPORTR_FILENAME;
 import static com.odysseusinc.arachne.datanode.Constants.Analysis.ERROR_REPORT_FILENAME;
-import static com.odysseusinc.arachne.datanode.Constants.AnalysisMessages.ANALYSIS_IS_NOT_EXISTS_LOG;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
 @Service
@@ -72,17 +70,10 @@ import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 @Slf4j
 public class AnalysisResultsServiceImpl implements AnalysisResultsService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnalysisResultsServiceImpl.class);
-
-    private final AnalysisFileRepository analysisFileRepository;
-    private final AnalysisRepository analysisRepository;
-
     @Autowired
-    public AnalysisResultsServiceImpl(AnalysisFileRepository analysisFileRepository, AnalysisRepository analysisRepository) {
-
-        this.analysisFileRepository = analysisFileRepository;
-        this.analysisRepository = analysisRepository;
-    }
+    private AnalysisFileRepository analysisFileRepository;
+    @Autowired
+    private AnalysisRepository analysisRepository;
 
     @Override
     public List<AnalysisFile> getAnalysisResults(Analysis analysis) {
@@ -196,29 +187,27 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
     }
 
     @Override
-    public Analysis saveResults(Analysis analysis, File resultDir) {
+    public Analysis markExecuted(Long id, File resultDir, AnalysisResultStatusDTO status, String stdout) {
+        return analysisRepository.findById(id).map(analysis -> {
+            List<AnalysisFile> resultFiles = Stream.of(resultDir.listFiles()).map(file ->
+                    new AnalysisFile(file.getAbsolutePath(), AnalysisFileType.ANALYSYS_RESULT, analysis)
+            ).collect(Collectors.toList());
+            analysisFileRepository.saveAll(resultFiles);
 
-        List<AnalysisFile> resultFiles = Arrays.stream(resultDir.listFiles())
-                .map(file -> new AnalysisFile(file.getAbsolutePath(), AnalysisFileType.ANALYSYS_RESULT, analysis))
-                .collect(Collectors.toList());
-        analysisFileRepository.saveAll(resultFiles);
-        return updateAnalysisWithResultsData(analysis, resultDir);
-    }
+            removeAnalysisFolder(analysis);
+            analysis.setAnalysisFolder(resultDir.getAbsolutePath());
+            analysis.setStatus(reEvaluateAnalysisStatus(status, resultDir));
+            analysis.setStdout(stdout);
+            analysis.getStateHistory().add(
+                    new AnalysisStateEntry(new Date(), AnalysisState.EXECUTED, "Received result from Execution Engine", analysis)
+            );
+            analysisRepository.save(analysis);
+            return analysis;
 
-    private Analysis updateAnalysisWithResultsData(Analysis analysis, File resultDir) {
-
-        Analysis exists = analysisRepository.findById(analysis.getId()).orElse(null);
-        if (exists == null) {
-            LOGGER.warn(ANALYSIS_IS_NOT_EXISTS_LOG, analysis.getId());
+        }).orElseGet(() -> {
+            log.warn("Analysis '{}' does not exists", id);
             return null;
-        }
-        removeAnalysisFolder(exists);
-        final AnalysisResultStatusDTO updatedAnalysisStatus = reEvaluateAnalysisStatus(analysis.getStatus(), resultDir);
-        exists.setAnalysisFolder(resultDir.getAbsolutePath());
-        exists.setStatus(updatedAnalysisStatus);
-        exists.setStdout(analysis.getStdout());
-        exists.getStateHistory().addAll(analysis.getStateHistory());
-        return analysisRepository.save(exists);
+        });
     }
 
     private void removeAnalysisFolder(Analysis exists) {
@@ -227,7 +216,7 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
         try {
             FileUtils.deleteDirectory(analysisFolder);
         } catch (IOException e) {
-            LOGGER.warn(Constants.AnalysisMessages.CANT_REMOVE_ANALYSIS_DIR_LOG);
+            log.warn(Constants.AnalysisMessages.CANT_REMOVE_ANALYSIS_DIR_LOG);
         }
     }
 
@@ -235,12 +224,12 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
 
         if (AnalysisResultStatusDTO.EXECUTED == originalStatus) {
             if (resultDir == null) {
-                LOGGER.error("Result directory cannot be null");
+                log.error("Result directory cannot be null");
                 return AnalysisResultStatusDTO.FAILED;
             }
             File[] zipFiles = resultDir.listFiles((dir, name) -> name.endsWith(".zip"));
             if (checkZipArchiveForErrorFile(zipFiles)) {
-                LOGGER.warn("Unexpected errorReport file found. Changing analysis status to FAILED for {}", resultDir);
+                log.warn("Unexpected errorReport file found. Changing analysis status to FAILED for {}", resultDir);
                 return AnalysisResultStatusDTO.FAILED;
             }
         }

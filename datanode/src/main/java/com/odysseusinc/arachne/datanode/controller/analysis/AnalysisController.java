@@ -26,6 +26,7 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
 import com.odysseusinc.arachne.commons.utils.ZipUtils;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
+import com.odysseusinc.arachne.datanode.dto.converters.AnalysisRequestDTOToAnalysisConverter;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
@@ -40,7 +41,6 @@ import com.odysseusinc.arachne.datanode.service.UserService;
 
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisResultsServiceImpl;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,10 +48,8 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -60,13 +58,11 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,28 +74,19 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/analysis")
 public class AnalysisController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AnalysisController.class);
     private static final String ERROR_MESSAGE = "Failed to save analysis files";
-    private final AnalysisService analysisService;
-    private final AnalysisResultsService analysisResultsService;
-    private final UserService userService;
-
-    private final GenericConversionService conversionService;
-
-    public AnalysisController(AnalysisService analysisService,
-                              AnalysisResultsService analysisResultsService,
-                              UserService userService,
-                              GenericConversionService conversionService) {
-
-        this.analysisService = analysisService;
-        this.analysisResultsService = analysisResultsService;
-        this.userService = userService;
-        this.conversionService = conversionService;
-    }
+    @Autowired
+    private AnalysisRequestDTOToAnalysisConverter analysisConverter;
+    @Autowired
+    private AnalysisService analysisService;
+    @Autowired
+    private AnalysisResultsService analysisResultsService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> executeAnalysis(
@@ -109,26 +96,32 @@ public class AnalysisController {
     ) throws PermissionDeniedException {
 
         try {
-            Analysis analysis = conversionService.convert(analysisRequestDTO, Analysis.class);
+            Analysis analysis = analysisConverter.convert(
+                    analysisRequestDTO.getTitle(),
+                    analysisRequestDTO.getStudy(),
+                    analysisRequestDTO.getExecutableFileName(),
+                    analysisRequestDTO.getType(),
+                    analysisRequestDTO.getEnvironmentId(),
+                    analysisRequestDTO.getDatasourceId()
+            );
 
             analysis.setOrigin(AnalysisOrigin.DIRECT_UPLOAD);
             User user = userService.getUser(principal);
             if (Objects.nonNull(user)) {
-                AnalysisAuthor author = conversionService.convert(user, AnalysisAuthor.class);
-                analysis.setAuthor(author);
+                analysis.setAuthor(toAuthor(user));
             }
             analysisService.saveAnalysisFiles(analysis, archive);
             analysisService.persist(analysis);
             String email = Optional.ofNullable(user).map(User::getEmail).orElse(null);
-            logger.info("Request [{}] ({}) sending to engine for DS [{}] (manual upload by [{}])",
+            log.info("Request [{}] ({}) sending to engine for DS [{}] (manual upload by [{}])",
                     analysis.getId(), analysis.getCentralId(), analysis.getDataSource().getId(), email
             );
             analysisService.sendToEngine(analysis);
 
             return ResponseEntity.ok().build();
         } catch (IOException e) {
-            logger.error(ERROR_MESSAGE, e);
-            throw new IllegalOperationException(ERROR_MESSAGE);
+            log.error(ERROR_MESSAGE, e);
+            throw new IllegalOperationException(e.getMessage());
         }
     }
 
@@ -153,7 +146,7 @@ public class AnalysisController {
 
         if (AnalysisResultsServiceImpl.isListOfArchive(resultFiles)) {
             AnalysisFile headFile = resultFiles.stream().filter(f -> f.getLink().matches(".*\\.zip")).findFirst().orElseThrow(() -> {
-                logger.error("Head file not found in multi-volume archive for results [{}]", analysisId);
+                log.error("Head file not found in multi-volume archive for results [{}]", analysisId);
                 return new IllegalOperationException(MessageFormat.format("No head file of multi-volume archvie for results [{0}]", analysisId));
             });
             try(ZipFile zip = new ZipFile(headFile.getLink())) {
@@ -191,4 +184,11 @@ public class AnalysisController {
                 .collect(Collectors.toList());
     }
 
+    public AnalysisAuthor toAuthor(User user) {
+        AnalysisAuthor author = new AnalysisAuthor();
+        author.setEmail(user.getEmail());
+        author.setFirstName(user.getFirstName());
+        author.setLastName(user.getLastName());
+        return author;
+    }
 }
