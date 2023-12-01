@@ -26,19 +26,16 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
 import com.odysseusinc.arachne.commons.utils.ZipUtils;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
-import com.odysseusinc.arachne.datanode.dto.converters.AnalysisRequestDTOToAnalysisConverter;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
-import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisResultsServiceImpl;
+import com.odysseusinc.arachne.datanode.service.impl.AnalysisServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
@@ -48,6 +45,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,8 +67,6 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,11 +74,9 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/api/v1/analysis")
 public class AnalysisController {
-    private static final String ERROR_MESSAGE = "Failed to save analysis files";
+
     @Autowired
-    private AnalysisRequestDTOToAnalysisConverter analysisConverter;
-    @Autowired
-    private AnalysisService analysisService;
+    private AnalysisServiceImpl analysisService;
     @Autowired
     private AnalysisResultsService analysisResultsService;
     @Autowired
@@ -94,35 +88,19 @@ public class AnalysisController {
             @RequestPart("analysis") @Valid AnalysisRequestDTO analysisRequestDTO,
             Principal principal
     ) throws PermissionDeniedException {
+        User user = userService.getUser(principal);
+        Long id = analysisService.run(archive, analysisRequestDTO, user);
+        return ResponseEntity.ok(id);
+    }
 
-        try {
-            Analysis analysis = analysisConverter.convert(
-                    analysisRequestDTO.getTitle(),
-                    analysisRequestDTO.getStudy(),
-                    analysisRequestDTO.getExecutableFileName(),
-                    analysisRequestDTO.getType(),
-                    analysisRequestDTO.getEnvironmentId(),
-                    analysisRequestDTO.getDatasourceId()
-            );
+    @GetMapping("{id}")
+    public AnalysisRequestDTO get(@PathVariable("id") Long id) {
+        return analysisService.get(id);
+    }
 
-            analysis.setOrigin(AnalysisOrigin.DIRECT_UPLOAD);
-            User user = userService.getUser(principal);
-            if (Objects.nonNull(user)) {
-                analysis.setAuthor(toAuthor(user));
-            }
-            analysisService.saveAnalysisFiles(analysis, archive);
-            analysisService.persist(analysis);
-            String email = Optional.ofNullable(user).map(User::getEmail).orElse(null);
-            log.info("Request [{}] ({}) sending to engine for DS [{}] (manual upload by [{}])",
-                    analysis.getId(), analysis.getCentralId(), analysis.getDataSource().getId(), email
-            );
-            analysisService.sendToEngine(analysis);
-
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            log.error(ERROR_MESSAGE, e);
-            throw new IllegalOperationException(e.getMessage());
-        }
+    @PostMapping("{id}/rerun")
+    public void rerun(@PathVariable("id") Long id, @Valid AnalysisRequestDTO analysisRequestDTO, Principal principal) {
+        analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
     }
 
     @RequestMapping(
@@ -189,11 +167,4 @@ public class AnalysisController {
                 .collect(Collectors.toList());
     }
 
-    public AnalysisAuthor toAuthor(User user) {
-        AnalysisAuthor author = new AnalysisAuthor();
-        author.setEmail(user.getEmail());
-        author.setFirstName(user.getFirstName());
-        author.setLastName(user.getLastName());
-        return author;
-    }
 }

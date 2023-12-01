@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisFileDTO;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
@@ -37,7 +36,6 @@ import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.model.FileHeader;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -194,7 +192,6 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
             ).collect(Collectors.toList());
             analysisFileRepository.saveAll(resultFiles);
 
-            removeAnalysisFolder(analysis);
             analysis.setAnalysisFolder(resultDir.getAbsolutePath());
             analysis.setStatus(reEvaluateAnalysisStatus(status, resultDir));
             analysis.setStdout(stdout);
@@ -208,16 +205,6 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
             log.warn("Analysis '{}' does not exists", id);
             return null;
         });
-    }
-
-    private void removeAnalysisFolder(Analysis exists) {
-
-        File analysisFolder = new File(exists.getAnalysisFolder());
-        try {
-            FileUtils.deleteDirectory(analysisFolder);
-        } catch (IOException e) {
-            log.warn(Constants.AnalysisMessages.CANT_REMOVE_ANALYSIS_DIR_LOG);
-        }
     }
 
     private AnalysisResultStatusDTO reEvaluateAnalysisStatus(AnalysisResultStatusDTO originalStatus, File resultDir) {

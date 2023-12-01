@@ -6,7 +6,6 @@ import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -55,6 +54,8 @@ public class Analysis {
     @NotNull
     @ManyToOne
     private DataSource dataSource;
+    @Column(name = "source_folder")
+    private String sourceFolder;
     @NotNull
     @Column(name = "analysis_folder")
     private String analysisFolder;
