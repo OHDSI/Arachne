@@ -195,9 +195,11 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
             analysis.setAnalysisFolder(resultDir.getAbsolutePath());
             analysis.setStatus(reEvaluateAnalysisStatus(status, resultDir));
             analysis.setStdout(stdout);
+            String reason = "Received result from Execution Engine";
             analysis.getStateHistory().add(
-                    new AnalysisStateEntry(new Date(), AnalysisState.EXECUTED, "Received result from Execution Engine", analysis)
+                    new AnalysisStateEntry(new Date(), AnalysisState.EXECUTED, reason, analysis)
             );
+            log.info("Analysis [{}] state updated to EXECUTED ({})", analysis.getId(), reason);
             analysisRepository.save(analysis);
             return analysis;
 

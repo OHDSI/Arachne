@@ -29,7 +29,6 @@ import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
-import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
@@ -50,9 +49,7 @@ import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
-import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,14 +60,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.constraints.NotNull;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -82,6 +75,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,8 +87,6 @@ public class AnalysisServiceImpl implements AnalysisService {
 			Stream.of(AnalysisState.ABORTED),
 			Stream.of(AnalysisState.values()).filter(AnalysisState::isTerminal)
 	).map(AnalysisState::toString).collect(Collectors.toList());
-
-	private static final String ZIP_FILENAME = "analysis.zip";
 
 	private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
 
@@ -200,11 +192,28 @@ public class AnalysisServiceImpl implements AnalysisService {
 	}
 
 	public Long run(
-			List<MultipartFile> archive, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user
+			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Consumer<File> writeFiles
 	) {
 		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
 		Analysis analysis = toAnalysis(dto, user, sourceFolder);
-		saveAnalysisFiles(analysis, archive, analysis.getSourceFolder());
+		File analysisDir = new File(sourceFolder);
+		writeFiles.accept(analysisDir);
+		File[] filesList = analysisDir.listFiles();
+
+		if (Objects.nonNull(filesList)) {
+			List<AnalysisFile> analysisFiles = Arrays.stream(filesList)
+					.filter(File::isFile)
+					.map(f -> {
+						AnalysisFile analysisFile = new AnalysisFile();
+						analysisFile.setAnalysis(analysis);
+						analysisFile.setType(AnalysisFileType.ANALYSIS);
+						analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
+						analysisFile.setLink(f.getPath());
+						return analysisFile;
+					}).collect(Collectors.toList());
+			analysis.setAnalysisFiles(analysisFiles);
+		}
+
 		analysisRepository.save(analysis);
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
@@ -343,53 +352,6 @@ public class AnalysisServiceImpl implements AnalysisService {
 	public Optional<Analysis> findAnalysis(Long id) {
 
 		return analysisRepository.findById(id);
-	}
-
-	@Override
-	public void saveAnalysisFiles(Analysis analysis, List<MultipartFile> files, @NotNull String analysisFolder)  {
-
-		final File analysisDir = new File(analysisFolder);
-		final File zipDir = Paths.get(analysisDir.getPath(), Constants.Analysis.SUBMISSION_ARCHIVE_SUBDIR).toFile();
-
-		try {
-			FileUtils.forceMkdir(zipDir);
-			if (files.size() == 1) { // single file can be zipped archive
-				MultipartFile archive = files.stream().findFirst().get();
-				File archiveFile = new File(zipDir, ZIP_FILENAME);
-				archive.transferTo(archiveFile);
-				CommonFileUtils.unzipFiles(archiveFile, analysisDir);
-			} else {
-				files.forEach(f -> {
-					try {
-						f.transferTo(new File(analysisDir, f.getOriginalFilename()));
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				});
-			}
-		} catch (IOException e) {
-			log.error("Failed to save analysis files", e);
-			throw new IllegalOperationException(e.getMessage());
-		} finally {
-			FileUtils.deleteQuietly(zipDir);
-		}
-
-		File[] filesList = analysisDir.listFiles();
-
-		if (Objects.nonNull(filesList)) {
-			List<AnalysisFile> analysisFiles = Arrays.stream(filesList)
-					.filter(File::isFile)
-					.map(f -> {
-						AnalysisFile analysisFile = new AnalysisFile();
-						analysisFile.setAnalysis(analysis);
-						analysisFile.setType(AnalysisFileType.ANALYSIS);
-						analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
-						analysisFile.setLink(f.getPath());
-						return analysisFile;
-					}).collect(Collectors.toList());
-			analysis.setAnalysisFiles(analysisFiles);
-		}
-
 	}
 
 	private Analysis find(Long id) {
