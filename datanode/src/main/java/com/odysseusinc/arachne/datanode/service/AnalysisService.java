@@ -24,6 +24,7 @@ package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.user.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -32,6 +33,9 @@ public interface AnalysisService {
     Integer invalidateAllUnfinishedAnalyses(final User user);
 
     com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO get(Long id);
+
+    @Transactional
+    String getStdout(Long id);
 
     Optional<Analysis> findAnalysis(Long id);
 
