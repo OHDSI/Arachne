@@ -349,6 +349,12 @@ public class AnalysisServiceImpl implements AnalysisService {
 
 	@Override
 	@Transactional
+	public String getStdout(Long id) {
+		return find(id).getStdout();
+	}
+
+	@Override
+	@Transactional
 	public Optional<Analysis> findAnalysis(Long id) {
 
 		return analysisRepository.findById(id);

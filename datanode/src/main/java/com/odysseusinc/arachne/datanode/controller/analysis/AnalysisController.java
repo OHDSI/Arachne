@@ -142,6 +142,11 @@ public class AnalysisController {
         return analysisService.get(id);
     }
 
+    @GetMapping(value = "{id}/log", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String log(@PathVariable("id") Long id) {
+        return analysisService.getStdout(id);
+    }
+
     @PostMapping("{id}/rerun")
     public void rerun(@PathVariable("id") Long id, @Valid AnalysisRequestDTO analysisRequestDTO, Principal principal) {
         analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
