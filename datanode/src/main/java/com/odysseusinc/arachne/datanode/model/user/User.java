@@ -22,10 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.model.user;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.SequenceGenerator;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Email;
@@ -33,15 +29,21 @@ import org.hibernate.validator.constraints.Email;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -93,4 +95,7 @@ public class User implements Serializable {
         return enabled;
     }
 
+    public String getTitle() {
+        return Stream.of(getFirstName(), getLastName()).filter(Objects::nonNull).collect(Collectors.joining(" "));
+    }
 }
