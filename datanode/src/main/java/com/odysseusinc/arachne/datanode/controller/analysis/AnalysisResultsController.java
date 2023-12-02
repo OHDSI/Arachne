@@ -2,7 +2,6 @@ package com.odysseusinc.arachne.datanode.controller.analysis;
 
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisFileDTO;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -13,12 +12,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import org.springframework.web.servlet.HandlerMapping;
 
 @RestController
 @RequestMapping(path = "/api/v1/analysis/{parentId}/results")
@@ -45,10 +47,11 @@ public class AnalysisResultsController {
                 .body(resource);
     }
 
-    private String extractFilename(HttpServletRequest request) {
+    private String extractFilename(HttpServletRequest request) throws IOException {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        return new AntPathMatcher().extractPathWithinPattern(bestMatchPattern, path);
+        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+        return new AntPathMatcher().extractPathWithinPattern(bestMatchPattern, decodedPath);
     }
 
 }
