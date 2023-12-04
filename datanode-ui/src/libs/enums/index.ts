@@ -7,3 +7,4 @@ export * from './AntivirusFileStatus';
 export * from './OriginSubmission';
 export * from './CreateSubmissionFormTabs';
 export * from './AnalysisTypes';
+export * from './SubmissionResultTabs';

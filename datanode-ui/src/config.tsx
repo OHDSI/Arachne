@@ -1,5 +1,5 @@
 import { IconButton } from "@mui/material";
-import { DateCell, Icon, NameCell, StatusTag, Tooltip } from "./libs/components";
+import { DateCell, Icon, NameCell, ShowFolderButton, StatusTag, Tooltip } from "./libs/components";
 import { originSubmissions } from "./libs/constants";
 import { getItemFromConstantArray, getSubmissionStatusInfo } from "./libs/utils";
 import { ColumnInterface, SubmissionDTOInterface } from "./libs/types";
@@ -192,3 +192,51 @@ export const colsTableUsers: ColumnInterface[] = [
     Cell: ({ value }) => value.join(','),
   },
 ]
+
+export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
+  {
+    Header: 'No',
+    accessor: 'id',
+    id: 'id',
+    width: '2%',
+    minWidth: 40,
+  },
+  {
+    Header: 'Label',
+    accessor: 'label',
+    id: 'label',
+    minWidth: 200,
+    width: '30%',
+    isCropped: true,
+    Cell: NameCell,
+  },
+
+  {
+    Header: 'Descriptor',
+    accessor: 'json',
+    id: 'actionCell',
+    width: '10%',
+    minWidth: 80,
+    disableSortBy: true,
+    Cell: (props) => {
+      return (
+        <ShowFolderButton onClick={() => onOpen(props.value)} />
+      )
+    },
+  },
+
+
+])
+
+export const tabsSubmissionResult = (setActive): any[] => [
+  {
+    value: 'FILE_EXPLORER',
+    title: 'File explorer',
+    onTabClick: setActive,
+  },
+  {
+    value: 'LOG',
+    title: 'Logs',
+    onTabClick: setActive,
+  },
+];

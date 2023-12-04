@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { Databases } from './Databases';
 import { Users } from './Users';
 import { SystemSettings } from './SystemSettings';
+import { EnviromentsList } from './Enviroments';
 
 export const IndexAdmin: React.FC<any> = props => {
 
@@ -44,6 +45,7 @@ export const IndexAdmin: React.FC<any> = props => {
         />
         <Route path="databases/*" element={<Databases />} />
         <Route path="users/*" element={<Users />} />
+        <Route path="enviroments/*" element={<EnviromentsList />} />
         <Route path="system-settings/*" element={<SystemSettings />} />
       </Routes>
     </Grid>

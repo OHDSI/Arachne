@@ -31,3 +31,5 @@ export * from './Block';
 export * from './Dialogs';
 export * from './editable-controls';
 export * from './action-buttons';
+export * from './icon-buttons';
+export * from './LogsViewer';

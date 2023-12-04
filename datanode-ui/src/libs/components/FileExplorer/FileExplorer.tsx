@@ -17,7 +17,7 @@ import { Button } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 
 export interface FileExplorerPropsInterface {
-  submissionId: string;
+  submissionId: number | string;
   url: string;
   noDataMessage?: string;
 }

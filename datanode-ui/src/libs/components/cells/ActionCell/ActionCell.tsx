@@ -2,10 +2,12 @@ import React from 'react';
 import { ActionsContainer } from './ActionCell.styles';
 import { RemoveButton } from '../../RemoveButton';
 import { EditButton } from '../../EditButton';
+import { ShowFolderButton } from '../../icon-buttons';
 
 export interface ActionCellProps {
   onRemove?: any;
   onEdit?: any;
+  onShowFolder?: (id: string) => void;
   withConfirmation?: boolean;
   entityType?: string;
   entityName?: string;
@@ -19,6 +21,7 @@ export const ActionCell: React.FC<ActionCellProps> = ({
   entityType,
   entityName,
   children,
+  onShowFolder
 }) => {
   const confirmationMessage = React.useMemo(
     () =>
@@ -30,6 +33,7 @@ export const ActionCell: React.FC<ActionCellProps> = ({
     <ActionsContainer>
       {children}
       {onEdit && <EditButton onEdit={onEdit} />}
+      {onShowFolder && <ShowFolderButton onClick={onShowFolder} />}
       {onRemove && (
         <RemoveButton
           onRemove={onRemove}

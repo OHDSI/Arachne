@@ -3,14 +3,16 @@ import { useDispatch } from 'react-redux';
 
 import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
 import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
-import { PageList, FileExplorer, SecondaryContentWrapper } from '../../../libs/components';
+import { PageList, FileExplorer, SecondaryContentWrapper, Grid, TabsNavigationNew, Block } from '../../../libs/components';
 import { createSubmission, getSubmissions } from '../../../api/submissions';
 import { setBreadcrumbs } from '../../../store/modules';
 
 import { CreateSubmissionForm } from '../CreateSubmissionForm';
 import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
 import { removeDataSource } from '../../../api/data-sources';
-import { colsTableSubmissions } from '../../../config';
+import { colsTableSubmissions, tabsSubmissionResult } from '../../../config';
+import { Paper } from '@mui/material';
+import { SubmissionResult } from '../SubmissionResult';
 
 
 export const List: React.FC = () => {
@@ -33,8 +35,6 @@ export const List: React.FC = () => {
     );
   }, []);
 
-
-
   const onCreate = () => {
     openModal(
       () => (
@@ -56,12 +56,11 @@ export const List: React.FC = () => {
     );
   };
 
+
   const onOpenResult = useCallback(item => {
     openModal(
       () => (
-        <SecondaryContentWrapper>
-          <FileExplorer submissionId={item.id} url={'analysis'} />
-        </SecondaryContentWrapper>
+        <SubmissionResult item={item} />
       ),
       <SubmissionHeader key="modal-header">
         <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>

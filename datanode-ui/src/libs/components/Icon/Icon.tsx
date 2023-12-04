@@ -71,6 +71,7 @@ import { ReactComponent as Export } from '../icons/export.svg';
 import { ReactComponent as SearchPlaceholder } from '../icons/search_placeholder.svg';
 import { ReactComponent as Message } from '../icons/message.svg';
 import { ReactComponent as Terminated } from '../icons/terminated.svg';
+import { ShowFolder } from '../icons/ShowFolder';
 
 export const icons: { [key: string]: React.FC<any> } = {
   add: Add,
@@ -142,6 +143,7 @@ export const icons: { [key: string]: React.FC<any> } = {
   xls: Xls,
   zip: ZIP,
   unknown: Unknown,
+  showFolder: ShowFolder
 };
 
 export type IconName = keyof typeof icons;
@@ -160,6 +162,7 @@ export type IconProps = SvgIconProps & {
 export const Icon: React.FC<IconProps> = React.forwardRef(
   ({ iconName, iconStatus, plain = false, ...props }, ref) => {
     const Svg: any = icons[iconName] || (() => <></>);
+
     return (
       <SvgIcon {...props} ref={ref}>
         <Svg

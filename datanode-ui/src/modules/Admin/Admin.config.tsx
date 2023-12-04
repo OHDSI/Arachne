@@ -8,6 +8,10 @@ export const tabsAdmin: any = [
     title: 'Users',
   },
   {
+    value: 'enviroments',
+    title: 'Enviroments',
+  },
+  {
     value: 'system-settings',
     title: 'System settings',
   },

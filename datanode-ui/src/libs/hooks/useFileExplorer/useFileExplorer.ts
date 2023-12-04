@@ -7,7 +7,7 @@ import { INITIAL_STATE, reducer } from './useFileExplorer.reducer';
 import { FileExplorerTypes, UseFileExplorer } from './useFileExplorer.enum';
 
 export const useFileExplorer = (
-  submissionId: string,
+  submissionId: number | string,
   url: string,
   files?: any[]
 ) => {
