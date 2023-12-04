@@ -26,28 +26,25 @@ import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus;
+import com.odysseusinc.arachne.datanode.service.client.engine.EngineClient;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
-import com.odysseusinc.arachne.datanode.service.client.engine.EngineClient;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.RestClientException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 
 import static com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus.OFFLINE;
 import static com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus.ONLINE;
@@ -123,5 +120,10 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
     @Override
     public ExecutionEngineStatus getExecutionEngineStatus() {
         return this.executionEngineStatus;
+    }
+
+    @Override
+    public long sendCancel(Long analysisId) {
+        throw new RestClientException("Cancellation is not supported by Execution Engine");
     }
 }

@@ -25,22 +25,41 @@ package com.odysseusinc.arachne.datanode.controller.analysis;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
 import com.odysseusinc.arachne.commons.utils.ZipUtils;
+import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
+import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
-import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
-
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisResultsServiceImpl;
+import com.odysseusinc.arachne.datanode.service.impl.AnalysisServiceImpl;
+import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
+import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.ZipFile;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,88 +67,89 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.convert.support.GenericConversionService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/analysis")
 public class AnalysisController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AnalysisController.class);
-    private static final String ERROR_MESSAGE = "Failed to save analysis files";
-    private final AnalysisService analysisService;
-    private final AnalysisResultsService analysisResultsService;
-    private final UserService userService;
+    @Autowired
+    private AnalysisServiceImpl analysisService;
+    @Autowired
+    private AnalysisResultsService analysisResultsService;
+    @Autowired
+    private UserService userService;
 
-    private final GenericConversionService conversionService;
-
-    public AnalysisController(AnalysisService analysisService,
-                              AnalysisResultsService analysisResultsService,
-                              UserService userService,
-                              GenericConversionService conversionService) {
-
-        this.analysisService = analysisService;
-        this.analysisResultsService = analysisResultsService;
-        this.userService = userService;
-        this.conversionService = conversionService;
-    }
-
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> executeAnalysis(
+    @PostMapping(path = "zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> executeZip(
             @RequestPart("file") List<MultipartFile> archive,
-            @RequestPart("analysis") @Valid AnalysisRequestDTO analysisRequestDTO,
+            @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
     ) throws PermissionDeniedException {
+        User user = userService.getUser(principal);
+        MultipartFile zip = archive.stream().reduce((a, b) -> {
+            throw new BadRequestException("Multiple files submitted. Only one zip archive is expected");
+        }).orElseThrow(() ->
+                new BadRequestException("No files submitted in request")
+        );
 
-        try {
-            Analysis analysis = conversionService.convert(analysisRequestDTO, Analysis.class);
-
-            analysis.setOrigin(AnalysisOrigin.DIRECT_UPLOAD);
-            User user = userService.getUser(principal);
-            if (Objects.nonNull(user)) {
-                AnalysisAuthor author = conversionService.convert(user, AnalysisAuthor.class);
-                analysis.setAuthor(author);
+        Consumer<File> writeFiles = dir -> {
+            File zipDir = Paths.get(dir.getPath(), Constants.Analysis.SUBMISSION_ARCHIVE_SUBDIR).toFile();
+            try {
+                FileUtils.forceMkdir(zipDir);
+                File archiveFile = new File(zipDir, "analysis.zip");
+                zip.transferTo(archiveFile);
+                CommonFileUtils.unzipFiles(archiveFile, dir);
+            } catch (IOException e) {
+                log.error("Failed to save analysis files", e);
+                throw new IllegalOperationException(e.getMessage());
+            } finally {
+                FileUtils.deleteQuietly(zipDir);
             }
-            analysisService.saveAnalysisFiles(analysis, archive);
-            analysisService.persist(analysis);
-            String email = Optional.ofNullable(user).map(User::getEmail).orElse(null);
-            logger.info("Request [{}] ({}) sending to engine for DS [{}] (manual upload by [{}])",
-                    analysis.getId(), analysis.getCentralId(), analysis.getDataSource().getId(), email
-            );
-            analysisService.sendToEngine(analysis);
 
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            logger.error(ERROR_MESSAGE, e);
-            throw new IllegalOperationException(ERROR_MESSAGE);
-        }
+        };
+        Long id = analysisService.run(dto, user, writeFiles);
+        return ResponseEntity.ok(id);
+    }
+
+    @PostMapping(path = "files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> executeFiles(
+            @RequestPart("file") List<MultipartFile> archive,
+            @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
+            Principal principal
+    ) throws PermissionDeniedException {
+        User user = userService.getUser(principal);
+        Consumer<File> files = dir ->
+                archive.forEach(file -> {
+                    try {
+                        file.transferTo(new File(dir, file.getOriginalFilename()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        Long id = analysisService.run(dto, user, files);
+        return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("{id}")
+    public AnalysisRequestDTO get(@PathVariable("id") Long id) {
+        return analysisService.get(id);
+    }
+
+    @GetMapping(value = "{id}/log", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String log(@PathVariable("id") Long id) {
+        return analysisService.getStdout(id);
+    }
+
+    @PostMapping("{id}/rerun")
+    public void rerun(@PathVariable("id") Long id, @Valid AnalysisRequestDTO analysisRequestDTO, Principal principal) {
+        analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
     }
 
     @RequestMapping(
@@ -153,7 +173,7 @@ public class AnalysisController {
 
         if (AnalysisResultsServiceImpl.isListOfArchive(resultFiles)) {
             AnalysisFile headFile = resultFiles.stream().filter(f -> f.getLink().matches(".*\\.zip")).findFirst().orElseThrow(() -> {
-                logger.error("Head file not found in multi-volume archive for results [{}]", analysisId);
+                log.error("Head file not found in multi-volume archive for results [{}]", analysisId);
                 return new IllegalOperationException(MessageFormat.format("No head file of multi-volume archvie for results [{0}]", analysisId));
             });
             try(ZipFile zip = new ZipFile(headFile.getLink())) {
@@ -177,6 +197,11 @@ public class AnalysisController {
             FileUtils.deleteQuietly(file);
             FileUtils.deleteQuietly(stdoutDir.toFile());
         }
+    }
+
+    @PostMapping("{id}/cancel")
+    public void cancel(@PathVariable("id") Long analysisId, Principal principal) throws IOException {
+        analysisService.cancel(analysisId, userService.getUser(principal));
     }
 
     @RequestMapping(

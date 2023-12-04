@@ -22,22 +22,24 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
-import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import com.odysseusinc.arachne.datanode.model.user.User;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
-import net.lingala.zip4j.exception.ZipException;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface AnalysisService {
 
     Integer invalidateAllUnfinishedAnalyses(final User user);
 
+    com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO get(Long id);
+
+    @Transactional
+    String getStdout(Long id);
+
     Optional<Analysis> findAnalysis(Long id);
+
+    void cancel(Long id, User user);
 
     void sendToEngine(Analysis analysis);
 
@@ -47,5 +49,4 @@ public interface AnalysisService {
 
     void invalidateExecutingLong();
 
-    void saveAnalysisFiles(Analysis analysis, List<MultipartFile> files) throws IOException, ZipException;
 }

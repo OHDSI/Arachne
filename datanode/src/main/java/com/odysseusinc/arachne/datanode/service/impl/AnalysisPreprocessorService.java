@@ -26,11 +26,12 @@ import com.odysseusinc.arachne.commons.service.preprocessor.AbstractPreprocessor
 import com.odysseusinc.arachne.commons.service.preprocessor.PreprocessorRegistry;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 
 @Service
@@ -45,14 +46,14 @@ public class AnalysisPreprocessorService extends AbstractPreprocessorService<Ana
     @Override
     protected boolean before(Analysis analysis) {
 
-        File analysisFolder = new File(analysis.getAnalysisFolder());
+        File analysisFolder = new File(analysis.getSourceFolder());
         return analysisFolder.exists() && analysisFolder.isDirectory();
     }
 
     @Override
     protected List<File> getFiles(Analysis analysis) {
 
-        File analysisFolder = new File(analysis.getAnalysisFolder());
+        File analysisFolder = new File(analysis.getSourceFolder());
         return CommonFileUtils.getFiles(analysisFolder);
     }
 

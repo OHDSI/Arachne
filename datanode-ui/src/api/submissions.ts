@@ -6,7 +6,10 @@ import {
   PageableDTOInterface,
   SubmissionDTOInterface
 } from "../libs/types";
-import { AnalysisTypes, CreateSubmissionFormTabs } from "../libs/enums";
+import {
+  AnalysisTypes,
+  CreateSubmissionFormTabs
+} from "../libs/enums";
 
 export const getDescriptors = (): Promise<DescriptorInterface[]> =>
   api.get('/descriptor')

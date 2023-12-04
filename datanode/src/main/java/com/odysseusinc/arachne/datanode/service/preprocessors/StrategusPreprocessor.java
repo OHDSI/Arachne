@@ -39,7 +39,7 @@ public class StrategusPreprocessor implements Preprocessor<Analysis> {
     }
 
     private void writeFile(Analysis analysis, String fileName, String content) {
-        File file = new File(analysis.getAnalysisFolder(), fileName);
+        File file = new File(analysis.getSourceFolder(), fileName);
         try {
             FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {

@@ -4,11 +4,9 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
@@ -23,13 +21,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PostLoad;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -58,6 +54,8 @@ public class Analysis {
     @NotNull
     @ManyToOne
     private DataSource dataSource;
+    @Column(name = "source_folder")
+    private String sourceFolder;
     @NotNull
     @Column(name = "analysis_folder")
     private String analysisFolder;
@@ -81,12 +79,6 @@ public class Analysis {
             @AttributeOverride(name = "lastName", column = @Column(name = "author_last_name"))
     })
     private AnalysisAuthor author;
-    @Transient
-    private AnalysisState state;
-    @Transient
-    private Date submitted;
-    @Transient
-    private Date finished;
     @Column
     @Enumerated(EnumType.STRING)
     private CommonAnalysisType type;
@@ -105,232 +97,4 @@ public class Analysis {
     private EnvironmentDescriptor actualEnvironment;
 
 
-    public Long getId() {
-
-        return id;
-    }
-
-    public void setId(Long id) {
-
-        this.id = id;
-    }
-
-    public Long getCentralId() {
-
-        return centralId;
-    }
-
-    public void setCentralId(Long centralId) {
-
-        this.centralId = centralId;
-    }
-
-    public String getTitle() {
-
-        return title;
-    }
-
-    public void setTitle(String title) {
-
-        this.title = title;
-    }
-
-    public String getExecutableFileName() {
-
-        return executableFileName;
-    }
-
-    public void setExecutableFileName(String executableFileName) {
-
-        this.executableFileName = executableFileName;
-    }
-
-    public String getCallbackPassword() {
-
-        return callbackPassword;
-    }
-
-    public void setCallbackPassword(String callbackPassword) {
-
-        this.callbackPassword = callbackPassword;
-    }
-
-    public String getUpdateStatusCallback() {
-
-        return updateStatusCallback;
-    }
-
-    public void setUpdateStatusCallback(String updateStatusCallback) {
-
-        this.updateStatusCallback = updateStatusCallback;
-    }
-
-    public String getResultCallback() {
-
-        return resultCallback;
-    }
-
-    public void setResultCallback(String resultCallback) {
-
-        this.resultCallback = resultCallback;
-    }
-
-    public DataSource getDataSource() {
-
-        return dataSource;
-    }
-
-    public void setDataSource(DataSource dataSource) {
-
-        this.dataSource = dataSource;
-    }
-
-    public String getAnalysisFolder() {
-
-        return analysisFolder;
-    }
-
-    public void setAnalysisFolder(String analysisFolder) {
-
-        this.analysisFolder = analysisFolder;
-    }
-
-    public List<AnalysisFile> getAnalysisFiles() {
-
-        return analysisFiles;
-    }
-
-    public void setAnalysisFiles(List<AnalysisFile> analysisFiles) {
-
-        this.analysisFiles = analysisFiles;
-    }
-
-    public List<AnalysisStateEntry> getStateHistory() {
-
-        return stateHistory;
-    }
-
-    public void setStateHistory(List<AnalysisStateEntry> stateHistory) {
-
-        this.stateHistory = stateHistory;
-    }
-
-    public String getStdout() {
-
-        return stdout;
-    }
-
-    public void setStdout(String stdout) {
-
-        this.stdout = stdout;
-    }
-
-    public AnalysisResultStatusDTO getStatus() {
-
-        return status;
-    }
-
-    public void setStatus(AnalysisResultStatusDTO status) {
-
-        this.status = status;
-    }
-
-    public AnalysisAuthor getAuthor() {
-
-        return author;
-    }
-
-    public void setAuthor(AnalysisAuthor author) {
-
-        this.author = author;
-    }
-
-    public AnalysisState getState() {
-
-        return state;
-    }
-
-    public Date getSubmitted() {
-
-        return submitted;
-    }
-
-    public Date getFinished() {
-
-        return finished;
-    }
-
-    @PostLoad
-    public void postLoad() {
-
-        Comparator<AnalysisStateEntry> comparator = Comparator.comparing(AnalysisStateEntry::getDate);
-        Optional<List<AnalysisStateEntry>> analysisStateHistory = Optional.ofNullable(this.stateHistory);
-        analysisStateHistory.ifPresent(stateHistory -> {
-            Optional<AnalysisStateEntry> latestState =
-                    stateHistory.stream()
-                            .filter(h -> h.getDate() != null)
-                            .max(Comparator.nullsFirst(comparator));
-            latestState.ifPresent(s -> {
-                state = s.getState();
-                if (s.getState() != AnalysisState.CREATED
-                        && s.getState() != AnalysisState.EXECUTING
-                        && s.getState() != AnalysisState.EXECUTION_READY) {
-                    finished = s.getDate();
-                }
-            });
-            Optional<AnalysisStateEntry> created = stateHistory.stream()
-                    .filter(h -> h.getState() == AnalysisState.CREATED).findFirst();
-            created.ifPresent(h -> this.submitted = h.getDate());
-        });
-    }
-
-    public CommonAnalysisType getType() {
-
-        return type;
-    }
-
-    public void setType(CommonAnalysisType type) {
-
-        this.type = type;
-    }
-
-    public List<AnalysisCodeFile> getAnalysisCodeFiles() {
-
-        return analysisCodeFiles;
-    }
-
-    public void setAnalysisCodeFiles(List<AnalysisCodeFile> analysisCodeFiles) {
-
-        this.analysisCodeFiles = analysisCodeFiles;
-    }
-
-    public String getInnerExecutableFilename() {
-
-        return innerExecutableFilename;
-    }
-
-    public void setInnerExecutableFilename(String exectubleInnerFileName) {
-
-        this.innerExecutableFilename = exectubleInnerFileName;
-    }
-
-    public String getStudyTitle() {
-
-        return studyTitle;
-    }
-
-    public void setStudyTitle(String studyTitle) {
-
-        this.studyTitle = studyTitle;
-    }
-
-    public AnalysisOrigin getOrigin() {
-
-        return origin;
-    }
-
-    public void setOrigin(AnalysisOrigin origin) {
-
-        this.origin = origin;
-    }
 }

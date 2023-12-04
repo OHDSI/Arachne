@@ -45,7 +45,7 @@
     "@ohdsi/atlascharts": "2.1.0",
     "jszip": "3.10.1"
   },
-  "proxy": "https://qacommunitynode.arachnenetwork.com",
+  "proxy": "https://localhost:8880",
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/lodash": "^4.14.201",

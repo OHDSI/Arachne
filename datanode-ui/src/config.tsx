@@ -107,7 +107,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     Cell: ({ row }: { row: { original: SubmissionDTOInterface } }) => {
       const id = row.original.id;
       const status = row.original.status;
-      return status === 'EXECUTED' || status === 'FAILED' ? (
+      return status === 'EXECUTED' || status === 'EXECUTION_FAILURE' ? (
         <Tooltip text="Download results">
           <IconButton
             color="info"

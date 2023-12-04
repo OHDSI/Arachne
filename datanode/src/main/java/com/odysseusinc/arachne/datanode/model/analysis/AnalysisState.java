@@ -1,20 +1,22 @@
 package com.odysseusinc.arachne.datanode.model.analysis;
 
+import lombok.Getter;
+
 public enum AnalysisState {
-    CREATED("CREATED"),
-    FILES_DOWNLOAD_FAILURE("FILES DOWNLOAD FAILURE"),
-    EXECUTION_READY("EXECUTION READY"),
-    EXECUTION_FAILURE("EXECUTION FAILURE"),
-    EXECUTING("EXECUTING"),
-    EXECUTED("EXECUTED"),
-    SENDING_TO_CENTRAL_FAILURE("SENDING TO CENTRAL FAILURE"),
-    CLOSED("CLOSED"),
-    DEAD("DEAD");
+    CREATED(false),
+    EXECUTION_FAILURE(true),
+    EXECUTING(false),
+    EXECUTED(true),
+    ABORTING(false),
+    ABORT_FAILURE(true),
+    ABORTED(true),
+    DEAD(true);
 
-    private String title;
+    @Getter
+    final boolean terminal;
 
-    AnalysisState(String title) {
-
-        this.title = title;
+    AnalysisState(boolean terminal) {
+        this.terminal = terminal;
     }
+
 }

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -36,6 +37,8 @@ public class AnalysisResultsServiceImplTest {
     public static final String RESULTS_SUCCESSFUL_ZIP = "results-successful.zip";
     @Mock
     private AnalysisFileRepository analysisFileRepository;
+    @Mock
+    private EntityManager em;
     @Mock
     private AnalysisRepository analysisRepository;
     @Mock
@@ -63,12 +66,14 @@ public class AnalysisResultsServiceImplTest {
 
     @Test
     public void shouldCreateAndSaveTwoAnalysisResultFileEntities() throws IOException {
-        when(analysis.getId()).thenReturn(analysisId);
-
         final File tempFileOne = File.createTempFile("test", "resultFile1", testWorkingDir);
         final File tempFileTwo = File.createTempFile("test", "resultFile2", testWorkingDir);
 
-        analysisResultsService.saveResults(analysis, testWorkingDir);
+        Analysis analysis = new Analysis();
+        analysis.setAnalysisFolder(Files.createTempDir().getAbsolutePath());
+        when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(analysis));
+
+        analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
 
         verify(analysisFileRepository).saveAll(captor.capture());
         final List<AnalysisFile> analysisFiles = captor.getValue();
@@ -80,28 +85,22 @@ public class AnalysisResultsServiceImplTest {
 
     @Test
     public void shouldSetAnalysisStatusToFailedIfErrorReportFileFound() throws IOException {
-        when(analysis.getId()).thenReturn(analysisId);
-        when(analysis.getStatus()).thenReturn(AnalysisResultStatusDTO.EXECUTED);
-
         final String zipFile = new File(Const.class.getResource(RESULTS_WITH_ERROR_ZIP).getFile()).getPath();
         copy(Paths.get(zipFile), testWorkingDir.toPath().resolve(RESULTS_WITH_ERROR_ZIP));
 
-        final Analysis existingAnalysis = new Analysis();
-        existingAnalysis.setAnalysisFolder(Files.createTempDir().getAbsolutePath());
+        Analysis analysis = new Analysis();
+        analysis.setAnalysisFolder(Files.createTempDir().getAbsolutePath());
 
 
-        when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(existingAnalysis));
-        when(analysisRepository.save(existingAnalysis)).thenReturn(existingAnalysis);
-        final Analysis updatedAnalysis = analysisResultsService.saveResults(analysis, testWorkingDir);
+        when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(analysis));
+        when(analysisRepository.save(analysis)).thenReturn(analysis);
+        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
 
         assertThat(updatedAnalysis.getStatus()).isEqualTo(AnalysisResultStatusDTO.FAILED);
     }
 
     @Test
     public void shouldLeaveAnalysisStatusIfNoErrorReport() throws IOException {
-        when(analysis.getId()).thenReturn(analysisId);
-        when(analysis.getStatus()).thenReturn(AnalysisResultStatusDTO.EXECUTED);
-
         final String zipFile = new File(Const.class.getResource(RESULTS_SUCCESSFUL_ZIP).getFile()).getPath();
         copy(Paths.get(zipFile), testWorkingDir.toPath().resolve(RESULTS_SUCCESSFUL_ZIP));
 
@@ -111,7 +110,7 @@ public class AnalysisResultsServiceImplTest {
 
         when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(existingAnalysis));
         when(analysisRepository.save(existingAnalysis)).thenReturn(existingAnalysis);
-        final Analysis updatedAnalysis = analysisResultsService.saveResults(analysis, testWorkingDir);
+        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
 
         assertThat(updatedAnalysis.getStatus()).isEqualTo(AnalysisResultStatusDTO.EXECUTED);
     }

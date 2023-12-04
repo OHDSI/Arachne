@@ -1,29 +1,30 @@
-import React, {
-  FC,
-  useState,
-  memo,
-  useCallback,
-  useMemo,
-  useEffect,
-} from 'react';
+import React, {FC, memo, useCallback, useEffect, useMemo, useState,} from 'react';
 
-import { tabs } from './CreateSubmissionForm.config';
+import {tabs} from './CreateSubmissionForm.config';
 
-import { SpinnerFormContainer } from './ChooseRuntime.styles';
-import { CreateSubmissionFormTabs, Status, AnalysisTypes } from '../../../libs/enums';
+import {SpinnerFormContainer} from './ChooseRuntime.styles';
+import {AnalysisTypes, CreateSubmissionFormTabs, Status} from '../../../libs/enums';
 
 import {
-  Button,
-  Grid,
-  Icon, Input, Spinner,
-  FormElement, Select, FormActionsContainer,
-  TabsNavigationNew, ImportJsonFile, ImportZipFile, Block, useNotifications
+    Block,
+    Button,
+    FormActionsContainer,
+    FormElement,
+    Grid,
+    Icon,
+    ImportJsonFile,
+    ImportZipFile,
+    Input,
+    Select,
+    Spinner,
+    TabsNavigationNew,
+    useNotifications
 } from '../../../libs/components';
-import { Paper } from '@mui/material';
-import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
-import { getDataSources } from '../../../api/data-sources';
-import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '@/libs/types';
-import { parseToSelectControlOptions } from '../../../libs/utils';
+import {Paper} from '@mui/material';
+import {getAnalysisTypes, getDescriptors} from '../../../api/submissions';
+import {getDataSources} from '../../../api/data-sources';
+import {DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface} from '@/libs/types';
+import {parseToSelectControlOptions} from '../../../libs/utils';
 
 const defaultState = (type = null) => {
   return {

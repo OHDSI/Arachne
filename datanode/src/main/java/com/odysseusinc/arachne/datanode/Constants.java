@@ -131,7 +131,6 @@ public interface Constants {
 
     interface AnalysisMessages {
         String ANALYSIS_ALREADY_EXISTS_LOG = "Analysis with id='{}' is already exists, skipping";
-        String ANALYSIS_IS_NOT_EXISTS_LOG = "Analysis with id='{}' is not exists";
         String CANT_REMOVE_RESULT_DIR_LOG = "Can't remove resultDir='{}' for analysis with id='{}'";
         String CANT_REMOVE_ANALYSIS_DIR_LOG = "Can't remove analysisDir='{}' for analysis with id='{}'";
         String RETRYING_DOWNLOAD_FILES_FOR_ANALYSIS_WITH_ID =
@@ -151,7 +150,6 @@ public interface Constants {
         String ANALYSIS_FILES_DOWNLOAD_ERROR_REASON =
                 "Download files for Analysis with id='%s' failure, reason=%s";
         String SEND_REQUEST_TO_ENGINE_SUCCESS_REASON = "Request with id=%s was sent to engine, status=%s";
-        String SEND_REQUEST_TO_ENGINE_FAILED_REASON = "Sending request with id=%s failed, reason=%s";
         String SEND_ANALYSIS_RESULTS_TO_CENTRAL_SUCCESS_REASON =
                 "Analysis results with id=%s was sent to central, AnalysisState=%s";
         String SEND_ANALYSIS_RESULT_TO_CENTRAL_FAILED_REASON =
