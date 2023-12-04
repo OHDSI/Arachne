@@ -2,7 +2,6 @@ import React from 'react';
 
 export const ShowFolder: React.FC<any> = React.forwardRef(
   ({ plain, ...rest }, ref) => {
-    console.log('dssdsd')
     return (
       <svg
         viewBox="0 0 90 90"

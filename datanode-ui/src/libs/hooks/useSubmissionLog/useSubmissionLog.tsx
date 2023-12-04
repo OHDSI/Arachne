@@ -50,7 +50,6 @@ export const useSubmissionLog = (id) => {
     })
     try {
       const result = await getSubmissionLog(id);
-      console.log(result)
       dispatch({
         type: UseSubmissionLog.GET_LOG_DONE,
         payload: result

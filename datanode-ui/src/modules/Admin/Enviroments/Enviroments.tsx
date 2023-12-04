@@ -9,14 +9,13 @@ import { CodeEditor } from '../../../libs/components/CodeEditor';
 export const EnviromentsList: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const onOpen = (data) => {
-    console.log(data)
     openModal(
       () => (
         <CodeEditor
           data={data || ''}
           height={'80vh'}
           containerStyles={{ padding: 0 }}
-          enableDownload={false}
+          enableDownload={true}
           language='json'
           enableCopy
           readOnly

@@ -10,7 +10,6 @@ export interface ShowFolderButtonProps {
 
 export const ShowFolderButton: React.FC<ShowFolderButtonProps> = props => {
   const { onClick, iconSize = 18 } = props;
-  console.log('dsdsd')
   return (
     <Button
       size="xsmall"

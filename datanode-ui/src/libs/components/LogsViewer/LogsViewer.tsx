@@ -17,9 +17,6 @@ export const LogsViewer: React.FC<any> = (props) => {
     status
   } = useSubmissionLog(itemId)
 
-  console.log(log, status);
-
-
   if ([Status.INITIAL, Status.IN_PROGRESS_RELOAD].includes(status)) {
     return (
       <Grid item xs={12} py={'100px'}>
@@ -36,7 +33,7 @@ export const LogsViewer: React.FC<any> = (props) => {
         data={log || ''}
         height={'80vh'}
         containerStyles={{ padding: 0 }}
-        enableDownload={false}
+        enableDownload={true}
         enableCopy
         readOnly
       />
