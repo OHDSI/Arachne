@@ -8,8 +8,9 @@ import { ModalContext, UseModalContext } from '../../../../libs/hooks';
 import { getUUID } from '../../../../libs/utils';
 import { setBreadcrumbs } from '../../../../store/modules';
 import { PageList } from '../../../../libs/components';
-import { createDataSource, getDataSources, removeDataSource } from '../../../../api/data-sources';
+import { createDataSource, getDataSources, getDbmsTypes, removeDataSource } from '../../../../api/data-sources';
 import { colsTableDatabase } from '../../../../config';
+import { DBMSTypesInterface } from '@/libs/types';
 
 export const DatabasesList: React.FC = () => {
 
@@ -17,8 +18,9 @@ export const DatabasesList: React.FC = () => {
   const dispatch = useDispatch();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState<string>(getUUID());
+  const [dbsmTypes, setDbsmTypes] = useState<DBMSTypesInterface[]>([]);
 
-  const cols = React.useMemo(() => colsTableDatabase, []);
+  const cols = React.useMemo(() => colsTableDatabase(dbsmTypes), [dbsmTypes]);
 
   const onCreate = () => {
     openModal(
@@ -54,6 +56,12 @@ export const DatabasesList: React.FC = () => {
       ])
     );
   }, [dispatch]);
+
+  useEffect(() => {
+    getDbmsTypes().then((res: DBMSTypesInterface[]) => {
+      setDbsmTypes(res);
+    });
+  }, []);
 
   return (
     <PageList

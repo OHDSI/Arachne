@@ -2,8 +2,8 @@ import { IconButton } from "@mui/material";
 import { DateCell, Icon, NameCell, ShowFolderButton, StatusTag, Tooltip } from "./libs/components";
 import { originSubmissions } from "./libs/constants";
 import { getItemFromConstantArray, getSubmissionStatusInfo } from "./libs/utils";
-import { ColumnInterface, SubmissionDTOInterface, TabsInterface } from "./libs/types";
-import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, SubmissionStatus } from "./libs/enums";
+import { ColumnInterface, DBMSTypesInterface, SubmissionDTOInterface, TabsInterface } from "./libs/types";
+import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, SubmissionStatus, Roles } from "./libs/enums";
 import moment from "moment";
 
 // columns table
@@ -150,7 +150,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     },
   },
 ]
-export const colsTableDatabase: ColumnInterface[] = [
+export const colsTableDatabase = (dbmsTypes: DBMSTypesInterface[]): ColumnInterface[] => ([
   {
     Header: 'Name',
     accessor: 'name',
@@ -166,7 +166,11 @@ export const colsTableDatabase: ColumnInterface[] = [
     id: 'dbmsType',
     width: '10%',
     minWidth: 110,
-    isCropped: true
+    isCropped: true,
+    Cell: (props): any => {
+      const type = dbmsTypes?.find(elem => elem.id === props.value);
+      return type ? type.name : '-'
+    }
   },
   {
     Header: 'Database',
@@ -183,7 +187,7 @@ export const colsTableDatabase: ColumnInterface[] = [
     width: '5%',
     minWidth: 80,
   }
-]
+])
 export const colsTableUsers: ColumnInterface[] = [
   {
     Header: 'Name',
@@ -212,7 +216,7 @@ export const colsTableUsers: ColumnInterface[] = [
     width: '10%',
     minWidth: 200,
     isCropped: true,
-    Cell: ({ value }) => value.join(','),
+    Cell: ({ value }) => value.map(val => Roles[val]).join(','),
   },
 ]
 export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
