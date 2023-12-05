@@ -18,9 +18,7 @@ export const DatabasesList: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState<string>(getUUID());
 
-  const cols = React.useMemo(() => {
-    return colsTableDatabase;
-  }, []);
+  const cols = React.useMemo(() => colsTableDatabase, []);
 
   const onCreate = () => {
     openModal(
@@ -55,7 +53,7 @@ export const DatabasesList: React.FC = () => {
         },
       ])
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <PageList

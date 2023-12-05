@@ -1,41 +1,38 @@
-import React, {FC, memo, useCallback, useEffect, useMemo, useState,} from 'react';
+import React, { memo, useEffect, useMemo, useState, } from 'react';
 
-import {tabs} from './CreateSubmissionForm.config';
-
-import {SpinnerFormContainer} from './ChooseRuntime.styles';
-import {AnalysisTypes, CreateSubmissionFormTabs, Status} from '../../../libs/enums';
+import { SpinnerFormContainer } from './ChooseRuntime.styles';
+import { AnalysisTypes, CreateSubmissionFormTabs, Status } from '../../../libs/enums';
 
 import {
-    Block,
-    Button,
-    FormActionsContainer,
-    FormElement,
-    Grid,
-    Icon,
-    ImportJsonFile,
-    ImportZipFile,
-    Input,
-    Select,
-    Spinner,
-    TabsNavigationNew,
-    useNotifications
+  Block,
+  Button,
+  FormActionsContainer,
+  FormElement,
+  Grid,
+  Icon,
+  ImportJsonFile,
+  ImportZipFile,
+  Input,
+  Select,
+  Spinner,
+  TabsNavigationNew,
+  useNotifications
 } from '../../../libs/components';
-import {Paper} from '@mui/material';
-import {getAnalysisTypes, getDescriptors} from '../../../api/submissions';
-import {getDataSources} from '../../../api/data-sources';
-import {DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface} from '@/libs/types';
-import {parseToSelectControlOptions} from '../../../libs/utils';
+import { Paper } from '@mui/material';
+import { getAnalysisTypes, getDescriptors } from '../../../api/submissions';
+import { getDataSources } from '../../../api/data-sources';
+import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '../../../libs/types';
+import { parseToSelectControlOptions } from '../../../libs/utils';
+import { tabsSubmissionForm } from '../../../config';
 
-const defaultState = (type = null) => {
-  return {
-    title: null,
-    executableFileName: null,
-    study: null,
-    environmentId: null,
-    datasourceId: null,
-    type: type
-  }
-};
+const defaultState = (type = null): SubmissionFormStateInterface => ({
+  title: null,
+  executableFileName: null,
+  study: null,
+  environmentId: null,
+  datasourceId: null,
+  type: type
+});
 
 interface SubmissionFormStateInterface {
   executableFileName: string;
@@ -60,7 +57,7 @@ interface ControlListInterfaceState {
   entryFiles: SelectInterface<string>[];
 }
 
-export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
+export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -79,6 +76,8 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     const [activeTab, setActiveTab] = useState<CreateSubmissionFormTabs>(
       CreateSubmissionFormTabs.FILES_IN_ARCHIVE
     );
+
+    const tabs = React.useMemo(() => tabsSubmissionForm(setActiveTab), [setActiveTab]);
 
     useEffect(() => {
       setControlsList(prevState => ({ ...prevState, status: Status.IN_PROGRESS }))
@@ -108,7 +107,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
       }
     }
 
-    const handleSave = useCallback(async () => {
+    const handleSave = async () => {
       setIsLoading(true);
       setStatus(Status.IN_PROGRESS)
       try {
@@ -141,7 +140,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
           variant: 'error',
         } as any);
       }
-    }, [state, createMethod]);
+    }
 
     const isValid = useMemo(() => {
       if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
@@ -184,7 +183,7 @@ export const CreateSubmissionForm: FC<CreateSubmissionFormInterfaceProps> =
     return (
       <Grid container>
         <Paper elevation={3} sx={{ zIndex: 2, px: 2, width: '100%' }}>
-          <TabsNavigationNew tabs={tabs(setActiveTab)} active={activeTab} />
+          <TabsNavigationNew tabs={tabs} active={activeTab} />
         </Paper>
 
         <Grid container p={2}>

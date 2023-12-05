@@ -68,7 +68,7 @@ export const DatabaseEntity: React.FC = () => {
           },
         ])
       );
-  }, [entity]);
+  }, [entity, dispatch]);
 
   const handleDelete = () => {
     showDialog<any>(ConfirmationDialog, {

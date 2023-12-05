@@ -2,9 +2,11 @@ import { IconButton } from "@mui/material";
 import { DateCell, Icon, NameCell, ShowFolderButton, StatusTag, Tooltip } from "./libs/components";
 import { originSubmissions } from "./libs/constants";
 import { getItemFromConstantArray, getSubmissionStatusInfo } from "./libs/utils";
-import { ColumnInterface, SubmissionDTOInterface } from "./libs/types";
-import { OriginSubmission, SubmissionStatus } from "./libs/enums";
+import { ColumnInterface, SubmissionDTOInterface, TabsInterface } from "./libs/types";
+import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, SubmissionStatus } from "./libs/enums";
+import moment from "moment";
 
+// columns table
 export const colsTableSubmissions: ColumnInterface<any>[] = [
   {
     Header: 'No',
@@ -16,7 +18,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     accessor: 'origin',
     id: 'origin',
     width: '3%',
-    minWidth: 120,
+    minWidth: 100,
     Cell: ({ value }: { value: OriginSubmission }) => {
       return <>{getItemFromConstantArray(originSubmissions, value).name}</>;
     },
@@ -71,6 +73,27 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     isCropped: true,
     minWidth: 150,
     maxWidth: 150,
+  },
+  {
+    Header: 'Duration',
+    accessor: 'finished',
+    id: 'duration',
+    disableSortBy: true,
+    Cell: (props): any => {
+      if (props.value) {
+        const start = moment(props.row.original.submitted);
+        const end = moment(props.row.original.finished);
+        console.log(start, end)
+        var duration = moment.duration(end.diff(start));
+
+        return duration.humanize();
+      } else {
+        return <>-</>
+      }
+    },
+    isCropped: true,
+    minWidth: 100,
+    maxWidth: 100,
   },
   {
     Header: 'Environment',
@@ -192,7 +215,6 @@ export const colsTableUsers: ColumnInterface[] = [
     Cell: ({ value }) => value.join(','),
   },
 ]
-
 export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
   {
     Header: 'No',
@@ -228,15 +250,50 @@ export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
 
 ])
 
-export const tabsSubmissionResult = (setActive): any[] => [
+// tabs
+export const tabsSubmissionResult =
+  (setActive: (value: SubmissionResultTabs) => void): TabsInterface<SubmissionResultTabs>[] => [
+    {
+      value: SubmissionResultTabs.FILE_EXPLORER,
+      title: 'File explorer',
+      onTabClick: setActive,
+    },
+    {
+      value: SubmissionResultTabs.LOG,
+      title: 'Logs',
+      onTabClick: setActive,
+    },
+  ];
+
+export const tabsSubmissionForm =
+  (setActive: (value: CreateSubmissionFormTabs) => void): TabsInterface<CreateSubmissionFormTabs>[] => [
+    {
+      value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
+      title: 'Files in archive',
+      onTabClick: setActive,
+    },
+    {
+      value: CreateSubmissionFormTabs.SEPARATE_FILES,
+      title: 'Strategus JSON',
+      onTabClick: setActive,
+    },
+  ];
+
+export const tabsAdmin: TabsInterface[] = [
   {
-    value: 'FILE_EXPLORER',
-    title: 'File explorer',
-    onTabClick: setActive,
+    value: 'databases',
+    title: 'Databases',
   },
   {
-    value: 'LOG',
-    title: 'Logs',
-    onTabClick: setActive,
+    value: 'users',
+    title: 'Users',
+  },
+  {
+    value: 'enviroments',
+    title: 'Enviroments',
+  },
+  {
+    value: 'system-settings',
+    title: 'System settings',
   },
 ];

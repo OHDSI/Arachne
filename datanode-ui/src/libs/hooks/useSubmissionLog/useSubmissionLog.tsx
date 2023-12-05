@@ -1,7 +1,7 @@
 import { getSubmissionLog } from "../../../api/submissions"
 import { useEffect, useReducer } from "react";
 import { useInterval } from "../useInterval";
-import { getReducerWithProduce, getUUID } from "../../utils";
+import { getReducerWithProduce } from "../../utils";
 import { Status } from "../../enums";
 
 

@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 
 import { Route, Routes } from 'react-router';
 import { setBreadcrumbs } from '../../../store/modules';
@@ -22,7 +22,7 @@ export const Users: FC<any> = ({ root }) => {
         },
       ])
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <>

@@ -45,7 +45,7 @@
     "@ohdsi/atlascharts": "2.1.0",
     "jszip": "3.10.1"
   },
-  "proxy": "https://localhost:8880",
+  "proxy": "https://testnodestandalone.arachnenetwork.com",
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/lodash": "^4.14.201",

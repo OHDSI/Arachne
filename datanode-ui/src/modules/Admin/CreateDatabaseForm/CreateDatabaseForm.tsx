@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback, useEffect } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { isEmpty } from 'lodash';
 
 import { getDbmsTypes } from '../../../api/data-sources';
@@ -71,7 +71,7 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
       });
     }, []);
 
-    const handleSave = useCallback(async () => {
+    const handleSave = async () => {
       setIsLoading(true);
       try {
         let fd = new FormData();
@@ -83,7 +83,7 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
         );
         fd.append('keyfile', originFile);
 
-        const res: DataSourceDTOInterface = await createMethod(fd);
+        await createMethod(fd);
 
         setIsLoading(false);
 
@@ -98,7 +98,7 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
           variant: 'error',
         } as any);
       }
-    }, [state, createMethod, originFile]);
+    }
 
     const NOT_VALID =
       isEmpty(state.name) ||

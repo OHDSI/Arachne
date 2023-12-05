@@ -40,7 +40,7 @@ export const App: React.FC = () => {
           <Route
             path="administration/*"
             element={
-              <IndexAdmin root={{ name: 'Admin', path: '/administration' }} />
+              <IndexAdmin />
             }
           />
           <Route

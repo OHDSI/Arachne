@@ -5,6 +5,7 @@ import { Paper } from "@mui/material";
 import { useSubmissionLog } from "../../hooks/useSubmissionLog/useSubmissionLog";
 import { Status } from "../../enums";
 import { CodeEditor } from "../CodeEditor";
+import { NoDataContainer } from "../FileViewer/FileViewer.styles";
 
 export const LogsViewer: React.FC<any> = (props) => {
 
@@ -27,16 +28,25 @@ export const LogsViewer: React.FC<any> = (props) => {
     );
   }
 
+
+
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
-      <CodeEditor
-        data={log || ''}
-        height={'80vh'}
-        containerStyles={{ padding: 0 }}
-        enableDownload={true}
-        enableCopy
-        readOnly
-      />
+      {log ? (
+        <CodeEditor
+          data={log || ''}
+          height={'80vh'}
+          containerStyles={{ padding: 0 }}
+          enableDownload={true}
+          enableCopy
+          readOnly
+        />
+      ) : (
+        <Grid item xs={12}>
+          <NoDataContainer>No available logs</NoDataContainer>
+        </Grid>
+      )}
+
     </Paper>
   )
 }

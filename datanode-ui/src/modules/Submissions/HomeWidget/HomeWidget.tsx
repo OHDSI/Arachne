@@ -1,19 +1,25 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { createSubmission as createSubmissionApi } from '../../../api/submissions';
+
+import { getFormatDateAndTime } from '../../../libs/utils';
+import { ModalContext, UseModalContext } from '../../../libs/hooks';
+import { SubmissionDTOInterface } from '../../../libs/types';
+import { Button, Grid, Icon } from '../../../libs/components';
+
+import { CreateSubmissionForm } from '../CreateSubmissionForm';
 import LatestSubmissions from '../LatestSubmissions';
+import { ModuleDescriptionCard } from '../ModuleDescriptionCard';
+import { SubmissionResult } from '../SubmissionResult';
 
 import {
   SubmissionHeader,
   SubmissionHeaderItem,
 } from '../LatestSubmissions/LatestSubmissions.styles';
-import { ModalContext, UseModalContext } from '../../../libs/hooks';
-import { CreateSubmissionForm } from '../CreateSubmissionForm';
 
-import { getFormatDateAndTime } from '../../../libs/utils';
-import { ModuleDescriptionCard } from '../ModuleDescriptionCard';
-import { Button, Grid, Icon, SecondaryContentWrapper, FileExplorer } from '../../../libs/components';
-import { createSubmission as createSubmissionApi } from '../../../api/submissions';
+
+
 
 export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +32,7 @@ export const HomeWidget: React.FC = () => {
         <CreateSubmissionForm
           createMethod={createSubmissionApi}
           onCancel={closeModal}
-          afterCreate={values => {
+          afterCreate={() => {
             closeModal();
             navigate('/submissions');
           }}
@@ -40,18 +46,18 @@ export const HomeWidget: React.FC = () => {
       }
     );
   };
-  const onOpenResultSubmission = item => {
+  const onOpenResultSubmission = (item: SubmissionDTOInterface) => {
     openModal(
       () => (
-        <SecondaryContentWrapper>
-          <FileExplorer submissionId={item.id} url={'analysis'} />
-        </SecondaryContentWrapper>
+        <SubmissionResult item={item} />
       ),
       <SubmissionHeader>
         <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
-        <SubmissionHeaderItem smallFont>
-          {getFormatDateAndTime(item.createdDate)}
-        </SubmissionHeaderItem>
+        {item.finished && (
+          <SubmissionHeaderItem smallFont>
+            {getFormatDateAndTime(item.finished)}
+          </SubmissionHeaderItem>
+        )}
       </SubmissionHeader>,
       {
         closeOnClickOutside: true,

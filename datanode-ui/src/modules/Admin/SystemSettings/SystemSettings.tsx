@@ -1,18 +1,26 @@
-import { FC, useContext, useEffect, useState } from 'react';
-
-import { ModalContext, UseModalContext, useSystemSettings } from '../../../libs/hooks';
+import React, { useEffect } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
 import { useDispatch } from 'react-redux';
+import { Divider } from '@mui/material';
+
+import { useSystemSettings } from '../../../libs/hooks';
 import { setBreadcrumbs } from '../../../store/modules';
 import { Status } from '../../../libs/enums';
-import { Block, ContentBlock, FormElement, Grid, Input, SecondaryContentWrapper, Spinner, SpinnerContainer, TabsNavigationNew, useNotifications } from '../../../libs/components';
-import { Divider } from '@mui/material';
-import { Navigate, Route, Routes } from 'react-router';
+import {
+  Grid,
+  SecondaryContentWrapper,
+  Spinner,
+  SpinnerContainer,
+  TabsNavigationNew,
+  useNotifications
+} from '../../../libs/components';
+
 import { BlockSettings } from './BlockSettings';
+import { TabsInterface } from '@/libs/types';
 
 
-export const SystemSettings: FC<any> = ({ root }) => {
+export const SystemSettings: React.FC = () => {
   const dispatch = useDispatch();
-
   const { enqueueSnackbar } = useNotifications()
 
   const {
@@ -20,6 +28,8 @@ export const SystemSettings: FC<any> = ({ root }) => {
     status,
     editSystemSettings
   } = useSystemSettings();
+
+  const createTabs = (values: any): TabsInterface[] => values.map(elem => ({ value: elem.name, title: elem.label }))
 
   useEffect(() => {
     dispatch(
@@ -34,7 +44,7 @@ export const SystemSettings: FC<any> = ({ root }) => {
         },
       ])
     );
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (status === Status.SUCCESS) {
@@ -50,7 +60,7 @@ export const SystemSettings: FC<any> = ({ root }) => {
         variant: 'error',
       } as any);
     }
-  }, [status])
+  }, [status, enqueueSnackbar])
 
   if (status === Status.INITIAL || status === Status.IN_PROGRESS_RELOAD) {
     return (
@@ -63,7 +73,7 @@ export const SystemSettings: FC<any> = ({ root }) => {
   return (
     <Grid container spacing={2} px={6}>
       <Grid item xs={12}>
-        <TabsNavigationNew tabs={settings.map(elem => ({ value: elem.name, title: elem.label }))} withRouting secondary />
+        <TabsNavigationNew tabs={createTabs(settings)} withRouting secondary />
         <Divider />
       </Grid>
       <Grid item xs={12} py={3}>
@@ -71,17 +81,17 @@ export const SystemSettings: FC<any> = ({ root }) => {
           <Routes>
             <Route
               index
-              element={
-                <>
-                  <Navigate to="integration" replace />
-                </>
-              }
+              element={<Navigate to="integration" replace />}
             />
             {settings.map(setting => (
               <Route
                 path={setting.name}
                 element={
-                  <BlockSettings onEdit={editSystemSettings} setting={setting} isLoading={status === Status.IN_PROGRESS} />
+                  <BlockSettings
+                    onEdit={editSystemSettings}
+                    setting={setting}
+                    isLoading={status === Status.IN_PROGRESS}
+                  />
                 }
               />
             ))}

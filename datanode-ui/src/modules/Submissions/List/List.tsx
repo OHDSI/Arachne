@@ -1,18 +1,18 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
 import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
-import { PageList, FileExplorer, SecondaryContentWrapper, Grid, TabsNavigationNew, Block } from '../../../libs/components';
+import { PageList } from '../../../libs/components';
 import { createSubmission, getSubmissions } from '../../../api/submissions';
 import { setBreadcrumbs } from '../../../store/modules';
 
 import { CreateSubmissionForm } from '../CreateSubmissionForm';
 import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
 import { removeDataSource } from '../../../api/data-sources';
-import { colsTableSubmissions, tabsSubmissionResult } from '../../../config';
-import { Paper } from '@mui/material';
+import { colsTableSubmissions } from '../../../config';
 import { SubmissionResult } from '../SubmissionResult';
+import { SubmissionDTOInterface } from '@/libs/types';
 
 
 export const List: React.FC = () => {
@@ -20,9 +20,7 @@ export const List: React.FC = () => {
   const [idReload, setIdReload] = useState<string>(getUUID());
   const dispatch = useDispatch();
 
-  const cols = React.useMemo(() => {
-    return colsTableSubmissions;
-  }, []);
+  const cols = React.useMemo(() => colsTableSubmissions, []);
 
   useEffect(() => {
     dispatch(
@@ -33,7 +31,7 @@ export const List: React.FC = () => {
         }
       ])
     );
-  }, []);
+  }, [dispatch]);
 
   const onCreate = () => {
     openModal(
@@ -57,23 +55,25 @@ export const List: React.FC = () => {
   };
 
 
-  const onOpenResult = useCallback(item => {
+  const onOpenResult = (item: SubmissionDTOInterface) => {
     openModal(
       () => (
         <SubmissionResult item={item} />
       ),
       <SubmissionHeader key="modal-header">
         <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
-        <SubmissionHeaderItem smallFont>
-          {getFormatDateAndTime(item.createdDate)}
-        </SubmissionHeaderItem>
+        {item.finished && (
+          <SubmissionHeaderItem smallFont>
+            {getFormatDateAndTime(item.finished)}
+          </SubmissionHeaderItem>
+        )}
       </SubmissionHeader>,
       {
         closeOnClickOutside: true,
         onClose: closeModal,
       }
     );
-  }, []);
+  };
 
   useInterval(() => {
     setIdReload(getUUID());

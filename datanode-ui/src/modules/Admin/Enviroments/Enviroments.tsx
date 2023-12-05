@@ -1,13 +1,13 @@
 
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { ModalContext, UseModalContext } from '../../../libs/hooks';
-import { PageList } from '../../../libs/components';
+import { PageList, CodeEditor } from '../../../libs/components';
 import { colsTableEnviroments } from '../../../config';
 import { getDescriptors } from '../../../api/submissions';
-import { CodeEditor } from '../../../libs/components/CodeEditor';
 
 export const EnviromentsList: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
+
   const onOpen = (data) => {
     openModal(
       () => (
@@ -29,15 +29,12 @@ export const EnviromentsList: React.FC = () => {
     );
   };
 
-  const cols = React.useMemo(() => {
-    return colsTableEnviroments(onOpen);
-  }, []);
+  const cols = React.useMemo(() => colsTableEnviroments(onOpen), []);
 
 
   return (
     <PageList
       removeId='username'
-      // onCreate={onAddUser}
       listConfig={{
         rowId: 'id',
         loadingMessage: 'Loading environments...',

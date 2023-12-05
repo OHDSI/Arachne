@@ -1,0 +1,1 @@
+export const whitelistSections = ['integration', 'proxy'];

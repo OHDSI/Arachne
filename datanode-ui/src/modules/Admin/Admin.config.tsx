@@ -1,4 +1,6 @@
-export const tabsAdmin: any = [
+import { TabsInterface } from "@/libs/types";
+
+export const tabsAdmin: TabsInterface[] = [
   {
     value: 'databases',
     title: 'Databases',

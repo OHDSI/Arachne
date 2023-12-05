@@ -30,14 +30,10 @@ export function useList(props: IUseListProps): IUseList {
   >(useListReducer, useListInitialState);
 
   const {
-    isLoading,
-    isLoaded,
+
     byId,
     ids,
     processingIds,
-    isError,
-    actions,
-    status,
   } = store;
 
   const getEntityList = useCallback(
