@@ -28,14 +28,14 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     accessor: (row: SubmissionDTOInterface) => row.author?.fullName || '-',
     id: 'author.fullName',
   },
-  {
-    Header: 'Study',
-    id: 'study',
-    maxWidth: 120,
-    isCropped: true,
-    accessor: (row: SubmissionDTOInterface) => row.study || '-',
-    Cell: NameCell,
-  },
+  // {
+  //   Header: 'Study',
+  //   id: 'study',
+  //   maxWidth: 120,
+  //   isCropped: true,
+  //   accessor: (row: SubmissionDTOInterface) => row.study || '-',
+  //   Cell: NameCell,
+  // },
   {
     Header: 'Analysis',
     accessor: (row: SubmissionDTOInterface) => row.analysis || '-',
@@ -83,7 +83,6 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
       if (props.value) {
         const start = moment(props.row.original.submitted);
         const end = moment(props.row.original.finished);
-        console.log(start, end)
         var duration = moment.duration(end.diff(start));
 
         return duration.humanize();
@@ -124,8 +123,8 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     Header: 'Results',
     accessor: 'status',
     id: 'actionCell',
-    width: '3%',
-    minWidth: 80,
+    width: '2%',
+    minWidth: 30,
     disableSortBy: true,
     Cell: ({ row }: { row: { original: SubmissionDTOInterface } }) => {
       const id = row.original.id;

@@ -71,7 +71,7 @@ export const SystemSettings: React.FC = () => {
   }
 
   return (
-    <Grid container spacing={2} px={6}>
+    <Grid container spacing={2} px={3}>
       <Grid item xs={12}>
         <TabsNavigationNew tabs={createTabs(settings)} withRouting secondary />
         <Divider />

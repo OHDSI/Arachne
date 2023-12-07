@@ -25,8 +25,11 @@ export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: 'id
 export const createSubmission = (type: CreateSubmissionFormTabs, data): Promise<any> =>
   api.post(`/analysis/${type === CreateSubmissionFormTabs.FILES_IN_ARCHIVE ? 'zip' : 'files'}`, data);
 
-export const updateSubmission = (id, type, data): Promise<any> =>
-  api.post(`/admin/analysis/${id}`, data);
+export const getSubmission = (id): Promise<SubmissionDTOInterface> =>
+  api.get(`/analysis/${id}`);
+
+export const updateSubmission = (id, data): Promise<SubmissionDTOInterface> =>
+  api.post(`/analysis/${id}/rerun`, data);
 
 export const getSubmissionLog = (id: string) =>
   api.get(`/analysis/${id}/log`)

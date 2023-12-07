@@ -14,6 +14,8 @@ import { setupInterceptors } from './api';
 
 import App from './App';
 
+import './libs/utils/i18n';
+
 import './index.css';
 
 const root = ReactDOM.createRoot(

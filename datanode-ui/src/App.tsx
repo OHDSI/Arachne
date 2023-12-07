@@ -12,7 +12,6 @@ import './App.css'
 
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);

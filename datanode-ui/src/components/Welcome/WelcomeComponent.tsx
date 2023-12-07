@@ -5,9 +5,11 @@ import { Grid } from '../../libs/components';
 import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
 import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
 import { LogoMediumArachne } from '../Logo';
+import { useTranslation } from 'react-i18next';
 
 export const Welcome: React.FC = () => {
   const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     dispatch(resetBreadcrumbs());
@@ -88,7 +90,7 @@ export const Welcome: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Grid container px={{ xs: 4, lg: 8, xl: 10 }} py={4} spacing={2}>
+      <Grid container px={{ xs: 2, lg: 4, xl: 5 }} py={4} spacing={2}>
         <Grid item xs={12} md={6}>
           <HomeWidgetSubmission />
         </Grid>

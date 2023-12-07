@@ -47,6 +47,7 @@ interface CreateSubmissionFormInterfaceProps {
   afterCreate: (analysis: any) => void;
   onCancel: () => void;
   createMethod: (typeFile: CreateSubmissionFormTabs, data: any) => Promise<any>;
+  isRerun?: boolean;
 }
 
 interface ControlListInterfaceState {
@@ -59,7 +60,7 @@ interface ControlListInterfaceState {
 
 export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
-    const { afterCreate, onCancel, createMethod } = props;
+    const { afterCreate, onCancel, createMethod, isRerun } = props;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { enqueueSnackbar } = useNotifications();
     const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));

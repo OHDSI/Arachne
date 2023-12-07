@@ -13,6 +13,7 @@ import { removeDataSource } from '../../../api/data-sources';
 import { colsTableSubmissions } from '../../../config';
 import { SubmissionResult } from '../SubmissionResult';
 import { SubmissionDTOInterface } from '@/libs/types';
+import { RerunSubmissionForm } from '../RerunSubmissionForm';
 
 
 export const List: React.FC = () => {
@@ -54,6 +55,28 @@ export const List: React.FC = () => {
     );
   };
 
+  const onReload = (id: string) => {
+    openModal(
+      () => (
+        <RerunSubmissionForm
+          id={id}
+          createMethod={createSubmission}
+          onCancel={closeModal}
+          afterCreate={() => {
+            setIdReload(getUUID());
+            closeModal();
+          }}
+        />
+      ),
+      'Rerun submission',
+      {
+        closeOnClickOutside: true,
+        width: '700px',
+        onClose: closeModal,
+      }
+    );
+  };
+
 
   const onOpenResult = (item: SubmissionDTOInterface) => {
     openModal(
@@ -83,6 +106,7 @@ export const List: React.FC = () => {
     <PageList
       reloadId={idReload}
       onCreate={onCreate}
+      onReload={onReload}
       onRowClick={row => onOpenResult(row.original)}
       listConfig={{
         rowId: 'id',
@@ -98,6 +122,7 @@ export const List: React.FC = () => {
       }}
       isSilentReload={true}
       allowDelete={false}
+      allowRerun={true}
       variant="primary"
     />
   );

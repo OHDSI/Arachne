@@ -97,7 +97,7 @@ export const DatabaseEntity: React.FC = () => {
   }
 
   return (
-    <Grid container px={6} flexGrow={1} flexDirection="column">
+    <Grid container px={3} flexGrow={1} flexDirection="column">
       <NestedInfoWrapper>
         <DatabaseBaseInfo
           entity={entity}

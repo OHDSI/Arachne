@@ -13,7 +13,7 @@ export const BaseInfoWrapper: FC<{ children: React.ReactNode }> = ({
         boxShadow: theme.customShadows[2],
         background: '#ffffff',
         zIndex: 4,
-        px: 6,
+        px: 3,
       })}
     >
       {children}

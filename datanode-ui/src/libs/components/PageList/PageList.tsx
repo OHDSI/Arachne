@@ -18,9 +18,11 @@ import { ColumnInterface } from '../../types';
 export interface PageListPropsInterface<I, O, C> {
   onImport?: () => void;
   onCreate?: () => void;
+  onReload?: (id: string) => void;
   moduleConfig: any;
   listConfig: any;
   allowDelete?: boolean;
+  allowRerun?: boolean;
   tileComponent?: any;
   onRowClick?: any;
   reloadId?: string;
@@ -45,6 +47,7 @@ export const PageList: React.FC<any> = (
   const {
     onImport,
     onCreate,
+    onReload,
     listConfig,
     allowDelete,
     tileComponent,
@@ -53,6 +56,7 @@ export const PageList: React.FC<any> = (
     isSilentReload,
     variant = 'secondary',
     hiddenColumns,
+    allowRerun,
     dense,
     removeId
   } = props;
@@ -114,12 +118,13 @@ export const PageList: React.FC<any> = (
     accessor: 'actions',
     isCropped: true,
     disableSortBy: true,
-    minWidth: 80,
-    width: '5%',
+    minWidth: 50,
+    width: '3%',
     Cell: (props: any) => {
       return (
         <ActionCell
-          onRemove={() => removeEntity(props.row.original?.[removeId || 'id'])}
+          onRemove={allowDelete ? () => removeEntity(props.row.original?.[removeId || 'id']) : null}
+          onReload={() => onReload(props.row.original?.[removeId || 'id'])}
           withConfirmation
           entityName={props.row.original.title || props.row.original.name}
         />
@@ -130,7 +135,7 @@ export const PageList: React.FC<any> = (
   const columns = React.useMemo(
     () => [
       ...cols,
-      ...(allowDelete ? [ACTION_CELL] : []),
+      ...((allowDelete || allowRerun) ? [ACTION_CELL] : []),
     ],
     [removeEntity]
   );
@@ -146,7 +151,7 @@ export const PageList: React.FC<any> = (
   return (
     <Grid
       container
-      px={dense ? 0 : 6}
+      px={dense ? 0 : 3}
       flexDirection="column"
       sx={{ backgroundColor: 'common.white', flexGrow: 1 }}
       minHeight="100%"
