@@ -1,7 +1,174 @@
 {
-  "title": "Welcome to react using react-i18next",
-  "description": {
-    "part1": "To get started, edit <1>src/App.js</1> and save to reload.",
-    "part2": "Switch language between english and german using buttons above."
+  "main_menu": {
+    "submissions": "Submissions",
+    "admin": "Administration"
+  },
+  "breadcrumbs": {
+    "submissions": "Submissions",
+    "admin": "Administration",
+    "users": "Users",
+    "databases": "Databases",
+    "envs": "Environments",
+    "system_settings": "System Settings"
+  },
+  "pages": {
+    "login": {
+      "welcome": "Welcome to Arachne Data Node",
+      "header": "Login Into Your Account"
+    },
+    "submissions": {
+      "header": "Submissions",
+      "add_button": "Create Submission",
+      "description": "List of Submissions"
+    },
+    "administration": {
+      "header": "Administration",
+      "tabs": {
+        "databases": "Databases",
+        "users": "Users",
+        "envs": "Environments",
+        "system_settings": "System Settings"
+      },
+      "users": {
+        "header": "Users",
+        "loading_message": "Loading Users...",
+        "success_message": "Successfully Added User:"
+      },
+      "envs": {
+        "header": "Environments",
+        "loading_message": "Loading Environments..."
+      },
+      "databases": {
+        "header": "Databases",
+        "add_button": "Create Database",
+        "loading_message": "Loading Databases...",
+        "success_message": "",
+        "description": "List of Databases"
+      }
+    }
+  },
+  "tables": {
+    "base": {
+      "pagination": "Page {{currentPage}} of {{totalPage}} (Showing {{minRow}} to {{maxRow}} of {{totalRow}} Entries)",
+      "loading_message": "Loading {{entity}}..."
+    },
+    "cols": {
+      "number": "No",
+      "origin": "Origin",
+      "author": "Author",
+      "analysis": "Analysis",
+      "data_source": "Data Source",
+      "submitted": "Submitted",
+      "finished": "Finished",
+      "duration": "Duration",
+      "env": "Environment",
+      "status": "Status",
+      "results": "Results",
+      "name": "Name",
+      "dbms_type": "DBMS Type",
+      "database": "Database",
+      "cdm_schema": "CDM Schema",
+      "email": "Email",
+      "roles": "Roles",
+      "label": "Label",
+      "descriptor": "Descriptor"
+    }
+  },
+  "modals": {
+    "create_submission": {
+      "header": "Create Submission",
+      "tabs": {
+        "files_in_archive": "Files In Archive",
+        "separate_files": "Strategus JSON"
+      }
+    },
+    "rerun_submission": {
+      "header": "Rerun Submission"
+    },
+    "files_results": {
+      "header": "Result Submission",
+      "tabs": {
+        "file_explorer": "File Explorer",
+        "logs": "Logs"
+      }
+    },
+    "show_descriptor": {
+      "header": "Show Descriptor"
+    },
+    "create_database": {
+      "header": "Create Database"
+    }
+  },
+  "forms": {
+    "login": {
+      "username": "User Name",
+      "username_placeholder": "Enter User Name...",
+      "password": "Password",
+      "password_placehoder": "Enter Password...",
+      "error_message": "Wrong User Name or Password",
+      "submit_button": "Log In"
+    },
+    "create_submission": {
+      "success_message": "Submission Successfully Created",
+      "error_message": "Submission Was Not Created, Please Try Again",
+      "files_in_archive": {
+        "upload": "Upload Zip"
+      },
+      "separate_files": {
+        "upload": "Upload JSON"
+      },
+      "entry_point": "Entry Point",
+      "entry_point_placeholder": "Select Entry Point...",
+      "env": "Runtime Environment",
+      "env_placeholder": "Select Runtime Environment...",
+      "data_source": "Data Source",
+      "data_source_placeholder": "Select Data Source...",
+      "analysis_name": "Analysis Name",
+      "analysis_name_placeholder": "Enter Analysis Name...",
+      "analysis_type": "Analysis Type",
+      "analysis_type_placeholder": "Select Analysis Type...",
+      "study_name": "Study Name",
+      "study_name_placeholder": "Enter Study Name..."
+    },
+    "rerun_submission": {
+      "success_message": "Submission Successfully Rerun",
+      "error_message": "Submission Was Not Rerun, Please Try Again"
+    },
+    "add_user": {
+      "users": "Users"
+    }
+  },
+  "common": {
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "add": "Add",
+      "download_all": "Dwonload All",
+      "download": "Download",
+      "import": "Import",
+      "rerun": "Rerun",
+      "view_all": "View All"
+    },
+    "tooltips": {
+      "download_results": "Download Results",
+      "rerun_submission": "Rerun Submission"
+    },
+    "components": {
+      "file_explorer": {
+        "header": "File Explorer",
+        "empty_list_files": "No Files to Display",
+        "no_selected_file_message": "Select File to Display Content"
+      },
+      "latest_submissions": {
+        "header": "Latest Submissions",
+        "no_data": "No Submissions",
+        "go_to": "Go to Submissions",
+        "failed_load_message": "Failed to Load Submissions"
+      },
+      "home_info": {
+        "header1": "ARACHNE Data Node",
+        "header2": "Development Resources"
+      }
+    }
   }
 }

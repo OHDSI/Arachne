@@ -36,11 +36,11 @@ export const SystemSettings: React.FC = () => {
       setBreadcrumbs([
         {
           name: 'Admin',
-          path: ``,
+          path: `/administration`,
         },
         {
           name: 'System Settings',
-          path: `/system-settings`,
+          path: `/administration/system-settings`,
         },
       ])
     );

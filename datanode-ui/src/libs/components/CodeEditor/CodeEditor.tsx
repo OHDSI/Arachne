@@ -37,6 +37,7 @@ function isJson(str) {
 
 export const CodeEditor: FC<ICodeEditorProps> = memo(props => {
   const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false);
+  const [line, setLine] = useState(1000);
   const {
     title = '',
     tooltipText = 'Copied to clipboard!',
@@ -49,6 +50,7 @@ export const CodeEditor: FC<ICodeEditorProps> = memo(props => {
     height = '500px',
     containerStyles = {},
     readOnly = false,
+    consoleMode = false,
     enableValidation = true,
     enableCopy = true,
     enableDownload = true,
@@ -116,6 +118,13 @@ export const CodeEditor: FC<ICodeEditorProps> = memo(props => {
     fetchData?.();
   }, [data]);
 
+
+  useEffect(() => {
+    if (consoleMode) {
+      setLine(preState => preState + 1000);
+    }
+  }, [file])
+
   return (
     <CodeEditorContainer style={containerStyles}>
       {title && <CodeEditorTitle title={title}>{title}</CodeEditorTitle>}
@@ -166,6 +175,7 @@ export const CodeEditor: FC<ICodeEditorProps> = memo(props => {
           //     : file
           // }
           value={file}
+          line={line}
           options={opts as any}
           onChange={handleChange}
         />

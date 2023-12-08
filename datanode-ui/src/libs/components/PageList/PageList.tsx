@@ -124,7 +124,7 @@ export const PageList: React.FC<any> = (
       return (
         <ActionCell
           onRemove={allowDelete ? () => removeEntity(props.row.original?.[removeId || 'id']) : null}
-          onReload={() => onReload(props.row.original?.[removeId || 'id'])}
+          onReload={allowRerun ? () => onReload(props.row.original?.[removeId || 'id']) : null}
           withConfirmation
           entityName={props.row.original.title || props.row.original.name}
         />

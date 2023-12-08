@@ -7,14 +7,14 @@ import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, Submi
 import moment from "moment";
 
 // columns table
-export const colsTableSubmissions: ColumnInterface<any>[] = [
+export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
   {
-    Header: 'No',
+    Header: t('tables.cols.number'),
     accessor: 'id',
     id: 'id',
   },
   {
-    Header: 'Origin',
+    Header: t('tables.cols.origin'),
     accessor: 'origin',
     id: 'origin',
     width: '3%',
@@ -24,20 +24,12 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     },
   },
   {
-    Header: 'Author',
+    Header: t('tables.cols.author'),
     accessor: (row: SubmissionDTOInterface) => row.author?.fullName || '-',
     id: 'author.fullName',
   },
-  // {
-  //   Header: 'Study',
-  //   id: 'study',
-  //   maxWidth: 120,
-  //   isCropped: true,
-  //   accessor: (row: SubmissionDTOInterface) => row.study || '-',
-  //   Cell: NameCell,
-  // },
   {
-    Header: 'Analysis',
+    Header: t('tables.cols.analysis'),
     accessor: (row: SubmissionDTOInterface) => row.analysis || '-',
     id: 'analysis',
     maxWidth: 100,
@@ -47,7 +39,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     isCropped: true,
   },
   {
-    Header: 'Data source',
+    Header: t('tables.cols.data_source'),
     accessor: 'dataSource.name',
     id: 'dataSource.name',
     maxWidth: 150,
@@ -55,7 +47,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     isCropped: true,
   },
   {
-    Header: 'Submitted',
+    Header: t('tables.cols.submitted'),
     accessor: 'submitted',
     id: 'submitted',
     Cell: DateCell,
@@ -64,7 +56,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     maxWidth: 150,
   },
   {
-    Header: 'Finished',
+    Header: t('tables.cols.finished'),
     accessor: 'finished',
     id: 'finished',
     Cell: (props) => {
@@ -75,7 +67,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     maxWidth: 150,
   },
   {
-    Header: 'Duration',
+    Header: t('tables.cols.duration'),
     accessor: 'finished',
     id: 'duration',
     disableSortBy: true,
@@ -95,7 +87,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     maxWidth: 100,
   },
   {
-    Header: 'Environment',
+    Header: t('tables.cols.env'),
     accessor: (row: SubmissionDTOInterface) => row.environment || '-',
     id: 'environment',
     maxWidth: 150,
@@ -105,7 +97,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     isCropped: true,
   },
   {
-    Header: 'Status',
+    Header: t('tables.cols.status'),
     accessor: 'status',
     id: 'status',
     minWidth: 100,
@@ -120,7 +112,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     },
   },
   {
-    Header: 'Results',
+    Header: t('tables.cols.results'),
     accessor: 'status',
     id: 'actionCell',
     width: '2%',
@@ -130,7 +122,7 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
       const id = row.original.id;
       const status = row.original.status;
       return status === 'EXECUTED' || status === 'EXECUTION_FAILURE' ? (
-        <Tooltip text="Download results">
+        <Tooltip text={t('common.tooltips.download_results')}>
           <IconButton
             color="info"
             onClick={(e: React.MouseEvent) => {
@@ -149,9 +141,9 @@ export const colsTableSubmissions: ColumnInterface<any>[] = [
     },
   },
 ]
-export const colsTableDatabase = (dbmsTypes: DBMSTypesInterface[]): ColumnInterface[] => ([
+export const colsTableDatabase = (t: any, dbmsTypes: DBMSTypesInterface[]): ColumnInterface[] => ([
   {
-    Header: 'Name',
+    Header: t('tables.cols.name'),
     accessor: 'name',
     id: 'name',
     minWidth: 200,
@@ -160,7 +152,7 @@ export const colsTableDatabase = (dbmsTypes: DBMSTypesInterface[]): ColumnInterf
     Cell: NameCell,
   },
   {
-    Header: 'DBMS type',
+    Header: t('tables.cols.dbms_type'),
     accessor: 'dbmsType',
     id: 'dbmsType',
     width: '10%',
@@ -172,7 +164,7 @@ export const colsTableDatabase = (dbmsTypes: DBMSTypesInterface[]): ColumnInterf
     }
   },
   {
-    Header: 'Database',
+    Header: t('tables.cols.database'),
     accessor: 'connectionString',
     id: 'connectionString',
     minWidth: 120,
@@ -180,16 +172,16 @@ export const colsTableDatabase = (dbmsTypes: DBMSTypesInterface[]): ColumnInterf
     isCropped: true,
   },
   {
-    Header: 'CDM schema',
+    Header: t('tables.cols.cdm_schema'),
     accessor: 'cdmSchema',
     id: 'cdmSchema',
     width: '5%',
     minWidth: 80,
   }
 ])
-export const colsTableUsers: ColumnInterface[] = [
+export const colsTableUsers = (t: any): ColumnInterface[] => [
   {
-    Header: 'Name',
+    Header: t('tables.cols.name'),
     accessor: ({ firstname, lastname }: { firstname: string, lastname: string }) => {
       return `${firstname} ${lastname}`
     },
@@ -200,7 +192,7 @@ export const colsTableUsers: ColumnInterface[] = [
     Cell: NameCell,
   },
   {
-    Header: 'Email',
+    Header: t('tables.cols.email'),
     accessor: 'email',
     id: 'email',
     width: '10%',
@@ -209,7 +201,7 @@ export const colsTableUsers: ColumnInterface[] = [
     Cell: NameCell,
   },
   {
-    Header: 'Roles',
+    Header: t('tables.cols.roles'),
     accessor: 'roles',
     id: 'roles',
     width: '10%',
@@ -218,16 +210,16 @@ export const colsTableUsers: ColumnInterface[] = [
     Cell: ({ value }) => value.map(val => Roles[val]).join(','),
   },
 ]
-export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
+export const colsTableEnviroments = (t: any, onOpen): ColumnInterface[] => ([
   {
-    Header: 'No',
+    Header: t('tables.cols.number'),
     accessor: 'id',
     id: 'id',
     width: '2%',
     minWidth: 40,
   },
   {
-    Header: 'Label',
+    Header: t('tables.cols.label'),
     accessor: 'label',
     id: 'label',
     minWidth: 200,
@@ -237,7 +229,7 @@ export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
   },
 
   {
-    Header: 'Descriptor',
+    Header: t('tables.cols.descriptor'),
     accessor: 'json',
     id: 'actionCell',
     width: '10%',
@@ -255,48 +247,48 @@ export const colsTableEnviroments = (onOpen): ColumnInterface[] => ([
 
 // tabs
 export const tabsSubmissionResult =
-  (setActive: (value: SubmissionResultTabs) => void): TabsInterface<SubmissionResultTabs>[] => [
+  (t: any, setActive: (value: SubmissionResultTabs) => void): TabsInterface<SubmissionResultTabs>[] => [
     {
       value: SubmissionResultTabs.FILE_EXPLORER,
-      title: 'File explorer',
+      title: t('modals.files_results.tabs.file_explorer'),
       onTabClick: setActive,
     },
     {
       value: SubmissionResultTabs.LOG,
-      title: 'Logs',
+      title: t('modals.files_results.tabs.logs'),
       onTabClick: setActive,
     },
   ];
 
 export const tabsSubmissionForm =
-  (setActive: (value: CreateSubmissionFormTabs) => void): TabsInterface<CreateSubmissionFormTabs>[] => [
+  (t: any, setActive: (value: CreateSubmissionFormTabs) => void): TabsInterface<CreateSubmissionFormTabs>[] => [
     {
       value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
-      title: 'Files in archive',
+      title: t('modals.create_submission.tabs.files_in_archive'),
       onTabClick: setActive,
     },
     {
       value: CreateSubmissionFormTabs.SEPARATE_FILES,
-      title: 'Strategus JSON',
+      title: t('modals.create_submission.tabs.separate_files'),
       onTabClick: setActive,
     },
   ];
 
-export const tabsAdmin: TabsInterface[] = [
+export const tabsAdmin = (t: any): TabsInterface[] => [
   {
     value: 'databases',
-    title: 'Databases',
+    title: t('pages.administration.tabs.databases'),
   },
   {
     value: 'users',
-    title: 'Users',
+    title: t('pages.administration.tabs.users'),
   },
   {
-    value: 'enviroments',
-    title: 'Enviroments',
+    value: 'environments',
+    title: t('pages.administration.tabs.envs'),
   },
   {
     value: 'system-settings',
-    title: 'System settings',
+    title: t('pages.administration.tabs.system_settings'),
   },
 ];

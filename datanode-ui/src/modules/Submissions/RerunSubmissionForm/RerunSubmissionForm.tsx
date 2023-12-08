@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useMemo, useState, } from 'react';
-
+import React, { memo, useEffect, useState, } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AnalysisTypes, CreateSubmissionFormTabs, Status } from '../../../libs/enums';
 
@@ -10,29 +10,25 @@ import {
   FormElement,
   Grid,
   Icon,
-  ImportJsonFile,
-  ImportZipFile,
   Input,
   Select,
   Spinner,
-  TabsNavigationNew,
   useNotifications
 } from '../../../libs/components';
-import { Paper } from '@mui/material';
+
 import { getAnalysisTypes, getDescriptors, getSubmission, updateSubmission } from '../../../api/submissions';
-import { getDataSources, removeDataSource, updateDataSource } from '../../../api/data-sources';
-import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface, SubmissionDTOInterface } from '../../../libs/types';
+import { getDataSources, removeDataSource } from '../../../api/data-sources';
+import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from '../../../libs/types';
 import { parseToSelectControlOptions } from '../../../libs/utils';
-import { tabsSubmissionForm } from '../../../config';
 import { useEntity } from '../../../libs/hooks';
 import { SpinnerFormContainer } from '../CreateSubmissionForm/ChooseRuntime.styles';
 
-const defaultState = (type = null): SubmissionFormStateInterface => ({
-  title: null,
-  executableFileName: null,
-  study: null,
-  environmentId: null,
-  datasourceId: null,
+const defaultState = (type = AnalysisTypes.COHORT): SubmissionFormStateInterface => ({
+  title: '',
+  executableFileName: '',
+  study: '',
+  environmentId: '',
+  datasourceId: '',
   type: type
 });
 
@@ -63,7 +59,8 @@ interface ControlListInterfaceState {
 
 export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
-    const { afterCreate, onCancel, createMethod, isRerun, id } = props;
+    const { afterCreate, onCancel, id } = props;
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { enqueueSnackbar } = useNotifications();
     const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
@@ -75,14 +72,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       entryFiles: [],
     });
 
-    const [fileState, setFileState] = useState<any>();
-    const [activeTab, setActiveTab] = useState<CreateSubmissionFormTabs>(
-      CreateSubmissionFormTabs.FILES_IN_ARCHIVE
-    );
-
-    const tabs = React.useMemo(() => tabsSubmissionForm(setActiveTab), [setActiveTab]);
-
-    const { entity, status, updateEntity, deleteEntity, error } = useEntity<any>(
+    const { entity, status } = useEntity<any>(
       {
         get: getSubmission,
         update: updateSubmission,
@@ -101,10 +91,6 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       setControlsList(prevState => ({ ...prevState, status: Status.IN_PROGRESS }))
       getControlsList();
     }, []);
-
-    useEffect(() => {
-      setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : null));
-    }, [activeTab]);
 
     const getControlsList = async () => {
       try {
@@ -130,14 +116,14 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       try {
         const result = await updateSubmission(id, state);
         enqueueSnackbar({
-          message: `Submission successfully reruned`,
+          message: t('forms.rerun_submission.success_message'),
           variant: 'success',
         } as any);
         setIsLoading(false);
         afterCreate?.(result);
       } catch (e) {
         enqueueSnackbar({
-          message: `Submission was not reruned, please try again`,
+          message: t('forms.rerun_submission.error_message'),
           variant: 'error',
         } as any);
       }
@@ -154,7 +140,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
         <Block>
           <Grid item container xs={12} p={2} spacing={2}>
             <Grid item xs={12}>
-              <FormElement name="type" textLabel="Entry point" required>
+              <FormElement name="type" textLabel={t('forms.create_submission.entry_point')} required>
                 <Input
                   id="entry"
                   name="entry"
@@ -162,6 +148,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   size="medium"
                   disabled={true}
                   value={state.executableFileName}
+                  placeholder={t('forms.create_submission.entry_point_placeholder')}
                   onChange={(e: any) => {
                     setState({
                       ...state,
@@ -175,7 +162,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
             <Grid item xs={12}>
               <FormElement
                 name="env"
-                textLabel="ARACHNE Runtime Environment"
+                textLabel={t('forms.create_submission.env')}
                 required
               >
                 <Select
@@ -186,7 +173,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   disabled={controlsList?.envs?.length === 0}
                   options={controlsList.envs}
                   value={state.environmentId}
-                  placeholder="Select env..."
+                  placeholder={t('forms.create_submission.env_placeholder')}
                   onChange={(env: any) => {
                     setState({
                       ...state,
@@ -200,7 +187,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
             <Grid item xs={12}>
               <FormElement
                 name="data-source"
-                textLabel="Data source"
+                textLabel={t('forms.create_submission.data_source')}
                 required
               >
                 <Select
@@ -211,7 +198,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   disabled={controlsList?.dataSources?.length === 0}
                   options={controlsList.dataSources}
                   value={state.datasourceId}
-                  placeholder="Select source..."
+                  placeholder={t('forms.create_submission.data_source_placeholder')}
                   onChange={(dataSourceId: any) => {
                     setState({
                       ...state,
@@ -225,7 +212,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
             <Grid item xs={12}>
               <FormElement
                 name="analysis-name"
-                textLabel="Analysis name"
+                textLabel={t('forms.create_submission.analysis_name')}
                 required
               >
                 <Input
@@ -234,6 +221,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   type="text"
                   size="medium"
                   value={state.title}
+                  placeholder={t('forms.create_submission.analysis_name_placeholder')}
                   disabled={true}
                   onChange={(e: any) => {
                     setState({
@@ -246,7 +234,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
               </FormElement>
             </Grid>
             <Grid item xs={12}>
-              <FormElement name="type" textLabel="Analysis type" required>
+              <FormElement name="type" textLabel={t('forms.create_submission.analysis_type')} required>
                 <Select
                   className=""
                   name="type"
@@ -255,7 +243,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   disabled={true}
                   options={controlsList.analysisTypes}
                   value={state.type}
-                  placeholder="Select analysis type..."
+                  placeholder={t('forms.create_submission.analysis_type_placeholder')}
                   onChange={(type: any) => {
                     setState({
                       ...state,
@@ -266,24 +254,6 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                 />
               </FormElement>
             </Grid>
-            {/* <Grid item xs={12}>
-              <FormElement name="study-name" textLabel="Study name">
-                <Input
-                  id="study-name"
-                  name="study-name"
-                  type="text"
-                  size="medium"
-                  value={state.study}
-                  onChange={(e: any) => {
-                    setState({
-                      ...state,
-                      study: e.target.value,
-                    });
-                  }}
-                  fullWidth
-                />
-              </FormElement>
-            </Grid> */}
             <Grid item xs={12}>
               <FormActionsContainer>
                 <Button
@@ -293,7 +263,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                   size="small"
                   startIcon={<Icon iconName="deactivate" />}
                 >
-                  Cancel
+                  {t('common.buttons.cancel')}
                 </Button>
                 <Button
                   disabled={isLoading}
@@ -309,7 +279,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                     )
                   }
                 >
-                  Rerun
+                  {t('common.buttons.rerun')}
                 </Button>
               </FormActionsContainer>
             </Grid>

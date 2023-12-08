@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 import { createSubmission as createSubmissionApi } from '../../../api/submissions';
 
 import { getFormatDateAndTime } from '../../../libs/utils';
@@ -23,6 +23,7 @@ import {
 
 export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation()
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
 
 
@@ -38,7 +39,7 @@ export const HomeWidget: React.FC = () => {
           }}
         />
       ),
-      'Create submission',
+      t('modals.create_submission.header'),
       {
         closeOnClickOutside: true,
         width: '700px',
@@ -52,7 +53,7 @@ export const HomeWidget: React.FC = () => {
         <SubmissionResult item={item} />
       ),
       <SubmissionHeader>
-        <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
+        <SubmissionHeaderItem>{t('modals.files_results.header')}</SubmissionHeaderItem>
         {item.finished && (
           <SubmissionHeaderItem smallFont>
             {getFormatDateAndTime(item.finished)}
@@ -68,9 +69,9 @@ export const HomeWidget: React.FC = () => {
 
   return (
     <ModuleDescriptionCard
-      title="Submissions"
+      title={t('pages.submissions.header')}
       onClick={() => navigate('/submissions')}
-      description="List of submissions."
+      description={t('pages.submissions.description')}
       iconName="library"
       actions={
         <>
@@ -82,7 +83,7 @@ export const HomeWidget: React.FC = () => {
             name="save"
             startIcon={<Icon iconName="add" />}
           >
-            Add submission
+            {t('pages.submissions.add_button')}
           </Button>
           <Button
             onClick={() => navigate('/submissions')}
@@ -91,7 +92,7 @@ export const HomeWidget: React.FC = () => {
             name="save"
             sx={{ ml: 1 }}
           >
-            View all
+            {t('common.buttons.view_all')}
           </Button>
         </>
       }

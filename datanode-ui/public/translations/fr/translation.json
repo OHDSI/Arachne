@@ -1,0 +1,169 @@
+{
+  "main_menu": {
+    "submissions": "Заявки",
+    "admin": "Администрирование"
+  },
+  "breadcrumbs": {
+    "submissions": "Заявки",
+    "admin": "Администрирование",
+    "users": "Пользователи",
+    "databases": "Базы Данных",
+    "envs": "Окружения",
+    "system_settings": "Системные Настройки"
+  },
+  "pages": {
+    "login": {
+      "welcome": "Добро Пожаловать в Arachne Data Node",
+      "header": "Войдите в Свою Учетную Запись"
+    },
+    "submissions": {
+      "header": "Заявки",
+      "add_button": "Создать Заявку",
+      "description": "Список Заявок"
+    },
+    "administration": {
+      "header": "Администрирование",
+      "tabs": {
+        "databases": "Базы Данных",
+        "users": "Пользователи",
+        "envs": "Окружения",
+        "system_settings": "Системные Настройки"
+      },
+      "users": {
+        "header": "Пользователя",
+        "loading_message": "Загрузка Пользоваттелей...",
+        "success_message": "Successfully Added User:"
+      },
+      "envs": {
+        "header": "Окружения",
+        "loading_message": "Загрузка Окружений..."
+      },
+      "databases": {
+        "header": "Базы данных",
+        "add_button": "Создание Базы Данных",
+        "loading_message": "Загрузка Баз Данных...",
+        "success_message": "",
+        "description": "Список Баз Данных"
+      }
+    }
+  },
+  "tables": {
+    "base": {
+      "pagination": "Страница {{currentPage}} из {{totalPage}} (Показано с {{minRow}} по {{maxRow}} из {{totalRow}} Элементов)",
+      "loading_message": "Загрузка {{entity}}..."
+    },
+    "cols": {
+      "number": "No",
+      "origin": "Origin",
+      "author": "Автор",
+      "data_source": "Источник данных",
+      "submitted": "Запущщен",
+      "finished": "Закончен",
+      "duration": "Время исполнения",
+      "env": "Окружение",
+      "status": "Статус",
+      "results": "Результаты",
+      "name": "Название",
+      "dbms_type": "DBMS Тип",
+      "database": "База данных",
+      "cdm_schema": "CDM схема",
+      "email": "Email",
+      "roles": "Роли",
+      "label": "Имя",
+      "descriptor": "Описание"
+    }
+  },
+  "modals": {
+    "create_submission": {
+      "header": "Создать Заявку",
+      "tabs": {
+        "files_in_archive": "Архив",
+        "separate_files": "Strategus JSON"
+      }
+    },
+    "rerun_submission": {
+      "header": "Перезапустить Заявку"
+    },
+    "files_results": {
+      "header": "Результаты",
+      "tabs": {
+        "file_explorer": "Файл Менеджер",
+        "logs": "Логи"
+      }
+    },
+    "show_descriptor": {
+      "header": "Просмотр Описания"
+    },
+    "create_database": {
+      "header": "Создание Базы Данныз"
+    }
+  },
+  "forms": {
+    "login": {
+      "username": "Имя Пользователя",
+      "username_placeholder": "Введите Имя Пользователя...",
+      "password": "Пароль",
+      "password_placeholder": "Введите Пароль...",
+      "error_message": "Неверное Имя Пользователя Или Пароль",
+      "submit_button": "Войти"
+    },
+    "create_submission": {
+      "success_message": "Submission Successfully Created",
+      "error_message": "Submission Was Not Created, Please Try Again",
+      "files_in_archive": {
+        "upload": "Загрузка Zip"
+      },
+      "separate_files": {
+        "upload": "Загрузка JSON"
+      },
+      "entry_point": "Файл Для Запуска",
+      "entry_point_placeholder": "Выбор Файла Для Запуска...",
+      "env": "Runtime Environment",
+      "env_placeholder": "Select Runtime Environment...",
+      "data_source": "Источник Данных",
+      "data_source_placeholder": "Введите Источник Данных...",
+      "analysis_name": "Имя Анализа",
+      "analysis_name_placeholder": "Введите Имя Анализа...",
+      "analysis_type": "Тип Анализа",
+      "analysis_type_placeholder": "Выберите Тип Анализа...",
+      "study_name": "Study Name",
+      "study_name_placeholder": "Enter Study Name..."
+    },
+    "rerun_submission": {
+      "success_message": "Submission Successfully Rerun",
+      "error_message": "Submission Was Not Rerun, Please Try Again"
+    },
+    "add_user": {
+      "users": "Users"
+    }
+  },
+  "common": {
+    "buttons": {
+      "cancel": "Отмена",
+      "create": "Создать",
+      "add": "Добавить",
+      "download_all": "Загрузить все",
+      "download": "Загрузить",
+      "import": "Импорт",
+      "rerun": "Перезвапуск",
+      "view_all": "Показать все"
+    },
+    "tooltips": {
+      "download_results": "Загрузить результаты",
+      "rerun_submission": "Перезапустить заявку"
+    },
+    "components": {
+      "file_explorer": {
+        "header": "Файл менеджер",
+        "empty_list_files": "Файлы отсутствуют",
+        "no_selected_file_message": "Выберете файл"
+      },
+      "latest_submissions": {
+        "header": "Последние Заявки",
+        "no_data": "Нет Заявок",
+        "go_to": "Перейти в Заявки",
+        "failed_load_message": "Failed to Load Submissions"
+      }
+    }
+  }
+}

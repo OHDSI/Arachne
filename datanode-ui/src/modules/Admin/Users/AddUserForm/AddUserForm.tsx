@@ -1,5 +1,5 @@
 import React, { useState, memo, useEffect } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import {
   AutocompleteInput,
   Block,
@@ -24,6 +24,7 @@ interface AddUserFormPropsInterface {
 export const AddUserForm: React.FC<AddUserFormPropsInterface> =
   memo(props => {
     const { onCancel, afterCreate } = props;
+    const { t } = useTranslation();
     const { enqueueSnackbar } = useNotifications();
 
     const [user, setUser] = useState<SelectInterface>(null);
@@ -43,7 +44,7 @@ export const AddUserForm: React.FC<AddUserFormPropsInterface> =
       try {
         const result: UserDTOSearchInterface = await addUser(user.value);
         enqueueSnackbar({
-          message: `Successfully added user: ${result.firstname} ${result.lastname}`,
+          message: `${t('pages.administration.users.success_message')} ${result.firstname} ${result.lastname}`,
           variant: 'success',
         } as any);
         afterCreate?.();
@@ -62,7 +63,7 @@ export const AddUserForm: React.FC<AddUserFormPropsInterface> =
           <Block>
             <Grid container spacing={2} p={2}>
               <Grid item xs={12}>
-                <FormElement name="users" textLabel="Users" required>
+                <FormElement name="users" textLabel={t('forms.add_user.users')} required>
                   <AutocompleteInput
                     value={user?.name}
                     onChange={(name: string) => {
@@ -85,7 +86,7 @@ export const AddUserForm: React.FC<AddUserFormPropsInterface> =
                     size="small"
                     startIcon={<Icon iconName="deactivate" />}
                   >
-                    Cancel
+                    {t('common.buttons.cancel')}
                   </Button>
                   <Button
                     onClick={onAddUser}
@@ -94,7 +95,7 @@ export const AddUserForm: React.FC<AddUserFormPropsInterface> =
                     color="success"
                     startIcon={<Icon iconName="submit" />}
                   >
-                    Add
+                    {t('common.buttons.add')}
                   </Button>
                 </FormActionsContainer>
               </Grid>

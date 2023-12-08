@@ -10,7 +10,7 @@ export const tabsAdmin: TabsInterface[] = [
     title: 'Users',
   },
   {
-    value: 'enviroments',
+    value: 'environments',
     title: 'Enviroments',
   },
   {

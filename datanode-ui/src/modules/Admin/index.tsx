@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { Grid } from '../../libs/components';
 import { BaseInfoWrapper } from '../../libs/components/wrappers';
@@ -16,12 +17,17 @@ import { tabsAdmin } from '../../config';
 export const IndexAdmin: React.FC = () => {
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
+  const tabs = useMemo(() => {
+    return tabsAdmin(t);
+  }, [t])
 
   useEffect(() => {
     dispatch(
       setBreadcrumbs([
         {
-          name: 'Admin',
+          name: t('breadcrumbs.admin'),
           path: ``,
         }
       ])
@@ -31,8 +37,8 @@ export const IndexAdmin: React.FC = () => {
   return (
     <Grid container flexDirection="column" minHeight="calc(100vh - 50px)">
       <BaseInfoWrapper>
-        <ListHeaderPrimary iconName="admin" title="Administration" />
-        <TabsNavigationNew tabs={tabsAdmin} withRouting />
+        <ListHeaderPrimary iconName="admin" title={t('pages.administration.header')} />
+        <TabsNavigationNew tabs={tabs} withRouting />
       </BaseInfoWrapper>
       <Routes>
         <Route
@@ -41,7 +47,7 @@ export const IndexAdmin: React.FC = () => {
         />
         <Route path="databases/*" element={<Databases />} />
         <Route path="users/*" element={<Users />} />
-        <Route path="enviroments/*" element={<EnviromentsList />} />
+        <Route path="environments/*" element={<EnviromentsList />} />
         <Route path="system-settings/*" element={<SystemSettings />} />
       </Routes>
     </Grid>

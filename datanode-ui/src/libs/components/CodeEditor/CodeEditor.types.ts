@@ -20,4 +20,5 @@ export interface ICodeEditorProps extends EditorProps {
   enableCopy?: boolean;
   remoteFile?: boolean;
   downloadMethod?: (document: any) => void;
+  consoleMode?: boolean;
 }

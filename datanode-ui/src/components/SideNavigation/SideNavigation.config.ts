@@ -1,14 +1,14 @@
 import { MainNavigationConfigInterface } from "../../libs/types";
 
-export const mainNavigationConfig: MainNavigationConfigInterface[] = [
+export const mainNavigationConfig = (t): MainNavigationConfigInterface[] => [
   {
-    title: 'Submissions',
+    title: t('main_menu.submissions'),
     name: 'submissions',
     path: 'submissions',
     iconName: 'library',
   },
   {
-    title: 'Administration',
+    title: t('main_menu.admin'),
     name: 'admin ',
     path: 'administration',
     iconName: 'admin',

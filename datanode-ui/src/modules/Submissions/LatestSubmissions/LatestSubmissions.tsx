@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   LatestSubmissionsList,
@@ -15,7 +15,7 @@ import { originSubmissions } from '../../../libs/constants';
 
 export const LatestSubmissions: React.FC<any> = props => {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const {
     data: list,
     status,
@@ -44,7 +44,7 @@ export const LatestSubmissions: React.FC<any> = props => {
   return (
     <Grid container>
       <Grid item xs={12}>
-        <LatestSubmissionsHeader>Latest Submissions</LatestSubmissionsHeader>
+        <LatestSubmissionsHeader>{t('common.components.latest_submissions.header')}</LatestSubmissionsHeader>
       </Grid>
       <LatestSubmissionsList>
         {status === Status.SUCCESS &&
@@ -84,8 +84,8 @@ export const LatestSubmissions: React.FC<any> = props => {
           ) : (
             <LatestSubmissionsListItem light>
               <EmptyTableStub
-                noDataText="No Submissions"
-                addButtonText="Go to submissions"
+                noDataText={t('components.latest_submissions.no_data')}
+                addButtonText={t('components.latest_submissions.go_to')}
                 onAdd={() => navigate('/submissions')}
               />
             </LatestSubmissionsListItem>
@@ -93,7 +93,7 @@ export const LatestSubmissions: React.FC<any> = props => {
         {status === Status.ERROR && (
           <LatestSubmissionsListItem light>
             <EmptyTableStub
-              noDataText="Failed to load submissions"
+              noDataText={t('components.latest_submissions.failed_load_message')}
               addButtonText=""
             />
           </LatestSubmissionsListItem>

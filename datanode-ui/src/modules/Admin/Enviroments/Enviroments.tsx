@@ -1,12 +1,32 @@
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ModalContext, UseModalContext } from '../../../libs/hooks';
 import { PageList, CodeEditor } from '../../../libs/components';
 import { colsTableEnviroments } from '../../../config';
 import { getDescriptors } from '../../../api/submissions';
+import { useDispatch } from 'react-redux';
+import { setBreadcrumbs } from '../../../store/modules';
 
 export const EnviromentsList: React.FC = () => {
+  const dispatch = useDispatch();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    dispatch(
+      setBreadcrumbs([
+        {
+          name: t('breadcrumbs.admin'),
+          path: `/administration`,
+        },
+        {
+          name: t('breadcrumbs.envs'),
+          path: `/administration/environments`,
+        },
+      ])
+    );
+  }, [dispatch]);
 
   const onOpen = (data) => {
     openModal(
@@ -21,7 +41,7 @@ export const EnviromentsList: React.FC = () => {
           readOnly
         />
       ),
-      'Show descriptor',
+      t('modals.show_descriptor.header'),
       {
         closeOnClickOutside: true,
         onClose: closeModal,
@@ -29,18 +49,17 @@ export const EnviromentsList: React.FC = () => {
     );
   };
 
-  const cols = React.useMemo(() => colsTableEnviroments(onOpen), []);
-
+  const cols = React.useMemo(() => colsTableEnviroments(t, onOpen), [t]);
 
   return (
     <PageList
       removeId='username'
       listConfig={{
         rowId: 'id',
-        loadingMessage: 'Loading environments...',
+        loadingMessage: t('pages.administration.envs.loading_message'),
         addButtonTitle: '',
-        tableTitle: 'Environments',
-        importButtonTitle: 'Import',
+        tableTitle: t('pages.administration.envs.header'),
+        importButtonTitle: t('common.buttons.import'),
         listInitialSort: null,
         iconName: '',
         fetch: getDescriptors,

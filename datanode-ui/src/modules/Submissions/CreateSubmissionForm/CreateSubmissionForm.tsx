@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useState, } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import { SpinnerFormContainer } from './ChooseRuntime.styles';
 import { AnalysisTypes, CreateSubmissionFormTabs, Status } from '../../../libs/enums';
 
@@ -25,12 +25,12 @@ import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInt
 import { parseToSelectControlOptions } from '../../../libs/utils';
 import { tabsSubmissionForm } from '../../../config';
 
-const defaultState = (type = null): SubmissionFormStateInterface => ({
-  title: null,
-  executableFileName: null,
-  study: null,
-  environmentId: null,
-  datasourceId: null,
+const defaultState = (type): SubmissionFormStateInterface => ({
+  title: '',
+  executableFileName: '',
+  study: '',
+  environmentId: '',
+  datasourceId: '',
   type: type
 });
 
@@ -61,6 +61,7 @@ interface ControlListInterfaceState {
 export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
     const { afterCreate, onCancel, createMethod, isRerun } = props;
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { enqueueSnackbar } = useNotifications();
     const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
@@ -78,7 +79,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
       CreateSubmissionFormTabs.FILES_IN_ARCHIVE
     );
 
-    const tabs = React.useMemo(() => tabsSubmissionForm(setActiveTab), [setActiveTab]);
+    const tabs = React.useMemo(() => tabsSubmissionForm(t, setActiveTab), [t, setActiveTab]);
 
     useEffect(() => {
       setControlsList(prevState => ({ ...prevState, status: Status.IN_PROGRESS }))
@@ -86,7 +87,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
     }, []);
 
     useEffect(() => {
-      setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : null));
+      setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : ''));
     }, [activeTab]);
 
     const getControlsList = async () => {
@@ -130,14 +131,14 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
         const result = await createMethod(activeTab, fd);
         setStatus(Status.SUCCESS);
         enqueueSnackbar({
-          message: `Submission successfully created`,
+          message: t('forms.create_submission.success_message'),
           variant: 'success',
         } as any);
         setIsLoading(false);
         afterCreate?.(result);
       } catch (e) {
         enqueueSnackbar({
-          message: `Submission was not created, please try again`,
+          message: t('forms.create_submission.error_message'),
           variant: 'error',
         } as any);
       }
@@ -198,7 +199,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               {activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE && (
                 <>
                   <Grid item xs={12}>
-                    <ImportZipFile titleButton='Upload zip' onChange={(zipFolder: any, zip: any) => {
+                    <ImportZipFile titleButton={t('forms.create_submission.files_in_archive.upload')} onChange={(zipFolder: any, zip: any) => {
 
                       if (zip) {
                         const analysisName = getAnalysisName(zip);
@@ -228,7 +229,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     }} />
                   </Grid>
                   <Grid item xs={12}>
-                    <FormElement name="type" textLabel="Entry point" required>
+                    <FormElement name="type" textLabel={t('forms.create_submission.entry_point')} required>
                       <Select
                         className=""
                         name="entry-point"
@@ -237,7 +238,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                         disabled={controlsList?.entryFiles?.length === 0}
                         options={controlsList.entryFiles}
                         value={state.executableFileName}
-                        placeholder="Select entry point..."
+                        placeholder={t('forms.create_submission.entry_point_placeholder')}
                         onChange={(type: any) => {
                           setState({
                             ...state,
@@ -252,7 +253,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               )}
               {activeTab === CreateSubmissionFormTabs.SEPARATE_FILES && (
                 <Grid item xs={12}>
-                  <ImportJsonFile titleButton={'Upload json'} onChange={(parsedJson: any, file: any) => {
+                  <ImportJsonFile titleButton={t('forms.create_submission.separate_files.upload')} onChange={(parsedJson: any, file: any) => {
                     if (file) {
                       const analysisName = getAnalysisName(file);
 
@@ -277,7 +278,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               <Grid item xs={12}>
                 <FormElement
                   name="env"
-                  textLabel="ARACHNE Runtime Environment"
+                  textLabel={t('forms.create_submission.env')}
                   required
                 >
                   <Select
@@ -288,7 +289,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     disabled={controlsList?.envs?.length === 0}
                     options={controlsList.envs}
                     value={state.environmentId}
-                    placeholder="Select env..."
+                    placeholder={t('forms.create_submission.env_placeholder')}
                     onChange={(env: any) => {
                       setState({
                         ...state,
@@ -302,7 +303,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               <Grid item xs={12}>
                 <FormElement
                   name="data-source"
-                  textLabel="Data source"
+                  textLabel={t('forms.create_submission.data_source')}
                   required
                 >
                   <Select
@@ -313,7 +314,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     disabled={controlsList?.dataSources?.length === 0}
                     options={controlsList.dataSources}
                     value={state.datasourceId}
-                    placeholder="Select source..."
+                    placeholder={t('forms.create_submission.data_source_placeholder')}
                     onChange={(dataSourceId: any) => {
                       setState({
                         ...state,
@@ -327,7 +328,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               <Grid item xs={12}>
                 <FormElement
                   name="analysis-name"
-                  textLabel="Analysis name"
+                  textLabel={t('forms.create_submission.analysis_name')}
                   required
                 >
                   <Input
@@ -335,6 +336,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     name="analysis-name"
                     type="text"
                     size="medium"
+                    placeholder={t('forms.create_submission.analysis_name_placeholder')}
                     value={state.title}
                     onChange={(e: any) => {
                       setState({
@@ -347,7 +349,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                 </FormElement>
               </Grid>
               <Grid item xs={12}>
-                <FormElement name="type" textLabel="Analysis type" required>
+                <FormElement name="type" textLabel={t('forms.create_submission.analysis_type')} required>
                   <Select
                     className=""
                     name="type"
@@ -356,7 +358,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     disabled={controlsList.analysisTypes?.length === 0 || activeTab === CreateSubmissionFormTabs.SEPARATE_FILES}
                     options={controlsList.analysisTypes}
                     value={state.type}
-                    placeholder="Select analysis type..."
+                    placeholder={t('forms.create_submission.analysis_type_placeholder')}
                     onChange={(type: any) => {
                       setState({
                         ...state,
@@ -368,12 +370,13 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                 </FormElement>
               </Grid>
               <Grid item xs={12}>
-                <FormElement name="study-name" textLabel="Study name">
+                <FormElement name="study-name" textLabel={t('forms.create_submission.study_name')}>
                   <Input
                     id="study-name"
                     name="study-name"
                     type="text"
                     size="medium"
+                    placeholder={t('forms.create_submission.study_name_placeholder')}
                     value={state.study}
                     onChange={(e: any) => {
                       setState({
@@ -394,7 +397,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                     size="small"
                     startIcon={<Icon iconName="deactivate" />}
                   >
-                    Cancel
+                    {t('common.buttons.cancel')}
                   </Button>
                   <Button
                     disabled={isLoading || !isValid}
@@ -410,7 +413,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                       )
                     }
                   >
-                    Create
+                    {t('common.buttons.create')}
                   </Button>
                 </FormActionsContainer>
               </Grid>

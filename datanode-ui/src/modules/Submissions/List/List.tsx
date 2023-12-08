@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
 import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
@@ -17,17 +18,18 @@ import { RerunSubmissionForm } from '../RerunSubmissionForm';
 
 
 export const List: React.FC = () => {
+  const { t } = useTranslation()
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState<string>(getUUID());
   const dispatch = useDispatch();
 
-  const cols = React.useMemo(() => colsTableSubmissions, []);
+  const cols = React.useMemo(() => colsTableSubmissions(t), [t]);
 
   useEffect(() => {
     dispatch(
       setBreadcrumbs([
         {
-          name: 'Submissions',
+          name: t('breadcrumbs.submissions'),
           path: `/submissions`,
         }
       ])
@@ -46,7 +48,7 @@ export const List: React.FC = () => {
           }}
         />
       ),
-      'Create submission',
+      t('modals.create_submission.header'),
       {
         closeOnClickOutside: true,
         width: '700px',
@@ -68,7 +70,7 @@ export const List: React.FC = () => {
           }}
         />
       ),
-      'Rerun submission',
+      t('modals.rerun_submission.header'),
       {
         closeOnClickOutside: true,
         width: '700px',
@@ -84,7 +86,7 @@ export const List: React.FC = () => {
         <SubmissionResult item={item} />
       ),
       <SubmissionHeader key="modal-header">
-        <SubmissionHeaderItem>{'Result submission'}</SubmissionHeaderItem>
+        <SubmissionHeaderItem>{t('modals.files_results.header')}</SubmissionHeaderItem>
         {item.finished && (
           <SubmissionHeaderItem smallFont>
             {getFormatDateAndTime(item.finished)}
@@ -110,10 +112,10 @@ export const List: React.FC = () => {
       onRowClick={row => onOpenResult(row.original)}
       listConfig={{
         rowId: 'id',
-        loadingMessage: 'Loading submission...',
-        addButtonTitle: 'Add submission',
-        tableTitle: 'Submissions',
-        importButtonTitle: 'Import',
+        loadingMessage: t('pages.submissions.loading_message'),
+        addButtonTitle: t('pages.submissions.add_button'),
+        tableTitle: t('pages.submissions.header'),
+        importButtonTitle: t('common.button.import'),
         iconName: 'library',
         fetch: getSubmissions,
         remove: removeDataSource,

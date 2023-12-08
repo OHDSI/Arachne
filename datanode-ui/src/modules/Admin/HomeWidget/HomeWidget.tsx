@@ -1,15 +1,17 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 
 import { CreateDatabaseForm } from '../CreateDatabaseForm';
 import { ModalContext, UseModalContext } from '../../../libs/hooks';
 import { createDataSource } from '../../../api/data-sources';
 import { ModuleDescriptionCard } from '../../Submissions/ModuleDescriptionCard';
-import { Button, Icon } from '../../../libs/components';
+import { Button, Grid, Icon } from '../../../libs/components';
+import { HomeInfo } from '../HomeInfo';
 
 export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
 
 
@@ -25,7 +27,7 @@ export const HomeWidget: React.FC = () => {
           }}
         />
       ),
-      'Create database',
+      t('modals.create_database.header'),
       {
         closeOnClickOutside: true,
         onClose: closeModal,
@@ -35,9 +37,9 @@ export const HomeWidget: React.FC = () => {
   };
   return (
     <ModuleDescriptionCard
-      title="Databases"
+      title={t('pages.administration.databases.header')}
       onClick={() => navigate('/administration/databases')}
-      description="List of databases."
+      description={t('pages.administration.databases.description')}
       iconName="dataCatalog"
       actions={
         <>
@@ -49,7 +51,7 @@ export const HomeWidget: React.FC = () => {
             name="save"
             startIcon={<Icon iconName="add" />}
           >
-            Add database
+            {t('pages.administration.databases.add_button')}
           </Button>
           <Button
             onClick={() => navigate('/administration/databases')}
@@ -58,10 +60,14 @@ export const HomeWidget: React.FC = () => {
             name="save"
             sx={{ ml: 1 }}
           >
-            View all
+            {t('common.buttons.view_all')}
           </Button>
         </>
       }
-    ></ModuleDescriptionCard>
+    >
+      <Grid item xs={12} pt={2}>
+        <HomeInfo />
+      </Grid>
+    </ModuleDescriptionCard>
   );
 };

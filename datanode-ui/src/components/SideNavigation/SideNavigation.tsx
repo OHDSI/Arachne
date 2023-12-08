@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 import {
   StyledButton,
   NavigationContainer,
@@ -16,6 +16,11 @@ import { mainNavigationConfig } from './SideNavigation.config';
 export const SideNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const tabs = useMemo(() => {
+    return mainNavigationConfig(t);
+  }, [t]);
 
   const isActive = React.useCallback(
     (path?: string) => location.pathname.split('/')[1] == path,
@@ -27,7 +32,7 @@ export const SideNavigation: React.FC = () => {
         <LogoArachne />
       </LogoContainer>
 
-      {mainNavigationConfig.map((item: MainNavigationConfigInterface) => (
+      {tabs.map((item: MainNavigationConfigInterface) => (
         <Tooltip placement="right" text={item.title || ''} key={item.name} show>
           <div>
             <StyledButton

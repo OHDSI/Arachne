@@ -35,11 +35,12 @@ export const LogsViewer: React.FC<any> = (props) => {
       {log ? (
         <CodeEditor
           data={log || ''}
-          height={'80vh'}
+          height={'73vh'}
           containerStyles={{ padding: 0 }}
           enableDownload={true}
           enableCopy
           readOnly
+          consoleMode
         />
       ) : (
         <Grid item xs={12}>

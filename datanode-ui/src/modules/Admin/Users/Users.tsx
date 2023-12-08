@@ -1,23 +1,23 @@
-import { FC, useEffect } from 'react';
-
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Route, Routes } from 'react-router';
 import { setBreadcrumbs } from '../../../store/modules';
 import { useDispatch } from 'react-redux';
 import { UsersList } from './UsersList/UsersList';
 
 
-export const Users: FC<any> = ({ root }) => {
+export const Users: React.FC<any> = ({ root }) => {
   const dispatch = useDispatch();
-
+  const { t } = useTranslation();
   useEffect(() => {
     dispatch(
       setBreadcrumbs([
         {
-          name: 'Admin',
+          name: t('breadcrumbs.admin'),
           path: `/administration`,
         },
         {
-          name: 'Users',
+          name: t('breadcrumbs.users'),
           path: `/administration/users`,
         },
       ])

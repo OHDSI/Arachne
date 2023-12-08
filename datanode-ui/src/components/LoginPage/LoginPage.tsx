@@ -5,6 +5,7 @@ import {
   Alert,
   Paper
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import {
@@ -22,6 +23,7 @@ import { LogoMediumArachne } from '../Logo';
 
 export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [userName, setUserName] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
 
@@ -79,9 +81,6 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
               DATA NODE
             </Grid>
           </Grid>
-          {/* <LogoMediumArachne />
-          <span className='temp-logo'>Arachne</span>
-          <LogoLarge color="white" /> */}
         </Grid>
       </LogoContainer>
       <LoginFormContainer item container xs={12} md={6}>
@@ -90,38 +89,38 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
             <Paper>
               {loginStatus === Status.ERROR && (
                 <WrapperAlert>
-                  <Alert severity="error">Wrong user name or password.</Alert>
+                  <Alert severity="error">{t('forms.login.error_message')}</Alert>
                 </WrapperAlert>
               )}
 
               <Grid container p={4} spacing={3}>
                 <Grid item xs={12} spacing={2} container>
                   <WelcomeText item xs={12}>
-                    Welcome to Arachne Data node
+                    {t('pages.login.welcome')}
                   </WelcomeText>
                   <LoginFormHeader item xs={12}>
-                    Login into your account
+                    {t('pages.login.header')}
                   </LoginFormHeader>
                 </Grid>
 
                 <Grid item xs={12} spacing={2} container>
                   <FormControl item xs={12}>
-                    <label>User name</label>
+                    <label>{t('forms.login.username')}</label>
                     <Input
                       fullWidth
                       value={userName}
                       onChange={e => setUserName(e.target.value)}
-                      placeholder="Enter user name"
+                      placeholder={t('forms.login.username_placeholder')}
                     />
                   </FormControl>
                   <FormControl item xs={12}>
-                    <label>Password</label>
+                    <label>{t('forms.login.password')}</label>
                     <Input
                       fullWidth
                       type="password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      placeholder="Enter password"
+                      placeholder={t('forms.login.password_placeholder')}
                     />
                   </FormControl>
                   <Grid item xs={12} textAlign="right">
@@ -135,10 +134,10 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
                     >
                       {loginStatus === Status.IN_PROGRESS ? (
                         <>
-                          <LogInText>Log in</LogInText><Spinner size={18} />
+                          <LogInText>{t('forms.login.submit_button')}</LogInText><Spinner size={18} />
                         </>
                       ) : (
-                        <>Log in</>
+                        <>{t('forms.login.submit_button')}</>
                       )}
                     </Button>
                   </Grid>
