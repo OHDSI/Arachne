@@ -176,16 +176,6 @@ public interface Constants {
         String ACHILLES_NUM_THREADS = "ACHILLES_NUM_THREADS";
     }
 
-    interface Atlas {
-
-        String INFO = "/info";
-        String LOGIN_DB = "/user/login/db";
-        String LOGIN_LDAP = "/user/login/ldap";
-        String COHORT_DEFINITION = "/cohortdefinition";
-
-        ComparableVersion ATLAS_2_7_VERSION = new ComparableVersion("2.7.0");
-    }
-
     interface CDM {
         String category = "category";
         String concept_id = "concept_id";

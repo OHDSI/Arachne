@@ -22,14 +22,14 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import static com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO.COHORT;
-
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
+import com.odysseusinc.atlas.integration.CommonCohortDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
+
+import static com.odysseusinc.atlas.integration.CommonCohortDTO.COHORT;
 
 @Component
 public class CohortDefinitionToCommonCohortDTOConverter implements Converter<CohortDefinition, CommonCohortDTO> {

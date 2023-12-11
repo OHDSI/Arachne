@@ -22,7 +22,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.util;
 
-import com.odysseusinc.arachne.datanode.Constants;
+import com.odysseusinc.arachne.datanode.atlas.AtlasConstants;
 import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +35,7 @@ public final class AtlasUtils {
 
 		return atlasList.stream()
 						.filter(a -> Objects.nonNull(a) && Objects.nonNull(a.getVersion()))
-						.filter(atlas -> Constants.Atlas.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion()))
+						.filter(atlas -> AtlasConstants.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion()))
 						.collect(Collectors.toList());
 	}
 }

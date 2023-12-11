@@ -26,16 +26,16 @@ import com.google.common.collect.ImmutableMap;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortShortDTO;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
-import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
-import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
-import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
 import com.odysseusinc.arachne.datanode.atlas.AtlasRequestHandler;
 import com.odysseusinc.arachne.datanode.atlas.AtlasService;
 import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
 import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
 import com.odysseusinc.arachne.datanode.atlas.client.AtlasClient;
+import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
 import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
-import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +50,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO.COHORT;
 import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
+import static com.odysseusinc.atlas.integration.CommonCohortDTO.COHORT;
 
 
 @Service

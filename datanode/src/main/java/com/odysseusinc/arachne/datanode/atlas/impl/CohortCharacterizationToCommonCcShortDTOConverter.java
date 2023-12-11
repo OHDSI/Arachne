@@ -1,7 +1,7 @@
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonCcShortDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortCharacterization;
+import com.odysseusinc.atlas.integration.CommonCcShortDTO;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 

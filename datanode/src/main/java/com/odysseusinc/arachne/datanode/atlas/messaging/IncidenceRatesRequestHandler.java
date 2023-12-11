@@ -22,31 +22,21 @@
 
 package com.odysseusinc.arachne.datanode.atlas.messaging;
 
-import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonIncidenceRatesDTO;
 import com.odysseusinc.arachne.commons.utils.AnalysisArchiveUtils;
-import com.odysseusinc.arachne.datanode.atlas.dto.IRAnalysis;
-import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
-import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
 import com.odysseusinc.arachne.datanode.atlas.AtlasRequestHandler;
 import com.odysseusinc.arachne.datanode.atlas.AtlasService;
 import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
 import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
 import com.odysseusinc.arachne.datanode.atlas.client.AtlasClient;
+import com.odysseusinc.arachne.datanode.atlas.dto.IRAnalysis;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
 import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.odysseusinc.atlas.integration.CommonIncidenceRatesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +46,17 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
 
 @Service
 public class IncidenceRatesRequestHandler extends BaseRequestHandler implements AtlasRequestHandler<CommonIncidenceRatesDTO, List<MultipartFile>> {

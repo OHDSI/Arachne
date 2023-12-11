@@ -6,16 +6,10 @@ import com.odysseusinc.arachne.commons.annotations.PreprocessorComponent;
 import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO;
-import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.util.Random;
-
+import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.util.SqlUtils;
+import com.odysseusinc.atlas.integration.CommonCohortDTO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +17,12 @@ import org.ohdsi.sql.SqlTranslate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.util.Random;
 
 
 @PreprocessorComponent(contentType = CommonFileUtils.TYPE_COHORT_SQL)

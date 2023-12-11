@@ -24,34 +24,21 @@
 package com.odysseusinc.arachne.datanode.atlas.messaging;
 
 
-import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
-import static com.odysseusinc.arachne.datanode.atlas.messaging.MessagingUtils.ignorePreprocessingMark;
-
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortShortDTO;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
-import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
-import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
-import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
 import com.odysseusinc.arachne.datanode.atlas.AtlasRequestHandler;
 import com.odysseusinc.arachne.datanode.atlas.AtlasService;
 import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
 import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
 import com.odysseusinc.arachne.datanode.atlas.client.AtlasClient;
+import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
 import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
+import com.odysseusinc.atlas.integration.CohortHeraclesDTO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +52,23 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
+import static com.odysseusinc.arachne.datanode.atlas.messaging.MessagingUtils.ignorePreprocessingMark;
+
 @Service
 public class CohortHeraclesRequestHandler implements AtlasRequestHandler<CommonCohortShortDTO, List<MultipartFile>> {
 
-    public static final CommonAnalysisType COHORT_HERACLES = new CommonAnalysisType("COHORT_HERACLES", "Cohort (Heracles)", "cc_hrcls");
     private static final Logger logger = LoggerFactory.getLogger(CohortHeraclesRequestHandler.class);
 
     private final AtlasService atlasService;
@@ -139,7 +139,7 @@ public class CohortHeraclesRequestHandler implements AtlasRequestHandler<CommonC
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return COHORT_HERACLES;
+        return CohortHeraclesDTO.COHORT_HERACLES;
     }
 
     @Override

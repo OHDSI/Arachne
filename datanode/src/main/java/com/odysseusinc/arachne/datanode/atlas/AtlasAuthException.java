@@ -20,7 +20,7 @@
  *
  */
 
-package com.odysseusinc.arachne.datanode.exception;
+package com.odysseusinc.arachne.datanode.atlas;
 
 public class AtlasAuthException extends RuntimeException {
     public AtlasAuthException() {

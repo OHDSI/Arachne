@@ -36,7 +36,7 @@ public class CommonAnalysisDTO extends CommonUuidDTO {
     private List<String> archiveChunkUrls;
     private List<CommonAnalysisFileDTO> analysisFiles;
     private CommonStudyDTO study;
-    private CommonAnalysisType type;
+    private String type;
 
     public Long getId() {
 
@@ -126,12 +126,12 @@ public class CommonAnalysisDTO extends CommonUuidDTO {
         this.study = study;
     }
 
-    public CommonAnalysisType getType() {
+    public String getType() {
 
         return type;
     }
 
-    public void setType(CommonAnalysisType type) {
+    public void setType(String type) {
 
         this.type = type;
     }

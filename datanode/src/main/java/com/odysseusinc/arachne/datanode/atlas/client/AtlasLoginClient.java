@@ -22,18 +22,18 @@
 
 package com.odysseusinc.arachne.datanode.atlas.client;
 
-import com.odysseusinc.arachne.datanode.Constants;
+import com.odysseusinc.arachne.datanode.atlas.AtlasConstants;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 
 public interface AtlasLoginClient {
 
-    @RequestLine("POST " + Constants.Atlas.LOGIN_DB)
+    @RequestLine("POST " + AtlasConstants.LOGIN_DB)
     @Headers("Content-Type: application/x-www-form-urlencoded")
     String loginDatabase(@Param("login") String username, @Param("password") String password);
 
-    @RequestLine("POST " + Constants.Atlas.LOGIN_LDAP)
+    @RequestLine("POST " + AtlasConstants.LOGIN_LDAP)
     @Headers("Content-Type: application/x-www-form-urlencoded")
     String loginLdap(@Param("login") String username, @Param("password") String password);
 }

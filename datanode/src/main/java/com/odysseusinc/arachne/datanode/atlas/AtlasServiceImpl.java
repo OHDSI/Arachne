@@ -29,7 +29,6 @@ import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.atlas.impl.AtlasClientServiceImpl;
 import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
-import com.odysseusinc.arachne.datanode.exception.AtlasAuthException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
 import com.odysseusinc.arachne.datanode.atlas.repository.AtlasRepository;

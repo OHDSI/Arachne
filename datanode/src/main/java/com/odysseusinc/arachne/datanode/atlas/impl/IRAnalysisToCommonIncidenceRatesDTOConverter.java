@@ -22,8 +22,8 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonIncidenceRatesDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.IRAnalysis;
+import com.odysseusinc.atlas.integration.CommonIncidenceRatesDTO;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 

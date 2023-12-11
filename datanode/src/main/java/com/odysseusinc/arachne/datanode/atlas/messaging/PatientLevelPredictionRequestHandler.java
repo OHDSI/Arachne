@@ -25,21 +25,21 @@ package com.odysseusinc.arachne.datanode.atlas.messaging;
 
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonPredictionDTO;
 import com.odysseusinc.arachne.commons.utils.ConverterUtils;
-import com.odysseusinc.arachne.datanode.Constants;
-import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
-import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
-import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
+import com.odysseusinc.arachne.datanode.atlas.AtlasConstants;
 import com.odysseusinc.arachne.datanode.atlas.AtlasRequestHandler;
 import com.odysseusinc.arachne.datanode.atlas.AtlasService;
 import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
 import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
 import com.odysseusinc.arachne.datanode.atlas.client.AtlasClient;
-import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
+import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
 import com.odysseusinc.arachne.datanode.atlas.messaging.prediction.PredictionAtlas2_5Mapper;
 import com.odysseusinc.arachne.datanode.atlas.messaging.prediction.PredictionAtlas2_7Mapper;
-import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
+import com.odysseusinc.atlas.integration.CommonPredictionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +98,7 @@ public class PatientLevelPredictionRequestHandler extends CommonAnalysisRequestH
 
     protected <T extends BaseAtlasEntity, C extends AtlasClient> EntityMapper<T, CommonEntity, C> getEntityMapper(Atlas atlas) {
 
-        if (Constants.Atlas.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion())) {
+        if (AtlasConstants.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion())) {
             return (EntityMapper<T, CommonEntity, C>) new PredictionAtlas2_7Mapper(atlasService, analysisInfoBuilder, runnerTemplate);
         } else {
             return (EntityMapper<T, CommonEntity, C>) new PredictionAtlas2_5Mapper(sqlRenderService, atlasService, legacyRunnerTemplate);

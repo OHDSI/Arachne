@@ -24,21 +24,21 @@ package com.odysseusinc.arachne.datanode.atlas.messaging;
 
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO;
 import com.odysseusinc.arachne.commons.utils.ConverterUtils;
-import com.odysseusinc.arachne.datanode.Constants;
-import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
-import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
-import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
+import com.odysseusinc.arachne.datanode.atlas.AtlasConstants;
 import com.odysseusinc.arachne.datanode.atlas.AtlasRequestHandler;
 import com.odysseusinc.arachne.datanode.atlas.AtlasService;
 import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
 import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
 import com.odysseusinc.arachne.datanode.atlas.client.AtlasClient;
-import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
+import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
 import com.odysseusinc.arachne.datanode.atlas.messaging.estimation.EstimationAtlas2_5Mapper;
 import com.odysseusinc.arachne.datanode.atlas.messaging.estimation.EstimationAtlas2_7Mapper;
-import com.odysseusinc.arachne.datanode.atlas.AnalysisInfoBuilder;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
+import com.odysseusinc.atlas.integration.CommonEstimationDTO;
 import org.ohdsi.circe.cohortdefinition.CohortExpressionQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,7 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 
-import static com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO.ESTIMATION;
+import static com.odysseusinc.atlas.integration.CommonEstimationDTO.ESTIMATION;
 
 
 @Service
@@ -110,7 +110,7 @@ public class EstimationRequestHandler extends CommonAnalysisRequestHandler imple
 
     protected <T extends BaseAtlasEntity, C extends AtlasClient> EntityMapper<T, CommonEntity, C> getEntityMapper(Atlas atlas) {
 
-        if (Constants.Atlas.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion())) {
+        if (AtlasConstants.ATLAS_2_7_VERSION.isLesserOrEqualsThan(atlas.getVersion())) {
             return (EntityMapper<T, CommonEntity, C>) new EstimationAtlas2_7Mapper(atlasService, estimationRunnerTemplate, analysisInfoBuilder);
         } else {
             return (EntityMapper<T, CommonEntity, C>) new EstimationAtlas2_5Mapper(sqlRenderService, atlasService, queryBuilder, legacyRunnerTemplate);

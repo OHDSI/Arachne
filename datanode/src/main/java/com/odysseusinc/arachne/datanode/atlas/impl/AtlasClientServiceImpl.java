@@ -1,10 +1,10 @@
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import static com.odysseusinc.arachne.datanode.Constants.Atlas.ATLAS_2_7_VERSION;
+import static com.odysseusinc.arachne.datanode.atlas.AtlasConstants.ATLAS_2_7_VERSION;
 
 import com.fasterxml.jackson.databind.Module;
 import com.odysseusinc.arachne.datanode.dto.serialize.PageModule;
-import com.odysseusinc.arachne.datanode.exception.AtlasAuthException;
+import com.odysseusinc.arachne.datanode.atlas.AtlasAuthException;
 import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
 import com.odysseusinc.arachne.datanode.atlas.AtlasClientService;
 import com.odysseusinc.arachne.datanode.service.client.ArachneHttpClientBuilder;

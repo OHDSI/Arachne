@@ -1,7 +1,7 @@
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.datanode.atlas.dto.CommonPathwayDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.Pathway;
+import com.odysseusinc.atlas.integration.CommonPathwayDTO;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 

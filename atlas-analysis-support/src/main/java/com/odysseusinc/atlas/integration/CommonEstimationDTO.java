@@ -1,4 +1,4 @@
-package com.odysseusinc.arachne.datanode.atlas.analysis;
+package com.odysseusinc.atlas.integration;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonEntityDTO;
