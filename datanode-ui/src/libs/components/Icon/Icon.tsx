@@ -72,6 +72,9 @@ import { ReactComponent as SearchPlaceholder } from '../icons/search_placeholder
 import { ReactComponent as Message } from '../icons/message.svg';
 import { ReactComponent as Terminated } from '../icons/terminated.svg';
 import { ShowFolder } from '../icons/ShowFolder';
+import { Github } from '../icons/Girhub';
+import { Wiki } from '../icons/Wiki';
+import { Documentation } from '../icons/Documentation';
 
 export const icons: { [key: string]: React.FC<any> } = {
   add: Add,
@@ -143,7 +146,10 @@ export const icons: { [key: string]: React.FC<any> } = {
   xls: Xls,
   zip: ZIP,
   unknown: Unknown,
-  showFolder: ShowFolder
+  showFolder: ShowFolder,
+  github: Github,
+  wiki: Wiki,
+  documentation: Documentation
 };
 
 export type IconName = keyof typeof icons;

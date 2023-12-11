@@ -60,7 +60,7 @@ interface ControlListInterfaceState {
 
 export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   memo(props => {
-    const { afterCreate, onCancel, createMethod, isRerun } = props;
+    const { afterCreate, onCancel, createMethod } = props;
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { enqueueSnackbar } = useNotifications();

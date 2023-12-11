@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import TextField from '@mui/material/TextField';
 import { StyledAutocomplete } from './Autocomplete.styles';
 import { Global } from '@emotion/react';
@@ -67,7 +67,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = props => {
         }
         renderTags={props?.renderTags}
         size={'small'}
-        isDense={props.size == 'small'}
+        isDense={props.size === 'small'}
         renderInput={params => (
           <TextField
             {...params}

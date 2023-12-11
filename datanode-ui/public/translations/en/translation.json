@@ -43,13 +43,18 @@
         "add_button": "Create Database",
         "loading_message": "Loading Databases...",
         "success_message": "",
-        "description": "List of Databases"
+        "description": "List of Databases",
+        "github_repo": "GitHub Repository",
+        "github_wiki": "GitHub Wiki",
+        "header_links": "Documentation",
+        "description_links": "Documentation and useful references"
       }
     }
   },
   "tables": {
     "base": {
-      "pagination": "Page {{currentPage}} of {{totalPage}} (Showing {{minRow}} to {{maxRow}} of {{totalRow}} Entries)",
+      "showing": "(Showing {{minRow}} to {{maxRow}} of {{totalRow}} Entries)",
+      "pagination": "Page {{currentPage}} of {{totalPage}}",
       "loading_message": "Loading {{entity}}..."
     },
     "cols": {
@@ -104,7 +109,7 @@
       "username": "User Name",
       "username_placeholder": "Enter User Name...",
       "password": "Password",
-      "password_placehoder": "Enter Password...",
+      "password_placeholder": "Enter Password...",
       "error_message": "Wrong User Name or Password",
       "submit_button": "Log In"
     },

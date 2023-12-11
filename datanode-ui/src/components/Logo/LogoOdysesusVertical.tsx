@@ -1,8 +1,6 @@
-import React, { FC } from 'react';
+import React from 'react';
 
-export const LogoOdysseus: FC<any> = props => {
-  const { fullSize = true } = props;
-
+export const LogoOdysseus: React.FC = () => {
   return (
     <svg
       height="60"

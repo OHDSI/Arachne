@@ -1,7 +1,6 @@
-import React, { FC } from 'react';
+import React from 'react';
 
-export const Logo: FC<any> = props => {
-  const { fullSize = true } = props;
+export const Logo: React.FC = () => {
 
   return (
     <svg

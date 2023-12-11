@@ -37,7 +37,7 @@ function isJson(str) {
 
 export const CodeEditor: FC<ICodeEditorProps> = memo(props => {
   const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false);
-  const [line, setLine] = useState(1000);
+  const [line, setLine] = useState(100000);
   const {
     title = '',
     tooltipText = 'Copied to clipboard!',

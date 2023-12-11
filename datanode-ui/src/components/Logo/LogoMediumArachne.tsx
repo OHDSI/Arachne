@@ -1,8 +1,6 @@
-import React, { FC } from 'react';
+import React from 'react';
 
-export const LogoMediumArachne: FC<any> = props => {
-  const { fullSize = true } = props;
-
+export const LogoMediumArachne: React.FC = () => {
   return (
     <svg
       height="200"

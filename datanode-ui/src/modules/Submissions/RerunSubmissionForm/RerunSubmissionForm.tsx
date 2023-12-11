@@ -85,7 +85,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       if (status === Status.SUCCESS) {
         setState(entity);
       }
-    }, [status])
+    }, [status, entity])
 
     useEffect(() => {
       setControlsList(prevState => ({ ...prevState, status: Status.IN_PROGRESS }))

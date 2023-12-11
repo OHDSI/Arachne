@@ -34,7 +34,7 @@ export const List: React.FC = () => {
         }
       ])
     );
-  }, [dispatch]);
+  }, [dispatch, t]);
 
   const onCreate = () => {
     openModal(

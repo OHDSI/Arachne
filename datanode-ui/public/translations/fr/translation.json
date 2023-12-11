@@ -49,12 +49,13 @@
   },
   "tables": {
     "base": {
-      "pagination": "Страница {{currentPage}} из {{totalPage}} (Показано с {{minRow}} по {{maxRow}} из {{totalRow}} Элементов)",
+      "showing": "(Показано с {{minRow}} по {{maxRow}} из {{totalRow}} Сущностей)",
+      "pagination": "Страница {{currentPage}} из {{totalPage}}",
       "loading_message": "Загрузка {{entity}}..."
     },
     "cols": {
       "number": "No",
-      "origin": "Origin",
+      "origin": "Источник",
       "author": "Автор",
       "data_source": "Источник данных",
       "submitted": "Запущщен",
@@ -117,17 +118,17 @@
         "upload": "Загрузка JSON"
       },
       "entry_point": "Файл Для Запуска",
-      "entry_point_placeholder": "Выбор Файла Для Запуска...",
-      "env": "Runtime Environment",
-      "env_placeholder": "Select Runtime Environment...",
+      "entry_point_placeholder": "Выбрать Файла Для Запуска...",
+      "env": "Окружение",
+      "env_placeholder": "Выбрать Окружение...",
       "data_source": "Источник Данных",
       "data_source_placeholder": "Введите Источник Данных...",
       "analysis_name": "Имя Анализа",
       "analysis_name_placeholder": "Введите Имя Анализа...",
       "analysis_type": "Тип Анализа",
       "analysis_type_placeholder": "Выберите Тип Анализа...",
-      "study_name": "Study Name",
-      "study_name_placeholder": "Enter Study Name..."
+      "study_name": "Стади",
+      "study_name_placeholder": "Введите Имя Стади..."
     },
     "rerun_submission": {
       "success_message": "Submission Successfully Rerun",

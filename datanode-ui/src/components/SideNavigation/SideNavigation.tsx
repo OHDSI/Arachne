@@ -23,7 +23,7 @@ export const SideNavigation: React.FC = () => {
   }, [t]);
 
   const isActive = React.useCallback(
-    (path?: string) => location.pathname.split('/')[1] == path,
+    (path?: string) => location.pathname.split('/')[1] === path,
     [location]
   );
   return (

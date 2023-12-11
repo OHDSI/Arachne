@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   PaginationStyled,
   ButtonStyled,
@@ -39,6 +40,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   numberOfElements,
   disablePageSize,
 }) => {
+  const { t } = useTranslation();
   const populatePagesList = () => {
     const list: React.ReactNode[] = [];
     let arr: any[] = [];
@@ -89,9 +91,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   const entries = useMemo(() => {
-    return ` (Showing ${pageIndex * pageSize + 1} to ${pageIndex * pageSize + numberOfElements
-      } of ${totalElements} entries)`;
-  }, [pageIndex, numberOfElements, totalElements]);
+    return t('tables.base.showing', { minRow: pageIndex * pageSize + 1, maxRow: pageIndex * pageSize + numberOfElements, totalRow: totalElements })
+  }, [pageIndex, numberOfElements, totalElements, t]);
 
   return (
     <PaginationStyled className={clsx(className, 'table-pagination')}>
@@ -103,7 +104,6 @@ export const Pagination: React.FC<PaginationProps> = ({
         disabled={!canPreviousPage}
       >
         {'<'}
-        {/* {'Previous'} */}
       </ButtonStyled>
       {populatePagesList()}
       <ButtonStyled
@@ -114,10 +114,11 @@ export const Pagination: React.FC<PaginationProps> = ({
         disabled={!canNextPage}
       >
         {'>'}
-        {/* {'Next'} */}
       </ButtonStyled>
 
-      <span>{`Page ${pageIndex + 1} of ${pageOptions.length}`}</span>
+      <span>
+        {t('tables.base.pagination', { currentPage: pageIndex + 1, totalPage: pageOptions.length })}
+      </span>
       <span style={{ marginRight: 10 }}>{numberOfElements > 0 && entries}</span>
       {/* {!disablePageSize && (
         <StyledSelect

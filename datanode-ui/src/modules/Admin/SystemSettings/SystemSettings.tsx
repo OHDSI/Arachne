@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { Divider } from '@mui/material';
 
@@ -16,11 +17,12 @@ import {
 } from '../../../libs/components';
 
 import { BlockSettings } from './BlockSettings';
-import { TabsInterface } from '@/libs/types';
+import { TabsInterface } from '../../../libs/types';
 
 
 export const SystemSettings: React.FC = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation()
   const { enqueueSnackbar } = useNotifications()
 
   const {
@@ -35,12 +37,12 @@ export const SystemSettings: React.FC = () => {
     dispatch(
       setBreadcrumbs([
         {
-          name: 'Admin',
+          name: t('breadcrumbs.admin'),
           path: `/administration`,
         },
         {
-          name: 'System Settings',
-          path: `/administration/system-settings`,
+          name: t('breadcrumbs.system_settings'),
+          path: `/administration/system_settings`,
         },
       ])
     );

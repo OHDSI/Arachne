@@ -9,7 +9,7 @@ export const ModuleDescriptionCard: React.FC<{
   children?: React.ReactNode;
   actions: React.ReactNode;
   onClick?: any;
-  iconName: 'study' | 'workspace' | 'library' | 'dataCatalog';
+  iconName: 'study' | 'workspace' | 'library' | 'dataCatalog' | 'documentation';
 }> = ({ children, title, description, actions, iconName, onClick }) => {
   return (
     <Paper elevation={3} sx={{ minHeight: children ? '100%' : 'auto' }}>
@@ -44,13 +44,15 @@ export const ModuleDescriptionCard: React.FC<{
             >
               {title}
             </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={theme => ({ color: theme.palette.grey[600], fontSize: 13 })}
-            >
-              {description}
-            </Grid>
+            {description && (
+              <Grid
+                item
+                xs={12}
+                sx={theme => ({ color: theme.palette.grey[600], fontSize: 13 })}
+              >
+                {description}
+              </Grid>
+            )}
             <Grid item xs={12}>
               {actions}
             </Grid>

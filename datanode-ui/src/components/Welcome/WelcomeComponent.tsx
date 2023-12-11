@@ -5,15 +5,13 @@ import { Grid } from '../../libs/components';
 import { HomeWidget as HomeWidgetSubmission } from '../../modules/Submissions/HomeWidget';
 import { HomeWidget as HomeWidgetAdmin } from '../../modules/Admin/HomeWidget';
 import { LogoMediumArachne } from '../Logo';
-import { useTranslation } from 'react-i18next';
 
 export const Welcome: React.FC = () => {
   const dispatch = useDispatch();
-  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     dispatch(resetBreadcrumbs());
-  }, []);
+  }, [dispatch]);
 
   React.useEffect(() => {
     document.title = `Arachne Data Node`;

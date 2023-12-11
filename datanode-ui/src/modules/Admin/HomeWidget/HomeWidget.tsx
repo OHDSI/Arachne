@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { CreateDatabaseForm } from '../CreateDatabaseForm';
@@ -36,38 +36,80 @@ export const HomeWidget: React.FC = () => {
     );
   };
   return (
-    <ModuleDescriptionCard
-      title={t('pages.administration.databases.header')}
-      onClick={() => navigate('/administration/databases')}
-      description={t('pages.administration.databases.description')}
-      iconName="dataCatalog"
-      actions={
-        <>
-          <Button
-            onClick={() => onCreateCdmDataSource()}
-            variant="contained"
-            color="success"
-            size="small"
-            name="save"
-            startIcon={<Icon iconName="add" />}
-          >
-            {t('pages.administration.databases.add_button')}
-          </Button>
-          <Button
-            onClick={() => navigate('/administration/databases')}
-            variant="outlined"
-            size="small"
-            name="save"
-            sx={{ ml: 1 }}
-          >
-            {t('common.buttons.view_all')}
-          </Button>
-        </>
-      }
-    >
-      <Grid item xs={12} pt={2}>
-        <HomeInfo />
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <ModuleDescriptionCard
+          title={t('pages.administration.databases.header')}
+          onClick={() => navigate('/administration/databases')}
+          description={t('pages.administration.databases.description')}
+          iconName="dataCatalog"
+          actions={
+            <>
+              <Button
+                onClick={() => onCreateCdmDataSource()}
+                variant="contained"
+                color="success"
+                size="small"
+                name="save"
+                startIcon={<Icon iconName="add" />}
+              >
+                {t('pages.administration.databases.add_button')}
+              </Button>
+              <Button
+                onClick={() => navigate('/administration/databases')}
+                variant="outlined"
+                size="small"
+                name="save"
+                sx={{ ml: 1 }}
+              >
+                {t('common.buttons.view_all')}
+              </Button>
+            </>
+          }
+        >
+        </ModuleDescriptionCard>
       </Grid>
-    </ModuleDescriptionCard>
+      <Grid item xs={12}>
+        <ModuleDescriptionCard
+          title={t('pages.administration.databases.header_links')}
+          onClick={() => navigate('/administration/databases')}
+          description={t('pages.administration.databases.description_links')}
+          iconName="study"
+          actions={
+            <>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => { }}
+                size="small"
+                name="save"
+                startIcon={<Icon iconName="github" />}
+              >
+                <a href="https://github.com/OHDSI/Arachne" className="link-primary" target="_blank" >
+                  {t('pages.administration.databases.github_repo')}
+                </a>
+              </Button>
+              <Button
+                onClick={() => { }}
+                variant="outlined"
+                color="primary"
+                size="small"
+                name="save"
+                sx={{ ml: 1 }}
+                startIcon={<Icon iconName="wiki" />}
+              >
+                <a href="https://github.com/OHDSI/Arachne/wiki" className="link-primary" target="_blank" >
+                  {t('pages.administration.databases.github_wiki')}
+                </a>
+              </Button>
+            </>
+          }
+        >
+          <Grid item xs={12} pt={2}>
+            <HomeInfo />
+          </Grid>
+        </ModuleDescriptionCard>
+      </Grid>
+    </Grid>
   );
 };

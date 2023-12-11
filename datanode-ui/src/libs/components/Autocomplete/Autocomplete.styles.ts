@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { getColor } from '../common/utils';
-import { Chip, Autocomplete, ChipProps, styled, Theme } from '@mui/material';
+import { Chip, Autocomplete, ChipProps, styled } from '@mui/material';
 import { StyledComponent } from '@emotion/styled';
 
 //  we need to make it as separate component
