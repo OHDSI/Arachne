@@ -23,7 +23,7 @@
 package com.odysseusinc.arachne.datanode.atlas.client;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortAnalysisDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortShortDTO;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;

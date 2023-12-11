@@ -212,7 +212,7 @@ public class AnalysisController {
     )
     public List<OptionDTO> getTypes() {
 
-        return Stream.of(CommonAnalysisType.values())
+        return Stream.of(CommonAnalysisType.CUSTOM, CommonAnalysisType.STRATEGUS)
                 .map(type -> new OptionDTO(type.name(), type.getTitle()))
                 .collect(Collectors.toList());
     }

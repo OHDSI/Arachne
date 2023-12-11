@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonIncidenceRatesDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonIncidenceRatesDTO;
 import com.odysseusinc.arachne.commons.utils.AnalysisArchiveUtils;
 import com.odysseusinc.arachne.datanode.atlas.dto.IRAnalysis;
 import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
@@ -164,7 +164,7 @@ public class IncidenceRatesRequestHandler extends BaseRequestHandler implements 
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return CommonAnalysisType.INCIDENCE;
+        return CommonIncidenceRatesDTO.INCIDENCE;
     }
 
     @Override

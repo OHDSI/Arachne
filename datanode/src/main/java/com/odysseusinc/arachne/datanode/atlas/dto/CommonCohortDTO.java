@@ -20,11 +20,15 @@
  *
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.datanode.atlas.dto;
+
+import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
+import com.odysseusinc.arachne.commons.api.v1.dto.CommonEntityDTO;
 
 import java.io.Serializable;
 
 public class CommonCohortDTO extends CommonEntityDTO implements Serializable {
+    public static final CommonAnalysisType COHORT = new CommonAnalysisType("COHORT", "Cohort (Simple Counts)", "c");
     private String expression;
 
     public String getExpression() {

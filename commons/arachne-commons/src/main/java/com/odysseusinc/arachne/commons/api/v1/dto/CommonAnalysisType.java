@@ -22,31 +22,22 @@
 
 package com.odysseusinc.arachne.commons.api.v1.dto;
 
-public enum CommonAnalysisType {
-    ESTIMATION("Population Level Effect Estimation", "ple"),
-    CUSTOM("Custom", "cstm"),
-    PREDICTION("Patient Level Prediction", "plp"),
-    COHORT_CHARACTERIZATION("Cohort (Characterization)", "cc"),
-    COHORT_HERACLES("Cohort (Heracles)", "cc_hrcls"),
-    COHORT("Cohort (Simple Counts)", "c"),
-    INCIDENCE("Incidence rates", "ir"),
-    COHORT_PATHWAY("Cohort Pathway", "txp"),
-    STRATEGUS("Strategus", "strgs"),
+public class CommonAnalysisType {
+    public static final CommonAnalysisType CUSTOM = new CommonAnalysisType("CUSTOM", "Custom", "cstm");
+    public static final CommonAnalysisType STRATEGUS = new CommonAnalysisType("STRATEGUS", "Strategus", "strgs");
 
-    /**
-     * REPORTING is currently unsupported. This left for backward compatibility only.
-     */
-    @Deprecated
-    REPORTING("Reporting", "rep");
+    private final String name;
+    private final String title;
+    private final String code;
 
-    private String title;
-
-    private String code;
-
-    CommonAnalysisType(String title, String code) {
-
+    public CommonAnalysisType(String id, String title, String code) {
+        this.name = id;
         this.title = title;
         this.code = code;
+    }
+
+    public String name() {
+        return name;
     }
 
     public String getTitle() {
@@ -57,5 +48,10 @@ public enum CommonAnalysisType {
     public String getCode() {
 
         return code;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

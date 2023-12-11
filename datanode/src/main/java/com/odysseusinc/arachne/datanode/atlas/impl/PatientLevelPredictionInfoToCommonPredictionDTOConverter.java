@@ -22,8 +22,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonPredictionDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonPredictionDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.PatientLevelPredictionInfo;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class PatientLevelPredictionInfoToCommonPredictionDTOConverter
         CommonPredictionDTO dto = super.convert(source);
         dto.setLocalId(source.getAnalysisId().longValue());
         dto.setModified(source.getModifiedDate());
-        dto.setType(CommonAnalysisType.PREDICTION);
+        dto.setType(CommonPredictionDTO.PREDICTION);
         return dto;
     }
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonPathwayDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonPathwayDTO;
 import com.odysseusinc.arachne.commons.utils.AnalysisArchiveUtils;
 import com.odysseusinc.arachne.commons.utils.CommonFilenameUtils;
 import com.odysseusinc.arachne.datanode.atlas.dto.Pathway;
@@ -120,7 +120,7 @@ public class PathwayRequestHandler extends BaseRequestHandler implements AtlasRe
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return CommonAnalysisType.COHORT_PATHWAY;
+        return CommonPathwayDTO.COHORT_PATHWAY;
     }
 
     @Override

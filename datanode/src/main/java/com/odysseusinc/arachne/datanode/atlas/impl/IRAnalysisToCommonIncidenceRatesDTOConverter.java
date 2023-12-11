@@ -22,8 +22,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonIncidenceRatesDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonIncidenceRatesDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.IRAnalysis;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
@@ -45,7 +44,7 @@ public class IRAnalysisToCommonIncidenceRatesDTOConverter
         result.setDescription(source.getDescription());
         result.setLocalId(source.getId().longValue());
         result.setModified(source.getModifiedDate());
-        result.setType(CommonAnalysisType.INCIDENCE);
+        result.setType(CommonIncidenceRatesDTO.INCIDENCE);
         return result;
     }
 

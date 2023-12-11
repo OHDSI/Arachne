@@ -22,7 +22,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType.COHORT;
+import static com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO.COHORT;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortShortDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;

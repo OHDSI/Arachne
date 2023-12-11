@@ -25,7 +25,7 @@ package com.odysseusinc.arachne.datanode.atlas.messaging;
 
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonPredictionDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonPredictionDTO;
 import com.odysseusinc.arachne.commons.utils.ConverterUtils;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
@@ -93,7 +93,7 @@ public class PatientLevelPredictionRequestHandler extends CommonAnalysisRequestH
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return CommonAnalysisType.PREDICTION;
+        return CommonPredictionDTO.PREDICTION;
     }
 
     protected <T extends BaseAtlasEntity, C extends AtlasClient> EntityMapper<T, CommonEntity, C> getEntityMapper(Atlas atlas) {

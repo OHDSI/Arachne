@@ -3,7 +3,7 @@ package com.odysseusinc.arachne.datanode.atlas.messaging;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonCcShortDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonCcShortDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonEntityDTO;
 import com.odysseusinc.arachne.commons.utils.AnalysisArchiveUtils;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortCharacterization;
@@ -107,7 +107,7 @@ public class CohortCharacterizationRequestHandler implements AtlasRequestHandler
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return CommonAnalysisType.COHORT_CHARACTERIZATION;
+        return CommonCcShortDTO.COHORT_CHARACTERIZATION;
     }
 
     @Override

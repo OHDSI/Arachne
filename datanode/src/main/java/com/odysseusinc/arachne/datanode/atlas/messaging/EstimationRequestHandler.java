@@ -24,7 +24,7 @@ package com.odysseusinc.arachne.datanode.atlas.messaging;
 
 import com.github.jknack.handlebars.Template;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonEstimationDTO;
+import com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO;
 import com.odysseusinc.arachne.commons.utils.ConverterUtils;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.atlas.dto.BaseAtlasEntity;
@@ -48,7 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType.ESTIMATION;
+import static com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO.ESTIMATION;
 
 
 @Service

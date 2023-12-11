@@ -22,9 +22,9 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType.COHORT;
+import static com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO.COHORT;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonCohortDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;

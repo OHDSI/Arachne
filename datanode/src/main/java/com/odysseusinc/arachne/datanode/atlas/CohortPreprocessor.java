@@ -3,10 +3,10 @@ package com.odysseusinc.arachne.datanode.atlas;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.odysseusinc.arachne.commons.annotations.PreprocessorComponent;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import java.io.File;
@@ -49,7 +49,7 @@ public class CohortPreprocessor implements Preprocessor<Analysis> {
         final String name = file.getName();
         final boolean executableFile = executableFileName.equals(name);
 
-        if (!cohortService.isPreprocessingIgnored(file) && (CommonAnalysisType.COHORT == analysis.getType() || executableFile)) {
+        if (!cohortService.isPreprocessingIgnored(file) && (CommonCohortDTO.COHORT == analysis.getType() || executableFile)) {
             final DataSource dataSource = analysis.getDataSource();
             final int targetCohortId = new Random().nextInt(Integer.MAX_VALUE - 1) + 1;
             final String cdmSchema = dataSource.getCdmSchema();
@@ -64,7 +64,7 @@ public class CohortPreprocessor implements Preprocessor<Analysis> {
 
             String fileSuffix = target.getOhdsiDB();
             final ImmutableMap.Builder<String, ClassPathResource> mapBuilder = ImmutableMap.builder();
-            if (analysis.getType() == CommonAnalysisType.COHORT) {
+            if (analysis.getType() == CommonCohortDTO.COHORT) {
                 fileSuffix = "cohort-" + fileSuffix;
                 if (countEnabled) {
                     mapBuilder.put("count", new ClassPathResource("cohort/cohort-count.sql"));

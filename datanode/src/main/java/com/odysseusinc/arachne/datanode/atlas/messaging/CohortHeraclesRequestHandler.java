@@ -68,6 +68,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class CohortHeraclesRequestHandler implements AtlasRequestHandler<CommonCohortShortDTO, List<MultipartFile>> {
 
+    public static final CommonAnalysisType COHORT_HERACLES = new CommonAnalysisType("COHORT_HERACLES", "Cohort (Heracles)", "cc_hrcls");
     private static final Logger logger = LoggerFactory.getLogger(CohortHeraclesRequestHandler.class);
 
     private final AtlasService atlasService;
@@ -138,7 +139,7 @@ public class CohortHeraclesRequestHandler implements AtlasRequestHandler<CommonC
     @Override
     public CommonAnalysisType getAnalysisType() {
 
-        return CommonAnalysisType.COHORT_HERACLES;
+        return COHORT_HERACLES;
     }
 
     @Override

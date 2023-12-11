@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType.COHORT;
+import static com.odysseusinc.arachne.datanode.atlas.dto.CommonCohortDTO.COHORT;
 import static com.odysseusinc.arachne.commons.utils.CommonFileUtils.ANALYSIS_INFO_FILE_DESCRIPTION;
 
 

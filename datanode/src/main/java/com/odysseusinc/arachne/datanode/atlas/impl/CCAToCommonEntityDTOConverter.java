@@ -21,8 +21,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonEstimationDTO;
-import com.odysseusinc.arachne.datanode.atlas.impl.BaseCCAToCommonEntityDTOConverter;
+import com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
 

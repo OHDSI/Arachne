@@ -21,8 +21,8 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonEntityDTO;
+import com.odysseusinc.arachne.datanode.atlas.analysis.CommonEstimationDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.ComparativeCohortAnalysis;
 import org.springframework.core.convert.support.GenericConversionService;
 
@@ -41,7 +41,7 @@ public abstract class BaseCCAToCommonEntityDTOConverter<T extends CommonEntityDT
         T result = super.convert(source);
         result.setLocalId(source.getAnalysisId().longValue());
         result.setModified(source.getModified());
-        result.setType(CommonAnalysisType.ESTIMATION);
+        result.setType(CommonEstimationDTO.ESTIMATION);
         return result;
     }
 

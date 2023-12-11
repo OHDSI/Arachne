@@ -22,8 +22,7 @@
 
 package com.odysseusinc.arachne.datanode.atlas.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonPredictionDTO;
+import com.odysseusinc.arachne.datanode.atlas.dto.CommonPredictionDTO;
 import com.odysseusinc.arachne.datanode.atlas.dto.PredictionAnalysis;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
@@ -40,7 +39,7 @@ public class PredictionAnalysisToCommonPredictionDTOConverter extends BaseCommon
 	public CommonPredictionDTO convert(PredictionAnalysis source) {
 
 		CommonPredictionDTO dto = super.convert(source);
-		dto.setType(CommonAnalysisType.PREDICTION);
+		dto.setType(CommonPredictionDTO.PREDICTION);
 		return dto;
 	}
 
