@@ -344,6 +344,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
+		dto.setEnvironmentId(analysis.getEnvironment().getId());
 		return dto;
 	}
 
