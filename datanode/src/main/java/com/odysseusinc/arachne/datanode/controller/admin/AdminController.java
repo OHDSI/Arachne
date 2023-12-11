@@ -32,11 +32,9 @@ import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import com.odysseusinc.arachne.datanode.model.atlas.Atlas;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
-import com.odysseusinc.arachne.datanode.service.AtlasService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus;
@@ -75,8 +73,6 @@ public class AdminController extends BaseController {
     private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
     @Autowired
     private  GenericConversionService conversionService;
-    @Autowired
-    private  AtlasService atlasService;
     @Autowired
     private  AnalysisRepository analysisRepository;
     @Autowired
@@ -154,17 +150,6 @@ public class AdminController extends BaseController {
         } else {
             throw new BadRequestException();
         }
-        return result;
-    }
-
-    @ApiOperation("Check Atlas Connection")
-    @PostMapping("/api/v1/admin/atlases/{id}/connection")
-    public JsonResult<?> checkAtlasConnection(@PathVariable("id") Long id) {
-
-        JsonResult<?> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-        Atlas atlas = atlasService.getById(id);
-        String atlasVersion = atlasService.checkConnection(atlas);
-        result.setErrorMessage("Atlas version: " + atlasVersion);
         return result;
     }
 

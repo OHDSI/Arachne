@@ -1,0 +1,47 @@
+package com.odysseusinc.arachne.datanode.atlas.impl;
+
+import com.odysseusinc.arachne.commons.annotations.PreprocessorComponent;
+import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
+import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
+import com.odysseusinc.arachne.datanode.atlas.CohortPreprocessor;
+import com.odysseusinc.arachne.datanode.atlas.dto.CohortDefinition;
+import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
+import com.odysseusinc.arachne.datanode.atlas.SqlRenderService;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+
+@PreprocessorComponent(contentType = CommonFileUtils.TYPE_COHORT_JSON)
+public class CohortDefinitionPreprocessor implements Preprocessor<Analysis> {
+
+    private final CohortPreprocessor cohortPreprocessor;
+    private final SqlRenderService sqlRenderService;
+
+    @Autowired
+    public CohortDefinitionPreprocessor(CohortPreprocessor cohortPreprocessor,
+                                        SqlRenderService sqlRenderService) {
+
+        this.cohortPreprocessor = cohortPreprocessor;
+        this.sqlRenderService = sqlRenderService;
+    }
+
+    @Override
+    public void preprocess(Analysis analysis, File file) {
+
+        try {
+            CohortDefinition definition = new CohortDefinition();
+            definition.setExpression(FileUtils.readFileToString(file, "UTF-8"));
+            String expressionSql = sqlRenderService.renderSql(definition);
+            File sqlFile = new File(analysis.getSourceFolder(), analysis.getTitle() + ".sql");
+            FileUtils.write(sqlFile, expressionSql, Charset.forName("UTF-8"));
+            cohortPreprocessor.preprocess(analysis, sqlFile);
+            analysis.setExecutableFileName(sqlFile.getName());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e.getMessage(), e);
+        }
+    }
+}

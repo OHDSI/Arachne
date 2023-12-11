@@ -1,0 +1,74 @@
+/*
+ *
+ * Copyright 2018 Odysseus Data Services, inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Company: Odysseus Data Services, Inc.
+ * Product Owner/Architecture: Gregory Klebanov
+ * Authors: Pavel Grafkin, Alexandr Ryabokon, Vitaly Koulakov, Anton Gackovka, Maria Pozhidaeva, Mikhail Mironov
+ * Created: July 27, 2017
+ *
+ */
+
+package com.odysseusinc.arachne.datanode.atlas.impl;
+
+import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
+import com.odysseusinc.arachne.datanode.atlas.model.Atlas;
+import com.odysseusinc.arachne.datanode.atlas.model.CommonEntity;
+import com.odysseusinc.arachne.datanode.atlas.repository.CommonEntityRepository;
+import com.odysseusinc.arachne.datanode.atlas.CommonEntityService;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+@Transactional
+public class CommonEntityServiceImpl implements CommonEntityService {
+
+    private final CommonEntityRepository repository;
+
+    @Autowired
+    public CommonEntityServiceImpl(CommonEntityRepository repository) {
+
+        this.repository = repository;
+    }
+
+    @Override
+    public CommonEntity getOrCreate(Long originId, Integer localId, CommonAnalysisType analysisType) {
+
+        return repository.getByOriginIdAndLocalIdAndAnalysisType(originId, localId, analysisType).orElseGet(() -> {
+            CommonEntity entity = new CommonEntity();
+            entity.setOrigin(new Atlas(originId));
+            entity.setLocalId(localId);
+            entity.setAnalysisType(analysisType);
+            entity.setGuid(newGuid());
+            return repository.save(entity);
+        });
+    }
+
+    @Override
+    public Optional<CommonEntity> findByGuid(String guid) {
+
+        return repository.findByGuid(guid);
+    }
+
+    private String newGuid() {
+
+        return UUID.randomUUID().toString();
+    }
+}
