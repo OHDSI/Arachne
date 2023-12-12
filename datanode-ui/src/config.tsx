@@ -24,6 +24,16 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     },
   },
   {
+    Header: t('tables.cols.study'),
+    accessor: (row: SubmissionDTOInterface) => row.study || '-',
+    id: 'study',
+    maxWidth: 100,
+    minWidth: 100,
+    width: '30%',
+    Cell: NameCell,
+    isCropped: true,
+  },
+  {
     Header: t('tables.cols.author'),
     accessor: (row: SubmissionDTOInterface) => row.author?.fullName || '-',
     id: 'author.fullName',

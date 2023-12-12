@@ -84,8 +84,8 @@ export const LatestSubmissions: React.FC<any> = props => {
           ) : (
             <LatestSubmissionsListItem light>
               <EmptyTableStub
-                noDataText={t('components.latest_submissions.no_data')}
-                addButtonText={t('components.latest_submissions.go_to')}
+                noDataText={t('common.components.latest_submissions.no_data')}
+                addButtonText={t('common.components.latest_submissions.go_to')}
                 onAdd={() => navigate('/submissions')}
               />
             </LatestSubmissionsListItem>

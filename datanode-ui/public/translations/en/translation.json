@@ -62,6 +62,7 @@
       "origin": "Origin",
       "author": "Author",
       "analysis": "Analysis",
+      "study": "Study",
       "data_source": "Data Source",
       "submitted": "Submitted",
       "finished": "Finished",
