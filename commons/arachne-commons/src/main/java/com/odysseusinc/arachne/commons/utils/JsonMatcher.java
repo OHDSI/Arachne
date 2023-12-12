@@ -2,7 +2,10 @@ package com.odysseusinc.arachne.commons.utils;
 
 import com.google.gson.stream.JsonReader;
 import com.odysseusinc.arachne.commons.utils.annotations.OptionalField;
-import com.odysseusinc.arachne.commons.utils.cohortcharacterization.CohortCharacterizationMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,12 +21,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamSource;
 
 public abstract class JsonMatcher {
-    private static final Logger log = LoggerFactory.getLogger(CohortCharacterizationMatcher.class);
+    private static final Logger log = LoggerFactory.getLogger(JsonMatcher.class);
     private final Function<? super Field, ? extends String> FIELD_OPTIONALS_MAP_FUNC = f -> {
         String result;
         OptionalField optional = f.getAnnotation(OptionalField.class);
