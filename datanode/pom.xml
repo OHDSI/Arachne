@@ -48,11 +48,6 @@
     <dependencies>
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
-            <artifactId>atlas-analysis-support</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>datanode-ui</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>

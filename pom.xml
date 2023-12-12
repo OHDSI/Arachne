@@ -13,7 +13,6 @@
     </properties>
 
     <modules>
-        <module>atlas-analysis-support</module>
         <module>commons</module>
         <module>datanode</module>
         <module>datanode-ui</module>
