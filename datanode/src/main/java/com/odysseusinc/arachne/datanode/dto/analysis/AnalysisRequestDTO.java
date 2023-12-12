@@ -22,11 +22,11 @@
 
 package com.odysseusinc.arachne.datanode.dto.analysis;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -44,7 +44,7 @@ public class AnalysisRequestDTO {
     private String study;
 
     @NotNull
-    private CommonAnalysisType type;
+    private String type;
 
     private Long environmentId;
 
