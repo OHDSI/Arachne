@@ -23,67 +23,50 @@
 package com.odysseusinc.arachne.datanode.service;
 
 
+import com.odysseusinc.arachne.datanode.util.SqlUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.ohdsi.sql.SqlTranslate;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import static com.odysseusinc.arachne.commons.types.DBMSType.MS_SQL_SERVER;
 import static com.odysseusinc.arachne.commons.types.DBMSType.ORACLE;
 import static com.odysseusinc.arachne.commons.types.DBMSType.POSTGRESQL;
 import static com.odysseusinc.arachne.commons.types.DBMSType.REDSHIFT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.odysseusinc.arachne.datanode.repository.AtlasRepository;
-import com.odysseusinc.arachne.datanode.service.client.portal.CentralSystemClient;
-import com.odysseusinc.arachne.datanode.service.impl.CohortServiceImpl;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.ohdsi.sql.SqlTranslate;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.core.io.ClassPathResource;
-
 @ExtendWith(MockitoExtension.class)
-public class CohortServiceTest {
+public class SqlUtilsTest {
 
     private static final String TEMP_SCHEMA = "tempSchema";
     private static final String SESSION_ID = SqlTranslate.generateSessionId();
 
     private static String REDSHIFT_SQL_RESULT;
 
-    private static CohortServiceImpl.TranslateOptions options
-            = new CohortServiceImpl.TranslateOptions("public", "public", "public", "public","cohort", 1);
+    private static SqlUtils.TranslateOptions options
+            = new SqlUtils.TranslateOptions("public", "public", "public", "public","cohort", 1);
 
-    @Mock
-    private CentralSystemClient centralClient;
-    @Mock
-    private ConfigurableListableBeanFactory beanFactory;
-    @Mock
-    private AtlasRepository atlasRepository;
-    @Mock
-    private DataNodeService dataNodeService;
-
-    @InjectMocks
-    private CohortServiceImpl cohortService ;
-
-    public CohortServiceTest() throws IOException {
-
+    public SqlUtilsTest() throws IOException {
         REDSHIFT_SQL_RESULT = IOUtils.toString(new ClassPathResource("data/sqlRender/etalon.redshift.sql").getInputStream(), StandardCharsets.UTF_8);
     }
 
     @Test
     public void createPostgresSQLTest() {
 
-        final String sql = cohortService.translateSQL(MS_SQL_SQL_RESULT, null, POSTGRESQL, SESSION_ID, TEMP_SCHEMA, options);
+        final String sql = SqlUtils.translateSQL(MS_SQL_SQL_RESULT, null, POSTGRESQL, SESSION_ID, TEMP_SCHEMA, options);
         assertSqlEquals(POSTGRES_SQL_RESULT, sql);
     }
 
     @Test
     public void createRedshiftSQLTest(){
 
-        final String sql = cohortService.translateSQL(MS_SQL_SQL_RESULT, null, REDSHIFT, SESSION_ID, TEMP_SCHEMA,options);
+        final String sql = SqlUtils.translateSQL(MS_SQL_SQL_RESULT, null, REDSHIFT, SESSION_ID, TEMP_SCHEMA,options);
         assertSqlEquals(REDSHIFT_SQL_RESULT, sql);
     }
 
@@ -91,14 +74,14 @@ public class CohortServiceTest {
     @Test
     public void createOracleSQLTest() {
 
-        final String sql = cohortService.translateSQL(MS_SQL_SQL_RESULT, null, ORACLE, SESSION_ID, TEMP_SCHEMA,options);
+        final String sql = SqlUtils.translateSQL(MS_SQL_SQL_RESULT, null, ORACLE, SESSION_ID, TEMP_SCHEMA,options);
         assertSqlEquals(ORACLE_SQL_RESULT, sql);
     }
 
     @Test
     public void createMSSQLTest(){
 
-        final String sql = cohortService.translateSQL(MS_SQL_SQL_RESULT, null, MS_SQL_SERVER, SESSION_ID, TEMP_SCHEMA,options);
+        final String sql = SqlUtils.translateSQL(MS_SQL_SQL_RESULT, null, MS_SQL_SERVER, SESSION_ID, TEMP_SCHEMA,options);
         assertSqlEquals(MS_SQL_SQL_RESULT, sql);
     }
 

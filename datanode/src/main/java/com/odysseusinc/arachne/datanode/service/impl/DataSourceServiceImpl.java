@@ -79,7 +79,6 @@ import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCo
 import static com.odysseusinc.arachne.commons.service.messaging.MessagingUtils.getResponseQueueName;
 import static com.odysseusinc.arachne.datanode.Constants.Api.DataSource.DS_MODEL_CHECK_FIRSTCHECK;
 import static com.odysseusinc.arachne.datanode.model.datanode.FunctionalMode.STANDALONE;
-import static com.odysseusinc.arachne.datanode.service.messaging.MessagingUtils.DataSource.getBaseQueue;
 import static com.odysseusinc.arachne.datanode.util.DataSourceUtils.isNotDummyPassword;
 import static com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO.EXECUTED;
 
@@ -496,4 +495,9 @@ public class DataSourceServiceImpl implements DataSourceService {
             return null;
         }
     }
+
+    private static String getBaseQueue(String suffix) {
+        return "datasource-check-" + suffix;
+    }
+
 }

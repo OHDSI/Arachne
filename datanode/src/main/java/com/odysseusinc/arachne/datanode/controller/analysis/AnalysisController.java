@@ -71,6 +71,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -168,8 +169,9 @@ public class AnalysisController {
         try(Writer writer = new FileWriter(stdoutFile.toFile())) {
             IOUtils.write(analysis.getStdout(), writer);
         }
-
-        String filename = MessageFormat.format("{0}-a{1,number,#}-results", analysis.getType().getCode(), analysis.getId());
+        String type = analysis.getType();
+        String code = types().filter(t -> Objects.equals(t.name(), type)).findFirst().map(CommonAnalysisType::getCode).orElse(type);
+        String filename = MessageFormat.format("{0}-a{1,number,#}-results", code, analysis.getId());
         final Path archive = Files.createTempFile(filename, ".zip");
 
         if (AnalysisResultsServiceImpl.isListOfArchive(resultFiles)) {
@@ -212,9 +214,13 @@ public class AnalysisController {
     )
     public List<OptionDTO> getTypes() {
 
-        return Stream.of(CommonAnalysisType.values())
+        return types()
                 .map(type -> new OptionDTO(type.name(), type.getTitle()))
                 .collect(Collectors.toList());
+    }
+
+    private Stream<CommonAnalysisType> types() {
+        return Stream.of(CommonAnalysisType.CUSTOM, CommonAnalysisType.STRATEGUS);
     }
 
 }

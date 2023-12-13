@@ -1,24 +1,25 @@
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import com.odysseusinc.arachne.datanode.service.CohortService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.support.GenericConversionService;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DataSourceHelperImplTest {
@@ -31,8 +32,6 @@ public class DataSourceHelperImplTest {
     @Mock
     private GenericConversionService conversionService;
     @Mock
-    private CohortService cohortService;
-    @Mock
     private DataSourceHelper dataSourceHelper;
     @Mock
     private DataSource dataSource;
@@ -40,7 +39,7 @@ public class DataSourceHelperImplTest {
 
     @BeforeEach
     public void setUp() {
-        dataSourceHelper = spy(new DataSourceHelperImpl(conversionService, cohortService, DATABASE_URL, DATANODE_PORT));
+        dataSourceHelper = spy(new DataSourceHelperImpl(conversionService, DATABASE_URL, DATANODE_PORT));
     }
 
     @Test

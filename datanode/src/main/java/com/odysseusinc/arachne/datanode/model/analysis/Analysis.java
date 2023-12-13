@@ -1,6 +1,5 @@
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
@@ -80,8 +79,7 @@ public class Analysis {
     })
     private AnalysisAuthor author;
     @Column
-    @Enumerated(EnumType.STRING)
-    private CommonAnalysisType type;
+    private String type;
     @Column
     @Enumerated(EnumType.STRING)
     private AnalysisOrigin origin;

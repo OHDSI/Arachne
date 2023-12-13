@@ -23,13 +23,9 @@
 package com.odysseusinc.arachne.datanode.service.impl;
 
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import com.odysseusinc.arachne.datanode.service.CohortService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
+import com.odysseusinc.arachne.datanode.util.SqlUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ohdsi.sql.SqlTranslate;
@@ -37,6 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class DataSourceHelperImpl implements DataSourceHelper {
@@ -46,20 +47,17 @@ public class DataSourceHelperImpl implements DataSourceHelper {
     // SqlRender requires semicolon in the end of a query to do proper translation
     public static final String PING_REQUEST = "select 1;";
     private final GenericConversionService conversionService;
-    private final CohortService cohortService;
 
     private final String baseNodeUrl;
 
     @Autowired
     public DataSourceHelperImpl(
             GenericConversionService conversionService,
-            CohortService cohortService,
             @Value("${datanode.baseURL}") String datanodeBaseURL,
             @Value("${datanode.port}") String datanodePort
     ) {
 
         this.conversionService = conversionService;
-        this.cohortService = cohortService;
         this.baseNodeUrl = String.format("%s:%s", datanodeBaseURL, datanodePort);
     }
 
@@ -81,7 +79,7 @@ public class DataSourceHelperImpl implements DataSourceHelper {
         if (dataSource == null || tempDirectory  == null) {
             throw new IllegalStateException("Cannot create sql script to ping data source.");
         }
-        String pingSqlQuery = cohortService.translateSql(dataSource.getType().getOhdsiDB(), SqlTranslate.generateSessionId(), dataSource.getResultSchema(), PING_REQUEST);
+        String pingSqlQuery = SqlUtils.translateSql(dataSource.getType().getOhdsiDB(), SqlTranslate.generateSessionId(), dataSource.getResultSchema(), PING_REQUEST);
         FileUtils.write(
                 Paths.get(tempDirectory.toAbsolutePath().toString(), FILE_FOR_PING_REQUEST).toFile(),
                 pingSqlQuery,

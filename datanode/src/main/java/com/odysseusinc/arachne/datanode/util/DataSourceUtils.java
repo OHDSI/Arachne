@@ -23,7 +23,6 @@
 package com.odysseusinc.arachne.datanode.util;
 
 import com.odysseusinc.arachne.datanode.Constants;
-import com.odysseusinc.arachne.datanode.dto.atlas.AtlasDetailedDTO;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.util.datasource.QueryProcessor;
@@ -84,18 +83,12 @@ public class DataSourceUtils<T> {
         dataSource.setKrbPassword(getMasqueradedPassword(dataSource.getKrbPassword()));
     }
 
-    public static void masqueradePassword(AtlasDetailedDTO atlasDetailedDTO) {
-
-        atlasDetailedDTO.setPassword(getMasqueradedPassword(atlasDetailedDTO.getPassword()));
-        atlasDetailedDTO.setKeyfile(getMasqueradedValue(atlasDetailedDTO.getKeyfile(), Constants.DUMMY_KEYFILE));
-    }
-
-    private static String getMasqueradedPassword(String password) {
+    public static String getMasqueradedPassword(String password) {
 
         return getMasqueradedValue(password, Constants.DUMMY_PASSWORD);
     }
 
-    private static String getMasqueradedValue(String value, String dummy) {
+    public static String getMasqueradedValue(String value, String dummy) {
 
         return StringUtils.isEmpty(value) ? "" : dummy;
     }
@@ -230,10 +223,6 @@ public class DataSourceUtils<T> {
         Objects.requireNonNull(transformed);
         writer.write(transformed);
         return this;
-    }
-
-    public void forEach(List<Integer> identifiers) {
-
     }
 
     public Map getResults() {
