@@ -24,11 +24,10 @@ package com.odysseusinc.arachne.datanode.model.datanode.validation;
 
 import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
-import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class DataNodeTokenValidator implements ConstraintValidator<NonEmptyToken, DataNode> {
 
@@ -41,17 +40,6 @@ public class DataNodeTokenValidator implements ConstraintValidator<NonEmptyToken
 
     @Override
     public boolean isValid(DataNode dataNode, ConstraintValidatorContext context) {
-
-        if (dataNodeService.isNetworkMode()) {
-            boolean valid = Objects.nonNull(dataNode) && StringUtils.isNotBlank(dataNode.getToken());
-            if (!valid) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("token should not be empty")
-                        .addPropertyNode("token")
-                        .addConstraintViolation();
-            }
-            return valid;
-        }
         return true;
     }
 }

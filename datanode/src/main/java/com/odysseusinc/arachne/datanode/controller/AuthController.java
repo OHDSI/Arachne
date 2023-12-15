@@ -22,38 +22,18 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.NO_ERROR;
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.UNAUTHORIZED;
-import static com.odysseusinc.arachne.datanode.util.RestUtils.requireNetworkMode;
-import static io.netty.handler.codec.http.cookie.CookieHeaderNames.SameSite;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-
-import com.odysseusinc.arachne.commons.api.v1.dto.ArachnePasswordInfoDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthMethodDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationModeDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationResponse;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonCountryDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonProfessionalTypeDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonStateProvinceDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonUserDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonUserRegistrationDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
-import com.odysseusinc.arachne.datanode.dto.user.RemindPasswordDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.UserRegistrationStrategy;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import io.swagger.annotations.ApiOperation;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.ohdsi.authenticator.model.UserInfo;
 import org.ohdsi.authenticator.service.authentication.AccessTokenResolver;
@@ -70,19 +50,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.Optional;
+
+import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.NO_ERROR;
+import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.UNAUTHORIZED;
+import static io.netty.handler.codec.http.cookie.CookieHeaderNames.SameSite;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
 public class AuthController {
     protected Logger log = LoggerFactory.getLogger(AuthController.class);
-
-    @Autowired
-    private CentralIntegrationService integrationService;
 
     @Autowired
     private UserService userService;
@@ -121,9 +106,6 @@ public class AuthController {
     @Deprecated
     public JsonResult<CommonAuthMethodDTO> authMethod() {
 
-        if (dataNodeService.isNetworkMode()) {
-            return integrationService.getAuthMethod();
-        }
         throw new BadRequestException();
     }
 
@@ -208,56 +190,6 @@ public class AuthController {
         }
     }
 
-    @ApiOperation(value = "Get professional types list")
-    @RequestMapping(value = "/api/v1/user-management/professional-types", method = GET)
-    public JsonResult<List<CommonProfessionalTypeDTO>> getProfessionalTypes() {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        return integrationService.getProfessionalTypes();
-    }
-
-    @ApiOperation("Suggests country.")
-    @RequestMapping(value = "/api/v1/user-management/countries/search", method = GET)
-    public JsonResult<List<CommonCountryDTO>> suggestCountries(
-            @RequestParam("query") String query,
-            @RequestParam("limit") Integer limit,
-            @RequestParam(value = "includeId", required = false) Long includeId
-
-    ) {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        return integrationService.getCountries(query, limit, includeId);
-    }
-
-    @ApiOperation("Suggests state or province.")
-    @RequestMapping(value = "/api/v1/user-management/state-province/search", method = GET)
-    public JsonResult<List<CommonStateProvinceDTO>> suggestStateProvince(
-            @RequestParam("countryId") String countryId,
-            @RequestParam("query") String query,
-            @RequestParam("limit") Integer limit,
-            @RequestParam(value = "includeId", required = false) String includeId
-    ) {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        return integrationService.getStateProvinces(countryId, query, limit, includeId);
-    }
-
-    @ApiOperation("Register new user via form.")
-    @RequestMapping(value = "/api/v1/auth/registration", method = RequestMethod.POST)
-    public JsonResult<CommonUserDTO> register(@RequestBody CommonUserRegistrationDTO dto) {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        return integrationService.getRegisterUser(dto);
-    }
-
-    @ApiOperation("Password restrictions")
-    @RequestMapping(value = "/api/v1/auth/password-policies", method = GET)
-    public ArachnePasswordInfoDTO getPasswordPolicies() throws URISyntaxException {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        return integrationService.getPasswordInfo();
-    }
-
     private <T> ResponseEntity<JsonResult<?>> ok(T body, String s) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, s)
@@ -283,13 +215,4 @@ public class AuthController {
                 .build().toString();
     }
 
-
-    @ApiOperation("Remind Password")
-    @PostMapping(value = "/api/v1/auth/remind-password")
-    public JsonResult<?> remindPassword(@Valid @RequestBody RemindPasswordDTO remindPasswordDTO) {
-
-        requireNetworkMode(dataNodeService.getDataNodeMode());
-        integrationService.remindPassword(remindPasswordDTO);
-        return new JsonResult<>(NO_ERROR);
-    }
 }

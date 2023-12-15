@@ -22,11 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.TransactionDbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseOperation;
@@ -36,17 +31,21 @@ import com.github.springtestdbunit.annotation.DbUnitConfiguration;
 import com.odysseusinc.arachne.TestContainersInitializer;
 import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import javax.ws.rs.NotFoundException;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import javax.ws.rs.NotFoundException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 @SpringBootTest(properties = "datanode.runMode=STANDALONE")
 @ActiveProfiles("test")
@@ -61,8 +60,6 @@ public class DataNodeServiceStandaloneTest {
     private DataNodeService dataNodeService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private CentralIntegrationService centralIntegrationService;
 
     @Test
     @DatabaseSetup(value = "/data/dataset/empty-datanode.xml", type = DatabaseOperation.DELETE_ALL)
@@ -71,10 +68,6 @@ public class DataNodeServiceStandaloneTest {
 
         User user = userService.findByUsername(Const.USER).orElseThrow(NotFoundException::new);
         DataNode dataNode = new DataNode();
-        Mockito.when(centralIntegrationService.sendDataNodeCreationRequest(user, dataNode))
-                .then(invocationOnMock -> {
-                    throw new RuntimeException("should not be called in Standalone mode");
-                });
         DataNode created = dataNodeService.create(user, dataNode);
         assertThat(created, notNullValue());
         assertThat(created.getId(), greaterThan(0L));
