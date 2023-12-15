@@ -29,7 +29,6 @@ import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOCo
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
-import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -131,26 +130,6 @@ public class AdminController extends BaseController {
 
         userService.findByUsername(username).ifPresent(user -> userService.remove(user.getId()));
         return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-    }
-
-    @ApiOperation("Add admin from central")
-    @PostMapping("/api/v1/admin/admins/{username:.+}")
-    public JsonResult<?> addAdminFromCentral(
-            Principal principal,
-            @PathVariable String username) {
-
-        JsonResult<UserDTO> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-        if (dataNodeService.isNetworkMode()) {
-            userService
-                    .findByUsername(principal.getName())
-                    .ifPresent(currentUser -> {
-                        final User user = userService.addUserFromCentral(currentUser, username);
-                        result.setResult(conversionService.convert(user, UserDTO.class));
-                    });
-        } else {
-            throw new BadRequestException();
-        }
-        return result;
     }
 
     @ApiOperation(value = "Invalidate all unfinished analyses")

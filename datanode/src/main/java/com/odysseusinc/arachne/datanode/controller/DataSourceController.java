@@ -26,11 +26,9 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceDTO;
 import com.odysseusinc.arachne.commons.utils.ConverterUtils;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceBusinessDTO;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceService;
 import com.odysseusinc.arachne.datanode.service.UserService;
-import com.odysseusinc.arachne.datanode.service.client.portal.CentralClient;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -42,21 +40,17 @@ public class DataSourceController extends BaseDataSourceController<DataSource, D
 
     @Autowired
     public DataSourceController(DataSourceService dataSourceService,
-                                CentralIntegrationService integrationService,
                                 UserService userService,
                                 ModelMapper modelMapper,
                                 GenericConversionService conversionService,
                                 JmsTemplate jmsTemplate,
-                                CentralClient centralClient,
                                 DataNodeService dataNodeService,
                                 ConverterUtils converterUtils) {
 
         super(userService,
                 modelMapper,
-                integrationService,
                 dataSourceService,
                 conversionService,
-                centralClient,
                 jmsTemplate,
                 dataNodeService,
                 converterUtils);

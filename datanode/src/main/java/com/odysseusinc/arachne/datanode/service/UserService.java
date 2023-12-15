@@ -26,10 +26,11 @@ import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.user.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
 
@@ -52,10 +53,6 @@ public interface UserService extends UserDetailsService {
     List<User> getAllAdmins(String sortBy, Boolean sortAsc);
 
     void remove(Long id) throws NotExistException;
-
-    void unlinkUserOnCentral(User user);
-
-    User addUserFromCentral(User user, String username);
 
     User getUser(Principal principal) throws PermissionDeniedException;
 

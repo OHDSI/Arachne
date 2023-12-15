@@ -29,13 +29,11 @@ import com.odysseusinc.arachne.datanode.model.datanode.FunctionalMode;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.DataNodeRepository;
 import com.odysseusinc.arachne.datanode.repository.UserRepository;
-import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,18 +48,16 @@ public class DataNodeServiceImpl implements DataNodeService {
     private static final String ALREADY_EXISTS_EXCEPTION = "DataNode entry already exist, try to update it";
     protected static Logger log = LoggerFactory.getLogger(DataNodeServiceImpl.class);
 
-    private final CentralIntegrationService centralIntegrationService;
     private final DataNodeRepository dataNodeRepository;
     private final UserRepository userRepository;
 
     private final FunctionalMode mode;
 
     @Autowired
-    public DataNodeServiceImpl(@Lazy CentralIntegrationService centralIntegrationService,
+    public DataNodeServiceImpl(
                                DataNodeRepository dataNodeRepository,
                                UserRepository userRepository, @Value("${datanode.runMode}") String runMode) {
 
-        this.centralIntegrationService = centralIntegrationService;
         this.dataNodeRepository = dataNodeRepository;
         this.userRepository = userRepository;
         this.mode = FunctionalMode.valueOf(runMode);
@@ -92,12 +88,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new AlreadyExistsException(ALREADY_EXISTS_EXCEPTION);
         }
 
-        if (isNetworkMode()) {
-            dataNode = centralIntegrationService.sendDataNodeCreationRequest(user, dataNode);
-            DataNode createdNode = dataNodeRepository.save(dataNode);
-            centralIntegrationService.relinkUsersToDataNodeOnCentral(createdNode, userRepository.findBySyncAndEnabledIsTrue(Boolean.FALSE));
-            return createdNode;
-        }
         return dataNodeRepository.save(dataNode);
     }
 

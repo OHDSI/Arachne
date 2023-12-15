@@ -3,11 +3,9 @@ package com.odysseusinc.arachne.datanode.service.impl;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonDataSourceDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
 import com.odysseusinc.arachne.datanode.repository.DataSourceRepository;
-import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
-import com.odysseusinc.arachne.datanode.service.client.portal.CentralClient;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import org.apache.commons.io.IOUtils;
@@ -32,7 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DataSourceServiceImplTest {
@@ -45,10 +45,6 @@ public class DataSourceServiceImplTest {
     private DataNodeService dataNodeService;
     @Mock
     private ApplicationEventPublisher eventPublisher;
-    @Mock
-    private CentralIntegrationService integrationService;
-    @Mock
-    private CentralClient centralClient;
     @Mock
     private JmsTemplate jmsTemplate;
     @Mock
@@ -72,7 +68,7 @@ public class DataSourceServiceImplTest {
 
         when(jmsTemplate.getDestinationResolver()).thenReturn(destinationResolver);
         dataSourceService = spy(new DataSourceServiceImpl(
-                dataSourceRepository, dataNodeService, integrationService, eventPublisher, centralClient, jmsTemplate, dataSourceHelper, engineIntegrationService, 4000L
+                dataSourceRepository, dataNodeService, eventPublisher, jmsTemplate, dataSourceHelper, engineIntegrationService, 4000L
         ));
         result = new AnalysisResultDTO();
         result.setStatus(AnalysisResultStatusDTO.EXECUTED);
