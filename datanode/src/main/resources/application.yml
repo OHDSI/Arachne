@@ -7,7 +7,6 @@ logging:
   level:
     root: INFO
     org.springframework.web.servlet.PageNotFound: ERROR
-#  com.odysseusinc.arachne.datanode.service.AchillesService: DEBUG
 api:
   loginEnteryPoint: /api/v1/auth/login
   logoutEntryPoint: /api/v1/auth/logout
@@ -99,20 +98,6 @@ docker:
     host: hub.odysseusinc.com
     username: user
     password:
-achilles:
-  image-name: hub.odysseusinc.com/achilles:20190507
-  network-mode: arachnenetwork
-  auth-config:
-    registry-address: hub.odysseusinc.com
-    username: user
-    password:
-  retry:
-    max-attempts: 5
-    backoff:
-      max-interval: 50000
-  scheduler:
-    enabled: false
-    cron: 0 0 12 1/5 * ?
 entities:
   scheduler:
     checkListRequestsInterval: 10000
