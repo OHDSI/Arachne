@@ -33,7 +33,6 @@ import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,7 +44,9 @@ import javax.validation.ValidationException;
 import javax.ws.rs.NotFoundException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 @SpringBootTest
@@ -62,8 +63,6 @@ public class DataNodeServiceNetworkTest {
     private DataNodeService dataNodeService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private CentralIntegrationService centralIntegrationService;
 
     @Test
     @DatabaseSetup(value = "/data/dataset/empty-datanode.xml", type = DatabaseOperation.DELETE_ALL)
@@ -72,8 +71,6 @@ public class DataNodeServiceNetworkTest {
 
         User user = userService.findByUsername(Const.USER).orElseThrow(NotFoundException::new);
         DataNode dataNode = new DataNode();
-        Mockito.when(centralIntegrationService.sendDataNodeCreationRequest(user, dataNode))
-                .then(invocationOnMock -> dataNode);
         try {
             dataNodeService.create(user, dataNode);
         } catch (Exception e) {
@@ -90,12 +87,6 @@ public class DataNodeServiceNetworkTest {
 
         User user = userService.findByUsername(Const.USER).orElseThrow(NotFoundException::new);
         DataNode dataNode = new DataNode();
-        Mockito.when(centralIntegrationService.sendDataNodeCreationRequest(user, dataNode))
-                .then(invocationOnMock -> {
-                    dataNode.setCentralId(1L);
-                    dataNode.setToken(Const.TOKEN);
-                    return dataNode;
-                });
         DataNode created = dataNodeService.create(user, dataNode);
         assertThat(created, notNullValue());
         assertThat(created.getId(), greaterThan(0L));

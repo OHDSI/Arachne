@@ -22,8 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonUserDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
@@ -32,7 +30,6 @@ import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.RoleRepository;
 import com.odysseusinc.arachne.datanode.repository.UserRepository;
-import com.odysseusinc.arachne.datanode.service.CentralIntegrationService;
 import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.events.user.UserDeletedEvent;
@@ -52,7 +49,6 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.odysseusinc.arachne.datanode.security.RolesConstants.ROLE_ADMIN;
@@ -65,7 +61,6 @@ public class UserServiceImpl implements UserService {
     private static final String ROLE_ADMIN_IS_NOT_FOUND_EXCEPTION = "ROLE_ADMIN is not found";
     private static final String RELINKING_ALL_USERS_LOG = "Relinking all DataNode users on Central";
     private static final String RELINKING_ALL_USERS_ERROR_LOG = "Relinking users on Central error: {}";
-    private static final String ADDING_USER_FROM_CENTRAL_LOG = "Adding User from central with centralUserId='{}'";
     private static final String REMOVING_USER_LOG = "Removing user with id='{}'";
 
     @Autowired
@@ -74,8 +69,6 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private CentralIntegrationService centralIntegrationService;
     @Autowired
     private DataNodeService dataNodeService;
     @Autowired
@@ -86,12 +79,6 @@ public class UserServiceImpl implements UserService {
 
         user.setEnabled(true);
         user.getRoles().add(getAdminRole());
-        if (dataNodeService.isNetworkMode()) {
-            dataNodeService.findCurrentDataNode().ifPresent(dataNode -> {
-                centralIntegrationService.linkUserToDataNodeOnCentral(dataNode, user);
-                user.setSync(true);
-            });
-        }
         return userRepository.save(user);
     }
 
@@ -204,38 +191,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void unlinkUserOnCentral(User user) {
-
-        if (dataNodeService.isNetworkMode()) {
-            dataNodeService.findCurrentDataNode().ifPresent(dataNode ->
-                    centralIntegrationService.unlinkUserToDataNodeOnCentral(dataNode, user)
-            );
-        }
-    }
-
-    @Override
-    public User addUserFromCentral(User loggedUser, String username) {
-
-        LOG.info(ADDING_USER_FROM_CENTRAL_LOG, username);
-        JsonResult<CommonUserDTO> jsonResult = centralIntegrationService.getUserFromCentral(loggedUser, username);
-        CommonUserDTO centralUserDTO = jsonResult.getResult();
-        User savedUser = null;
-        if (centralUserDTO != null) {
-            final Optional<User> localUser = userRepository.findOneByUsernameIgnoreCase(centralUserDTO.getUsername());
-            if (!localUser.isPresent()) {
-                final User user = conversionService.convert(centralUserDTO, User.class);
-                user.getRoles().add(getAdminRole());
-                if (dataNodeService.findCurrentDataNode().isPresent()) {
-                    centralIntegrationService.linkUserToDataNodeOnCentral(dataNodeService.findCurrentDataNode().get(), user);
-                    user.setSync(true);
-                }
-                savedUser = userRepository.save(user);
-            }
-        }
-        return savedUser;
-    }
-
-    @Override
     public User getUser(Principal principal) throws PermissionDeniedException {
 
         if (principal == null) {
@@ -246,21 +201,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> suggestNotAdmin(User user, final String query, Integer limit) {
-
-        if (dataNodeService.isNetworkMode()) {
-            final Set<String> adminsEmails = userRepository
-                    .findAll(Sort.by(Sort.Direction.ASC, "email")).stream()
-                    .map(User::getUsername)
-                    .collect(Collectors.toSet());
-            final List<CommonUserDTO> result =
-                    centralIntegrationService.suggestUsersFromCentral(user, query, adminsEmails, limit);
-            return result
-                    .stream()
-                    .map(dto -> conversionService.convert(dto, User.class))
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+        return Collections.emptyList();
     }
 
     @Override

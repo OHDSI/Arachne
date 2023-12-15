@@ -22,8 +22,6 @@
 
 package com.odysseusinc.arachne.datanode;
 
-import com.odysseusinc.arachne.commons.utils.ComparableVersion;
-
 public interface Constants {
 
 
@@ -46,56 +44,8 @@ public interface Constants {
         String SWAGGER_UI = "/swagger-ui.html/**";
     }
 
-    interface CentralApi {
-        interface DataNode {
-            String CREATION = "/api/v1/data-nodes";
-            String UPDATE = "/api/v1/data-nodes/{uuid}";
-            String BUILD_NUMBER = "/api/v1/build-number";
-        }
-
-        interface DataSource {
-            String CREATION = "/api/v1/data-nodes/{id}/data-sources";
-            String GET = "/api/v1/data-sources/{id}";
-            String GET_LIST = "/api/v1/data-sources/commondata";
-            String GET_METADATA_SCHEMA = "/api/v1/metadata/data-source/attributes";
-            String UPDATE = "/api/v1/data-sources/{id}/from-node";
-        }
-
-        interface User {
-            String AUTH_METHOD = "/api/v1/auth/method";
-            String LOGIN = "/api/v1/auth/login";
-            String PROFESSIONAL_TYPES = "/api/v1/user-management/professional-types";
-            String COUNTRIES = "/api/v1/user-management/countries/search";
-            String STATES_PROVINCES = "/api/v1/user-management/state-province/search";
-            String LOGOUT = "/api/v1/auth/logout";
-            String REGISTRATION = "/api/v1/auth/registration";
-            String REMIND_PASSWORD = "/api/v1/auth/remind-password";
-            String SUGGEST = "/api/v1/user-management/users/suggest";
-            String GET_USER = "/api/v1/user-management/users/byusername/{id}";
-            String LINK_TO_NODE = "/api/v1/user-management/datanodes/{datanodeId}/users";
-            String PASSWORD_POLICIES = "/api/v1/auth/password-policies";
-        }
-
-        interface Submission {
-            String UPLOAD = "/api/v1/analysis-management/submissions/result/upload";
-            String UPDATE_STATUS = "/api/v1/analysis-management/submissions/{id}/status/{password}";
-            String DOWNLOAD_FILE = "/api/v1/analysis-management/submissions/{submissionId}/files?fileName={fileName}&updatePassword={updatePassword}";
-        }
-
-        interface Achilles {
-            String LIST_REPORTS = "/api/v1/achilles/reports";
-            String LIST_PERMISSIONS = "/api/v1/achilles/datanode/datasource/{id}/permissions";
-            String PERMISSION = "/api/v1/achilles/datanode/datasource/{dataSourceId}/permissions/{id}";
-            String PARAM_DATANODE = "datanode";
-        }
-    }
-
     interface Api {
         String PATTERN = "/api/**";
-
-        interface User {
-            String CENTRAL_REGISTER = "/centralregister";
-        }
 
         interface Analysis {
             String INVALIDATE_ALL_UNFINISHED = "/api/v1/admin/analysis/invalidate";
@@ -162,18 +112,6 @@ public interface Constants {
         String ERROR_REPORT_FILENAME = "errorReport.txt";
         String ERROR_REPORTR_FILENAME = "errorReportR.txt";
         String SUBMISSION_ARCHIVE_SUBDIR = "archive";
-    }
-
-    interface Achilles {
-
-        String ACHILLES_SOURCE = "ACHILLES_SOURCE";
-        String ACHILLES_DB_URI = "ACHILLES_DB_URI";
-        String ACHILLES_CDM_SCHEMA = "ACHILLES_CDM_SCHEMA";
-        String ACHILLES_VOCAB_SCHEMA = "ACHILLES_VOCAB_SCHEMA";
-        String ACHILLES_RES_SCHEMA = "ACHILLES_RES_SCHEMA";
-        String ACHILLES_CDM_VERSION = "ACHILLES_CDM_VERSION";
-        String DEFAULT_CDM_VERSION = "5";
-        String ACHILLES_NUM_THREADS = "ACHILLES_NUM_THREADS";
     }
 
     interface CDM {
