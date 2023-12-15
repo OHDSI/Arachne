@@ -52,9 +52,6 @@ docker:
   corePoolSize: 5
   maxPoolSize: 5
   queueCapacity: 20
-atlas:
-  host: https://testatlas.arachnenetwork.com
-  port: 443
   auth:
     schema: DATABASE
     username: admin@odysseusinc.com
