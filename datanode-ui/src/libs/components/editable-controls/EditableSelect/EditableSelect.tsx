@@ -1,7 +1,24 @@
-import * as React from 'react';
-import { StyledInput } from '../EditableInput/EditableInput.styles';
-import { Select, SelectProps } from '@mui/material';
-import { StyledMenuItem } from '../../Select/Select.styles';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import * as React from "react";
+import { StyledInput } from "../EditableInput/EditableInput.styles";
+import { Select, SelectProps } from "@mui/material";
+import { StyledMenuItem } from "../../Select/Select.styles";
 
 export type EditableSelectProps = Omit<
   SelectProps & {
@@ -9,15 +26,15 @@ export type EditableSelectProps = Omit<
     onCancel: () => void;
     options: any[];
   },
-  'onChange'
+  "onChange"
 >;
 
 export const EditableSelect: React.FC<EditableSelectProps> = ({
   value,
   onCancel,
   onSubmit,
-  size = 'small',
-  placeholder = '...',
+  size = "small",
+  placeholder = "...",
   options,
   native = false,
   ...rest
@@ -44,9 +61,9 @@ export const EditableSelect: React.FC<EditableSelectProps> = ({
       }}
       margin="none"
       classes={{
-        select: 'select-root' + ' select-' + size,
-        nativeInput: 'select-root',
-        icon: 'select-icon',
+        select: "select-root" + " select-" + size,
+        nativeInput: "select-root",
+        icon: "select-icon",
       }}
       placeholder={placeholder}
       input={
@@ -56,37 +73,37 @@ export const EditableSelect: React.FC<EditableSelectProps> = ({
           placeholder={placeholder}
           //   placeholder={placeholder || '...'}
           classes={{
-            root: 'input-root',
-            focused: 'input-focused',
-            inputSizeSmall: 'input-small',
-            inputMultiline: 'input-multiline',
-            inputTypeSearch: 'input-search',
+            root: "input-root",
+            focused: "input-focused",
+            inputSizeSmall: "input-small",
+            inputMultiline: "input-multiline",
+            inputTypeSearch: "input-search",
           }}
         />
       }
     >
       {placeholder &&
         (native ? (
-          <option key="placeholder" value="" disabled>
-            {placeholder}
-          </option>
+        	<option key="placeholder" value="" disabled>
+        		{placeholder}
+        	</option>
         ) : (
-          <StyledMenuItem key="placeholder" value="" disabled className={size}>
-            {placeholder}
-          </StyledMenuItem>
+        	<StyledMenuItem key="placeholder" value="" disabled className={size}>
+        		{placeholder}
+        	</StyledMenuItem>
         ))}
       {options &&
         !!options.length &&
         options.map(item =>
-          native ? (
-            <option value={item.value} key={item.name}>
-              {item.name}
-            </option>
-          ) : (
-            <StyledMenuItem value={item.value} key={item.name} className={size}>
-              {item.name} {item.tag != null ? `(${item.tag})` : ''}
-            </StyledMenuItem>
-          )
+        	native ? (
+        		<option value={item.value} key={item.name}>
+        			{item.name}
+        		</option>
+        	) : (
+        		<StyledMenuItem value={item.value} key={item.name} className={size}>
+        			{item.name} {item.tag != null ? `(${item.tag})` : ""}
+        		</StyledMenuItem>
+        	)
         )}
     </Select>
   );

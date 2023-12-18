@@ -1,6 +1,23 @@
-import { AntivirusFileStatus } from '../../enums';
-import { FileExplorerTypes } from './useFileExplorer.enum';
-import { FileExtension } from '../../enums';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { AntivirusFileStatus } from "../../enums";
+import { FileExplorerTypes } from "./useFileExplorer.enum";
+import { FileExtension } from "../../enums";
 
 interface FileExplorerElement {
   id: string;
@@ -25,9 +42,9 @@ interface FilesResultDTOInterface {
 }
 
 export const getExtensionFile = name => {
-  var re = /(?:\.([^.]+))?$/;
+  const re = /(?:\.([^.]+))?$/;
   const ext = re.exec(name)[1]?.toUpperCase();
-  return ext ? FileExtension[ext] || FileExtension.UNKNOWN : 'FOLDER';
+  return ext ? FileExtension[ext] || FileExtension.UNKNOWN : "FOLDER";
 };
 
 export const createStructure = (files: any[]) => {
@@ -57,7 +74,7 @@ export const createStructure = (files: any[]) => {
           // create folder
           structure[name] = {};
           Object.defineProperties(structure[name], {
-            ext: { value: 'folder' },
+            ext: { value: "folder" },
             __type__: { value: FileExplorerTypes.FOLDER },
             __name__: { value: name },
             __size__: { value: 0, writable: true },
@@ -74,7 +91,7 @@ export const createStructure = (files: any[]) => {
 
   files.forEach(file => {
     // split realName (path) into separate dir names
-    const path = file.path.split('/');
+    const path = file.path.split("/");
     setElement(path, fileTree, file);
   });
 

@@ -1,12 +1,28 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import React, { useContext, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ModalContext, UseModalContext } from '../../../libs/hooks';
-import { PageList, CodeEditor } from '../../../libs/components';
-import { colsTableEnviroments } from '../../../config';
-import { getDescriptors } from '../../../api/submissions';
-import { useDispatch } from 'react-redux';
-import { setBreadcrumbs } from '../../../store/modules';
+import React, { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { ModalContext, UseModalContext } from "../../../libs/hooks";
+import { PageList, CodeEditor } from "../../../libs/components";
+import { colsTableEnviroments } from "../../../config";
+import { getDescriptors } from "../../../api/submissions";
+import { useDispatch } from "react-redux";
+import { setBreadcrumbs } from "../../../store/modules";
 
 export const EnviromentsList: React.FC = () => {
   const dispatch = useDispatch();
@@ -17,12 +33,12 @@ export const EnviromentsList: React.FC = () => {
     dispatch(
       setBreadcrumbs([
         {
-          name: t('breadcrumbs.admin'),
-          path: `/administration`,
+          name: t("breadcrumbs.admin"),
+          path: "/administration",
         },
         {
-          name: t('breadcrumbs.envs'),
-          path: `/administration/environments`,
+          name: t("breadcrumbs.envs"),
+          path: "/administration/environments",
         },
       ])
     );
@@ -32,8 +48,8 @@ export const EnviromentsList: React.FC = () => {
     openModal(
       () => (
         <CodeEditor
-          data={data || ''}
-          height={'80vh'}
+          data={data || ""}
+          height={"80vh"}
           containerStyles={{ padding: 0 }}
           enableDownload={true}
           language='json'
@@ -41,7 +57,7 @@ export const EnviromentsList: React.FC = () => {
           readOnly
         />
       ),
-      t('modals.show_descriptor.header'),
+      t("modals.show_descriptor.header"),
       {
         closeOnClickOutside: true,
         onClose: closeModal,
@@ -55,13 +71,13 @@ export const EnviromentsList: React.FC = () => {
     <PageList
       removeId='username'
       listConfig={{
-        rowId: 'id',
-        loadingMessage: t('pages.administration.envs.loading_message'),
-        addButtonTitle: '',
-        tableTitle: t('pages.administration.envs.header'),
-        importButtonTitle: t('common.buttons.import'),
+        rowId: "id",
+        loadingMessage: t("pages.administration.envs.loading_message"),
+        addButtonTitle: "",
+        tableTitle: t("pages.administration.envs.header"),
+        importButtonTitle: t("common.buttons.import"),
         listInitialSort: null,
-        iconName: '',
+        iconName: "",
         fetch: getDescriptors,
         cols: cols
       }}

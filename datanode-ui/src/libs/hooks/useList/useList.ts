@@ -1,15 +1,32 @@
-import { useEffect, useCallback, useReducer, Reducer } from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { useEffect, useCallback, useReducer, Reducer } from "react";
 import {
   IUseListProps,
   IUseList,
-} from './useList.types';
-import { useListReducer } from './useList.reducer';
-import { useListInitialState } from './useList.constants';
-import { UseListActionType } from './useList.enums';
+} from "./useList.types";
+import { useListReducer } from "./useList.reducer";
+import { useListInitialState } from "./useList.constants";
+import { UseListActionType } from "./useList.enums";
 
 export function useList(props: IUseListProps): IUseList {
   const {
-    primaryKey = 'id',
+    primaryKey = "id",
     autoLoad = false,
     async = true,
     values = [],
@@ -39,7 +56,7 @@ export function useList(props: IUseListProps): IUseList {
   const getEntityList = useCallback(
     async (params, customFormatter?) => {
       if (!Read?.method && async) {
-        throw Error('"Read" method is not defined.');
+        throw Error("\"Read\" method is not defined.");
       }
 
       if (!async) {
@@ -61,11 +78,11 @@ export function useList(props: IUseListProps): IUseList {
           type: UseListActionType.GET_ENTITY_LIST_SUCCESS,
           payload: {
             data:
-              customFormatter && typeof customFormatter === 'function'
-                ? customFormatter(data)
-                : Read.formatter && typeof Read.formatter === 'function'
-                  ? Read.formatter(data)
-                  : data,
+              customFormatter && typeof customFormatter === "function"
+              	? customFormatter(data)
+              	: Read.formatter && typeof Read.formatter === "function"
+              		? Read.formatter(data)
+              		: data,
             actions,
             primaryKey,
             ...response,
@@ -86,7 +103,7 @@ export function useList(props: IUseListProps): IUseList {
   const createEntity = useCallback(
     async (entity: any, async = false) => {
       if (!Create?.method && async) {
-        throw Error('"Create" method is not defined.');
+        throw Error("\"Create\" method is not defined.");
       }
 
       if (!async) {
@@ -132,7 +149,7 @@ export function useList(props: IUseListProps): IUseList {
 
   const getEntity = useCallback(async id => {
     if (!Get?.method && async) {
-      throw Error('"Get" method is not defined.');
+      throw Error("\"Get\" method is not defined.");
     }
     try {
       const response = await Get?.method(id);
@@ -150,7 +167,7 @@ export function useList(props: IUseListProps): IUseList {
   const removeEntity = useCallback(
     async (entity: any, async = false) => {
       if (!Delete?.method && async) {
-        throw Error('"Delete" method is not defined.');
+        throw Error("\"Delete\" method is not defined.");
       }
 
       if (!async) {
@@ -205,7 +222,7 @@ export function useList(props: IUseListProps): IUseList {
           },
         });
       } catch (err) {
-        console.error('GET LIST SORTING: sth went wrong');
+        console.error("GET LIST SORTING: sth went wrong");
       }
     }
   }, []);

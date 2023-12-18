@@ -1,29 +1,46 @@
-import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { createSubmission as createSubmissionApi } from '../../../api/submissions';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import { getFormatDateAndTime } from '../../../libs/utils';
-import { ModalContext, UseModalContext } from '../../../libs/hooks';
-import { SubmissionDTOInterface } from '../../../libs/types';
-import { Button, Grid, Icon } from '../../../libs/components';
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { createSubmission as createSubmissionApi } from "../../../api/submissions";
 
-import { CreateSubmissionForm } from '../CreateSubmissionForm';
-import LatestSubmissions from '../LatestSubmissions';
-import { ModuleDescriptionCard } from '../ModuleDescriptionCard';
-import { SubmissionResult } from '../SubmissionResult';
+import { getFormatDateAndTime } from "../../../libs/utils";
+import { ModalContext, UseModalContext } from "../../../libs/hooks";
+import { SubmissionDTOInterface } from "../../../libs/types";
+import { Button, Grid, Icon } from "../../../libs/components";
+
+import { CreateSubmissionForm } from "../CreateSubmissionForm";
+import LatestSubmissions from "../LatestSubmissions";
+import { ModuleDescriptionCard } from "../ModuleDescriptionCard";
+import { SubmissionResult } from "../SubmissionResult";
 
 import {
   SubmissionHeader,
   SubmissionHeaderItem,
-} from '../LatestSubmissions/LatestSubmissions.styles';
+} from "../LatestSubmissions/LatestSubmissions.styles";
 
 
 
 
 export const HomeWidget: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
 
 
@@ -35,14 +52,14 @@ export const HomeWidget: React.FC = () => {
           onCancel={closeModal}
           afterCreate={() => {
             closeModal();
-            navigate('/submissions');
+            navigate("/submissions");
           }}
         />
       ),
-      t('modals.create_submission.header'),
+      t("modals.create_submission.header"),
       {
         closeOnClickOutside: true,
-        width: '700px',
+        width: "700px",
         onClose: closeModal,
       }
     );
@@ -53,7 +70,7 @@ export const HomeWidget: React.FC = () => {
         <SubmissionResult item={item} />
       ),
       <SubmissionHeader>
-        <SubmissionHeaderItem>{t('modals.files_results.header')}</SubmissionHeaderItem>
+        <SubmissionHeaderItem>{t("modals.files_results.header")}</SubmissionHeaderItem>
         {item.finished && (
           <SubmissionHeaderItem smallFont>
             {getFormatDateAndTime(item.finished)}
@@ -69,9 +86,9 @@ export const HomeWidget: React.FC = () => {
 
   return (
     <ModuleDescriptionCard
-      title={t('pages.submissions.header')}
-      onClick={() => navigate('/submissions')}
-      description={t('pages.submissions.description')}
+      title={t("pages.submissions.header")}
+      onClick={() => navigate("/submissions")}
+      description={t("pages.submissions.description")}
       iconName="library"
       actions={
         <>
@@ -83,16 +100,16 @@ export const HomeWidget: React.FC = () => {
             name="save"
             startIcon={<Icon iconName="add" />}
           >
-            {t('pages.submissions.add_button')}
+            {t("pages.submissions.add_button")}
           </Button>
           <Button
-            onClick={() => navigate('/submissions')}
+            onClick={() => navigate("/submissions")}
             variant="outlined"
             size="small"
             name="save"
             sx={{ ml: 1 }}
           >
-            {t('common.buttons.view_all')}
+            {t("common.buttons.view_all")}
           </Button>
         </>
       }

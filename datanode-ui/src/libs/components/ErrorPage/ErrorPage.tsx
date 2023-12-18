@@ -1,15 +1,31 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import React from 'react';
+import React from "react";
 import {
   MessageErrorPage,
   StatusDescription,
   StatusHeader,
-} from './ErrorPage.styles';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { Grid } from '../Grid';
-import { Button } from '../Button/Button';
-import { Icon } from '../Icon/Icon';
+} from "./ErrorPage.styles";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Grid } from "../Grid";
+import { Button } from "../Button/Button";
+import { Icon } from "../Icon/Icon";
 
 export interface ErrorPagePropsInterface {
   status: number;
@@ -23,7 +39,7 @@ export interface ErrorPagePropsInterface {
 export const ErrorPage: React.FC<ErrorPagePropsInterface> = props => {
   const { status, statusText, message, data, path, noAction = false } = props;
 
-  const MESSAGE = message || data?.message || '';
+  const MESSAGE = message || data?.message || "";
   const dispatch = useDispatch();
   const navigate = useNavigate();
   return (
@@ -32,7 +48,7 @@ export const ErrorPage: React.FC<ErrorPagePropsInterface> = props => {
       direction="row"
       justifyContent="center"
       alignItems="center"
-      textAlign={'center'}
+      textAlign={"center"}
       spacing={1}
       py={2}
     >
@@ -50,7 +66,7 @@ export const ErrorPage: React.FC<ErrorPagePropsInterface> = props => {
           item
           xs={12}
           container
-          justifyContent={'center'}
+          justifyContent={"center"}
           spacing={2}
           mt={1}
         >
@@ -58,7 +74,7 @@ export const ErrorPage: React.FC<ErrorPagePropsInterface> = props => {
             <Grid item>
               <Button
                 onClick={() => {
-                  navigate(`/`);
+                  navigate("/");
                 }}
                 variant="outlined"
                 size="medium"

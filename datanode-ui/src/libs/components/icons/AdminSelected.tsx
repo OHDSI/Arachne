@@ -1,5 +1,22 @@
-import { useTheme } from '@mui/material';
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { useTheme } from "@mui/material";
+import React from "react";
 
 export const AdminSelected: React.FC<any> = React.forwardRef(
   ({ plain, ...rest }, ref) => {
@@ -31,7 +48,7 @@ export const AdminSelected: React.FC<any> = React.forwardRef(
 	V70.2C150,65.9,146.6,62.5,142.3,62.5z"
         />
         <path
-          fill={theme.palette.primary.main || '#A9BAD4'}
+          fill={theme.palette.primary.main || "#A9BAD4"}
           d="M142.3,62.5h-9.8c-0.5,0-0.9-0.3-1-0.7c-0.6-1.8-1.4-3.6-2.2-5.3c-0.2-0.4-0.1-0.9,0.2-1.3l6.9-6.9
 	c3-3,3-7.8,0-10.8l0,0l-13.9-13.9c-1.5-1.5-3.4-2.2-5.4-2.2c-2,0-3.9,0.8-5.4,2.2l0,0l-6.9,6.9c-0.2,0.2-0.5,0.3-0.8,0.3
 	c-0.2,0-0.3,0-0.5-0.1c-1.7-0.8-3.5-1.5-5.3-2.2c-0.4-0.1-0.7-0.6-0.7-1v-9.8c0-4.2-3.4-7.7-7.7-7.7H70.2c-4.2,0-7.7,3.4-7.7,7.7

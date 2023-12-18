@@ -1,5 +1,22 @@
-import React from 'react';
-import { CellProps, Column as TableColumn, Row } from 'react-table';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { CellProps, Column as TableColumn, Row } from "react-table";
 
 export type TableProps = {
   // data props
@@ -13,7 +30,7 @@ export type TableProps = {
   manualSortBy?: boolean;
   enablePagination?: boolean;
   manualPagination?: boolean;
-  paginationPosition?: 'top' | 'bottom' | 'both';
+  paginationPosition?: "top" | "bottom" | "both";
   showColumnToggle?: boolean;
   pageNumber?: number;
   pageSize?: number;

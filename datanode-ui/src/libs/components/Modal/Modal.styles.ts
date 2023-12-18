@@ -1,29 +1,46 @@
-import { darken, transparentize } from 'polished';
-import { Box, BoxProps } from '@mui/material';
-import { styled, Theme } from '@mui/material/styles';
-import { StyledComponent } from '@emotion/styled';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { darken, transparentize } from "polished";
+import { Box, BoxProps } from "@mui/material";
+import { styled, Theme } from "@mui/material/styles";
+import { StyledComponent } from "@emotion/styled";
 
 export const ModalContainer: StyledComponent<BoxProps> = styled(Box, {
-  shouldForwardProp: prop => prop !== 'width',
+  shouldForwardProp: prop => prop !== "width",
 })<{
   width?: string;
 }>((props: any) => {
   return {
-    position: 'absolute',
-    top: '0',
-    right: '0',
-    width: props.width ? props.width : '75vw',
-    height: '100vh',
-    maxWidth: '100%',
-    overflowY: 'auto',
+    position: "absolute",
+    top: "0",
+    right: "0",
+    width: props.width ? props.width : "75vw",
+    height: "100vh",
+    maxWidth: "100%",
+    overflowY: "auto",
     backgroundColor: props.theme.palette.backgroundColor.dark,
-    [props.theme.breakpoints.down('md')]: {
-      width: '100%',
+    [props.theme.breakpoints.down("md")]: {
+      width: "100%",
     },
   };
 });
 
-export const TitleLayout: StyledComponent<any> = styled('div')(
+export const TitleLayout: StyledComponent<any> = styled("div")(
   props => `
   display: flex;
   align-items: center;
@@ -45,7 +62,7 @@ export const TitleLayout: StyledComponent<any> = styled('div')(
 );
 
 //@deprecated
-export const CloseButton = styled('button') <any>`
+export const CloseButton = styled("button") <any>`
   display: block;
   width: 28px;
   height: 28px;
@@ -60,7 +77,7 @@ export const CloseButton = styled('button') <any>`
   &:hover {
     opacity: 1;
     background-color: ${(props: { theme: Theme }) =>
-    transparentize(0.9, props.theme.palette?.secondary.main || '#55719d')};
+    transparentize(0.9, props.theme.palette?.secondary.main || "#55719d")};
   }
   &:before,
   &:after {
@@ -71,7 +88,7 @@ export const CloseButton = styled('button') <any>`
     height: 18px;
     width: ${(props: any) => (props.error ? 2 : 2)}px;
     background-color: ${(props: any) =>
-    props.error ? props.theme.palette?.error.main : '#3b3b3b'};
+    props.error ? props.theme.palette?.error.main : "#3b3b3b"};
   }
   &:before {
     transform: rotate(45deg);
@@ -80,7 +97,7 @@ export const CloseButton = styled('button') <any>`
     transform: rotate(-45deg);
   }
 `;
-export const ModalBlockedLayout: StyledComponent<any> = styled('div')`
+export const ModalBlockedLayout: StyledComponent<any> = styled("div")`
   font-family: sans-serif;
   position: fixed;
   width: 100vw;
@@ -92,7 +109,7 @@ export const ModalBlockedLayout: StyledComponent<any> = styled('div')`
   overflow-y: hidden;
 `;
 
-export const ModalContentBlock = styled('div') <any>`
+export const ModalContentBlock = styled("div") <any>`
   transition: width 0ms ease-in;
   transition-delay: 0ms;
   overflow-x: hidden;
@@ -103,7 +120,7 @@ export const ModalContentBlock = styled('div') <any>`
   max-width: calc(100vw - 54px);
 `;
 
-export const HideButtonContainer: StyledComponent<any> = styled('div')`
+export const HideButtonContainer: StyledComponent<any> = styled("div")`
   position: absolute;
   width: 24px;
   height: calc(100vh - 42px);
@@ -117,7 +134,7 @@ export const HideButtonContainer: StyledComponent<any> = styled('div')`
     position: absolute;
     left: 12px;
     top: 0;
-    background-color: ${darken(0.2)('#d8e1ef')};
+    background-color: ${darken(0.2)("#d8e1ef")};
     width: 2px;
     transition: height 300ms ease-in;
     transition-delay: 100ms;
@@ -129,7 +146,7 @@ export const HideButtonContainer: StyledComponent<any> = styled('div')`
   }
 `;
 
-export const HideButton = styled('div') <any>`
+export const HideButton = styled("div") <any>`
   visibility: hidden;
   position: absolute;
   background-color: #ffffff;
@@ -144,11 +161,11 @@ export const HideButton = styled('div') <any>`
   text-align: center;
   z-index: 2;
   & > div {
-    border-color: ${darken(0.2)('#d8e1ef')};
+    border-color: ${darken(0.2)("#d8e1ef")};
   }
 `;
 
-export const CollapseIconArrow = styled('div') <any>`
+export const CollapseIconArrow = styled("div") <any>`
   border: solid #8e97a7;
   border-width: 0 2px 2px 0;
   display: inline-block;

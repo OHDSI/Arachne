@@ -1,7 +1,24 @@
-import React, { memo } from 'react';
-import { Grid } from '../Grid';
-import { Typography } from '@mui/material';
-import { FormElementContainer } from '../Content';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { memo } from "react";
+import { Grid } from "../Grid";
+import { Typography } from "@mui/material";
+import { FormElementContainer } from "../Content";
 
 export const FormElement: React.FC<any> = memo(props => {
   const { name, textLabel, required, children, inline } = props;
@@ -32,7 +49,7 @@ export const FormLabel: React.FC<{
         component="label"
         sx={{
           sup: {
-            color: 'error.main',
+            color: "error.main",
             ml: 0.25,
           },
         }}
@@ -54,8 +71,8 @@ export const InlineFormElement: React.FC<any> = props => {
       item
       xs={12}
       sx={{
-        '&:hover': {
-          backgroundColor: 'backgroundColor.main',
+        "&:hover": {
+          backgroundColor: "backgroundColor.main",
           borderRadius: 1,
         },
       }}
@@ -69,7 +86,7 @@ export const InlineFormElement: React.FC<any> = props => {
             sx={{
               // fontSize: 14,
               fontWeight: 600,
-              '.required': { color: 'error.main' },
+              ".required": { color: "error.main" },
             }}
           >
             {textLabel}

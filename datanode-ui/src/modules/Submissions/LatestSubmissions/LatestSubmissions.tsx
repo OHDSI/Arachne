@@ -1,17 +1,34 @@
-import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   LatestSubmissionsList,
   LatestSubmissionsListItem,
   LatestSubmissionsHeader,
-} from './LatestSubmissions.styles';
-import { useList } from '../../../libs/hooks';
-import { getSubmissions } from '../../../api/submissions';
-import { Status } from '../../../libs/enums';
-import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from '../../../libs/components';
-import { getSubmissionStatusInfo, getItemFromConstantArray } from '../../../libs/utils';
-import { originSubmissions } from '../../../libs/constants';
+} from "./LatestSubmissions.styles";
+import { useList } from "../../../libs/hooks";
+import { getSubmissions } from "../../../api/submissions";
+import { Status } from "../../../libs/enums";
+import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from "../../../libs/components";
+import { getSubmissionStatusInfo, getItemFromConstantArray } from "../../../libs/utils";
+import { originSubmissions } from "../../../libs/constants";
 
 export const LatestSubmissions: React.FC<any> = props => {
   const navigate = useNavigate();
@@ -44,56 +61,56 @@ export const LatestSubmissions: React.FC<any> = props => {
   return (
     <Grid container>
       <Grid item xs={12}>
-        <LatestSubmissionsHeader>{t('common.components.latest_submissions.header')}</LatestSubmissionsHeader>
+        <LatestSubmissionsHeader>{t("common.components.latest_submissions.header")}</LatestSubmissionsHeader>
       </Grid>
       <LatestSubmissionsList>
         {status === Status.SUCCESS &&
           (Object.values(list.byId)?.length ? (
-            Object.values(list.byId)
-              .slice(0, 5)
-              .map(item => {
-                const status = getSubmissionStatusInfo(item.status);
-                const origin = getItemFromConstantArray(
-                  originSubmissions,
-                  item.origin
-                );
-                return (
-                  <LatestSubmissionsListItem
-                    key={item.id + 'favorite'}
-                    onClick={() => {
-                      props.openSubmission(item);
-                    }}
-                  >
-                    <div className="list-item-section">
-                      <span>
-                        {item.analysis}{' '}
-                        <span style={{ fontWeight: 300, color: '#016c75' }}>
-                          {`[ ${origin.name} ]`}
-                        </span>
-                      </span>
-                    </div>
+          	Object.values(list.byId)
+          		.slice(0, 5)
+          		.map(item => {
+          			const status = getSubmissionStatusInfo(item.status);
+          			const origin = getItemFromConstantArray(
+          				originSubmissions,
+          				item.origin
+          			);
+          			return (
+          				<LatestSubmissionsListItem
+          					key={item.id + "favorite"}
+          					onClick={() => {
+          						props.openSubmission(item);
+          					}}
+          				>
+          					<div className="list-item-section">
+          						<span>
+          							{item.analysis}{" "}
+          							<span style={{ fontWeight: 300, color: "#016c75" }}>
+          								{`[ ${origin.name} ]`}
+          							</span>
+          						</span>
+          					</div>
 
-                    <div className="list-item-section">
-                      {status && (
-                        <StatusTag text={status.name} color={status.color} />
-                      )}
-                    </div>
-                  </LatestSubmissionsListItem>
-                );
-              })
+          					<div className="list-item-section">
+          						{status && (
+          							<StatusTag text={status.name} color={status.color} />
+          						)}
+          					</div>
+          				</LatestSubmissionsListItem>
+          			);
+          		})
           ) : (
-            <LatestSubmissionsListItem light>
-              <EmptyTableStub
-                noDataText={t('common.components.latest_submissions.no_data')}
-                addButtonText={t('common.components.latest_submissions.go_to')}
-                onAdd={() => navigate('/submissions')}
-              />
-            </LatestSubmissionsListItem>
+          	<LatestSubmissionsListItem light>
+          		<EmptyTableStub
+          			noDataText={t("common.components.latest_submissions.no_data")}
+          			addButtonText={t("common.components.latest_submissions.go_to")}
+          			onAdd={() => navigate("/submissions")}
+          		/>
+          	</LatestSubmissionsListItem>
           ))}
         {status === Status.ERROR && (
           <LatestSubmissionsListItem light>
             <EmptyTableStub
-              noDataText={t('components.latest_submissions.failed_load_message')}
+              noDataText={t("components.latest_submissions.failed_load_message")}
               addButtonText=""
             />
           </LatestSubmissionsListItem>

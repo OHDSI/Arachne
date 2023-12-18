@@ -1,8 +1,25 @@
-import React, { useEffect } from 'react';
-import TextField from '@mui/material/TextField';
-import { StyledAutocomplete } from './Autocomplete.styles';
-import { Global } from '@emotion/react';
-import { CircularProgress } from '@mui/material';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { useEffect } from "react";
+import TextField from "@mui/material/TextField";
+import { StyledAutocomplete } from "./Autocomplete.styles";
+import { Global } from "@emotion/react";
+import { CircularProgress } from "@mui/material";
 
 export interface AutocompleteInput {
   id?: string;
@@ -22,18 +39,18 @@ export interface AutocompleteInput {
 export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
   const {
     id,
-    name = 'auto-select',
+    name = "auto-select",
     options,
     value: initValue,
     onChange,
     onInputChange,
-    placeholder = 'Enter value',
+    placeholder = "Enter value",
     disabled,
     loading,
   } = props;
 
   const [value, setValue] = React.useState<string | null>(() => {
-    if (![undefined, null, ''].includes(initValue)) {
+    if (![undefined, null, ""].includes(initValue)) {
       const index = options.findIndex(elem => elem.value === initValue || elem.name === initValue);
       if (index >= 0) {
         return options[index];
@@ -73,7 +90,7 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
         }}
         inputValue={inputValue}
         onInputChange={(event, newInputValue) => {
-          onInputChange?.(newInputValue)
+          onInputChange?.(newInputValue);
           setInputValue(newInputValue);
         }}
         id={id}
@@ -81,20 +98,20 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
         placeholder={placeholder}
         disabled={disabled}
         options={options}
-        getOptionLabel={option => option.name || ''}
+        getOptionLabel={option => option.name || ""}
         size={props.size}
-        isDense={props.size == 'small'}
+        isDense={props.size == "small"}
         sx={props.sx}
         classes={
           {
-            option: 'autocomplete-menu-item',
-            root: 'autocomplete',
-            input: 'autocomplete-input',
-            inputRoot: 'autocomplete-input-root autocomplete-free-solo-root',
-            endAdornment: 'autocomplete-end-adornment',
-            popupIndicator: 'autocomplete-open-' + props.className,
-            clearIndicator: 'autocomplete-clear-' + props.className,
-            listbox: 'autocomplete-options-' + props.className,
+          	option: "autocomplete-menu-item",
+          	root: "autocomplete",
+          	input: "autocomplete-input",
+          	inputRoot: "autocomplete-input-root autocomplete-free-solo-root",
+          	endAdornment: "autocomplete-end-adornment",
+          	popupIndicator: "autocomplete-open-" + props.className,
+          	clearIndicator: "autocomplete-clear-" + props.className,
+          	listbox: "autocomplete-options-" + props.className,
           } as any
         }
         renderInput={params => (
@@ -105,9 +122,9 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
             InputProps={{
               ...params.InputProps,
               classes: {
-                notchedOutline: 'autocomplete-notched-outline',
-                root: 'autocomplete-input-container',
-                focused: 'autocomplete-focused',
+                notchedOutline: "autocomplete-notched-outline",
+                root: "autocomplete-input-container",
+                focused: "autocomplete-focused",
               },
               name: name,
               endAdornment: (

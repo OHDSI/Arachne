@@ -1,6 +1,23 @@
-import React from 'react';
-import { CellProps } from '..';
-import { Checkbox } from '../../Checkbox/Checkbox';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { CellProps } from "..";
+import { Checkbox } from "../../Checkbox/Checkbox";
 
 // export interface Cell<T extends object = {}, V = any> extends CellProps<T, V> {
 //   disabled?: boolean;
@@ -29,10 +46,10 @@ export const CheckboxCell: React.FC<any> = props => {
     setValue(e.target.checked);
     onEdit &&
       onEdit({
-        rowIndex: row.index,
-        row: row.original,
-        columnId: column.id,
-        value: e.target.checked,
+      	rowIndex: row.index,
+      	row: row.original,
+      	columnId: column.id,
+      	value: e.target.checked,
       });
   };
 
@@ -53,8 +70,8 @@ export const CheckboxCell: React.FC<any> = props => {
   return (
     <div
       style={{
-        textAlign: 'center',
-        maxWidth: `calc(100% - ${(column as any).canSort ? '14px' : ''})`,
+        textAlign: "center",
+        maxWidth: `calc(100% - ${(column as any).canSort ? "14px" : ""})`,
       }}
     >
       <Checkbox

@@ -1,15 +1,32 @@
-import React, { FC, useState } from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import { useTheme } from '@emotion/react';
-import JSZip from 'jszip';
-import { useNotifications } from '../Notification';
-import { Grid } from '../Grid';
-import { Button } from '../Button/Button';
-import { Icon } from '../Icon/Icon';
-import { IconButton, Typography } from '@mui/material';
+import React, { FC, useState } from "react";
+
+import { useTheme } from "@emotion/react";
+import JSZip from "jszip";
+import { useNotifications } from "../Notification";
+import { Grid } from "../Grid";
+import { Button } from "../Button/Button";
+import { Icon } from "../Icon/Icon";
+import { IconButton, Typography } from "@mui/material";
 
 export const ImportZipFile: FC<any> = props => {
-  const { onChange, titleButton = 'Upload file' } = props;
+  const { onChange, titleButton = "Upload file" } = props;
   const { enqueueSnackbar } = useNotifications();
   const [currentFile, setCurrentFile] = useState(null);
 
@@ -50,13 +67,13 @@ export const ImportZipFile: FC<any> = props => {
               }}
               hidden
             />
-          </Button>{' '}
+          </Button>{" "}
         </Grid>
         <Grid item flexGrow={1} ml={2} display="flex" alignItems="center">
           {currentFile ? (
             <>
               <Typography
-                sx={{ maxWidth: 'calc(100% - 30px)', wordBreak: 'break-all' }}
+                sx={{ maxWidth: "calc(100% - 30px)", wordBreak: "break-all" }}
               >
                 {currentFile?.name}
               </Typography>

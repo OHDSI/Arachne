@@ -1,5 +1,22 @@
-import { useTheme } from '@mui/material';
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { useTheme } from "@mui/material";
+import React from "react";
 
 export const Users: React.FC<any> = React.forwardRef(
   ({ plain, ...rest }, ref) => {
@@ -14,13 +31,13 @@ export const Users: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
         <circle fill="#F0F8FE" cx="80" cy="80" r="70" />
         <path
-          fill={theme.palette.primary.main || '#A9BAD4'}
+          fill={theme.palette.primary.main || "#A9BAD4"}
           d="M80,10c-38.7,0-70,31.3-70,70s31.3,70,70,70s70-31.3,70-70S118.7,10,80,10z M70,141.7v-38.5
 	c0-1.5-1.2-2.7-2.7-2.7h-2.1c-1.5,0-2.7,1.2-2.7,2.7V140c-3.8-1.1-7.5-2.6-11-4.4v-42c0-1.9,1.6-3.5,3.5-3.5h50.1
 	c1.9,0,3.5,1.6,3.5,3.5v42c-3.5,1.8-7.2,3.3-11.1,4.4v-36.8c0-1.5-1.2-2.7-2.7-2.7h-2.1c-1.5,0-2.7,1.2-2.7,2.7v38.3

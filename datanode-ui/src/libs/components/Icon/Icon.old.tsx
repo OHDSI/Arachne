@@ -1,6 +1,23 @@
-import clsx from 'clsx';
-import React from 'react';
-import { IconContainer } from './Icon.styles';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import clsx from "clsx";
+import React from "react";
+import { IconContainer } from "./Icon.styles";
 
 export interface IconOldProps {
   iconName?: string;
@@ -20,7 +37,7 @@ export const IconOld = React.forwardRef((props: IconOldProps, ref) => {
   return (
     <IconContainer
       {...props}
-      className={clsx(props.className, 'c-icon')}
+      className={clsx(props.className, "c-icon")}
       color={props.color}
       size={props.size}
       ref={ref}
@@ -44,7 +61,7 @@ const SaveCheck: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cohort'}</title>
+    <title>{name || "cohort"}</title>
     <path
       d="M128.5,15.4c-0.7,0-1.5,0.2-2,0.7l-67.3,86.5L32.2,76.3c-1.3-1.3-2.5-2-3.4-2c-0.5,0-1.4,0.7-2.7,2
 	c-3.6,3.6-8.5,8.8-14.8,15.5l-0.7,0.7c-0.3,0.5-0.5,1.1-0.7,1.7c0.1,0.7,0.3,1.4,0.7,2l1,1l47.5,45.8c0.8,1,2.1,1.6,3.4,1.7
@@ -62,7 +79,7 @@ const PlusChevron: React.FC<any> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'analysis'}</title>
+    <title>{name || "analysis"}</title>
     <g>
       <path
         d="M128,266.667h117.333V384c0,5.891,4.776,10.667,10.667,10.667c5.891,0,10.667-4.776,10.667-10.667V266.667H384
@@ -87,7 +104,7 @@ const MinusChevron: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'analysis'}</title>
+    <title>{name || "analysis"}</title>
     <g>
       <path
         d="M117.333,266.667H384c5.891,0,10.667-4.776,10.667-10.667c0-5.891-4.776-10.667-10.667-10.667H117.333
@@ -158,7 +175,7 @@ const Cohort: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cohort'}</title>
+    <title>{name || "cohort"}</title>
     <path
       id="Group_People"
       data-name="Group People"
@@ -176,7 +193,7 @@ const Document: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cohort'}</title>
+    <title>{name || "cohort"}</title>
     <path
       d="M19,3 L9.0085302,3 C7.8992496,3 7,3.89833832 7,5.00732994 L7,27.9926701 C7,29.1012878 7.89092539,30 8.99742191,30 L24.0025781,30 C25.1057238,30 26,29.1090746 26,28.0025781 L26,11 L21.0059191,11 C19.8980806,11 19,10.1132936 19,9.00189865 L19,3 L19,3 Z M20,3 L20,8.99707067 C20,9.55097324 20.4509752,10 20.990778,10 L26,10 L20,3 L20,3 Z M10,10 L10,11 L17,11 L17,10 L10,10 L10,10 Z M10,7 L10,8 L17,8 L17,7 L10,7 L10,7 Z M10,13 L10,14 L23,14 L23,13 L10,13 L10,13 Z M10,16 L10,17 L23,17 L23,16 L10,16 L10,16 Z M10,19 L10,20 L23,20 L23,19 L10,19 L10,19 Z M10,22 L10,23 L23,23 L23,22 L10,22 L10,22 Z M10,25 L10,26 L23,26 L23,25 L10,25 L10,25 Z"
       id="document-text"
@@ -193,7 +210,7 @@ const Participant: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cohort'}</title>
+    <title>{name || "cohort"}</title>
     <g>
       <path
         d="M18.8,21.5c0.3-0.5,0.1-1.1-0.3-1.4L17,19.2V17c0-0.6-0.4-1-1-1s-1,0.4-1,1v2.2l-1.5,0.9c-0.5,0.3-0.6,0.9-0.3,1.4
@@ -227,7 +244,7 @@ const DataSource: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cohort'}</title>
+    <title>{name || "cohort"}</title>
     <g>
       <path d="M5,12.4V16c0,3.4,4.8,6,11,6s11-2.6,11-6v-3.6c-2.2,2.2-6.2,3.6-11,3.6S7.2,14.6,5,12.4z" />
       <path d="M5,20.4V24c0,3.4,4.8,6,11,6s11-2.6,11-6v-3.6c-2.2,2.2-6.2,3.6-11,3.6S7.2,22.6,5,20.4z" />
@@ -245,13 +262,13 @@ const Edit: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'edit'}</title>
+    <title>{name || "edit"}</title>
     <path
       d="M27.9,8.6l-2.4-2.4c-1-1-2.7-1-3.7,0L8.7,19.1l0,0l-1.2,3.5l-2.1,5.3c-0.2,0.5,0.3,0.9,0.8,0.7l4.8-2l3.8-1.4
 	l0.1,0.1l12.9-12.9c0.5-0.5,0.8-1.2,0.8-1.9S28.4,9.1,27.9,8.6z M10.1,25L9,23.8l1.2-3.3l3.3,3.3L10.1,25z M11.3,19.1l9.2-9.2
 	l3.6,3.6l-9.2,9.2L11.3,19.1z M26.6,11.1l-1.2,1.2l-3.6-3.6l1.2-1.2c0.3-0.3,0.9-0.3,1.2,0l2.4,2.4c0.2,0.2,0.2,0.4,0.2,0.6
 	S26.7,10.9,26.6,11.1z"
-    />{' '}
+    />{" "}
   </svg>
 );
 
@@ -264,7 +281,7 @@ const Workspace: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'workspace'}</title>
+    <title>{name || "workspace"}</title>
     <g>
       <g>
         <path
@@ -300,7 +317,7 @@ const Copy: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'copy'}</title>
+    <title>{name || "copy"}</title>
     <g>
       <g>
         <path d="M31.2,22.7h-1.8V11.4c0-1.9-1.5-3.4-3.4-3.4H6V6.3h20c2.8,0,5.2,2.3,5.2,5.2V22.7z" />
@@ -325,8 +342,8 @@ const Cancel: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'cancel'}</title>
-    <polygon points="27.3,7.9 26,6.6 17,15.7 8,6.6 6.7,7.9 15.7,16.9 6.7,26 8,27.2 17,18.2 26,27.2 27.3,26 18.3,16.9 " />{' '}
+    <title>{name || "cancel"}</title>
+    <polygon points="27.3,7.9 26,6.6 17,15.7 8,6.6 6.7,7.9 15.7,16.9 6.7,26 8,27.2 17,18.2 26,27.2 27.3,26 18.3,16.9 " />{" "}
   </svg>
 );
 
@@ -339,7 +356,7 @@ const Delete: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'delete'}</title>
+    <title>{name || "delete"}</title>
     <path d="M23 7h4v1h-2v18.993c0 1.671-1.343 3.007-3 3.007h-11c-1.666 0-3-1.346-3-3.007v-18.993h-2v-1h6v-1.995c0-1.111 0.894-2.005 1.997-2.005h5.005c1.102 0 1.997 0.898 1.997 2.005v1.995h2zM9 8v19.005c0 1.102 0.893 1.995 1.992 1.995h11.016c1.1 0 1.992-0.902 1.992-1.995v-19.005h-15zM12 10v17h1v-17h-1zM16 10v17h1v-17h-1zM20 10v17h1v-17h-1zM14.003 4c-0.554 0-1.003 0.443-1.003 0.999v2.001h7v-2.001c0-0.552-0.438-0.999-1.003-0.999h-4.994z"></path>
   </svg>
 );
@@ -353,7 +370,7 @@ const Save: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'save'}</title>
+    <title>{name || "save"}</title>
     <path
       d="M26.6,14.6H12.3c-1.5,0-2.8,1.2-2.8,2.8v4.2c0,1.6,1.3,2.9,2.9,2.9h7.7l-4.2,4.2l1.3,1.3l6.4-6.4L23,22.9l0,0
 	l-5.8-5.8l-1.3,1.3l4.2,4.2h-7.7c-0.6,0-1.1-0.5-1.1-1.1v-4.2c0-0.5,0.4-1,1-1h14.3c0.5,0,1,0.4,1,1v10.7c0,1.5-1.2,2.7-2.7,2.7H9.6
@@ -373,7 +390,7 @@ const Import: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'import'}</title>
+    <title>{name || "import"}</title>
     <g>
       <path
         fill="evenodd"
@@ -398,14 +415,14 @@ const Download: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'download'}</title>
+    <title>{name || "download"}</title>
     <g>
       <polygon
         points="17.6,20.8 17.6,20.8 23.4,15 22.1,13.8 18,17.9 18,6.6 16.2,6.6 16.2,18.1 11.9,13.8 10.6,15 17,21.4 
 			"
       />
       <polygon points="27.3,18.2 27.3,25.4 6.7,25.4 6.7,18.2 4.9,18.2 4.9,27.2 29.1,27.2 29.1,18.2 	" />
-    </g>{' '}
+    </g>{" "}
   </svg>
 );
 
@@ -418,7 +435,7 @@ const Add: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'add'}</title>
+    <title>{name || "add"}</title>
     <g>
       <path
         d="M17,4.3C10,4.3,4.4,10,4.4,16.9c0,7,5.7,12.7,12.7,12.7s12.7-5.7,12.7-12.7C29.7,10,24,4.3,17,4.3z M17,27.8
@@ -441,7 +458,7 @@ const Search: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'search'}</title>
+    <title>{name || "search"}</title>
     <path
       d="M29.9,23.9l-4.3-4.3c2-4.1,1.3-9.1-2.1-12.5c-4.3-4.3-11.3-4.3-15.6,0s-4.3,11.3,0,15.6
 	c2.1,2.1,4.8,3.2,7.8,3.2c1.7,0,3.3-0.4,4.8-1.1l4.3,4.3c0.6,0.6,1.5,1,2.4,1c0.9,0,1.8-0.4,2.4-1l0.4-0.4c0.6-0.6,1-1.5,1-2.4
@@ -461,7 +478,7 @@ const Warning: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Warning'}</title>
+    <title>{name || "Warning"}</title>
     <g>
       <path
         fill="none"
@@ -495,7 +512,7 @@ const Info: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Info'}</title>
+    <title>{name || "Info"}</title>
     <g>
       <g>
         <path
@@ -530,7 +547,7 @@ const Critical: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Critical'}</title>
+    <title>{name || "Critical"}</title>
     <g>
       <g>
         <line
@@ -574,7 +591,7 @@ const Calendar: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'calendar'}</title>
+    <title>{name || "calendar"}</title>
     <g>
       <rect x="14.8" y="17" width="1.9" height="1.9" />
       <rect x="18.7" y="17" width="1.9" height="1.9" />
@@ -599,7 +616,7 @@ const ChevronRight: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'chevronRight'}</title>
+    <title>{name || "chevronRight"}</title>
     <g>
       <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
     </g>
@@ -615,7 +632,7 @@ const ChevronDown: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'chevronDown'}</title>
+    <title>{name || "chevronDown"}</title>
     <g>
       <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
     </g>
@@ -630,7 +647,7 @@ const Reload: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'reload'}</title>
+    <title>{name || "reload"}</title>
     <g>
       <path d="M7 9h-7v-7h1v5.2c1.853-4.237 6.083-7.2 11-7.2 6.623 0 12 5.377 12 12s-5.377 12-12 12c-6.286 0-11.45-4.844-11.959-11h1.004c.506 5.603 5.221 10 10.955 10 6.071 0 11-4.929 11-11s-4.929-11-11-11c-4.66 0-8.647 2.904-10.249 7h5.249v1z"></path>
     </g>
@@ -646,7 +663,7 @@ const FileExt: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'file'}</title>
+    <title>{name || "file"}</title>
     <g>
       <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path>
     </g>
@@ -662,7 +679,7 @@ const ZoomIn: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Zoom In'}</title>
+    <title>{name || "Zoom In"}</title>
     <g>
       <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
       <path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"></path>
@@ -679,9 +696,9 @@ const ZoomOut: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Zoom Out'}</title>
+    <title>{name || "Zoom Out"}</title>
     <g>
-      <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"></path>{' '}
+      <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"></path>{" "}
     </g>
   </svg>
 );
@@ -695,7 +712,7 @@ const List: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'list'}</title>
+    <title>{name || "list"}</title>
     <g>
       <rect x="14.3" y="25.2" width="16.3" height="1.8" />
       <rect x="14.3" y="19.1" width="16.3" height="1.8" />
@@ -722,7 +739,7 @@ const Tiles: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'tiles'}</title>
+    <title>{name || "tiles"}</title>
     <g>
       <path d="M15.3,14.8H2V5.9h13.3V14.8z M3.8,13h9.7V7.7H3.8V13z" />
       <path d="M32,14.8H18.7V5.9H32V14.8z M20.5,13h9.7V7.7h-9.7V13z" />
@@ -741,7 +758,7 @@ const User: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'user'}</title>
+    <title>{name || "user"}</title>
     <g>
       <path
         d="M17,16.6c-3.9,0-7.1-3.2-7.1-7.1c0-3.9,3.2-7.1,7.1-7.1s7.1,3.2,7.1,7.1C24.1,13.4,20.9,16.6,17,16.6z
@@ -764,7 +781,7 @@ const Studies: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'studies'}</title>
+    <title>{name || "studies"}</title>
 
     <g>
       <g>
@@ -793,7 +810,7 @@ const Public: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'public'}</title>
+    <title>{name || "public"}</title>
     <g>
       <path
         d="M24.5,12.1H11.7V9.6c0-3,2.4-5.4,5.4-5.4c2.8,0,5.2,2.2,5.4,5l1.7-0.1c-0.3-3.7-3.4-6.6-7.1-6.6
@@ -818,7 +835,7 @@ const Private: React.FC<IconOldProps> = ({ name, size }) => {
       width={size}
       height={size}
     >
-      <title>{name || 'private'}</title>
+      <title>{name || "private"}</title>
       <path
         d="M24,12V9.5c0-3.9-3.1-7-7-7s-7,3.1-7,7V12c-2.2,0.1-4,1.6-4,3.5v11.7c0,1.9,1.9,3.5,4.1,3.5h13.8
 	c2.3,0,4.1-1.6,4.1-3.5V15.5C28,13.6,26.2,12,24,12z M18.1,24.2c0,0.6-0.5,1.1-1.1,1.1s-1.1-0.5-1.1-1.1v-5.6c0-0.6,0.5-1.1,1.1-1.1
@@ -837,7 +854,7 @@ const HealthStatus: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Health Status'}</title>
+    <title>{name || "Health Status"}</title>
     <path d="M20.2 5.9l.8-.8C19.6 3.7 17.8 3 16 3s-3.6.7-5 2.1l.8.8C13 4.8 14.5 4.2 16 4.2s3 .6 4.2 1.7zm-.9.8c-.9-.9-2.1-1.4-3.3-1.4s-2.4.5-3.3 1.4l.8.8c.7-.7 1.6-1 2.5-1 .9 0 1.8.3 2.5 1l.8-.8zM19 13h-2V9h-2v4H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM8 18H6v-2h2v2zm3.5 0h-2v-2h2v2zm3.5 0h-2v-2h2v2z"></path>
   </svg>
 );
@@ -851,8 +868,8 @@ const Refresh: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Refresh'}</title>
-    <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"></path>{' '}
+    <title>{name || "Refresh"}</title>
+    <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"></path>{" "}
   </svg>
 );
 
@@ -865,9 +882,9 @@ const LeadInvestigator: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Lead Investigator'}</title>
+    <title>{name || "Lead Investigator"}</title>
     <circle cx="9" cy="9" r="4"></circle>
-    <path d="M9 15c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm7.76-9.64l-1.68 1.69c.84 1.18.84 2.71 0 3.89l1.68 1.69c2.02-2.02 2.02-5.07 0-7.27zM20.07 2l-1.63 1.63c2.77 3.02 2.77 7.56 0 10.74L20.07 16c3.9-3.89 3.91-9.95 0-14z"></path>{' '}
+    <path d="M9 15c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm7.76-9.64l-1.68 1.69c.84 1.18.84 2.71 0 3.89l1.68 1.69c2.02-2.02 2.02-5.07 0-7.27zM20.07 2l-1.63 1.63c2.77 3.02 2.77 7.56 0 10.74L20.07 16c3.9-3.89 3.91-9.95 0-14z"></path>{" "}
   </svg>
 );
 
@@ -880,8 +897,8 @@ const Contributor: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Contributor'}</title>
-    <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>{' '}
+    <title>{name || "Contributor"}</title>
+    <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>{" "}
   </svg>
 );
 
@@ -894,8 +911,8 @@ const DataSetOwner: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Data Set Owner'}</title>
-    <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"></path>{' '}
+    <title>{name || "Data Set Owner"}</title>
+    <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"></path>{" "}
   </svg>
 );
 
@@ -908,7 +925,7 @@ const Accept: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Accept'}</title>
+    <title>{name || "Accept"}</title>
     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
   </svg>
 );
@@ -921,7 +938,7 @@ const Filter: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Filter'}</title>
+    <title>{name || "Filter"}</title>
     <g>
       <path
         d="M9.7,17.4V7H7.9v10.4c-1.6,0.4-2.8,1.8-2.8,3.5c0,1.7,1.2,3.1,2.8,3.5V27h1.8v-2.5c1.6-0.4,2.8-1.8,2.8-3.5
@@ -952,7 +969,7 @@ const DataCatalog: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Data catalog'}</title>
+    <title>{name || "Data catalog"}</title>
     <g>
       <g>
         <path
@@ -988,7 +1005,7 @@ const Favorite: React.FC<IconOldProps> = ({ name, size, color, fillColor }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Filter'}</title>
+    <title>{name || "Filter"}</title>
     <g>
       <path
         fill={color}
@@ -1002,7 +1019,7 @@ const Favorite: React.FC<IconOldProps> = ({ name, size, color, fillColor }) => (
 		c0.8,0.8,1.1,1.8,0.9,2.9l-0.9,5.5c-0.1,0.6,0.1,1.1,0.6,1.4s1,0.4,1.5,0.1l4.9-2.6C15.9,26.2,16.4,26.1,17,26.1z"
       />
       <path
-        fill={fillColor || 'transparent'}
+        fill={fillColor || "transparent"}
         d="M17,4.3c-0.6,0-1.1,0.3-1.3,0.8l-2.5,5c-0.5,1-1.4,1.6-2.5,1.8l-5.5,0.8c-0.6,0.1-1,0.5-1.2,1s0,1.1,0.4,1.5
 	l4,3.9c0.8,0.8,1.1,1.8,0.9,2.9l-0.9,5.5c-0.1,0.6,0.1,1.1,0.6,1.4s1,0.4,1.5,0.1l4.9-2.6c0.5-0.2,1-0.3,1.6-0.3
 	c0.5,0,1,0.1,1.5,0.4l4.9,2.6c0.5,0.3,1.1,0.2,1.5-0.1c0.5-0.3,0.7-0.9,0.6-1.4L24.6,22c-0.2-1.1,0.2-2.1,0.9-2.9l4-3.9
@@ -1021,7 +1038,7 @@ const Comment: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Comment'}</title>
+    <title>{name || "Comment"}</title>
     <g>
       <path d="M0 0h24v24H0V0z" fill="none" />
     </g>
@@ -1040,7 +1057,7 @@ const Trash: React.FC<IconOldProps> = ({ name, size }) => (
     width={size}
     height={size}
   >
-    <title>{name || 'Comment'}</title>
+    <title>{name || "Comment"}</title>
     <g>
       <path
         d="M44,65.7v52.4c0,1.5,0.6,2.9,1.6,4c2.2,2.2,5.8,2.2,7.9,0c1.1-1.1,1.6-2.5,1.6-4V65.7c0-3.1-2.5-5.6-5.6-5.6

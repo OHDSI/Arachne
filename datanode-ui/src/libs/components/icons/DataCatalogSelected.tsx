@@ -1,5 +1,22 @@
-import { useTheme } from '@mui/material';
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { useTheme } from "@mui/material";
+import React from "react";
 
 export const DataCatalogSelected: React.FC<any> = React.forwardRef(
   ({ plain, ...rest }, ref) => {
@@ -25,7 +42,7 @@ export const DataCatalogSelected: React.FC<any> = React.forwardRef(
 		c0,0,0,0,0,0H85.5c-1,0-1.9-0.4-2.5-1.1L72.9,21.3c-0.6-0.6-1.5-1-2.4-1l-36.1,0.2C29.3,20.5,25.2,24.6,25.2,29.7z"
           />
           <path
-            fill={'rgb(69, 165, 100)'}
+            fill={"rgb(69, 165, 100)"}
             d="M149.5,31.1c-1.7-1.7-4-2.7-6.5-2.7H85.7l-10-10l0,0c-1.4-1.4-3.3-2.2-5.2-2.2l0,0l-36.1,0.2
 		c-7.3,0-13.2,5.9-13.2,13.2v69.5c0,5.9,4.8,10.7,10.7,10.7h110.8c5.3,0,9.5-4.3,9.5-9.5V37.6C152.2,35.2,151.2,32.9,149.5,31.1z
 		 M144.1,100.4c0,0.4-0.2,0.8-0.4,1.1c-0.3,0.3-0.7,0.4-1.1,0.4H31.8c-0.7,0-1.4-0.3-1.9-0.8c-0.5-0.5-0.8-1.2-0.8-1.9V29.7

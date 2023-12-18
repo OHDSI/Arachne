@@ -1,8 +1,25 @@
-import { Reducer, useCallback, useEffect, useReducer } from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import type { IEntityList } from './useEntityList.types';
-import { EntityListConstants, INITIAL_STATE } from './useEntityList.constants';
-import { reducer } from './useEntityList.reducer';
+import { Reducer, useCallback, useEffect, useReducer } from "react";
+
+import type { IEntityList } from "./useEntityList.types";
+import { EntityListConstants, INITIAL_STATE } from "./useEntityList.constants";
+import { reducer } from "./useEntityList.reducer";
 
 export const useEntityList = <T extends object = object>(
   methods: {
@@ -44,7 +61,7 @@ export const useEntityList = <T extends object = object>(
           },
         });
       } catch (e) {
-        console.error('ERROR', e);
+        console.error("ERROR", e);
         dispatch({
           type: EntityListConstants.FETCH_REQUEST_FAILED,
           payload: e,
@@ -116,7 +133,7 @@ export const useEntityList = <T extends object = object>(
           payload: sorting,
         });
       } catch (err) {
-        console.error('GET LIST SORTING: sth went wrong');
+        console.error("GET LIST SORTING: sth went wrong");
       }
     }
   }, []);

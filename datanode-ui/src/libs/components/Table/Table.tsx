@@ -1,35 +1,52 @@
-import React, { FC, useEffect, useCallback } from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { FC, useEffect, useCallback } from "react";
 import {
   useExpanded,
   usePagination,
   useSortBy,
   useTable,
   useRowSelect,
-} from 'react-table';
-import { EmptyTableStub } from '../EmptyTableStub';
-import { Checkbox } from '../Checkbox/Checkbox';
-import { ColumnSelect } from './ColumnSelect/ColumnSelect';
-import { CustomTableComponent } from './CustomTableComponent/CustomTableComponent';
-import { Pagination } from './Pagination/Pagination';
-import { TableProps } from './Table.interfaces';
-import { Container, TableActions, TableContainer } from './Table.styles';
-import { TableComponent } from './TableComponent/TableComponent';
-import { TableSpinner } from './TableSpinner/TableSpinner';
-import _, { isEqual } from 'lodash';
+} from "react-table";
+import { EmptyTableStub } from "../EmptyTableStub";
+import { Checkbox } from "../Checkbox/Checkbox";
+import { ColumnSelect } from "./ColumnSelect/ColumnSelect";
+import { CustomTableComponent } from "./CustomTableComponent/CustomTableComponent";
+import { Pagination } from "./Pagination/Pagination";
+import { TableProps } from "./Table.interfaces";
+import { Container, TableActions, TableContainer } from "./Table.styles";
+import { TableComponent } from "./TableComponent/TableComponent";
+import { TableSpinner } from "./TableSpinner/TableSpinner";
+import _, { isEqual } from "lodash";
 
 export const Table: FC<TableProps> = props => {
   const {
     enableSorting = false,
     enablePagination = false,
     disablePageSize = false,
-    paginationPosition = 'bottom',
+    paginationPosition = "bottom",
     manualPagination = false,
     manualSortBy = false,
     pageCount: defaultPageCount,
     pageSize: defaultPageSize,
     pageNumber,
     isLoading = false,
-    loadingMessage = '',
+    loadingMessage = "",
     fetchData,
     onEdit,
     showColumnToggle = false,
@@ -43,7 +60,7 @@ export const Table: FC<TableProps> = props => {
     setSort,
     setCurrentPage,
     setVisibleColumns,
-    noDataText = 'No data currently available',
+    noDataText = "No data currently available",
     className,
     totalElements,
     numberOfElements,
@@ -58,7 +75,7 @@ export const Table: FC<TableProps> = props => {
 
   // custom reducer to fix existing issue https://github.com/TanStack/table/issues/3142
   const reducer = (newState, action) => {
-    if (action.type === 'deselectAllRows') {
+    if (action.type === "deselectAllRows") {
       return { ...newState, selectedRowIds: {} };
     }
     return newState;
@@ -97,7 +114,7 @@ export const Table: FC<TableProps> = props => {
           return row.id || relativeIndex;
         }
       } else {
-        return parent ? [parent.id, relativeIndex].join('.') : relativeIndex;
+        return parent ? [parent.id, relativeIndex].join(".") : relativeIndex;
       }
     },
     autoResetSelectedRows: false,
@@ -109,7 +126,7 @@ export const Table: FC<TableProps> = props => {
     hooks.visibleColumns.push((columns: any) => [
       // selection column
       {
-        id: 'selection',
+        id: "selection",
         Header: ({ getToggleAllPageRowsSelectedProps }: any) => {
           return (
             <Checkbox
@@ -163,7 +180,7 @@ export const Table: FC<TableProps> = props => {
   } = useTable(options as any, ...hooks) as any; // TODO: Figure out why typescript error
 
   useEffect(() => {
-    if (!selectedIds) dispatch({ type: 'deselectAllRows' });
+    if (!selectedIds) dispatch({ type: "deselectAllRows" });
   }, [selectedIds]);
 
   useEffect(() => {
@@ -218,7 +235,7 @@ export const Table: FC<TableProps> = props => {
 
   const composeTableView = () => {
     const table = (
-      <TableContainer key={'table-template'} isLoading={isLoading}>
+      <TableContainer key={"table-template"} isLoading={isLoading}>
         {!tileComponent ? (
           <TableComponent
             getTableProps={getTableProps}
@@ -245,7 +262,7 @@ export const Table: FC<TableProps> = props => {
     );
     const actions = (number: number) => {
       return (
-        <TableActions key={'table-actions' + number} className="table-actions">
+        <TableActions key={"table-actions" + number} className="table-actions">
           <div>
             {/* {!tileComponent && (
               <ColumnSelect
@@ -278,15 +295,15 @@ export const Table: FC<TableProps> = props => {
     if (enablePagination) {
       components.unshift(actions(1));
       components.push(actions(2));
-      paginationPosition === 'top' && components.pop();
-      paginationPosition === 'bottom' && components.shift();
+      paginationPosition === "top" && components.pop();
+      paginationPosition === "bottom" && components.shift();
     }
     return components;
   };
 
   return (
     <Container
-      className={'c-table ' + (className || '')}
+      className={"c-table " + (className || "")}
       paginationPosition={paginationPosition}
     >
       <TableSpinner isLoading={isLoading} loadingMessage={loadingMessage} />
