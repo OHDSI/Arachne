@@ -1,5 +1,3 @@
-package com.odysseusinc.arachne.datanode.config;
-
 /*
  * Copyright 2018, 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +12,7 @@ package com.odysseusinc.arachne.datanode.config;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.odysseusinc.arachne.datanode.config;
 
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
