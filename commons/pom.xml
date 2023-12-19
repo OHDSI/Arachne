@@ -12,7 +12,6 @@
     <modules>
         <module>arachne-commons</module>
         <module>arachne-sys-settings</module>
-        <module>execution-engine-commons</module>
         <module>arachne-common-types</module>
         <module>arachne-common-utils</module>
     </modules>
