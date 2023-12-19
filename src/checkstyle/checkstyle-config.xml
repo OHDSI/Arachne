@@ -9,6 +9,12 @@
 <!--        <property name="eachLine" value="true"/>-->
 <!--    </module>-->
 
+    <module name="Header">
+        <property name="headerFile" value="src/checkstyle/license-header.java"/>
+        <!-- Ignore copyright year -->
+        <property name="ignoreLines" value="2"/>
+    </module>
+
     <module name="TreeWalker">
         <module name="OuterTypeFilename"/>
 

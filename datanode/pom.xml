@@ -458,6 +458,7 @@
                             <configLocation>${project.basedir}/../src/checkstyle/checkstyle-config.xml</configLocation>
                             <logViolationsToConsole>true</logViolationsToConsole>
                             <consoleOutput>true</consoleOutput>
+                            <suppressionsLocation>${project.basedir}/../src/checkstyle/suppressions.xml</suppressionsLocation>
                         </configuration>
                     </execution>
                 </executions>
