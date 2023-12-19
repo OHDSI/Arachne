@@ -5,17 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odysseusinc.arachne.datanode.service.client.ArachneHttpClientBuilder;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorsDTO;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.okhttp.FailsafeCall;
-import java.io.File;
-import java.io.IOException;
-import java.security.cert.X509Certificate;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Supplier;
-import javax.net.ssl.X509TrustManager;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
 import okhttp3.MultipartBody;
@@ -26,6 +19,14 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 @Component
 @Slf4j
@@ -43,6 +44,16 @@ public class ExecutionEngineClient {
         this.properties = properties;
         this.httpClient = clientBuilder.buildOkHttpClient(properties.getProxyEnabledForEngine());
         this.objectMapper = objectMapper;
+    }
+
+    public AnalysisResultDTO cancel(long id) {
+        String url = buildUrl("/api/v1/abort/" + id);
+        // Yes, this is the weird way to make okhttp send empty body
+        RequestBody body = RequestBody.create("", null);
+        Request request = new Request.Builder().url(url).post(body).build();
+        Call call = httpClient.newCall(request);
+        FailsafeCall failsafeCall = FailsafeCall.with(retryPolicy()).compose(call);
+        return executeRequest(url, failsafeCall, AnalysisResultDTO.class);
     }
 
     public AnalysisRequestStatusDTO sendAnalysisRequest(
@@ -101,9 +112,12 @@ public class ExecutionEngineClient {
                 log.error("Request to [{}] returned unsupported content type: [{}]", url, contentType);
                 throw new AnalysisExecutionException("Unexpected response: " + contentType);
             }
+        } catch (SocketTimeoutException e) {
+            log.warn("Request to [{}] timed out: {}", url, e.getMessage());
+            throw new AnalysisExecutionException("Failed to request [" + url + "]: " + e.getMessage(), e);
         } catch (IOException e) {
-            log.error("Request to [{}] failed: {}", e.getMessage(), e);
-            throw new AnalysisExecutionException("Failed to get descriptors from Execution Engine: " + e.getMessage(), e);
+            log.error("Request to [{}] failed: {}", url, e.getMessage(), e);
+            throw new AnalysisExecutionException("Failed to request [" + url + "]: " + e.getMessage(), e);
         }
     }
 

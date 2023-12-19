@@ -64,9 +64,16 @@ public class Analysis {
     private List<AnalysisFile> analysisFiles = new ArrayList<>();
     @Column(name = "stdout")
     private String stdout;
+    /**
+     * @deprecated Use stage and error instead
+     */
     @Column(name = "result_status")
     @Enumerated(value = EnumType.STRING)
     private AnalysisResultStatusDTO status;
+    @Column(name = "stage")
+    private String stage;
+    @Column(name = "error")
+    private String error;
     @Column(name = "title")
     private String title;
     @Column(name = "study_title")

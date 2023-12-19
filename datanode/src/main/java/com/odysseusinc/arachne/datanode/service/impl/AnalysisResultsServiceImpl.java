@@ -28,12 +28,11 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.repository.AnalysisFileRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
+import com.odysseusinc.arachne.datanode.service.AnalysisStateService;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.model.FileHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,6 +70,8 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
     private AnalysisFileRepository analysisFileRepository;
     @Autowired
     private AnalysisRepository analysisRepository;
+    @Autowired
+    private AnalysisStateService stateService;
 
     @Override
     public List<AnalysisFile> getAnalysisResults(Analysis analysis) {
@@ -185,22 +185,20 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
     }
 
     @Override
-    public Analysis markExecuted(Long id, File resultDir, AnalysisResultStatusDTO status, String stdout) {
+    public Analysis markExecuted(Long id, File resultDir, String stage, String error, String stdout) {
         return analysisRepository.findById(id).map(analysis -> {
-            List<AnalysisFile> resultFiles = Stream.of(resultDir.listFiles()).map(file ->
+            File[] files = resultDir.listFiles();
+            List<AnalysisFile> resultFiles = Stream.of(files).map(file ->
                     new AnalysisFile(file.getAbsolutePath(), AnalysisFileType.ANALYSYS_RESULT, analysis)
             ).collect(Collectors.toList());
             analysisFileRepository.saveAll(resultFiles);
 
             analysis.setAnalysisFolder(resultDir.getAbsolutePath());
-            analysis.setStatus(reEvaluateAnalysisStatus(status, resultDir));
+            analysis.setStage(stage);
+            analysis.setError(Optional.ofNullable(error).orElseGet(() -> evaluateErrorStatus(stage, resultDir)));
             analysis.setStdout(stdout);
-            String reason = "Received result from Execution Engine";
-            analysis.getStateHistory().add(
-                    new AnalysisStateEntry(new Date(), AnalysisState.EXECUTED, reason, analysis)
-            );
-            log.info("Analysis [{}] state updated to EXECUTED ({})", analysis.getId(), reason);
             analysisRepository.save(analysis);
+            stateService.handleStateFromEE(analysis, stage, analysis.getError());
             return analysis;
 
         }).orElseGet(() -> {
@@ -209,20 +207,15 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
         });
     }
 
-    private AnalysisResultStatusDTO reEvaluateAnalysisStatus(AnalysisResultStatusDTO originalStatus, File resultDir) {
-
-        if (AnalysisResultStatusDTO.EXECUTED == originalStatus) {
-            if (resultDir == null) {
-                log.error("Result directory cannot be null");
-                return AnalysisResultStatusDTO.FAILED;
-            }
+    private String evaluateErrorStatus(String stage, File resultDir) {
+        if (Objects.equals(stage, Stage.COMPLETED)) {
             File[] zipFiles = resultDir.listFiles((dir, name) -> name.endsWith(".zip"));
             if (checkZipArchiveForErrorFile(zipFiles)) {
                 log.warn("Unexpected errorReport file found. Changing analysis status to FAILED for {}", resultDir);
-                return AnalysisResultStatusDTO.FAILED;
+                return "Error report file [" + ERROR_REPORT_FILENAME + "] found in result";
             }
         }
-        return originalStatus;
+        return null;
     }
 
     private boolean checkZipArchiveForErrorFile(File[] listFiles) {

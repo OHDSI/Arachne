@@ -148,7 +148,7 @@ public abstract class BaseDataSourceController<DS extends DataSource, BusinessDT
 
         if (!dataSourceService.isDatasourceNameUnique(dataSourceName, dataSourceId)) {
             JsonResult<DataSourceDTO> notUniqueNameResult = new JsonResult<>(JsonResult.ErrorCode.VALIDATION_ERROR);
-            notUniqueNameResult.setValidatorErrors(ImmutableMap.of("name", Constants.DataSourceMessages.DATASOURCE_NAME_UNIQUE));
+            notUniqueNameResult.setValidatorErrors(ImmutableMap.of("name", "Data source name [" + dataSourceName + "] is not unique"));
             return Optional.of(notUniqueNameResult);
         }
 

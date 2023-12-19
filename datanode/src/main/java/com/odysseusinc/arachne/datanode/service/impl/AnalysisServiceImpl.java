@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
@@ -37,17 +36,17 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
+import com.odysseusinc.arachne.datanode.service.AnalysisStateService;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +62,7 @@ import org.springframework.web.client.RestClientException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -100,6 +96,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 	private AnalysisRepository analysisRepository;
 	@Autowired
 	private AnalysisStateJournalRepository analysisStateJournalRepository;
+	@Autowired
+	private AnalysisStateService stateService;
 	@Autowired
 	private ExecutionEngineIntegrationService engineIntegrationService;
 	@Value("${analysis.scheduler.invalidateExecutingInterval}")
@@ -139,8 +137,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 	public Integer invalidateAllUnfinishedAnalyses(final User user) {
 		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(FINISHED_STATES);
 		unfinished.forEach(analysis -> {
-			analysis.setStatus(AnalysisResultStatusDTO.FAILED);
-			updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "] (mass invalidation)");
+			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "] (mass invalidation)");
 			executor.submit(() -> sendToEngineCancel(analysis.getId()));
 		});
 		return unfinished.size();
@@ -154,8 +151,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 				new ValidationException("Analysis not running: " + id)
 		).getState();
 		if (state == AnalysisState.EXECUTING) {
-			analysis.setStatus(AnalysisResultStatusDTO.FAILED);
-			updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "]");
+			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "]");
 			executor.submit(() -> sendToEngineCancel(analysis.getId()));
 		} else {
 			throw new ValidationException("Analysis not running: " + id + ", current state [" + state + "]");
@@ -168,13 +164,19 @@ public class AnalysisServiceImpl implements AnalysisService {
 		Analysis analysis = find(id);
 		log.info("Analysis {} [{}] cancellation attempt to send to engine", id, analysis.getTitle());
 		try {
-			long duration = engineIntegrationService.sendCancel(id);
-			log.info("Analysis {} cancelled with {} ms of reported runtime", id, duration);
-			updateState(analysis, AnalysisState.ABORTED, "Aborted as requested");
+			AnalysisResultDTO result = engineIntegrationService.sendCancel(id);
+			String error = result.getError();
+			String stage = result.getStage();
+			String stdout = result.getStdout();
+			analysis.setStage(stage);
+			analysis.setError(error);
+			analysis.setStdout(stdout);
+			log.info("Analysis {} state after abort: [{}], errors: [{}] (stdout {} bytes)", id, stage, error, StringUtils.length(stdout));
+			stateService.handleStateFromEE(analysis, stage, error);
 		} catch (Exception e) {
 			log.warn("Analysis {} failed to abort: {}: {}", id, e.getClass(), e.getMessage());
 			log.debug(e.getMessage(), e);
-			updateState(analysis, AnalysisState.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
+			stateService.updateState(analysis, AnalysisState.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
 		}
 	}
 
@@ -184,6 +186,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		Analysis original = find(id);
 		Analysis analysis = toAnalysis(dto, user, original.getSourceFolder());
 		analysisRepository.save(analysis);
+		stateService.updateState(analysis, AnalysisState.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle(), id
 		);
@@ -196,6 +199,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 	) {
 		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
 		Analysis analysis = toAnalysis(dto, user, sourceFolder);
+		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
 		File analysisDir = new File(sourceFolder);
 		writeFiles.accept(analysisDir);
 		File[] filesList = analysisDir.listFiles();
@@ -230,28 +234,19 @@ public class AnalysisServiceImpl implements AnalysisService {
 		AnalysisRequestDTO analysisRequestDTO = conversionService.convert(analysis, AnalysisRequestDTO.class);
 		analysisRequestDTO.setResultExclusions(resultExclusions);
 		File analysisFolder = new File(analysis.getSourceFolder());
-		AnalysisState state;
-		String reason;
 		Long id = analysis.getId();
 		try {
-			AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true);
+			AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false);
 			String descriptorId = exchange.getActualDescriptorId();
 			log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
 			analysis.setActualEnvironment(Optional.ofNullable(descriptorId).flatMap(environmentService::byDescriptorId).orElse(null));
-			reason = String.format(Constants.AnalysisMessages.SEND_REQUEST_TO_ENGINE_SUCCESS_REASON, id, exchange.getType());
-			state = AnalysisState.EXECUTING;
+			String reason = String.format("Accepted by engine as %s type", exchange.getType());
+			stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
 		} catch (RestClientException | ArachneSystemRuntimeException e) {
-			reason = String.format("Sending request with id=%s failed, reason=%s", id, e.getMessage());
 			log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
-			state = AnalysisState.EXECUTION_FAILURE;
+			String reason = String.format("Execution engine request failed: %s", e.getMessage());
+			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
 		}
-		updateState(analysis, state, reason);
-	}
-
-	protected void updateState(Analysis analysis, AnalysisState state, String reason) {
-		AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(new Date(), state, reason, analysis);
-		log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), state.name(), reason);
-		analysisStateJournalRepository.save(analysisStateEntry);
 	}
 
 	@Transactional
@@ -266,72 +261,13 @@ public class AnalysisServiceImpl implements AnalysisService {
 		}
 	}
 
-	public Optional<Analysis> updateStatus(Long id, String stdoutDiff, String password) {
-
-		final Date currentTime = new Date();
-		final Optional<Analysis> optionalAnalysis = analysisRepository.findOneExecuting(id, password);
-		optionalAnalysis
-				.ifPresent(analysis -> {
-					analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId())
-							.ifPresent(currentState -> {
-								if (AnalysisState.EXECUTING == currentState.getState()) {
-									final String stdout = analysis.getStdout();
-									analysis.setStdout(stdout == null ? stdoutDiff : stdout + stdoutDiff);
-									analysisRepository.save(analysis);
-									AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(
-											currentTime,
-											AnalysisState.EXECUTING,
-											Constants.AnalysisMessages.STDOUT_UPDATED_REASON,
-											analysis);
-									analysisStateEntry.setId(currentState.getId());
-									analysisStateJournalRepository.save(analysisStateEntry);
-								}
-							});
-				});
-		return optionalAnalysis;
-	}
-
 	@Transactional
-	public void invalidateExecutingLong() {
-
-		Date resendBefore = new Date(new Date().getTime() - invalidateExecutingInterval);
-		List<Analysis> allExecutingMoreThan = analysisRepository.findAllExecutingMoreThan(
-				AnalysisState.EXECUTING.name(),
-				resendBefore
+	public void updateStatus(Long id, String password, String stage, String stdoutDiff) {
+		Analysis analysis = analysisRepository.findOneExecuting(id, password).orElseThrow(() ->
+				new ValidationException("Submission [" + id + "] not found or password invalid")
 		);
-		List<AnalysisStateEntry> entries = new ArrayList<>();
-		Date expirationDate = calculateDate(invalidateMaxDaysExecutingInterval);
-		allExecutingMoreThan.forEach(analysis -> {
-			log.warn("EXECUTING State being invalidated for analysis with id='{}'", analysis.getId());
-			Optional<AnalysisStateEntry> state = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId());
-			state.ifPresent(s -> {
-				AnalysisState analysisState = AnalysisState.EXECUTION_FAILURE;
-				if (s.getDate().before(expirationDate)) {
-					log.warn("Analysis id={} is being EXECUTING more than {} days, one will marked as DEAD",
-							analysis.getId(), invalidateMaxDaysExecutingInterval);
-					analysisState = AnalysisState.DEAD;
-				}
-				AnalysisStateEntry entry = new AnalysisStateEntry(
-						new Date(),
-						analysisState,
-						"Analysis sent to Execution Engine early than " + resendBefore,
-						analysis
-				);
-				entries.add(entry);
-			});
-		});
-		analysisStateJournalRepository.saveAll(entries);
-	}
-
-	private Date calculateDate(int interval) {
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_YEAR, -interval);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTime();
+		analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
+		stateService.handleStateFromEE(analysis, stage, null);
 	}
 
 	@Override
@@ -391,12 +327,6 @@ public class AnalysisServiceImpl implements AnalysisService {
 
 		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).map(this::findEnvironment).orElse(null));
 		analysis.setDataSource(dataSource);
-
-		AnalysisStateEntry stateEntry = new AnalysisStateEntry(new Date(),
-				AnalysisState.CREATED,
-				"Request to analysis execution was received",
-				analysis);
-		analysis.getStateHistory().add(stateEntry);
 
 		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
 		String updateStatusCallback = String.format(
