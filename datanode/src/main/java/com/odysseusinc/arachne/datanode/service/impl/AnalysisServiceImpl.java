@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import com.odysseusinc.arachne.commons.utils.UUIDGenerator;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
@@ -71,6 +70,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -398,7 +398,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 				analysis);
 		analysis.getStateHistory().add(stateEntry);
 
-		analysis.setCallbackPassword(UUIDGenerator.generateUUID());
+		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
 		String updateStatusCallback = String.format(
 				"%s:%s%s",
 				datanodeBaseURL,
