@@ -4,7 +4,6 @@
 # You can set the execution policy by running:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
 
-#Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
 Set-ExecutionPolicy -ExecutionPolicy ByPass -Scope CurrentUser
 try {
     # Check if Docker is already installed
