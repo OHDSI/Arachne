@@ -113,7 +113,7 @@ try {
             url = "https://storage.googleapis.com/arachne-datanode/descriptor_base.json"
             sizeThresholdMB = 0.01
         }
-        envfile = @{
+        env = @{
             fileName = "datanode-windows.env"
             url = "https://storage.googleapis.com/arachne-datanode/datanode.env"
             sizeThresholdMB = 0.01
