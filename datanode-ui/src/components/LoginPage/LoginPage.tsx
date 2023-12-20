@@ -1,13 +1,30 @@
-import { Grid, Input, Button, Spinner } from '../../libs/components';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { Grid, Input, Button, Spinner } from "../../libs/components";
 
 import {
   Box,
   Alert,
   Paper
-} from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useDispatch } from 'react-redux';
+} from "@mui/material";
+import { useTranslation } from "react-i18next";
+import React from "react";
+import { useDispatch } from "react-redux";
 import {
   FormControl,
   LogInText,
@@ -16,16 +33,16 @@ import {
   LogoContainer,
   WelcomeText,
   WrapperAlert,
-} from './LoginPage.styles';
-import { userSignIn } from '../../store/modules';
-import { Status } from '../../libs';
-import { LogoMediumArachne } from '../Logo';
+} from "./LoginPage.styles";
+import { userSignIn } from "../../store/modules";
+import { Status } from "../../libs";
+import { LogoMediumArachne } from "../Logo";
 
 export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const [userName, setUserName] = React.useState<string>('');
-  const [password, setPassword] = React.useState<string>('');
+  const [userName, setUserName] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +50,7 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
   };
 
   React.useEffect(() => {
-    document.title = `Arachne Data Node`;
+    document.title = "Arachne Data Node";
   }, []);
 
   return (
@@ -43,7 +60,7 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
         container
         xs={0}
         md={6}
-        sx={{ display: { xs: 'none', md: 'flex' } }}
+        sx={{ display: { xs: "none", md: "flex" } }}
       >
         <Grid item xs={5} mx="auto" my="auto">
           <Grid
@@ -56,7 +73,7 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
             textAlign="left"
             my="auto"
           >
-            <div style={{ position: 'absolute', marginLeft: '-190px' }}>
+            <div style={{ position: "absolute", marginLeft: "-190px" }}>
               <LogoMediumArachne />
             </div>
             <Grid item fontFamily={"'Rosario', sans-serif"} pt={3} style={{ marginLeft: "14px" }}>
@@ -65,17 +82,17 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
             <Grid
               item
               sx={{
-                bgcolor: '#ffffffd1',
+                bgcolor: "#ffffffd1",
                 height: 29,
                 px: 1.5,
                 py: 0.5,
-                marginLeft: '157px',
+                marginLeft: "157px",
                 borderRadius: 1,
-                color: '#006c75',
+                color: "#006c75",
                 fontSize: 18,
                 letterSpacing: 1,
                 width: 137,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               DATA NODE
@@ -84,43 +101,43 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
         </Grid>
       </LogoContainer>
       <LoginFormContainer item container xs={12} md={6}>
-        <Box style={{ position: 'relative' }} minWidth={450} width="50%" mx="auto">
+        <Box style={{ position: "relative" }} minWidth={450} width="50%" mx="auto">
           <form onSubmit={handleSubmit}>
             <Paper>
               {loginStatus === Status.ERROR && (
                 <WrapperAlert>
-                  <Alert severity="error">{t('forms.login.error_message')}</Alert>
+                  <Alert severity="error">{t("forms.login.error_message")}</Alert>
                 </WrapperAlert>
               )}
 
               <Grid container p={4} spacing={3}>
                 <Grid item xs={12} spacing={2} container>
                   <WelcomeText item xs={12}>
-                    {t('pages.login.welcome')}
+                    {t("pages.login.welcome")}
                   </WelcomeText>
                   <LoginFormHeader item xs={12}>
-                    {t('pages.login.header')}
+                    {t("pages.login.header")}
                   </LoginFormHeader>
                 </Grid>
 
                 <Grid item xs={12} spacing={2} container>
                   <FormControl item xs={12}>
-                    <label>{t('forms.login.username')}</label>
+                    <label>{t("forms.login.username")}</label>
                     <Input
                       fullWidth
                       value={userName}
                       onChange={e => setUserName(e.target.value)}
-                      placeholder={t('forms.login.username_placeholder')}
+                      placeholder={t("forms.login.username_placeholder")}
                     />
                   </FormControl>
                   <FormControl item xs={12}>
-                    <label>{t('forms.login.password')}</label>
+                    <label>{t("forms.login.password")}</label>
                     <Input
                       fullWidth
                       type="password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      placeholder={t('forms.login.password_placeholder')}
+                      placeholder={t("forms.login.password_placeholder")}
                     />
                   </FormControl>
                   <Grid item xs={12} textAlign="right">
@@ -134,10 +151,10 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
                     >
                       {loginStatus === Status.IN_PROGRESS ? (
                         <>
-                          <LogInText>{t('forms.login.submit_button')}</LogInText><Spinner size={18} />
+                          <LogInText>{t("forms.login.submit_button")}</LogInText><Spinner size={18} />
                         </>
                       ) : (
-                        <>{t('forms.login.submit_button')}</>
+                        <>{t("forms.login.submit_button")}</>
                       )}
                     </Button>
                   </Grid>

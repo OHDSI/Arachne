@@ -1,5 +1,22 @@
-import { useTheme } from '@mui/material';
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { useTheme } from "@mui/material";
+import React from "react";
 
 export const Pdf: React.FC<any> = React.forwardRef(
   ({ plain, iconStatus, ...rest }, ref) => {
@@ -15,7 +32,7 @@ export const Pdf: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -40,7 +57,7 @@ export const Pdf: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary']?.main}
+              fill={theme.palette[iconStatus || "primary"]?.main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -71,7 +88,7 @@ export const Txt: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -100,7 +117,7 @@ export const Txt: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -131,7 +148,7 @@ export const Doc: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -149,7 +166,7 @@ export const Doc: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -180,7 +197,7 @@ export const Unknown: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -198,7 +215,7 @@ export const Unknown: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -229,7 +246,7 @@ export const Xls: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -247,7 +264,7 @@ export const Xls: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -278,7 +295,7 @@ export const Json: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -313,7 +330,7 @@ export const Json: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -344,7 +361,7 @@ export const R: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -367,7 +384,7 @@ export const R: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -398,7 +415,7 @@ export const SQL: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -431,7 +448,7 @@ export const SQL: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -462,7 +479,7 @@ export const ZIP: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -487,7 +504,7 @@ export const ZIP: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"
@@ -518,7 +535,7 @@ export const CSV: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 160 160"
-        style={{ enableBackground: 'new 0 0 160 160' }}
+        style={{ enableBackground: "new 0 0 160 160" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -547,7 +564,7 @@ export const CSV: React.FC<any> = React.forwardRef(
           <>
             <path
               id="shield"
-              fill={theme.palette[iconStatus || 'primary'].main}
+              fill={theme.palette[iconStatus || "primary"].main}
               d="M126.1,69.9c1.1,0.6,2.4,0.6,3.4,0C158,54.6,160,24.7,160,16.2c0-1.4-0.8-2.7-2.1-3.2L129.2,0.3
         c-0.9-0.4-2-0.4-2.9,0L97.9,13c-1.3,0.6-2.1,1.8-2.1,3.2C95.7,24.6,97.4,54.6,126.1,69.9L126.1,69.9z M116.1,29.2l8.2,8.2L139.5,22
         l5,5l-20.3,20.3L111,34.2C111,34.2,116.1,29.2,116.1,29.2z"

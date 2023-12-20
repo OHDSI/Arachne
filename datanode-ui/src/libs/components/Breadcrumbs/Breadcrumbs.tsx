@@ -1,4 +1,21 @@
-import React, { forwardRef } from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { forwardRef } from "react";
 import {
   StyledBreadcrumbs,
   Link,
@@ -6,7 +23,7 @@ import {
   LinkCurrent,
   Loader,
   LoaderContainer,
-} from './Breadcrumbs.styles';
+} from "./Breadcrumbs.styles";
 
 export interface BreadcrumbsProps<T> {
   items: Array<{ name: string } & T>;
@@ -16,11 +33,11 @@ export interface BreadcrumbsProps<T> {
 }
 
 export const Breadcrumbs = <T extends object>(props: BreadcrumbsProps<T>) => {
-  let breadcrumbs = [...props?.items];
+  const breadcrumbs = [...props?.items];
   const currentLink = breadcrumbs?.pop();
 
   return !props.isLoading ? (
-    <StyledBreadcrumbs classes={{ separator: 'breadcrumbs-separator' }}>
+    <StyledBreadcrumbs classes={{ separator: "breadcrumbs-separator" }}>
       {breadcrumbs.map((item, index) => (
         <Link
           key={item?.name + index}
@@ -35,16 +52,16 @@ export const Breadcrumbs = <T extends object>(props: BreadcrumbsProps<T>) => {
       <LinkCurrent>
         {currentLink &&
           (currentLink.name ? (
-            <BreadcrumbText className="c-breadcrumb-text-current">
-              {currentLink?.name}
-            </BreadcrumbText>
+          	<BreadcrumbText className="c-breadcrumb-text-current">
+          		{currentLink?.name}
+          	</BreadcrumbText>
           ) : (
-            <Loader
-              height={26}
-              width={200}
-              key="loader"
-              style={{ marginBottom: 8 }}
-            />
+          	<Loader
+          		height={26}
+          		width={200}
+          		key="loader"
+          		style={{ marginBottom: 8 }}
+          	/>
           ))}
       </LinkCurrent>
     </StyledBreadcrumbs>

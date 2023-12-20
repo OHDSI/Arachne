@@ -1,12 +1,29 @@
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
 import {
   MessageErrorPage,
   StatusDescription,
   StatusHeader,
-} from './ErrorPage.styles';
-import { Grid } from '../Grid';
-import { Icon } from '../Icon/Icon';
-import { Button } from '../Button/Button';
+} from "./ErrorPage.styles";
+import { Grid } from "../Grid";
+import { Icon } from "../Icon/Icon";
+import { Button } from "../Button/Button";
 
 export interface FallbackErrorPagePropsInterface {
   status: number;
@@ -18,36 +35,36 @@ export interface FallbackErrorPagePropsInterface {
 
 export const FallbackErrorPage: React.FC<FallbackErrorPagePropsInterface> =
   props => {
-    const { status, statusText, message, data, path } = props;
-    return (
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        textAlign={'center'}
-      >
-        <Grid item xs={12}>
-          <StatusHeader>{status}</StatusHeader>
-          <StatusDescription>{statusText}</StatusDescription>
-        </Grid>
-        <Grid item xs={12}>
-          <MessageErrorPage>{message}</MessageErrorPage>
-          <Grid container justifyContent={'center'} spacing={2}>
-            <Grid item>
-              <Button
-                onClick={() => {
-                  window.location.href = '/';
-                }}
-                variant="outlined"
-                size="medium"
-                startIcon={<Icon iconName="list" />}
-              >
+  	const { status, statusText, message, data, path } = props;
+  	return (
+  		<Grid
+  			container
+  			direction="row"
+  			justifyContent="center"
+  			alignItems="center"
+  			textAlign={"center"}
+  		>
+  			<Grid item xs={12}>
+  				<StatusHeader>{status}</StatusHeader>
+  				<StatusDescription>{statusText}</StatusDescription>
+  			</Grid>
+  			<Grid item xs={12}>
+  				<MessageErrorPage>{message}</MessageErrorPage>
+  				<Grid container justifyContent={"center"} spacing={2}>
+  					<Grid item>
+  						<Button
+  							onClick={() => {
+  								window.location.href = "/";
+  							}}
+  							variant="outlined"
+  							size="medium"
+  							startIcon={<Icon iconName="list" />}
+  						>
                 Go to home
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    );
+  						</Button>
+  					</Grid>
+  				</Grid>
+  			</Grid>
+  		</Grid>
+  	);
   };

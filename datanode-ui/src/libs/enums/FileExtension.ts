@@ -1,40 +1,57 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 export enum FileExtension {
-  TXT = 'txt',
-  JSON = 'json',
-  JS = 'js',
-  R = 'r',
-  RPROFILE = 'rProfile',
-  SQL = 'sql',
-  HTML = 'html',
-  PACKRAT = 'packrat',
+  TXT = "txt",
+  JSON = "json",
+  JS = "js",
+  R = "r",
+  RPROFILE = "rProfile",
+  SQL = "sql",
+  HTML = "html",
+  PACKRAT = "packrat",
 
-  PDF = 'pdf',
-  DOC = 'doc',
-  DOCX = 'docx',
-  XLS = 'xls',
-  XLSX = 'xlsx',
-  PPT = 'ppt',
-  PPTX = 'pptx',
+  PDF = "pdf",
+  DOC = "doc",
+  DOCX = "docx",
+  XLS = "xls",
+  XLSX = "xlsx",
+  PPT = "ppt",
+  PPTX = "pptx",
 
-  PNG = 'png',
-  JPG = 'jpg',
-  JPEG = 'jpeg',
-  JAR = 'jar',
-  CSV = 'csv',
+  PNG = "png",
+  JPG = "jpg",
+  JPEG = "jpeg",
+  JAR = "jar",
+  CSV = "csv",
 
-  ZIP = 'zip',
-  RAR = 'rar',
-  GZ = 'gz',
-  RBUILDIGNORE = 'r',
-  GITIGNORE = 'txt',
-  RDATA = 'r',
-  RPROJ = 'r',
-  MD = 'txt',
-  LOCK = 'json',
-  RD = 'r',
-  DCF = 'txt',
+  ZIP = "zip",
+  RAR = "rar",
+  GZ = "gz",
+  RBUILDIGNORE = "r",
+  GITIGNORE = "txt",
+  RDATA = "r",
+  RPROJ = "r",
+  MD = "txt",
+  LOCK = "json",
+  RD = "r",
+  DCF = "txt",
 
-  UNKNOWN = 'unknown',
+  UNKNOWN = "unknown",
 }
 
 export type IFileExtensionKey = keyof typeof FileExtension;

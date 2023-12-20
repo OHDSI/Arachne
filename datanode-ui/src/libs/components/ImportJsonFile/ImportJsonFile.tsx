@@ -1,9 +1,26 @@
-import React, { FC, useRef, useState } from 'react';
-import { useNotifications } from '../Notification';
-import { Grid } from '../Grid';
-import { Button } from '../Button/Button';
-import { Icon } from '../Icon/Icon';
-import { IconButton, Typography } from '@mui/material';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { FC, useRef, useState } from "react";
+import { useNotifications } from "../Notification";
+import { Grid } from "../Grid";
+import { Button } from "../Button/Button";
+import { Icon } from "../Icon/Icon";
+import { IconButton, Typography } from "@mui/material";
 
 // import {
 //   Button,
@@ -17,7 +34,7 @@ import { IconButton, Typography } from '@mui/material';
 export const ImportJsonFile: FC<any> = props => {
   const {
     onChange,
-    titleButton = 'Upload file',
+    titleButton = "Upload file",
     initialTextFile,
     required = false,
   } = props;
@@ -25,7 +42,7 @@ export const ImportJsonFile: FC<any> = props => {
 
   const reset = () => {
     if (ref && ref.current) {
-      ref.current.value = '';
+      ref.current.value = "";
     }
   };
 
@@ -50,8 +67,8 @@ export const ImportJsonFile: FC<any> = props => {
         setCurrentFile(file);
       } catch (e) {
         enqueueSnackbar({
-          message: 'invalid JSON',
-          variant: 'error',
+          message: "invalid JSON",
+          variant: "error",
         } as any);
       }
     };
@@ -59,7 +76,7 @@ export const ImportJsonFile: FC<any> = props => {
     reader.onerror = function () {
       enqueueSnackbar({
         message: reader.error,
-        variant: 'error',
+        variant: "error",
       } as any);
     };
   };
@@ -99,13 +116,13 @@ export const ImportJsonFile: FC<any> = props => {
               }}
               hidden
             />
-          </Button>{' '}
+          </Button>{" "}
         </Grid>
         <Grid item flexGrow={1} ml={2} display="flex" alignItems="center">
           {currentFile ? (
             <>
               <Typography
-                sx={{ maxWidth: 'calc(100% - 30px)', wordBreak: 'break-all' }}
+                sx={{ maxWidth: "calc(100% - 30px)", wordBreak: "break-all" }}
               >
                 {currentFile?.name}
               </Typography>
@@ -126,7 +143,7 @@ export const ImportJsonFile: FC<any> = props => {
           ) : (
             <Typography
               variant="subtitle2"
-              sx={{ sup: { color: 'error.main', fontSize: 12 } }}
+              sx={{ sup: { color: "error.main", fontSize: 12 } }}
             >
               Choose file to upload{required && <sup>*</sup>}
             </Typography>

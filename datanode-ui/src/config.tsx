@@ -1,3 +1,20 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import { IconButton } from "@mui/material";
 import { DateCell, Icon, NameCell, ShowFolderButton, StatusTag, Tooltip } from "./libs/components";
 import { originSubmissions } from "./libs/constants";
@@ -9,87 +26,87 @@ import moment from "moment";
 // columns table
 export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
   {
-    Header: t('tables.cols.number'),
-    accessor: 'id',
-    id: 'id',
+    Header: t("tables.cols.number"),
+    accessor: "id",
+    id: "id",
   },
   {
-    Header: t('tables.cols.origin'),
-    accessor: 'origin',
-    id: 'origin',
-    width: '3%',
+    Header: t("tables.cols.origin"),
+    accessor: "origin",
+    id: "origin",
+    width: "3%",
     minWidth: 100,
     Cell: ({ value }: { value: OriginSubmission }) => {
       return <>{getItemFromConstantArray(originSubmissions, value).name}</>;
     },
   },
   {
-    Header: t('tables.cols.study'),
-    accessor: (row: SubmissionDTOInterface) => row.study || '-',
-    id: 'study',
+    Header: t("tables.cols.study"),
+    accessor: (row: SubmissionDTOInterface) => row.study || "-",
+    id: "study",
     maxWidth: 100,
     minWidth: 100,
-    width: '30%',
+    width: "30%",
     Cell: NameCell,
     isCropped: true,
   },
   {
-    Header: t('tables.cols.author'),
-    accessor: (row: SubmissionDTOInterface) => row.author?.fullName || '-',
-    id: 'author.fullName',
+    Header: t("tables.cols.author"),
+    accessor: (row: SubmissionDTOInterface) => row.author?.fullName || "-",
+    id: "author.fullName",
   },
   {
-    Header: t('tables.cols.analysis'),
-    accessor: (row: SubmissionDTOInterface) => row.analysis || '-',
-    id: 'analysis',
+    Header: t("tables.cols.analysis"),
+    accessor: (row: SubmissionDTOInterface) => row.analysis || "-",
+    id: "analysis",
     maxWidth: 100,
     minWidth: 100,
-    width: '30%',
+    width: "30%",
     Cell: NameCell,
     isCropped: true,
   },
   {
-    Header: t('tables.cols.data_source'),
-    accessor: 'dataSource.name',
-    id: 'dataSource.name',
+    Header: t("tables.cols.data_source"),
+    accessor: "dataSource.name",
+    id: "dataSource.name",
     maxWidth: 150,
     minWidth: 150,
     isCropped: true,
   },
   {
-    Header: t('tables.cols.submitted'),
-    accessor: 'submitted',
-    id: 'submitted',
+    Header: t("tables.cols.submitted"),
+    accessor: "submitted",
+    id: "submitted",
     Cell: DateCell,
     isCropped: true,
     minWidth: 150,
     maxWidth: 150,
   },
   {
-    Header: t('tables.cols.finished'),
-    accessor: 'finished',
-    id: 'finished',
+    Header: t("tables.cols.finished"),
+    accessor: "finished",
+    id: "finished",
     Cell: (props) => {
-      return <>{props.value ? <DateCell {...props} /> : '-'}</>;
+      return <>{props.value ? <DateCell {...props} /> : "-"}</>;
     },
     isCropped: true,
     minWidth: 150,
     maxWidth: 150,
   },
   {
-    Header: t('tables.cols.duration'),
-    accessor: 'finished',
-    id: 'duration',
+    Header: t("tables.cols.duration"),
+    accessor: "finished",
+    id: "duration",
     disableSortBy: true,
     Cell: (props): any => {
       if (props.value) {
         const start = moment(props.row.original.submitted);
         const end = moment(props.row.original.finished);
-        var duration = moment.duration(end.diff(start));
+        const duration = moment.duration(end.diff(start));
 
         return duration.humanize();
       } else {
-        return <>-</>
+        return <>-</>;
       }
     },
     isCropped: true,
@@ -97,21 +114,21 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     maxWidth: 100,
   },
   {
-    Header: t('tables.cols.env'),
-    accessor: (row: SubmissionDTOInterface) => row.environment || '-',
-    id: 'environment',
+    Header: t("tables.cols.env"),
+    accessor: (row: SubmissionDTOInterface) => row.environment || "-",
+    id: "environment",
     maxWidth: 150,
     minWidth: 150,
-    width: '30%',
+    width: "30%",
     Cell: NameCell,
     isCropped: true,
   },
   {
-    Header: t('tables.cols.status'),
-    accessor: 'status',
-    id: 'status',
+    Header: t("tables.cols.status"),
+    accessor: "status",
+    id: "status",
     minWidth: 100,
-    width: '5%',
+    width: "5%",
     Cell: ({ value }: { value: SubmissionStatus }) => {
       const status = getSubmissionStatusInfo(value);
       return status ? (
@@ -122,17 +139,17 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     },
   },
   {
-    Header: t('tables.cols.results'),
-    accessor: 'status',
-    id: 'actionCell',
-    width: '2%',
+    Header: t("tables.cols.results"),
+    accessor: "status",
+    id: "actionCell",
+    width: "2%",
     minWidth: 30,
     disableSortBy: true,
     Cell: ({ row }: { row: { original: SubmissionDTOInterface } }) => {
       const id = row.original.id;
       const status = row.original.status;
-      return status === 'EXECUTED' || status === 'EXECUTION_FAILURE' ? (
-        <Tooltip text={t('common.tooltips.download_results')}>
+      return status === "EXECUTED" || status === "EXECUTION_FAILURE" ? (
+        <Tooltip text={t("common.tooltips.download_results")}>
           <IconButton
             color="info"
             onClick={(e: React.MouseEvent) => {
@@ -150,155 +167,155 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
       );
     },
   },
-]
+];
 export const colsTableDatabase = (t: any, dbmsTypes: DBMSTypesInterface[]): ColumnInterface[] => ([
   {
-    Header: t('tables.cols.name'),
-    accessor: 'name',
-    id: 'name',
+    Header: t("tables.cols.name"),
+    accessor: "name",
+    id: "name",
     minWidth: 200,
-    width: '30%',
+    width: "30%",
     isCropped: true,
     Cell: NameCell,
   },
   {
-    Header: t('tables.cols.dbms_type'),
-    accessor: 'dbmsType',
-    id: 'dbmsType',
-    width: '10%',
+    Header: t("tables.cols.dbms_type"),
+    accessor: "dbmsType",
+    id: "dbmsType",
+    width: "10%",
     minWidth: 110,
     isCropped: true,
     Cell: (props): any => {
       const type = dbmsTypes?.find(elem => elem.id === props.value);
-      return type ? type.name : '-'
+      return type ? type.name : "-";
     }
   },
   {
-    Header: t('tables.cols.database'),
-    accessor: 'connectionString',
-    id: 'connectionString',
+    Header: t("tables.cols.database"),
+    accessor: "connectionString",
+    id: "connectionString",
     minWidth: 120,
     maxWidth: 240,
     isCropped: true,
   },
   {
-    Header: t('tables.cols.cdm_schema'),
-    accessor: 'cdmSchema',
-    id: 'cdmSchema',
-    width: '5%',
+    Header: t("tables.cols.cdm_schema"),
+    accessor: "cdmSchema",
+    id: "cdmSchema",
+    width: "5%",
     minWidth: 80,
   }
-])
+]);
 export const colsTableUsers = (t: any): ColumnInterface[] => [
   {
-    Header: t('tables.cols.name'),
+    Header: t("tables.cols.name"),
     accessor: ({ firstname, lastname }: { firstname: string, lastname: string }) => {
-      return `${firstname} ${lastname}`
+      return `${firstname} ${lastname}`;
     },
-    id: 'name',
+    id: "name",
     minWidth: 200,
-    width: '30%',
+    width: "30%",
     isCropped: true,
     Cell: NameCell,
   },
   {
-    Header: t('tables.cols.email'),
-    accessor: 'email',
-    id: 'email',
-    width: '10%',
+    Header: t("tables.cols.email"),
+    accessor: "email",
+    id: "email",
+    width: "10%",
     minWidth: 200,
     isCropped: true,
     Cell: NameCell,
   },
   {
-    Header: t('tables.cols.roles'),
-    accessor: 'roles',
-    id: 'roles',
-    width: '10%',
+    Header: t("tables.cols.roles"),
+    accessor: "roles",
+    id: "roles",
+    width: "10%",
     minWidth: 200,
     isCropped: true,
-    Cell: ({ value }) => value.map(val => Roles[val]).join(','),
+    Cell: ({ value }) => value.map(val => Roles[val]).join(","),
   },
-]
+];
 export const colsTableEnviroments = (t: any, onOpen): ColumnInterface[] => ([
   {
-    Header: t('tables.cols.number'),
-    accessor: 'id',
-    id: 'id',
-    width: '2%',
+    Header: t("tables.cols.number"),
+    accessor: "id",
+    id: "id",
+    width: "2%",
     minWidth: 40,
   },
   {
-    Header: t('tables.cols.label'),
-    accessor: 'label',
-    id: 'label',
+    Header: t("tables.cols.label"),
+    accessor: "label",
+    id: "label",
     minWidth: 200,
-    width: '30%',
+    width: "30%",
     isCropped: true,
     Cell: NameCell,
   },
 
   {
-    Header: t('tables.cols.descriptor'),
-    accessor: 'json',
-    id: 'actionCell',
-    width: '10%',
+    Header: t("tables.cols.descriptor"),
+    accessor: "json",
+    id: "actionCell",
+    width: "10%",
     minWidth: 80,
     disableSortBy: true,
     Cell: (props) => {
       return (
         <ShowFolderButton onClick={() => onOpen(props.value)} />
-      )
+      );
     },
   },
 
 
-])
+]);
 
 // tabs
 export const tabsSubmissionResult =
   (t: any, setActive: (value: SubmissionResultTabs) => void): TabsInterface<SubmissionResultTabs>[] => [
-    {
-      value: SubmissionResultTabs.FILE_EXPLORER,
-      title: t('modals.files_results.tabs.file_explorer'),
-      onTabClick: setActive,
-    },
-    {
-      value: SubmissionResultTabs.LOG,
-      title: t('modals.files_results.tabs.logs'),
-      onTabClick: setActive,
-    },
+  	{
+  		value: SubmissionResultTabs.FILE_EXPLORER,
+  		title: t("modals.files_results.tabs.file_explorer"),
+  		onTabClick: setActive,
+  	},
+  	{
+  		value: SubmissionResultTabs.LOG,
+  		title: t("modals.files_results.tabs.logs"),
+  		onTabClick: setActive,
+  	},
   ];
 
 export const tabsSubmissionForm =
   (t: any, setActive: (value: CreateSubmissionFormTabs) => void): TabsInterface<CreateSubmissionFormTabs>[] => [
-    {
-      value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
-      title: t('modals.create_submission.tabs.files_in_archive'),
-      onTabClick: setActive,
-    },
-    {
-      value: CreateSubmissionFormTabs.SEPARATE_FILES,
-      title: t('modals.create_submission.tabs.separate_files'),
-      onTabClick: setActive,
-    },
+  	{
+  		value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
+  		title: t("modals.create_submission.tabs.files_in_archive"),
+  		onTabClick: setActive,
+  	},
+  	{
+  		value: CreateSubmissionFormTabs.SEPARATE_FILES,
+  		title: t("modals.create_submission.tabs.separate_files"),
+  		onTabClick: setActive,
+  	},
   ];
 
 export const tabsAdmin = (t: any): TabsInterface[] => [
   {
-    value: 'databases',
-    title: t('pages.administration.tabs.databases'),
+    value: "databases",
+    title: t("pages.administration.tabs.databases"),
   },
   {
-    value: 'users',
-    title: t('pages.administration.tabs.users'),
+    value: "users",
+    title: t("pages.administration.tabs.users"),
   },
   {
-    value: 'environments',
-    title: t('pages.administration.tabs.envs'),
+    value: "environments",
+    title: t("pages.administration.tabs.envs"),
   },
   {
-    value: 'system-settings',
-    title: t('pages.administration.tabs.system_settings'),
+    value: "system-settings",
+    title: t("pages.administration.tabs.system_settings"),
   },
 ];

@@ -1,5 +1,22 @@
-import styled from '@emotion/styled';
-import { transparentize } from 'polished';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import styled from "@emotion/styled";
+import { transparentize } from "polished";
 
 export const Container = styled.div<any>`
   padding: 0;
@@ -41,8 +58,8 @@ export const TileContainer = styled.div<any>`
 
 export const TileRow = styled.div<any>`
   display: flex;
-  justify-content: ${({ justify }) => justify || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'center'};
+  justify-content: ${({ justify }) => justify || "flex-start"};
+  align-items: ${({ alignItems }) => alignItems || "center"};
   :not(:last-of-type) {
     margin-bottom: 8px;
   }
@@ -77,10 +94,10 @@ export const UserLink = styled.span<any>`
   :hover {
     color: ${({ theme }) => theme.palette?.primary.dark};
     background: ${({ theme }) =>
-      transparentize(0.9, theme.palette?.primary.main || '#000000')};
+    transparentize(0.9, theme.palette?.primary.main || "#000000")};
     box-shadow: 0px 0px 0px 3px
       ${({ theme }) =>
-        transparentize(0.9, theme.palette?.primary.main || '#000000')};
+    transparentize(0.9, theme.palette?.primary.main || "#000000")};
     border-radius: 4px;
   }
 `;

@@ -1,8 +1,25 @@
-import React from 'react';
-import { Skeleton } from '../Skeleton/Skeleton';
-import { transparentize } from 'polished';
-import { useTheme, Theme } from '@mui/material';
-import { Grid } from '..';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { Skeleton } from "../Skeleton/Skeleton";
+import { transparentize } from "polished";
+import { useTheme, Theme } from "@mui/material";
+import { Grid } from "..";
 
 export const FilterPanelBackdrop: React.FC<{ size: number }> = ({
   size = 6,
@@ -12,12 +29,12 @@ export const FilterPanelBackdrop: React.FC<{ size: number }> = ({
   const body = [];
   for (let i = 0; i < size; i++) {
     body.push(
-      <Grid item xs={12} container spacing={1} key={'backdrop' + i}>
+      <Grid item xs={12} container spacing={1} key={"backdrop" + i}>
         <Grid item xs={12}>
           <Skeleton
             animation="wave"
             height={12}
-            width={'40%'}
+            width={"40%"}
             sx={{ bgcolor }}
           />
         </Grid>
@@ -25,7 +42,7 @@ export const FilterPanelBackdrop: React.FC<{ size: number }> = ({
           <Skeleton
             animation="wave"
             height={28}
-            width={'100%'}
+            width={"100%"}
             sx={{ bgcolor }}
           />
         </Grid>
@@ -39,7 +56,7 @@ export const FilterPanelBackdrop: React.FC<{ size: number }> = ({
           <Skeleton
             animation="wave"
             height={28}
-            width={'100%'}
+            width={"100%"}
             sx={{ bgcolor }}
           />
         </Grid>

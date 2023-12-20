@@ -1,19 +1,36 @@
-import React from 'react';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import { pageListConfig, useLocalStorage } from './PageList.config';
+import React from "react";
 
-import { useNavigate } from 'react-router';
+import { pageListConfig, useLocalStorage } from "./PageList.config";
 
-import { Status } from '../../enums';
+import { useNavigate } from "react-router";
 
-import { Grid } from '../Grid';
-import { Table } from '../Table';
-import { ErrorPage } from '../ErrorPage';
-import { ActionCell } from '../cells';
-import { ListHeaderPrimary } from '../headers';
-import { useEntityList } from '../../hooks/useEntityList';
+import { Status } from "../../enums";
 
-import { ColumnInterface } from '../../types';
+import { Grid } from "../Grid";
+import { Table } from "../Table";
+import { ErrorPage } from "../ErrorPage";
+import { ActionCell } from "../cells";
+import { ListHeaderPrimary } from "../headers";
+import { useEntityList } from "../../hooks/useEntityList";
+
+import { ColumnInterface } from "../../types";
 
 export interface PageListPropsInterface<I, O, C> {
   onImport?: () => void;
@@ -29,7 +46,7 @@ export interface PageListPropsInterface<I, O, C> {
   isSilentReload?: boolean;
   isEnableMetadata?: boolean;
   hiddenColumns?: string[];
-  variant?: 'primary' | 'secondary' | 'no-header' | 'description';
+  variant?: "primary" | "secondary" | "no-header" | "description";
   uniqName?: string;
   dense?: boolean;
   removeId?: string;
@@ -54,7 +71,7 @@ export const PageList: React.FC<any> = (
     onRowClick: onRowClickOutSide,
     reloadId,
     isSilentReload,
-    variant = 'secondary',
+    variant = "secondary",
     hiddenColumns,
     allowRerun,
     dense,
@@ -81,7 +98,7 @@ export const PageList: React.FC<any> = (
   const useStorage: any = useLocalStorage(storageName, hiddenColumns);
 
   const className = React.useMemo(
-    () => (tableTitle || 'entity').toLocaleLowerCase().replace(' ', '-'),
+    () => (tableTitle || "entity").toLocaleLowerCase().replace(" ", "-"),
     []
   );
 
@@ -114,17 +131,17 @@ export const PageList: React.FC<any> = (
   };
 
   const ACTION_CELL: ColumnInterface = {
-    Header: '',
-    accessor: 'actions',
+    Header: "",
+    accessor: "actions",
     isCropped: true,
     disableSortBy: true,
     minWidth: 50,
-    width: '3%',
+    width: "3%",
     Cell: (props: any) => {
       return (
         <ActionCell
-          onRemove={allowDelete ? () => removeEntity(props.row.original?.[removeId || 'id']) : null}
-          onReload={allowRerun ? () => onReload(props.row.original?.[removeId || 'id']) : null}
+          onRemove={allowDelete ? () => removeEntity(props.row.original?.[removeId || "id"]) : null}
+          onReload={allowRerun ? () => onReload(props.row.original?.[removeId || "id"]) : null}
           withConfirmation
           entityName={props.row.original.title || props.row.original.name}
         />
@@ -153,12 +170,12 @@ export const PageList: React.FC<any> = (
       container
       px={dense ? 0 : 3}
       flexDirection="column"
-      sx={{ backgroundColor: 'common.white', flexGrow: 1 }}
+      sx={{ backgroundColor: "common.white", flexGrow: 1 }}
       minHeight="100%"
     >
-      {variant !== 'no-header' && (
+      {variant !== "no-header" && (
         <>
-          {variant === 'primary' && (
+          {variant === "primary" && (
             <ListHeaderPrimary
               iconName={iconName}
               title={tableTitle}
@@ -174,26 +191,26 @@ export const PageList: React.FC<any> = (
         </>
       )}
 
-      <Grid container className={'table-' + className} mt={2}>
+      <Grid container className={"table-" + className} mt={2}>
         <Grid item xs={12}>
           <Grid container spacing={4} flexWrap="nowrap">
             <Grid
               item
               xs={12}
-              className={'table-data-' + className}
+              className={"table-data-" + className}
             >
               <Table
                 enableSorting={!disableSort}
                 manualSortBy
                 enablePagination
                 manualPagination
-                noDataText={'No data currently available'}
+                noDataText={"No data currently available"}
                 data={tableData}
                 columns={columns}
                 pageCount={pageCount}
                 pageSize={pageSize}
                 setPageSize={size => {
-                  useStorage?.setStorage('pageSize', size);
+                  useStorage?.setStorage("pageSize", size);
                 }}
                 isLoading={
                   isSilentReload
@@ -212,7 +229,7 @@ export const PageList: React.FC<any> = (
                 tileComponent={tileComponent}
                 setVisibleColumns={(columns: any[]) => {
                   useStorage.setStorage(
-                    'columns',
+                    "columns",
                     columns.map(elem => elem.id)
                   );
                 }}

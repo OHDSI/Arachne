@@ -1,22 +1,39 @@
-import React, { FC, useState, MouseEvent, useCallback } from 'react';
-import clsx from 'clsx';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { FC, useState, MouseEvent, useCallback } from "react";
+import clsx from "clsx";
 import {
   BlockBase,
   BlockBaseBodyContent,
   BlockBaseSectionTitle,
   Content,
-} from '../BlockBase';
-import type { ContentBlockProps } from './ContentBlock.types';
-import { BlockBaseHeadContent } from './ContentBlock.styles';
-import { Icon } from '../..';
+} from "../BlockBase";
+import type { ContentBlockProps } from "./ContentBlock.types";
+import { BlockBaseHeadContent } from "./ContentBlock.styles";
+import { Icon } from "../..";
 
 export const ContentBlock: FC<ContentBlockProps> = props => {
   const {
-    title = '',
+    title = "",
     children,
     className,
     defaultState = true,
-    size = 'normal',
+    size = "normal",
     isDark = false,
     collapsible = false,
     actions,
@@ -33,7 +50,7 @@ export const ContentBlock: FC<ContentBlockProps> = props => {
     <BlockBase
       className={clsx(
         className,
-        collapsible ? 'collapsible-block' : 'plain-block'
+        collapsible ? "collapsible-block" : "plain-block"
       )}
       isDark={isDark}
     >
@@ -41,16 +58,16 @@ export const ContentBlock: FC<ContentBlockProps> = props => {
         <BlockBaseHeadContent
           onClick={handleToggleClick}
           className={
-            'collapsible-content-block__title ' +
-            (isShow ? 'content-visible' : '')
+            "collapsible-content-block__title " +
+            (isShow ? "content-visible" : "")
           }
         >
           <Icon
-            iconName={!isShow ? 'expand' : 'collapse'}
+            iconName={!isShow ? "expand" : "collapse"}
             sx={{
               fontSize: 16,
               pr: 1.5,
-              color: 'textColor.header',
+              color: "textColor.header",
               opacity: 0.75,
             }}
           />
@@ -64,8 +81,8 @@ export const ContentBlock: FC<ContentBlockProps> = props => {
         {isShow && (
           <BlockBaseBodyContent
             className={clsx(
-              'collapsible-block__content-container',
-              collapsible ? '' : 'plain-block'
+              "collapsible-block__content-container",
+              collapsible ? "" : "plain-block"
             )}
             isDark={isDark}
           >

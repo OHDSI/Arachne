@@ -1,15 +1,32 @@
-import { Radio, RadioProps } from '../Radio/Radio';
-import { Checkbox, CheckboxProps } from '../Checkbox/Checkbox';
-import { Input } from '../Input/Input';
-// import { Theme } from '../common/interfaces';
-import { transparentize } from 'polished';
-import { Chip, ChipProps, Theme } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { StyledComponent } from '@emotion/styled';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-export const Container: any = styled('div')`
+import { Radio, RadioProps } from "../Radio/Radio";
+import { Checkbox, CheckboxProps } from "../Checkbox/Checkbox";
+import { Input } from "../Input/Input";
+// import { Theme } from '../common/interfaces';
+import { transparentize } from "polished";
+import { Chip, ChipProps, Theme } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { StyledComponent } from "@emotion/styled";
+
+export const Container: any = styled("div")`
   font-family: ${({ theme }: any) =>
-    theme.typography?.fontFamily || 'sans-serif'};
+    theme.typography?.fontFamily || "sans-serif"};
   font-weight: ${({ theme }: any) => theme.typography?.fontWeightLight || 300};
   .c-filter-panel {
     padding-bottom: 8px;
@@ -66,7 +83,7 @@ export const Container: any = styled('div')`
   }
 `;
 
-export const Block: StyledComponent<any> = styled('div')`
+export const Block: StyledComponent<any> = styled("div")`
   display: flex;
   flex-direction: column;
   margin-top: 0px;
@@ -121,7 +138,7 @@ export const Block: StyledComponent<any> = styled('div')`
   }
 `;
 
-export const Item: StyledComponent<any> = styled('label')`
+export const Item: StyledComponent<any> = styled("label")`
   display: flex;
   align-items: center;
   font-size: 0.9rem;
@@ -140,7 +157,7 @@ export const Item: StyledComponent<any> = styled('label')`
 
 export const DatePickerContainer: StyledComponent<
   React.HTMLAttributes<HTMLDivElement>
-> = styled('div')`
+> = styled("div")`
   display: flex;
   & > div:first-child {
     margin-right: 10px;
@@ -164,16 +181,16 @@ export const RadioStyled: StyledComponent<RadioProps> = styled(Radio)`
 
 export const LoaderContainer: StyledComponent<
   React.HTMLAttributes<HTMLDivElement>
-> = styled('div')`
+> = styled("div")`
   text-align: center;
   padding: 0px;
 `;
 
 export const Tag: StyledComponent<
   React.HTMLAttributes<HTMLDivElement>
-> = styled('div')`
+> = styled("div")`
   /* background-color: ${({ theme }: any) =>
-    (theme.palette && theme.palette.grey[200]) || 'lightgrey'}; */
+    (theme.palette && theme.palette.grey[200]) || "lightgrey"}; */
   border-radius: 10px;
   padding: 2px 10px;
   margin-left: 10px;
@@ -186,7 +203,7 @@ export const Tag: StyledComponent<
 
 export const SearchFieldContainer: StyledComponent<
   React.HTMLAttributes<HTMLDivElement>
-> = styled('div')`
+> = styled("div")`
   padding: 0 5px 8px;
   .input .input-root.input-small {
     padding-left: 0;
@@ -216,9 +233,9 @@ export const SearchField: StyledComponent<any> = styled<any>(Input)`
 
 export const IconButton: StyledComponent<
   React.HTMLAttributes<HTMLButtonElement> & {
-    type?: 'button' | 'reset' | 'submit';
+    type?: "button" | "reset" | "submit";
   }
-> = styled('button')`
+> = styled("button")`
   cursor: pointer;
   background-color: transparent;
   border: none;
@@ -237,7 +254,7 @@ export const CounterTag: StyledComponent<ChipProps> = styled(Chip)(
     fontWeight: 500,
     color: theme.palette.textColor.secondary,
     backgroundColor: transparentize(0.9, theme.palette.info.main),
-    '.MuiChip-label': {
+    ".MuiChip-label": {
       py: 0.5,
       px: 1,
     },

@@ -1,3 +1,20 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import {
   Breadcrumbs,
   BreadcrumbsProps,
@@ -5,10 +22,10 @@ import {
   TypographyProps,
   styled,
   SkeletonProps,
-} from '@mui/material';
-import { Skeleton } from '../Skeleton/Skeleton';
-import { transparentize } from 'polished';
-import { StyledComponent } from '@emotion/styled';
+} from "@mui/material";
+import { Skeleton } from "../Skeleton/Skeleton";
+import { transparentize } from "polished";
+import { StyledComponent } from "@emotion/styled";
 
 export const StyledBreadcrumbs: StyledComponent<BreadcrumbsProps> = styled(
   Breadcrumbs
@@ -47,7 +64,7 @@ export const Link: StyledComponent<TypographyProps> = styled(Typography)`
   line-height: inherit;
   cursor: pointer;
   & > *:hover {
-    color: ${({ theme }: any) => theme.palette?.secondary.main || 'grey'};
+    color: ${({ theme }: any) => theme.palette?.secondary.main || "grey"};
     text-decoration: underline;
   }
 `;
@@ -61,9 +78,9 @@ export const LinkCurrent: StyledComponent<TypographyProps> = styled(Typography)`
   width: 100%;
 `;
 
-export const BreadcrumbText: StyledComponent<any> = styled('span')`
+export const BreadcrumbText: StyledComponent<any> = styled("span")`
   display: inline-block;
-  color: ${({ theme }: any) => theme.palette?.grey[200] || 'grey'};
+  color: ${({ theme }: any) => theme.palette?.grey[200] || "grey"};
   /* font-family: ${({ theme }: any) => theme.typography?.fontFamily}; */
   /* background-color: ${({ theme }: any) => theme.palette?.secondary.light}; */
   /* padding: 4px 0; */
@@ -83,7 +100,7 @@ export const Loader: StyledComponent<SkeletonProps> = styled(Skeleton)`
     transparentize(0.5, theme.palette?.secondary.main)};
 `;
 
-export const LoaderContainer: StyledComponent<any> = styled('div')`
+export const LoaderContainer: StyledComponent<any> = styled("div")`
   /* display: flex; */
   height: 54px;
   padding: 12px 0;

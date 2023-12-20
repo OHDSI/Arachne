@@ -1,24 +1,41 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import { ModalContext, UseModalContext, useInterval } from '../../../libs/hooks';
-import { getUUID, getFormatDateAndTime } from '../../../libs/utils';
-import { PageList } from '../../../libs/components';
-import { createSubmission, getSubmissions } from '../../../api/submissions';
-import { setBreadcrumbs } from '../../../store/modules';
+import React, { useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
-import { CreateSubmissionForm } from '../CreateSubmissionForm';
-import { SubmissionHeader, SubmissionHeaderItem } from './List.styles';
-import { removeDataSource } from '../../../api/data-sources';
-import { colsTableSubmissions } from '../../../config';
-import { SubmissionResult } from '../SubmissionResult';
-import { SubmissionDTOInterface } from '@/libs/types';
-import { RerunSubmissionForm } from '../RerunSubmissionForm';
+import { ModalContext, UseModalContext, useInterval } from "../../../libs/hooks";
+import { getUUID, getFormatDateAndTime } from "../../../libs/utils";
+import { PageList } from "../../../libs/components";
+import { createSubmission, getSubmissions } from "../../../api/submissions";
+import { setBreadcrumbs } from "../../../store/modules";
+
+import { CreateSubmissionForm } from "../CreateSubmissionForm";
+import { SubmissionHeader, SubmissionHeaderItem } from "./List.styles";
+import { removeDataSource } from "../../../api/data-sources";
+import { colsTableSubmissions } from "../../../config";
+import { SubmissionResult } from "../SubmissionResult";
+import { SubmissionDTOInterface } from "@/libs/types";
+import { RerunSubmissionForm } from "../RerunSubmissionForm";
 
 
 export const List: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState<string>(getUUID());
   const dispatch = useDispatch();
@@ -29,8 +46,8 @@ export const List: React.FC = () => {
     dispatch(
       setBreadcrumbs([
         {
-          name: t('breadcrumbs.submissions'),
-          path: `/submissions`,
+          name: t("breadcrumbs.submissions"),
+          path: "/submissions",
         }
       ])
     );
@@ -48,10 +65,10 @@ export const List: React.FC = () => {
           }}
         />
       ),
-      t('modals.create_submission.header'),
+      t("modals.create_submission.header"),
       {
         closeOnClickOutside: true,
-        width: '700px',
+        width: "700px",
         onClose: closeModal,
       }
     );
@@ -70,10 +87,10 @@ export const List: React.FC = () => {
           }}
         />
       ),
-      t('modals.rerun_submission.header'),
+      t("modals.rerun_submission.header"),
       {
         closeOnClickOutside: true,
-        width: '700px',
+        width: "700px",
         onClose: closeModal,
       }
     );
@@ -86,7 +103,7 @@ export const List: React.FC = () => {
         <SubmissionResult item={item} />
       ),
       <SubmissionHeader key="modal-header">
-        <SubmissionHeaderItem>{t('modals.files_results.header')}</SubmissionHeaderItem>
+        <SubmissionHeaderItem>{t("modals.files_results.header")}</SubmissionHeaderItem>
         {item.finished && (
           <SubmissionHeaderItem smallFont>
             {getFormatDateAndTime(item.finished)}
@@ -111,15 +128,15 @@ export const List: React.FC = () => {
       onReload={onReload}
       onRowClick={row => onOpenResult(row.original)}
       listConfig={{
-        rowId: 'id',
-        loadingMessage: t('pages.submissions.loading_message'),
-        addButtonTitle: t('pages.submissions.add_button'),
-        tableTitle: t('pages.submissions.header'),
-        importButtonTitle: t('common.button.import'),
-        iconName: 'library',
+        rowId: "id",
+        loadingMessage: t("pages.submissions.loading_message"),
+        addButtonTitle: t("pages.submissions.add_button"),
+        tableTitle: t("pages.submissions.header"),
+        importButtonTitle: t("common.button.import"),
+        iconName: "library",
         fetch: getSubmissions,
         remove: removeDataSource,
-        listInitialSort: { id: 'id', desc: true },
+        listInitialSort: { id: "id", desc: true },
         cols: cols
       }}
       isSilentReload={true}

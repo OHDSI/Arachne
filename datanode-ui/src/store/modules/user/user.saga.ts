@@ -1,5 +1,22 @@
-import { getUser, logout, login } from '../../../api/auth';
-import { call, put, takeLatest } from 'redux-saga/effects';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { getUser, logout, login } from "../../../api/auth";
+import { call, put, takeLatest } from "redux-saga/effects";
 import {
   getUserDone,
   getUserFailed,
@@ -7,9 +24,9 @@ import {
   signOutUserFailed,
   userSignInDone,
   userSignInFailed,
-} from './user.actions';
-import { UserActions } from './user.constants';
-import { UserDTOInterface } from '../../../libs/types';
+} from "./user.actions";
+import { UserActions } from "./user.constants";
+import { UserDTOInterface } from "../../../libs/types";
 
 function* signInUserRequest(action: any) {
   const { userName, password } = action.payload;
@@ -18,11 +35,9 @@ function* signInUserRequest(action: any) {
     yield put(userSignInDone(result.token));
     yield call(getUserRequest);
   } catch (err: any) {
-    console.log(err)
-    let errorMessage =
-      err.message === 'Bad credentials'
-        ? 'Wrong user name or password.'
-        : `An error has occurred: ${err?.response.status}.`;
+    const errorMessage = err.message === "Bad credentials"
+      ? "Wrong user name or password."
+      : `An error has occurred: ${err?.response.status}.`;
     yield put(userSignInFailed(errorMessage));
   }
 }

@@ -1,8 +1,25 @@
-import { Reducer, useCallback, useEffect, useReducer } from 'react';
-import { INITIAL_STATE, reducer } from './useEntity.reducer';
-import { EntityActions } from './useEntity.constants';
-import { EntityHook, EntityState, MethodsUseEntityInterface } from './useEntity.types';
-import { ActionInterface } from '../../../libs/types';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { Reducer, useCallback, useEffect, useReducer } from "react";
+import { INITIAL_STATE, reducer } from "./useEntity.reducer";
+import { EntityActions } from "./useEntity.constants";
+import { EntityHook, EntityState, MethodsUseEntityInterface } from "./useEntity.types";
+import { ActionInterface } from "../../../libs/types";
 
 export const useEntity = <T extends object>(
   methods: MethodsUseEntityInterface<T>,
@@ -16,7 +33,7 @@ export const useEntity = <T extends object>(
   const getEntity = useCallback(async () => {
     dispatch({ type: EntityActions.GET_ENTITY });
     try {
-      let data = await methods.get(id);
+      const data = await methods.get(id);
 
       dispatch({
         type: EntityActions.GET_ENTITY_SUCCESS,
@@ -33,7 +50,7 @@ export const useEntity = <T extends object>(
   const deleteEntity = useCallback(async () => {
     dispatch({ type: EntityActions.DELETE_ENTITY });
     try {
-      let data = await methods.delete(id);
+      const data = await methods.delete(id);
 
       dispatch({
         type: EntityActions.DELETE_ENTITY_SUCCESS,
@@ -50,7 +67,7 @@ export const useEntity = <T extends object>(
   const updateEntity = useCallback(async (entity: any) => {
     dispatch({ type: EntityActions.UPDATE_ENTITY });
     try {
-      let data = await methods.update(entity, id);
+      const data = await methods.update(entity, id);
       dispatch({
         type: EntityActions.UPDATE_ENTITY_SUCCESS,
         payload: { data },
@@ -62,11 +79,11 @@ export const useEntity = <T extends object>(
       });
     }
   },
-    [id]
+  [id]
   );
 
   useEffect(() => {
-    id != 'new' && getEntity();
+    id != "new" && getEntity();
   }, [id]);
 
   return {

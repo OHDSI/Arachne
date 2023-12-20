@@ -1,10 +1,27 @@
-import React from 'react';
-import { StyledChip } from '../../Autocomplete/Autocomplete.styles';
-import { Block } from '../FilterPanel.styles';
-import { FilterModel } from '../FilterPanel.types';
-import { Box, Grid } from '@mui/material';
-import { Icon } from '../../Icon/Icon';
-import { Autocomplete } from '../../Autocomplete/Autocomplete';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { StyledChip } from "../../Autocomplete/Autocomplete.styles";
+import { Block } from "../FilterPanel.styles";
+import { FilterModel } from "../FilterPanel.types";
+import { Box, Grid } from "@mui/material";
+import { Icon } from "../../Icon/Icon";
+import { Autocomplete } from "../../Autocomplete/Autocomplete";
 
 export const MultiSelectFilter: React.FC<FilterModel> = props => {
   const {
@@ -25,7 +42,7 @@ export const MultiSelectFilter: React.FC<FilterModel> = props => {
         item => item?.value === option || item?.value === option?.value
       );
       return item
-        ? `${item?.name}` + (item?.tag != null ? ` (${item?.tag})` : '')
+        ? `${item?.name}` + (item?.tag != null ? ` (${item?.tag})` : "")
         : option;
     },
     [options]
@@ -33,7 +50,7 @@ export const MultiSelectFilter: React.FC<FilterModel> = props => {
 
   const handleChange = React.useCallback(
     (event, value, reason, details) => {
-      const ANY_VALUE = '';
+      const ANY_VALUE = "";
       if (details?.option?.value === ANY_VALUE) {
         onChange([]);
       } else {
@@ -48,7 +65,7 @@ export const MultiSelectFilter: React.FC<FilterModel> = props => {
   );
 
   return (
-    <Block className={className + ' c-multi-select-item'}>
+    <Block className={className + " c-multi-select-item"}>
       {showLabel && <label className="filter-block__head">{label}</label>}
       <Autocomplete
         className={name}
@@ -69,20 +86,20 @@ export const MultiSelectFilter: React.FC<FilterModel> = props => {
             sx={{
               px: 1,
               fontSize: 14,
-              color: '#AAAAAA',
+              color: "#AAAAAA",
             }}
           >
-            {tagValue?.length || 'None'} selected...
+            {tagValue?.length || "None"} selected...
           </Box>
         )}
         name="multiselectFilter"
-        placeholder={value?.length ? '' : `Select ${label.toLowerCase()}...`}
+        placeholder={value?.length ? "" : `Select ${label.toLowerCase()}...`}
         OptionComponent={(props, option) => {
           return (
             <li
               {...props}
               className={`menu-option-${option?.value || option} ${props.className
-                }`}
+              }`}
             >
               {getOptionLabel(option)}
             </li>
@@ -92,17 +109,17 @@ export const MultiSelectFilter: React.FC<FilterModel> = props => {
       {!hiddenTags && (
         <Grid container spacing={1} pt={1}>
           {value.map((option, index) => (
-            <Grid item key={'select-option-' + index}>
+            <Grid item key={"select-option-" + index}>
               <StyledChip
                 label={getOptionLabel(option)}
                 variant="outlined"
                 size="small"
                 color="primary"
                 classes={{
-                  root: 'chip selected-filter-option',
-                  outlined: 'chip-outlined',
+                  root: "chip selected-filter-option",
+                  outlined: "chip-outlined",
                   deleteIcon:
-                    'chip-delete-outlined remove-item-' +
+                    "chip-delete-outlined remove-item-" +
                     (option?.value || option),
                 }}
                 onDelete={() => {

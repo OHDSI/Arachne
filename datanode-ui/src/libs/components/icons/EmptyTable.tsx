@@ -1,5 +1,22 @@
-import React from 'react';
-import { useTheme } from '@mui/material';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { useTheme } from "@mui/material";
 
 export const EmptyTable: React.FC<any> = React.forwardRef(
   ({ plain, color, ...rest }, ref) => {
@@ -14,7 +31,7 @@ export const EmptyTable: React.FC<any> = React.forwardRef(
         x="0px"
         y="0px"
         viewBox="0 0 500 500"
-        style={{ enableBackground: 'new 0 0 500 500' }}
+        style={{ enableBackground: "new 0 0 500 500" }}
         xmlSpace="preserve"
         {...rest}
       >
@@ -84,7 +101,7 @@ export const EmptyTable: React.FC<any> = React.forwardRef(
               fill={
                 color
                   ? theme.palette[color].main
-                  : theme.palette.info.main + 'e0'
+                  : theme.palette.info.main + "e0"
               }
               d="M378.4,296.6c-15.7-15.9-41.2-16-57.1-0.3c-15.9,15.7-16,41.2-0.3,57.1c15.7,15.9,41.2,16,57.1,0.3
 				c10.2-10.1,14.3-25,10.7-38.9C387,307.9,383.4,301.6,378.4,296.6z M371.2,339.3l-7,7L350,332l-14.3,14.3l-7-7L343,325l-14.3-14.3
@@ -94,7 +111,7 @@ export const EmptyTable: React.FC<any> = React.forwardRef(
               fill={
                 color
                   ? theme.palette[color].main
-                  : theme.palette.info.main + '82'
+                  : theme.palette.info.main + "82"
               }
               d="M350,256.2c-38,0-68.8,30.8-68.8,68.8s30.8,68.8,68.8,68.8s68.8-30.8,68.8-68.8l0,0
 				C418.8,287,388,256.2,350,256.2z M398.4,337.6c-4.6,17.5-18.3,31.2-35.9,35.9c-8.3,2.2-17,2.2-25.2-0.1c-26.7-7-42.8-34.3-35.8-61

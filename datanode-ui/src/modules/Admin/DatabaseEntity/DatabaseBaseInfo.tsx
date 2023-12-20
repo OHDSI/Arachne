@@ -1,10 +1,26 @@
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { useTheme } from '@mui/material';
+import React from "react";
+import { useNavigate } from "react-router";
+import { useTheme } from "@mui/material";
 
-import { Button, Grid, IconActionButton, EditableInput } from '../../../libs/components';
-import { DataSourceDTOInterface } from '../../../libs/types';
+import { Button, Grid, IconActionButton, EditableInput } from "../../../libs/components";
+import { DataSourceDTOInterface } from "../../../libs/types";
 
 export interface DatabaseBaseInfoProps {
   entity: DataSourceDTOInterface;
@@ -33,7 +49,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
             fullWidth
             color={theme.palette.textColor.primary}
             onSubmit={(value) => {
-              updateFiled('name', value);
+              updateFiled("name", value);
             }}
             name="database-name"
             required
@@ -41,8 +57,8 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
         </Grid>
         <Grid item display="flex" alignItems="center">
           <Grid item>
-            <Button size="xsmall" color="info" onClick={() => navigate('..')}>
-              {'<'} Back to Databases
+            <Button size="xsmall" color="info" onClick={() => navigate("..")}>
+              {"<"} Back to Databases
             </Button>
           </Grid>
           <Grid item ml={1}>
@@ -55,7 +71,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
             />
           </Grid>
         </Grid>
-      </Grid>{' '}
+      </Grid>{" "}
       <Grid item xs={12}>
         <Grid
           item
@@ -73,7 +89,7 @@ export const DatabaseBaseInfo: React.FC<DatabaseBaseInfoProps> = ({
           fullWidth
           color={theme.palette.textColor.primary}
           onSubmit={(value) => {
-            updateFiled('description', value);
+            updateFiled("description", value);
           }}
           name="database-description"
           multiline

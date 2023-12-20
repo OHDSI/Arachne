@@ -1,8 +1,25 @@
-import React from 'react';
-import TextField from '@mui/material/TextField';
-import { StyledAutocomplete } from './Autocomplete.styles';
-import { Global } from '@emotion/react';
-import { CircularProgress } from '@mui/material';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import TextField from "@mui/material/TextField";
+import { StyledAutocomplete } from "./Autocomplete.styles";
+import { Global } from "@emotion/react";
+import { CircularProgress } from "@mui/material";
 
 //  @TODO - SIZES !!! - should be easy to toggle from multi to single
 export interface AutocompleteProps {
@@ -11,15 +28,15 @@ export interface AutocompleteProps {
   multiple?: boolean;
   name?: string;
   value: any;
-  variant?: 'filled' | 'outlined';
+  variant?: "filled" | "outlined";
   className?: string;
   options?: Array<any>;
   fullWidth?: boolean;
   placeholder?: string;
-  size?: 'small' | 'medium'; //| 'large';
+  size?: "small" | "medium"; //| 'large';
   onChange: (...item: any) => void;
   getOptionLabel: (item: any) => string;
-  color?: 'primary' | 'secondary';
+  color?: "primary" | "secondary";
   OptionComponent?: any;
   getOptionDisabled?: any;
   isOptionEqualToValue?: any;
@@ -55,19 +72,19 @@ export const Autocomplete: React.FC<AutocompleteProps> = props => {
         disableCloseOnSelect={props.disableCloseOnSelect}
         classes={
           {
-            option: 'autocomplete-menu-item',
-            root: 'autocomplete',
-            input: 'autocomplete-input',
-            inputRoot: 'autocomplete-input-root',
-            endAdornment: 'autocomplete-end-adornment',
-            popupIndicator: 'autocomplete-open-' + props.className,
-            clearIndicator: 'autocomplete-clear-' + props.className,
-            listbox: 'autocomplete-options-' + props.className,
+          	option: "autocomplete-menu-item",
+          	root: "autocomplete",
+          	input: "autocomplete-input",
+          	inputRoot: "autocomplete-input-root",
+          	endAdornment: "autocomplete-end-adornment",
+          	popupIndicator: "autocomplete-open-" + props.className,
+          	clearIndicator: "autocomplete-clear-" + props.className,
+          	listbox: "autocomplete-options-" + props.className,
           } as any
         }
         renderTags={props?.renderTags}
-        size={'small'}
-        isDense={props.size === 'small'}
+        size={"small"}
+        isDense={props.size === "small"}
         renderInput={params => (
           <TextField
             {...params}
@@ -77,9 +94,9 @@ export const Autocomplete: React.FC<AutocompleteProps> = props => {
             InputProps={{
               ...params.InputProps,
               classes: {
-                notchedOutline: 'autocomplete-notched-outline',
-                root: 'autocomplete-input-container',
-                focused: 'autocomplete-focused',
+                notchedOutline: "autocomplete-notched-outline",
+                root: "autocomplete-input-container",
+                focused: "autocomplete-focused",
               },
               name: props.name,
               endAdornment: (

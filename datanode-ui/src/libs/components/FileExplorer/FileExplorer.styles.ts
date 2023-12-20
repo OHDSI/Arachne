@@ -1,16 +1,33 @@
-import styled from '@emotion/styled';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import styled from "@emotion/styled";
 
 export const FileListContainer = styled.div<any>`
   box-shadow: ${props =>
     props.subList
-      ? '2px 0px 4px -3px transparent;'
-      : '2px 0px 4px -3px transparent'};
+      ? "2px 0px 4px -3px transparent;"
+      : "2px 0px 4px -3px transparent"};
   max-height: ${props =>
-    props.subList ? 'auto' : 'calc(100vh - 250px)'}; // not good
+    props.subList ? "auto" : "calc(100vh - 250px)"}; // not good
   overflow: hidden;
   overflow-y: auto;
   border-left: ${props =>
-    props.subList ? '1px solid #232323' : '0px solid #232323'};
+    props.subList ? "1px solid #232323" : "0px solid #232323"};
   z-index: 2;
   section {
     height: calc(100vh - 250px);
@@ -42,7 +59,7 @@ export const FileName = styled.div<any>`
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 14px;
-  font-weight: ${props => (props.selectedFile ? '600' : '300')};
+  font-weight: ${props => (props.selectedFile ? "600" : "300")};
   margin-top: 2px;
   margin-left: 7px;
   margin-right: 7px;

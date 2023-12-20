@@ -1,14 +1,31 @@
-import React from 'react';
-import { TableCell } from '../TableCell/TableCell';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React from "react";
+import { TableCell } from "../TableCell/TableCell";
 import {
   StyledTable,
   TableHeadRow,
   TableRow,
   NoDataText,
   ArrowContainer,
-} from '../Table.styles';
-import { useWindowSize } from '../../common/useWindowSize';
-import { Icon } from '../../index';
+} from "../Table.styles";
+import { useWindowSize } from "../../common/useWindowSize";
+import { Icon } from "../../index";
 
 export const TableComponent: React.FC<{
   getTableProps: any;
@@ -49,31 +66,31 @@ export const TableComponent: React.FC<{
           {headerGroups.map((headerGroup: any, i: number) => (
             <TableHeadRow
               {...headerGroup.getHeaderGroupProps()}
-              key={'table-header-' + i}
+              key={"table-header-" + i}
               className="table-row"
             >
               {headerGroup.headers.map((column: any, j: number) => {
                 const c =
                   column.rowSpan > 1 && column.columns?.[0]
-                    ? column.columns[0]
-                    : column;
+                  	? column.columns[0]
+                  	: column;
 
                 return (
                   <th
                     {...c.getHeaderProps(c.getSortByToggleProps())}
-                    key={'table-header-cell-' + j}
-                    className={'table-header-cell-' + j}
+                    key={"table-header-cell-" + j}
+                    className={"table-header-cell-" + j}
                     rowSpan={column.rowSpan}
                     style={{
-                      textAlign: c.align || 'left',
+                      textAlign: c.align || "left",
                       cursor:
                         column.disableSortBy || !enableSorting
-                          ? 'default'
-                          : 'pointer',
-                      ...(column.invisible ? { display: 'none' } : {}),
+                        	? "default"
+                        	: "pointer",
+                      ...(column.invisible ? { display: "none" } : {}),
                     }}
                   >
-                    {column.render('Header')}
+                    {column.render("Header")}
 
                     {c.canSort && (
                       <ArrowContainer>{renderArrow(c)}</ArrowContainer>
@@ -93,30 +110,30 @@ export const TableComponent: React.FC<{
               return (
                 <TableRow
                   {...row.getRowProps()}
-                  key={'table-row-' + i}
+                  key={"table-row-" + i}
                   onClick={e => {
                     e.preventDefault();
                     if (!disableRowClick?.(row)) {
                       onRowClick?.(row);
                     }
                   }}
-                  className={'table-row-' + i}
+                  className={"table-row-" + i}
                   tileView={tileView}
                 >
                   {row.cells.map((cell: any, j: number) => {
                     return (
                       <TableCell
                         {...cell.getCellProps()}
-                        key={'table-row-cell-' + j}
+                        key={"table-row-cell-" + j}
                         className={generateCellClassName(cell, i)}
                         cell={cell}
                         width={width}
                         style={{
-                          textAlign: cell?.column.align || 'left',
+                          textAlign: cell?.column.align || "left",
                           cursor:
                             !onRowClick || disableRowClick?.(row)
-                              ? 'default'
-                              : 'pointer',
+                            	? "default"
+                            	: "pointer",
                         }}
                       />
                     );
@@ -143,7 +160,7 @@ const renderArrow = (column: any) => {
       return (
         <Icon
           iconName="chevronSorting"
-          sx={{ fontSize: '0.5rem', color: '#CDCDCD' }}
+          sx={{ fontSize: "0.5rem", color: "#CDCDCD" }}
         />
       );
     } else {
@@ -151,13 +168,13 @@ const renderArrow = (column: any) => {
         <Icon
           iconName="chevronSorting"
           sx={{
-            fontSize: '0.5rem',
-            color: '#CDCDCD',
-            transform: 'rotate(180deg)',
+            fontSize: "0.5rem",
+            color: "#CDCDCD",
+            transform: "rotate(180deg)",
           }}
         />
       );
     }
   }
-  return '';
+  return "";
 };

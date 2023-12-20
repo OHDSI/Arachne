@@ -1,13 +1,30 @@
-import React, { useMemo, memo } from 'react';
-import { DesktopDatePicker as MUIDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment';
-import { setLightness } from 'polished';
+/*
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import React, { useMemo, memo } from "react";
+import { DesktopDatePicker as MUIDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import moment from "moment";
+import { setLightness } from "polished";
 
 export type DatePickerProps = {
   id?: string;
-  size?: 'small' | 'medium';
+  size?: "small" | "medium";
   format?: string;
   value?: any;
   disabled?: boolean;
@@ -29,8 +46,8 @@ export const DatePicker: React.FC<DatePickerProps> = props => {
   const pickerProps = {
     ...(props.format
       ? {
-          inputFormat: props.format,
-        }
+        inputFormat: props.format,
+      }
       : {}),
   };
 
@@ -46,23 +63,23 @@ export const DatePicker: React.FC<DatePickerProps> = props => {
         disableFuture={props.disableFuture}
         disablePast={props.disablePast}
         sx={theme => ({
-          backgroundColor: '#ffffff',
-          '.MuiInputBase-input': {
-            padding: props.size === 'small' ? '3px 6px' : '6px 12px',
+          backgroundColor: "#ffffff",
+          ".MuiInputBase-input": {
+            padding: props.size === "small" ? "3px 6px" : "6px 12px",
             fontSize: 13,
           },
-          '.MuiButtonBase-root': {
-            p: props.size === 'small' ? 0 : 0.5,
+          ".MuiButtonBase-root": {
+            p: props.size === "small" ? 0 : 0.5,
           },
-          '.MuiSvgIcon-root': {
+          ".MuiSvgIcon-root": {
             fontSize: 20,
-            color: 'secondary.main',
+            color: "secondary.main",
           },
-          '.MuiOutlinedInput-notchedOutline': {
-            borderColor: 'borderColor.main',
+          ".MuiOutlinedInput-notchedOutline": {
+            borderColor: "borderColor.main",
           },
-          '&:hover': {
-            '.MuiOutlinedInput-notchedOutline': {
+          "&:hover": {
+            ".MuiOutlinedInput-notchedOutline": {
               borderColor: setLightness(0.7, theme.palette?.primary.main),
             },
           },
