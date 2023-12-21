@@ -69,6 +69,9 @@
                         </goals>
                         <configuration>
                             <arguments>run start</arguments>
+                            <environmentVariables>
+                                <PROXY_HOST>https://localhost:8880</PROXY_HOST>
+                            </environmentVariables>
                         </configuration>
                     </execution>
 <!--                        <execution>-->
