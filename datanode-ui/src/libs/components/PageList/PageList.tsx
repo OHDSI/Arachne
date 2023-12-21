@@ -75,7 +75,9 @@ export const PageList: React.FC<any> = (
     hiddenColumns,
     allowRerun,
     dense,
-    removeId
+    removeId,
+    isCancel,
+    onRemove,
   } = props;
 
   const {
@@ -137,14 +139,16 @@ export const PageList: React.FC<any> = (
     disableSortBy: true,
     minWidth: 50,
     width: "3%",
-    Cell: (props: any) => {
+    Cell: (props: any): any => {
       return (
-        <ActionCell
-          onRemove={allowDelete ? () => removeEntity(props.row.original?.[removeId || "id"]) : null}
-          onReload={allowRerun ? () => onReload(props.row.original?.[removeId || "id"]) : null}
-          withConfirmation
-          entityName={props.row.original.title || props.row.original.name}
-        />
+            <ActionCell
+              onRemove={allowDelete ? () => !isCancel ? removeEntity(props.row.original?.[removeId || "id"]) : onRemove(props.row.original?.[removeId || "id"]) : null}
+              onReload={allowRerun ? () => onReload(props.row.original?.[removeId || "id"]) : null}
+              withConfirmation
+              isCancel={isCancel}
+              showCancel={(!isCancel || (isCancel && (props.row.original.status === 'CREATED' || props.row.original.status === 'EXECUTING'))) }
+              entityName={props.row.original.title || props.row.original.name}
+          />
       );
     },
   };

@@ -21,8 +21,8 @@ import { useTranslation } from "react-i18next";
 
 import { ModalContext, UseModalContext, useInterval } from "../../../libs/hooks";
 import { getUUID, getFormatDateAndTime } from "../../../libs/utils";
-import { PageList } from "../../../libs/components";
-import { createSubmission, getSubmissions } from "../../../api/submissions";
+import { PageList, useNotifications } from "../../../libs/components";
+import { cancelSubmission, createSubmission, getSubmissions } from "../../../api/submissions";
 import { setBreadcrumbs } from "../../../store/modules";
 
 import { CreateSubmissionForm } from "../CreateSubmissionForm";
@@ -39,7 +39,7 @@ export const List: React.FC = () => {
   const { openModal, closeModal } = useContext<UseModalContext>(ModalContext);
   const [idReload, setIdReload] = useState<string>(getUUID());
   const dispatch = useDispatch();
-
+  const { enqueueSnackbar } = useNotifications();
   const cols = React.useMemo(() => colsTableSubmissions(t), [t]);
 
   useEffect(() => {
@@ -96,6 +96,23 @@ export const List: React.FC = () => {
     );
   };
 
+  const onRemove = async (id) => {
+    try {
+      await cancelSubmission(id);
+      enqueueSnackbar({
+        message: 'Submission stoped',
+        variant: "success",
+      } as any);
+      setIdReload(getUUID());
+    } catch(e) {
+      console.log(e);
+      enqueueSnackbar({
+        message: e.message,
+        variant: "error",
+      } as any);
+    }
+  };
+
 
   const onOpenResult = (item: SubmissionDTOInterface) => {
     openModal(
@@ -126,6 +143,7 @@ export const List: React.FC = () => {
       reloadId={idReload}
       onCreate={onCreate}
       onReload={onReload}
+      onRemove={onRemove}
       onRowClick={row => onOpenResult(row.original)}
       listConfig={{
         rowId: "id",
@@ -140,8 +158,9 @@ export const List: React.FC = () => {
         cols: cols
       }}
       isSilentReload={true}
-      allowDelete={false}
+      allowDelete={true}
       allowRerun={true}
+      isCancel={true}
       variant="primary"
     />
   );

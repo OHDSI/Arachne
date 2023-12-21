@@ -48,5 +48,9 @@ export const getSubmission = (id): Promise<SubmissionDTOInterface> =>
 export const updateSubmission = (id, data): Promise<SubmissionDTOInterface> =>
   api.post(`/analysis/${id}/rerun`, data);
 
+
+export const cancelSubmission = (id): Promise<any> =>
+  api.post(`/analysis/${id}/cancel`);
+
 export const getSubmissionLog = (id: string) =>
   api.get(`/analysis/${id}/log`);

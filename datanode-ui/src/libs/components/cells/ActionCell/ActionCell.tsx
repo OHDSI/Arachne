@@ -31,8 +31,11 @@ export interface ActionCellProps {
   entityName?: string;
   children?: React.ReactNode;
   disabled?: string;
+  isCancel?: boolean;
+  showCancel?: boolean;
 }
 export const ActionCell: React.FC<ActionCellProps> = ({
+  isCancel,
   onEdit,
   onRemove,
   withConfirmation,
@@ -40,11 +43,12 @@ export const ActionCell: React.FC<ActionCellProps> = ({
   entityName,
   children,
   onShowFolder,
-  onReload
+  onReload,
+  showCancel
 }) => {
   const confirmationMessage = React.useMemo(
     () =>
-      `Are you sure you want to delete ${entityType || "this item"} ${entityName || ""
+      `Are you sure you want to ${isCancel ? "cancel": "delete"} ${entityType || "this item"} ${entityName || ""
       }?`,
     [entityName, entityType]
   );
@@ -56,6 +60,8 @@ export const ActionCell: React.FC<ActionCellProps> = ({
       {onReload && <ReloadButton onClick={onReload} />}
       {onRemove && (
         <RemoveButton
+          isCancel={isCancel}
+          showCancel={showCancel}
           onRemove={onRemove}
           withConfirmation={withConfirmation}
           confirmationMessage={confirmationMessage}

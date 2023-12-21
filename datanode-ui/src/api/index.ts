@@ -22,32 +22,36 @@ const tempParserInconsistentResponce = (res: any) => {
 };
 
 const errorParser = (res, errorCode) => {
-
   switch (errorCode) {
   case 1:
     return {
       status: 401,
-      statusText: "UNAUTHORIZED"
+      statusText: "UNAUTHORIZED",
+      message: res?.data?.errorMessage
     };
   case 2:
     return {
       status: 403,
-      statusText: "PERMISSION_DENIED"
+      statusText: "PERMISSION_DENIED",
+      message: res?.errorMessage
     };
   case 3:
     return {
       status: 400,
-      statusText: "VALIDATION_ERROR"
+      statusText: "VALIDATION_ERROR",
+      message: res?.data?.errorMessage
     };
   case 4:
     return {
       status: 500,
-      statusText: "SYSTEM_ERROR"
+      statusText: "SYSTEM_ERROR",
+      message: res?.errorMessage
     };
   case 5:
     return {
       status: 409,
-      statusText: "ALREADY_EXIST"
+      statusText: "ALREADY_EXIST",
+      message: res?.errorMessage
     };
   case 6:
     return {
