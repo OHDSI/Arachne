@@ -26,8 +26,8 @@ Set-ExecutionPolicy -ExecutionPolicy ByPass -Scope CurrentUser
 ```
 6. Open browser and navigate to `http://localhost:81`
 7. The default credentials are:
-   Username: admin
-   Password: ohdsi
+- Username: admin
+- Password: ohdsi
    
 
 
