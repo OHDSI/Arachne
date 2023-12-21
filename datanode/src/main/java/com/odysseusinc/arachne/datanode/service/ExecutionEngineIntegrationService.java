@@ -24,18 +24,17 @@ package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 
 import java.io.File;
 
 public interface ExecutionEngineIntegrationService {
-    AnalysisRequestStatusDTO sendAnalysisRequest(AnalysisRequestDTO requestDTO,
-                                                                 File analysisFolder, boolean compressedResult);
 
     AnalysisRequestStatusDTO sendAnalysisRequest(AnalysisRequestDTO requestDTO,
                                                                  File analysisFolder, boolean compressedResult,
                                                                  boolean healthCheck);
 
-    long sendCancel(Long analysisId);
+    AnalysisResultDTO sendCancel(Long analysisId);
 
     ExecutionEngineStatus getExecutionEngineStatus();
 }

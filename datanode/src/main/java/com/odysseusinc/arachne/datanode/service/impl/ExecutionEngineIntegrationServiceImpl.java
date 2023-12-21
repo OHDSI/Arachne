@@ -30,6 +30,7 @@ import com.odysseusinc.arachne.datanode.service.client.engine.EngineClient;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -39,7 +40,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,22 +65,14 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
     }
 
     @Override
-    public AnalysisRequestStatusDTO sendAnalysisRequest(AnalysisRequestDTO requestDTO,
-                                                                        File analysisFolder, boolean compressedResult) {
-
-        return sendAnalysisRequest(requestDTO, analysisFolder, compressedResult, false);
-    }
-
-    @Override
-    public AnalysisRequestStatusDTO sendAnalysisRequest(AnalysisRequestDTO requestDTO,
-                                                                        File analysisFolder, boolean compressedResult,
-                                                                        boolean healthCheck) {
-
+    public AnalysisRequestStatusDTO sendAnalysisRequest(
+            AnalysisRequestDTO requestDTO, File analysisFolder, boolean compressedResult, boolean healthCheck
+    ) {
         final File analysisTempDir = getTempDirectory("arachne_datanode_analysis_");
         try {
             final File archive = new File(analysisTempDir.toString(), "request.zip");
             CommonFileUtils.compressAndSplit(analysisFolder, archive, null);
-            logger.info("Request [{}} with files for [{}], sending now", requestDTO.getId(), analysisFolder.getName());
+            logger.info("Request [{}] with files for [{}], sending now", requestDTO.getId(), analysisFolder.getName());
             return engineClient.sendAnalysisRequest(requestDTO, archive, compressedResult, healthCheck);
         } catch (ResourceAccessException exception) {
             throw new ValidationException("Cannot establish connection to the execution engine");
@@ -123,7 +115,7 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
     }
 
     @Override
-    public long sendCancel(Long analysisId) {
-        throw new RestClientException("Cancellation is not supported by Execution Engine");
+    public AnalysisResultDTO sendCancel(Long analysisId) {
+        return engineClient.cancel(analysisId);
     }
 }

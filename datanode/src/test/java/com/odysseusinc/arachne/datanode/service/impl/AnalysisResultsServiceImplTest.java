@@ -7,7 +7,7 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.repository.AnalysisFileRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.Const;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("UnstableApiUsage")
 @ExtendWith(MockitoExtension.class)
 public class AnalysisResultsServiceImplTest {
 
@@ -73,7 +74,7 @@ public class AnalysisResultsServiceImplTest {
         analysis.setAnalysisFolder(Files.createTempDir().getAbsolutePath());
         when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(analysis));
 
-        analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
+        analysisResultsService.markExecuted(analysisId, testWorkingDir, Stage.COMPLETED, null, "stdout");
 
         verify(analysisFileRepository).saveAll(captor.capture());
         final List<AnalysisFile> analysisFiles = captor.getValue();
@@ -94,9 +95,9 @@ public class AnalysisResultsServiceImplTest {
 
         when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(analysis));
         when(analysisRepository.save(analysis)).thenReturn(analysis);
-        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
+        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, Stage.COMPLETED, null, "stdout");
 
-        assertThat(updatedAnalysis.getStatus()).isEqualTo(AnalysisResultStatusDTO.FAILED);
+        assertThat(updatedAnalysis.getError()).isEqualTo("Error report file [errorReport.txt] found in result");
     }
 
     @Test
@@ -110,9 +111,9 @@ public class AnalysisResultsServiceImplTest {
 
         when(analysisRepository.findById(analysisId)).thenReturn(Optional.of(existingAnalysis));
         when(analysisRepository.save(existingAnalysis)).thenReturn(existingAnalysis);
-        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, AnalysisResultStatusDTO.EXECUTED, "stdout");
+        final Analysis updatedAnalysis = analysisResultsService.markExecuted(analysisId, testWorkingDir, Stage.COMPLETED, "boo", "stdout");
 
-        assertThat(updatedAnalysis.getStatus()).isEqualTo(AnalysisResultStatusDTO.EXECUTED);
+        assertThat(updatedAnalysis.getError()).isEqualTo("boo");
     }
 
 }

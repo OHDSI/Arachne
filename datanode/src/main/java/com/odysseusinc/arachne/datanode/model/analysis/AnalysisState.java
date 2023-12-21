@@ -10,7 +10,9 @@ public enum AnalysisState {
     ABORTING(false),
     ABORT_FAILURE(true),
     ABORTED(true),
-    DEAD(true);
+    DEAD(true),
+    UNKNOWN(false)
+    ;
 
     @Getter
     final boolean terminal;

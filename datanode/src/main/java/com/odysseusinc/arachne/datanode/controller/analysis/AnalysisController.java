@@ -24,7 +24,6 @@ package com.odysseusinc.arachne.datanode.controller.analysis;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
-import com.odysseusinc.arachne.commons.utils.ZipUtils;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
@@ -38,6 +37,7 @@ import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisResultsServiceImpl;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisServiceImpl;
+import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
 import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
@@ -63,7 +63,6 @@ import javax.validation.Valid;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,6 +74,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipOutputStream;
+
 
 @Slf4j
 @RestController
@@ -172,7 +173,6 @@ public class AnalysisController {
         String type = analysis.getType();
         String code = types().filter(t -> Objects.equals(t.name(), type)).findFirst().map(CommonAnalysisType::getCode).orElse(type);
         String filename = MessageFormat.format("{0}-a{1,number,#}-results", code, analysis.getId());
-        final Path archive = Files.createTempFile(filename, ".zip");
 
         if (AnalysisResultsServiceImpl.isListOfArchive(resultFiles)) {
             AnalysisFile headFile = resultFiles.stream().filter(f -> f.getLink().matches(".*\\.zip")).findFirst().orElseThrow(() -> {
@@ -188,16 +188,11 @@ public class AnalysisController {
             }
         }
 
-        ZipUtils.zipDirectory(archive, stdoutDir);
-
-        // add stdout to archive
-        File file = archive.toFile();
         response.setContentType(MimeTypeUtils.APPLICATION_OCTET_STREAM_VALUE);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + ".zip\"");
-        try (InputStream in = Files.newInputStream(file.toPath())) {
-            IOUtils.copy(in, response.getOutputStream());
+        try (ZipOutputStream zip = new ZipOutputStream(response.getOutputStream())) {
+            Files.walkFileTree(stdoutDir, AddToZipFileVisitor.of(stdoutDir, zip));
         } finally {
-            FileUtils.deleteQuietly(file);
             FileUtils.deleteQuietly(stdoutDir.toFile());
         }
     }

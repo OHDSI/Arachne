@@ -45,8 +45,6 @@ public interface AnalysisService {
 
     Analysis persist(Analysis analysis);
 
-    Optional<Analysis> updateStatus(Long id, String stdoutDiff, String password);
-
-    void invalidateExecutingLong();
+    void updateStatus(Long id, String password, String stage, String stdoutDiff);
 
 }

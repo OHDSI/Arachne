@@ -1,0 +1,2 @@
+ALTER TABLE analyses ADD COLUMN stage VARCHAR;
+ALTER TABLE analyses ADD COLUMN error VARCHAR;

@@ -22,7 +22,6 @@
 
 package com.odysseusinc.arachne.datanode.controller.analysis;
 
-import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
@@ -40,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 @RestController
 public class AnalysisCallbackController {
@@ -66,11 +64,12 @@ public class AnalysisCallbackController {
         doUpdateSubmission(status, password);
     }
 
-    protected Optional<Analysis> doUpdateSubmission(AnalysisExecutionStatusDTO status, String password) {
+    protected void doUpdateSubmission(AnalysisExecutionStatusDTO status, String password) {
 
         Long id = status.getId();
         String stdout = status.getStdout();
-        return analysisService.updateStatus(id, stdout, password);
+        String stage = status.getStage();
+        analysisService.updateStatus(id, password, stage, stdout);
     }
 
     @PostMapping(value = RESULT_URI, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -86,7 +85,7 @@ public class AnalysisCallbackController {
         }
         File resultDir = AnalysisUtils.storeMultipartFiles(filesStorePath, files);
         analysisResultsService.markExecuted(
-                result.getId(), resultDir, result.getStatus(), result.getStdout()
+                result.getId(), resultDir, result.getStage(), result.getError(), result.getStdout()
         );
     }
 
