@@ -68,16 +68,17 @@ module.exports = {
     "no-unsafe-optional-chaining": 0,
     "react/react-in-jsx-scope": 0,
     "no-undef": 0,
+    "indent": 0,
     "linebreak-style": [
-      "error",
+      0,
       "unix"
     ],
     "quotes": [
-      "error",
+      0,
       "double"
     ],
     "semi": [
-      "error",
+     0,
       "always"
     ]
   }

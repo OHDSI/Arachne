@@ -35,7 +35,7 @@ function* signInUserRequest(action: any) {
     yield put(userSignInDone(result.token));
     yield call(getUserRequest);
   } catch (err: any) {
-    const errorMessage = err.message === "Bad credentials"
+    const errorMessage = err.status === 401
       ? "Wrong user name or password."
       : `An error has occurred: ${err?.response.status}.`;
     yield put(userSignInFailed(errorMessage));

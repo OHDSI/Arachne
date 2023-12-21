@@ -21,20 +21,26 @@ import { ConfirmationDialog, ConfirmationDialogProps } from "../Dialogs";
 import { Button } from "../Button/Button";
 import { Icon } from "../Icon/Icon";
 import { DialogContext, UseDialogContext } from "../../hooks/useDialog";
+import { Tooltip } from "../Tooltip/Tooltip";
+import { IconButton } from "@mui/material";
 
 export interface RemoveButtonProps {
   onRemove: (e?: React.MouseEvent) => void;
   withConfirmation?: boolean;
   confirmationMessage?: string;
   iconSize?: number;
+  isCancel?: boolean;
+  showCancel?: boolean;
 }
 
 export const RemoveButton: React.FC<RemoveButtonProps> = props => {
   const {
+    isCancel,
     onRemove,
     withConfirmation = false,
     confirmationMessage = "Are you sure you want to delete this item?",
     iconSize = 18,
+    showCancel,
   } = props;
   const dialogContext = React.useContext<UseDialogContext>(DialogContext);
 
@@ -50,7 +56,8 @@ export const RemoveButton: React.FC<RemoveButtonProps> = props => {
         onSubmit: () => onDelete(e),
         onClose: dialogContext?.hideDialog,
         text: confirmationMessage,
-        confirmButtonText: "DELETE",
+        confirmButtonText: isCancel ? "Confirm" : "Delete",
+        cancelButtonText: "Back"
       });
     } else {
       onDelete(e);
@@ -58,16 +65,21 @@ export const RemoveButton: React.FC<RemoveButtonProps> = props => {
   };
 
   return (
-    <Button
-      size="xsmall"
-      onClick={handleDelete}
-      sx={{ width: 26, height: 26, minWidth: 0 }}
-    >
-      <Icon
-        iconName="delete"
-        sx={{ fontSize: iconSize, opacity: 0.6 }}
-        color="error"
-      />
-    </Button>
+    <Tooltip text={isCancel ? 'Cancel' : 'Delete'}>
+      <div>
+        <IconButton
+          color="info"
+          disabled={!showCancel}
+          onClick={handleDelete}
+          sx={{ width: 26, height: 26, minWidth: 0 }}
+        >
+          <Icon
+            iconName={isCancel ? "close": "delete"}
+            sx={{ fontSize: iconSize, opacity: 0.6 }}
+            color={showCancel ? "error" : "disabled"}
+          />
+        </IconButton>
+      </div>
+    </Tooltip>
   );
 };
