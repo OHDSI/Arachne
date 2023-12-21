@@ -34,5 +34,5 @@ export const useListInitialState: IUseListState = {
   numberOfElements: 0,
   totalElements: 0,
   allowedSorting: [],
-  rawData: [],
+  rawData: []
 };

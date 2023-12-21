@@ -110,6 +110,7 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
   			} as any);
   			afterCreate?.();
   		} catch (e) {
+			setIsLoading(false);
   			enqueueSnackbar({
   				message: "Database was not created, please try again",
   				variant: "error",
@@ -274,7 +275,7 @@ export const CreateDatabaseForm: React.FC<CreateCdmDataSourceFormPropsInterface>
   								</FormElement>
   							</Grid>
   							<Grid item xs={12}>
-  								<FormElement name="schema" textLabel="Target schema" required>
+  								<FormElement name="schema" textLabel="Target schema">
   									<Input
   										id="schema"
   										name="schema"
