@@ -64,13 +64,13 @@ export const OmopCdmSettings: React.FC<{
               required
             />
           </FormLabel>
-          <FormLabel htmlFor="targetSchema" label="Cohort Schema">
+          <FormLabel htmlFor="targetSchema" label="Target Schema">
             <EditableInput
               value={entity.targetSchema}
               className=""
               fullWidth
               id="targetSchema"
-              placeholder="Enter cohort schema..."
+              placeholder="Enter Target Schema..."
               size="small"
               onSubmit={handleSave("targetSchema")}
               sx={{ ml: -1 }}

@@ -35,6 +35,7 @@ export const LatestSubmissions: React.FC<any> = props => {
   const { t } = useTranslation();
   const {
     data: list,
+    rawData,
     status,
     getEntityList,
   } = useList({
@@ -65,8 +66,8 @@ export const LatestSubmissions: React.FC<any> = props => {
       </Grid>
       <LatestSubmissionsList>
         {status === Status.SUCCESS &&
-          (Object.values(list.byId)?.length ? (
-          	Object.values(list.byId)
+          (rawData?.length ? (
+          	rawData
           		.slice(0, 5)
           		.map(item => {
           			const status = getSubmissionStatusInfo(item.status);
