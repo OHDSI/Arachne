@@ -92,6 +92,13 @@ try {
     } else {
         Write-Host "ArachneDatanode dist folder already exists."
     }
+    $datanodeFolderPathConf = Join-Path $env:USERPROFILE "ArachneDatanode\conf"
+    if (-not (Test-Path $datanodeFolderPathConf -PathType Container)) {
+        New-Item -ItemType Directory -Path $datanodeFolderPathConf
+        Write-Host "Created ArachneDatanode config folder."
+    } else {
+        Write-Host "ArachneDatanode conf folder already exists."
+    }
     $datanodeFolderPathTmp = Join-Path $env:USERPROFILE "ArachneDatanode\execution-engine\tmp"
     if (-not (Test-Path $datanodeFolderPathTmp -PathType Container)) {
         New-Item -ItemType Directory -Path $datanodeFolderPathTmp
@@ -101,7 +108,7 @@ try {
     }
 
     # Specify the file names and URLs
-    $fileInfo = @{
+    $fileInfo_dist = @{
         rPackage = @{
             fileName = "r_base_focal_amd64.tar.gz"
             url = "https://storage.googleapis.com/arachne-datanode/r_base_focal_amd64.tar.gz"
@@ -112,6 +119,8 @@ try {
             url = "https://storage.googleapis.com/arachne-datanode/descriptor_base.json"
             sizeThresholdMB = 0.01
         }
+    }
+    $fileInfo_conf = @{
         envfile = @{
             fileName = "datanode-windows.env"
             url = "https://storage.googleapis.com/arachne-datanode/datanode.env"
@@ -153,12 +162,19 @@ try {
     }
 
     # Check and display file size from download links
-    foreach ($key in $fileInfo.Keys) {
-        $file = $fileInfo[$key]
+    foreach ($key in $fileInfo_dist.Keys) {
+        $file = $fileInfo_dist[$key]
         $fileSize = Get-FileSizeFromURL -url $file.url
         Write-Host "$($file.fileName) size: $($fileSize / 1MB) MB"
 
         DownloadFileIfNeeded-With-BitsTransfer -url $file.url -outputPath $datanodeFolderPathDist -fileName $file.fileName -fileSizeThreshold $file.sizeThresholdMB
+    }
+    foreach ($key in $fileInfo_conf.Keys) {
+        $file = $fileInfo_conf[$key]
+        $fileSize = Get-FileSizeFromURL -url $file.url
+        Write-Host "$($file.fileName) size: $($fileSize / 1MB) MB"
+
+        DownloadFileIfNeeded-With-BitsTransfer -url $file.url -outputPath $datanodeFolderPathConf -fileName $file.fileName -fileSizeThreshold $file.sizeThresholdMB
     }
 
     Write-Host "File check and download completed."

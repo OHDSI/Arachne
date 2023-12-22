@@ -54,7 +54,7 @@ services:
     volumes:
       - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
     env_file:
-      - $USERPROFILE/ArachneDatanode/dist/datanode-windows.env  # Environment variables file
+      - $USERPROFILE/ArachneDatanode/conf/datanode-windows.env  # Environment variables file
     depends_on:
       - arachne-datanode-postgres
       - arachne-execution-engine
