@@ -180,6 +180,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		}
 	}
 
+	@Transactional
 	public Long rerun(
 			Long id, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user
 	) {
@@ -194,12 +195,12 @@ public class AnalysisServiceImpl implements AnalysisService {
 		return analysis.getId();
 	}
 
+	@Transactional
 	public Long run(
 			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Consumer<File> writeFiles
 	) {
 		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
 		Analysis analysis = toAnalysis(dto, user, sourceFolder);
-		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
 		File analysisDir = new File(sourceFolder);
 		writeFiles.accept(analysisDir);
 		File[] filesList = analysisDir.listFiles();
@@ -219,6 +220,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		}
 
 		analysisRepository.save(analysis);
+		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
 		);
