@@ -132,13 +132,14 @@ try {
     function Get-FileSizeFromURL($url) {
         try {
             $response = Invoke-WebRequest -Uri $url -Method Head
-            $contentLength = $response.Headers['Content-Length']
-
-            if (-not $contentLength) {
+    
+            # It's possible that 'Content-Length' comes as an array. Use the first value.
+            $contentLength = $response.Headers['Content-Length'] -as [string[]]
+            if ($contentLength -and $contentLength.Count -gt 0) {
+                return [long]$contentLength[0]
+            } else {
                 throw "Content-Length header not found in the response."
             }
-
-            return [long]$contentLength
         } catch {
             Write-Host "Error getting file size from ${url}: $_"
             return $null
