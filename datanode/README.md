@@ -3,9 +3,18 @@ Arachne Data Node is a component that facilitates connection and communication b
 
 ## Running locally
 
+To launch from maven, use the following command line 
 ```
---spring.config.additional-location=file:config/config-dev.yml
+mvn spring-boot:run
 ```
+
+To run from IDE, add the following unger "Program arguments"
+`--spring.config.additional-location=file:config/config-dev.yml`
+
+In either case, configuration file `config/config-dev.yml` will be used. 
+It assumes that application database 'datanode' is available on `localhost:5432` for user 'ohdsi' granted permissions to use it.
+If this is not your case, make sure to update connection properties or create a separate configuration file and specify it
+via `--spring.config.additional-location`
 
 ## Important Configuration Properties
 

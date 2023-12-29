@@ -81,3 +81,5 @@ authenticator:
 
 security:
   method: db
+
+jasypt.encryptor.password: arachne
