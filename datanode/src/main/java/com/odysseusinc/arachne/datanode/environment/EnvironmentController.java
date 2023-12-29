@@ -1,5 +1,4 @@
 /*
- *
  * Copyright 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +11,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+package com.odysseusinc.arachne.datanode.environment;
 
-export * from "./BaseResponseInterface";
-export * from "./DataSourceDTOInterface";
-export * from "./DBMSTypesInterface";
-export * from "./DescriptorInterface";
-export * from "./EnvironmentInterface";
-export * from "./UserDTOInterface";
-export * from "./UserDTOSearchInterface";
-export * from "./PageableDTOInterface";
-export * from "./SubmissionDTOInterface";
-export * from "./AuthorDTOInterface";
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(path = "/api/v1/environments")
+public class EnvironmentController {
+    @Autowired
+    private EnvironmentDescriptorService descriptorService;
+
+    @GetMapping
+    public EnvironmentDto list() {
+        return descriptorService.listEnvironments();
+    }
+}

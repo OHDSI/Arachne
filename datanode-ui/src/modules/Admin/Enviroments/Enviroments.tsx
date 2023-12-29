@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import { ModalContext, UseModalContext } from "../../../libs/hooks";
 import { PageList, CodeEditor } from "../../../libs/components";
 import { colsTableEnviroments } from "../../../config";
-import { getDescriptors } from "../../../api/submissions";
+import { getEnvironments } from "../../../api/submissions";
 import { useDispatch } from "react-redux";
 import { setBreadcrumbs } from "../../../store/modules";
 
@@ -78,7 +78,7 @@ export const EnviromentsList: React.FC = () => {
         importButtonTitle: t("common.buttons.import"),
         listInitialSort: null,
         iconName: "",
-        fetch: getDescriptors,
+        fetch: getEnvironments(),
         cols: cols
       }}
       onRowClick={() => { }}

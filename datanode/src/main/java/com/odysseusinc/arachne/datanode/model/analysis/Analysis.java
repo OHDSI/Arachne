@@ -108,6 +108,8 @@ public class Analysis {
     private List<AnalysisCodeFile> analysisCodeFiles = new ArrayList<>();
     @Column(name = "inner_executable_filename")
     private String innerExecutableFilename;
+    @Column(name = "docker_image")
+    private String dockerImage;
     @ManyToOne
     @JoinColumn(name = "environment_id")
     private EnvironmentDescriptor environment;

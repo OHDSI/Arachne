@@ -18,7 +18,7 @@
 import { api } from ".";
 import { getSortDirection } from "../libs/utils";
 import {
-  DescriptorInterface,
+  EnvironmentInterface,
   IdNameInterface,
   PageableDTOInterface,
   SubmissionDTOInterface
@@ -28,8 +28,8 @@ import {
   CreateSubmissionFormTabs
 } from "../libs/enums";
 
-export const getDescriptors = (): Promise<DescriptorInterface[]> =>
-  api.get("/descriptor");
+export const getEnvironments = (): Promise<EnvironmentInterface> =>
+  api.get("/environments");
 
 export const getAnalysisTypes = (): Promise<IdNameInterface<AnalysisTypes>[]> =>
   api.get("analysis/types");

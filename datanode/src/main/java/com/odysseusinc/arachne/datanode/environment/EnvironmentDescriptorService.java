@@ -20,6 +20,17 @@ import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineCli
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorDTO;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorsDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -29,16 +40,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -52,6 +53,8 @@ public class EnvironmentDescriptorService {
     @PersistenceContext
     private EntityManager em;
 
+    private volatile boolean docker;
+
     public EnvironmentDescriptorService(ExecutionEngineClient client) {
         this.fetchDescriptors = client.getDescriptors();
     }
@@ -64,7 +67,7 @@ public class EnvironmentDescriptorService {
                     Collectors.groupingBy(EnvironmentDescriptor::getDescriptorId)
             );
             Instant now = clock.instant();
-
+            docker = descriptorsDTO.isDocker();
             List<Long> updated = descriptorsDTO.getDescriptors().stream().map(dto -> {
                 String json = SerializationUtils.serialize(dto);
                 return Optional.ofNullable(index.get(dto.getId())).flatMap(entities -> {
@@ -117,6 +120,11 @@ public class EnvironmentDescriptorService {
             );
         });
         return em.createQuery(cq).getResultStream().findFirst();
+    }
+
+    @Transactional
+    public EnvironmentDto listEnvironments() {
+        return EnvironmentDto.of(docker, listActive());
     }
 
     @Transactional

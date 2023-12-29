@@ -37,7 +37,7 @@ import {
   useNotifications
 } from "../../../libs/components";
 import { Paper } from "@mui/material";
-import { getAnalysisTypes, getDescriptors } from "../../../api/submissions";
+import { getAnalysisTypes, getEnvironments } from "../../../api/submissions";
 import { getDataSources } from "../../../api/data-sources";
 import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
 import { parseToSelectControlOptions } from "../../../libs/utils";

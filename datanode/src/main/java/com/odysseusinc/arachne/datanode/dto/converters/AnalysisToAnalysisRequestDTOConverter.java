@@ -15,16 +15,17 @@
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
-import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
+import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
-import java.util.Date;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Component
 public class AnalysisToAnalysisRequestDTOConverter
@@ -56,6 +57,7 @@ public class AnalysisToAnalysisRequestDTOConverter
         analysisRequestDTO.setId(analysis.getId());
         analysisRequestDTO.setExecutableFileName(analysis.getExecutableFileName());
         analysisRequestDTO.setRequestedDescriptorId(analysis.getEnvironment().getDescriptorId());
+        analysisRequestDTO.setDockerImage(analysis.getDockerImage());
         analysisRequestDTO.setUpdateStatusCallback(analysis.getUpdateStatusCallback());
         analysisRequestDTO.setResultCallback(analysis.getResultCallback());
         analysisRequestDTO.setCallbackPassword(analysis.getCallbackPassword());

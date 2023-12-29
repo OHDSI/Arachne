@@ -228,6 +228,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		preprocessorService.runPreprocessor(analysis);
 		AnalysisRequestDTO analysisRequestDTO = conversionService.convert(analysis, AnalysisRequestDTO.class);
 		analysisRequestDTO.setResultExclusions(resultExclusions);
+		analysisRequestDTO.setDockerImage(analysis.getDockerImage());
 		File analysisFolder = new File(analysis.getSourceFolder());
 		Long id = analysis.getId();
 		try {
@@ -276,6 +277,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
 		dto.setEnvironmentId(analysis.getEnvironment().getId());
+		dto.setDockerImage(analysis.getDockerImage());
 		return dto;
 	}
 
@@ -321,6 +323,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		analysis.setType(dto.getType());
 
 		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).map(this::findEnvironment).orElse(null));
+		analysis.setDockerImage(dto.getDockerImage());
 		analysis.setDataSource(dataSource);
 
 		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
