@@ -23,6 +23,9 @@ module.exports = function (app) {
     createProxyMiddleware({
       target: process.env.PROXY_HOST,
       changeOrigin: true,
+      // Disable SSL when the target is https. Required for running against local backend, otherwise, proxying fails with the an error like:
+      // Error occurred while proxying request localhost:3000/api/v1/auth/login to https://localhost:8880/ [DEPTH_ZERO_SELF_SIGNED_CERT]
+      secure: false
     })
   );
 };

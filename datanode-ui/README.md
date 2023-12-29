@@ -1,3 +1,14 @@
+# Running Locally
+
+The application can be started using `mvn site` command line. In this mode, it is configured to 
+use backend running at https://localhost:8880 which is default port for running backend locally. 
+
+If you want to connect to remote backend, set environment variable PROXY_HOST with the url of the target host.
+This can be done, for example, by creating ".env" file in the same directory where this README file resides, 
+with the following contents:
+
+    PROXY_HOST="https://<target-host>"
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
