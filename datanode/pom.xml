@@ -530,6 +530,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <arguments>--spring.config.additional-location=file:config/config-dev.yml</arguments>
                     <mainClass>com.odysseusinc.arachne.datanode.WebApplicationStarter</mainClass>
                     <requiresUnpack>
                         <dependency>
