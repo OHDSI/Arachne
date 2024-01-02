@@ -39,6 +39,7 @@ services:
       - RUNTIMESERVICE_DIST_ARCHIVE=/dist/r_base_focal_amd64.tar.gz
       - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/dist/
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
+      - docker.enable=false
       - applyRuntimeDependenciesComparisonLogic=true
       - libraries.location.strategus=strategus
 
