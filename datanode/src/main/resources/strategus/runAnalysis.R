@@ -27,7 +27,8 @@ connectionDetails$connectionString <- function() Sys.getenv("CONNECTION_STRING")
 
 connectionDetailsReference <- Sys.getenv("DATA_SOURCE_NAME")
 
-outputLocation <- '/results'
+outputLocation <- file.path(getwd(), "results")
+dir.create(outputLocation, showWarnings = FALSE)
 
 storeConnectionDetails(
   connectionDetails = connectionDetails,
