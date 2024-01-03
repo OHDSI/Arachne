@@ -19,7 +19,8 @@
     "submissions": {
       "header": "Submissions",
       "add_button": "Create Submission",
-      "description": "List of Submissions"
+      "description": "List of Submissions",
+      "loading_message": "Loading Submissions..."
     },
     "administration": {
       "header": "Administration",
