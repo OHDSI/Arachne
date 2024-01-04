@@ -78,7 +78,10 @@ export const EnviromentsList: React.FC = () => {
         importButtonTitle: t("common.buttons.import"),
         listInitialSort: null,
         iconName: "",
-        fetch: getEnvironments(),
+        fetch: async () => {
+          const envs = await getEnvironments();
+          return envs.descriptors;
+        },
         cols: cols
       }}
       onRowClick={() => { }}
