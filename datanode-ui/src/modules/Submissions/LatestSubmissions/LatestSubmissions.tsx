@@ -111,7 +111,7 @@ export const LatestSubmissions: React.FC<any> = props => {
         {status === Status.ERROR && (
           <LatestSubmissionsListItem light>
             <EmptyTableStub
-              noDataText={t("components.latest_submissions.failed_load_message")}
+              noDataText={t("common.components.latest_submissions.failed_load_message")}
               addButtonText=""
             />
           </LatestSubmissionsListItem>
