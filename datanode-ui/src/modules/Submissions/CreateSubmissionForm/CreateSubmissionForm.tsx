@@ -161,6 +161,8 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   			setIsLoading(false);
   			afterCreate?.(result);
   		} catch (e) {
+        setIsLoading(false);
+        setStatus(Status.INITIAL);
   			enqueueSnackbar({
   				message: t("forms.create_submission.error_message"),
   				variant: "error",
