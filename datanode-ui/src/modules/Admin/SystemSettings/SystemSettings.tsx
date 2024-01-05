@@ -45,6 +45,7 @@ export const SystemSettings: React.FC = () => {
   const {
     settings,
     status,
+    whitelistSections,
     editSystemSettings
   } = useSystemSettings();
 
@@ -91,10 +92,12 @@ export const SystemSettings: React.FC = () => {
 
   return (
     <Grid container spacing={2} px={3}>
-      <Grid item xs={12}>
+      {whitelistSections.length > 1 && (
+        <Grid item xs={12}>
         <TabsNavigationNew tabs={createTabs(settings)} withRouting secondary />
         <Divider />
       </Grid>
+      )}
       <Grid item xs={12} py={3}>
         <SecondaryContentWrapper>
           <Routes>

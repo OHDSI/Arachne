@@ -54,7 +54,7 @@ export const DatabaseEntity: React.FC = () => {
   const handleSave = (newValue: any, keyFile?: any, isAdmin?: boolean) => {
     const fd = new FormData();
     fd.append(
-      "datasource",
+      "dataSource",
       new Blob([JSON.stringify(newValue)], {
         type: "application/json",
       })
