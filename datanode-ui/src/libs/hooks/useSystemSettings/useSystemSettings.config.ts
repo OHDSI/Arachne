@@ -15,4 +15,4 @@
  *
  */
 
-export const whitelistSections = ["integration", "proxy"];
+export const whitelistSections = ["integration"];

@@ -74,6 +74,7 @@ export const useSystemSettings = () => {
 
   return {
     ...state,
+    whitelistSections: whitelistSections,
     editSystemSettings
   };
 };
