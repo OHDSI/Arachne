@@ -31,16 +31,15 @@ services:
     ports:
       - "127.0.0.1:8888:8888"  # Port mapping (host:container)
     volumes:
-      - ~/ArachneDatanode/dist:/dist  # Data volume mapping
-      - ~/ArachneDatanode/execution-engine/tmp:/tmp
-      - var/run/docker.sock:/var/run/docker.sock
-      - $TMP/executions:/etc/executions
+      - /tmp:/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/executions:/etc/executions
     environment:
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - applyRuntimeDependenciesComparisonLogic=true
       - libraries.location.strategus=strategus
       - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:2023q3v3
-      - ANALYSIS_MOUNT=$TMP/executions
+      - ANALYSIS_MOUNT=/tmp/executions
       - DOCKER_ENABLE=true
 
   # Arachne Datanode Service
@@ -53,7 +52,7 @@ services:
     ports:
       - "127.0.0.1:81:8080" # Port mapping (host:container)
     volumes:
-      - ~/ArachneDatanode/files:/var/arachne/files  # Volume mount for Arachne data
+      - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
     env_file:
       - ~/ArachneDatanode/datanode.env  # Environment variables file
     depends_on:
