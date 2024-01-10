@@ -24,6 +24,7 @@ services:
   # Execution Engine
   arachne-execution-engine:
     image: odysseusinc/execution_engine:latest
+    platform: linux/amd64
     container_name: arachne-execution-engine
     restart: always
     networks:
@@ -34,18 +35,21 @@ services:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/executions:/etc/executions
+      - ~/ArachneDatanode:/dist
     environment:
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - applyRuntimeDependenciesComparisonLogic=true
       - libraries.location.strategus=strategus
-      - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:2023q3v3
+      - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:latest
       - ANALYSIS_MOUNT=/tmp/executions
       - DOCKER_ENABLE=true
+      - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/dist/
 
   # Arachne Datanode Service
   arachne-datanode:
     image: odysseusinc/arachne-datanode-ce:latest
     container_name: arachne-datanode
+    platform: linux/amd64
     restart: always
     networks:
       - arachne-network
