@@ -1,0 +1,73 @@
+version: '3'
+services:
+
+  # Application Postgres Database
+  arachne-datanode-postgres:
+    image: postgres:15.5-alpine
+    container_name: arachne-datanode-postgres
+    restart: always
+    logging:
+      options:
+        max-size: 100m
+    shm_size: "2g"
+    networks:
+      - arachne-network
+    ports:
+      - "5434:5432" # Port mapping (host:container)
+    volumes:
+      - arachne-pg-data:/var/lib/postgresql/data # Volume mount for Arachne PG data
+    environment:
+      POSTGRES_USER: ohdsi-user
+      POSTGRES_PASSWORD: ohdsi-password
+      POSTGRES_DB: arachne_datanode
+
+  # Execution Engine
+  arachne-execution-engine:
+    image: odysseusinc/execution_engine:latest
+    container_name: arachne-execution-engine
+    restart: always
+    privileged: true
+    networks:
+      - arachne-network
+    ports:
+      - "8888:8888"  # Port mapping (host:container)
+    volumes:
+      - $USERPROFILE/ArachneDatanode/dist:/dist
+      - $USERPROFILE/ArachneDatanode/execution-engine/tmp:/tmp
+
+    environment:
+      - RUNTIMESERVICE_DIST_ARCHIVE=/dist/r_base_focal_amd64.tar.gz
+      - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/dist/
+      - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
+      - docker.enable=false
+      - applyRuntimeDependenciesComparisonLogic=true
+      - libraries.location.strategus=strategus
+
+  # Arachne Datanode Service
+  arachne-datanode:
+    image: odysseusinc/arachne-datanode-ce:latest
+    container_name: arachne-datanode
+    restart: always
+    networks:
+      - arachne-network
+    ports:
+      - "81:8080" # Port mapping (host:container)
+    volumes:
+      - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
+    env_file:
+      - $USERPROFILE/ArachneDatanode/conf/datanode-windows.env  # Environment variables file
+    depends_on:
+      - arachne-datanode-postgres
+      - arachne-execution-engine
+
+# External volumes for the services
+volumes:
+  arachne-pg-data:
+    external: true
+  arachne-datanode-files:
+    external: true
+
+# External network definition
+networks:
+  arachne-network:
+    external: true
