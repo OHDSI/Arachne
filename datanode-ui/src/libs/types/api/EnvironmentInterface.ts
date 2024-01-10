@@ -15,13 +15,9 @@
  *
  */
 
-export * from "./BaseResponseInterface";
-export * from "./DataSourceDTOInterface";
-export * from "./DBMSTypesInterface";
-export * from "./DescriptorInterface";
-export * from "./EnvironmentInterface";
-export * from "./UserDTOInterface";
-export * from "./UserDTOSearchInterface";
-export * from "./PageableDTOInterface";
-export * from "./SubmissionDTOInterface";
-export * from "./AuthorDTOInterface";
+import { DescriptorInterface } from "@/libs/types";
+
+export interface EnvironmentInterface {
+  docker: boolean;
+  descriptors: DescriptorInterface[];
+}

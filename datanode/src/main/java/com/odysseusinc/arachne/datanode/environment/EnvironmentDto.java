@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
+ * Copyright 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,34 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.odysseusinc.arachne.datanode.dto.analysis;
+package com.odysseusinc.arachne.datanode.environment;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
-@Setter
-public class AnalysisRequestDTO {
-
-    @NotBlank
-    private String executableFileName;
-
-    @NotNull
-    private Long datasourceId;
-
-    @NotNull
-    private String title;
-
-    private String study;
-
-    @NotNull
-    private String type;
-
-    private Long environmentId;
-
-    private String dockerImage;
+@RequiredArgsConstructor(staticName = "of")
+public class EnvironmentDto {
+    private final boolean dockerEnabled;
+    private final List<EnvironmentDescriptorDto> descriptors;
 }

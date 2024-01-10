@@ -33,9 +33,9 @@ import {
   useNotifications
 } from "../../../libs/components";
 
-import { getAnalysisTypes, getDescriptors, getSubmission, updateSubmission } from "../../../api/submissions";
+import { getAnalysisTypes, getEnvironments, getSubmission, updateSubmission } from "../../../api/submissions";
 import { getDataSources, removeDataSource } from "../../../api/data-sources";
-import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
+import { DataSourceDTOInterface, DescriptorInterface, EnvironmentInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { useEntity } from "../../../libs/hooks";
 import { SpinnerFormContainer } from "../CreateSubmissionForm/ChooseRuntime.styles";
@@ -110,7 +110,8 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
 
   const getControlsList = async () => {
     try {
-      const envs: DescriptorInterface[] = await getDescriptors();
+      const environments: EnvironmentInterface = await getEnvironments();
+      const envs: DescriptorInterface[] = environments.descriptors;
       const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
       const dataSources: DataSourceDTOInterface[] = await getDataSources();
 

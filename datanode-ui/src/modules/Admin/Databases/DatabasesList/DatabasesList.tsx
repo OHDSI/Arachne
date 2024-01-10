@@ -80,6 +80,10 @@ export const DatabasesList: React.FC = () => {
     });
   }, []);
 
+  if(dbsmTypes.length === 0) {
+    return <></>
+  }
+
   return (
     <PageList
       reloadId={idReload}

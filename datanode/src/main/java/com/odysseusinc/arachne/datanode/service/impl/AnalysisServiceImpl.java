@@ -16,6 +16,7 @@
 package com.odysseusinc.arachne.datanode.service.impl;
 
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
+import com.odysseusinc.arachne.datanode.dto.converters.DataSourceToDataSourceUnsecuredDTOConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
@@ -40,13 +41,13 @@ import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,9 +57,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -72,6 +77,12 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
+	private static final Set<String> TERMINAL_STAGES = new HashSet<>(Arrays.asList(Stage.ABORTED, Stage.COMPLETED));
+	private static final List<String> STAGE_ORDER = Arrays.asList(
+			Stage.INITIALIZE, Stage.EXECUTE, Stage.ABORT, Stage.ABORTED, Stage.COMPLETED
+	);
+	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
+
 	private static final List<String> FINISHED_STATES = Stream.concat(
 			Stream.of(AnalysisState.ABORTED),
 			Stream.of(AnalysisState.values()).filter(AnalysisState::isTerminal)
@@ -82,7 +93,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 	@Autowired
 	private DataSourceServiceImpl dataSourceService;
 	@Autowired
-	private GenericConversionService conversionService;
+	private DataSourceToDataSourceUnsecuredDTOConverter datasourceConverter;
 	@Autowired
 	private AnalysisPreprocessorService preprocessorService;
 	@Autowired
@@ -226,8 +237,9 @@ public class AnalysisServiceImpl implements AnalysisService {
 	public void sendToEngine(Analysis analysis) {
 
 		preprocessorService.runPreprocessor(analysis);
-		AnalysisRequestDTO analysisRequestDTO = conversionService.convert(analysis, AnalysisRequestDTO.class);
+		AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
 		analysisRequestDTO.setResultExclusions(resultExclusions);
+		analysisRequestDTO.setDockerImage(analysis.getDockerImage());
 		File analysisFolder = new File(analysis.getSourceFolder());
 		Long id = analysis.getId();
 		try {
@@ -261,8 +273,15 @@ public class AnalysisServiceImpl implements AnalysisService {
 		Analysis analysis = analysisRepository.findOneExecuting(id, password).orElseThrow(() ->
 				new ValidationException("Submission [" + id + "] not found or password invalid")
 		);
-		analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
-		stateService.handleStateFromEE(analysis, stage, null);
+        String currentStage = analysis.getStage();
+        if (TERMINAL_STAGES.contains(currentStage)) {
+			log.debug("Submission [{}] is already completed, progress update from EE ignored", id);
+		} else {
+            analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
+			if (BY_STAGE_ORDER.compare(currentStage, stage) < 0) {
+                stateService.handleStateFromEE(analysis, stage, null);
+            }
+		}
 	}
 
 	@Override
@@ -276,6 +295,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
 		dto.setEnvironmentId(analysis.getEnvironment().getId());
+		dto.setDockerImage(analysis.getDockerImage());
 		return dto;
 	}
 
@@ -321,6 +341,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 		analysis.setType(dto.getType());
 
 		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).map(this::findEnvironment).orElse(null));
+		analysis.setDockerImage(dto.getDockerImage());
 		analysis.setDataSource(dataSource);
 
 		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
@@ -361,6 +382,20 @@ public class AnalysisServiceImpl implements AnalysisService {
 		} else {
 			return descriptor;
 		}
+	}
+
+	private AnalysisRequestDTO toDto(Analysis analysis) {
+		AnalysisRequestDTO dto = new AnalysisRequestDTO();
+		dto.setDataSource(datasourceConverter.convert(analysis.getDataSource()));
+		dto.setId(analysis.getId());
+		dto.setExecutableFileName(analysis.getExecutableFileName());
+		dto.setRequestedDescriptorId(Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null));
+		dto.setDockerImage(analysis.getDockerImage());
+		dto.setUpdateStatusCallback(analysis.getUpdateStatusCallback());
+		dto.setResultCallback(analysis.getResultCallback());
+		dto.setCallbackPassword(analysis.getCallbackPassword());
+		dto.setRequested(new Date());
+		return dto;
 	}
 
 }
