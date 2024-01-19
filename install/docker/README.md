@@ -24,7 +24,7 @@ Set-ExecutionPolicy -ExecutionPolicy ByPass -Scope CurrentUser
 ```commandline
 .\install.ps1
 ```
-6. Open browser and navigate to `http://localhost:81`
+6. Open browser and navigate to `http://localhost:8080`
 7. The default credentials are:
 - Username: admin
 - Password: ohdsi
