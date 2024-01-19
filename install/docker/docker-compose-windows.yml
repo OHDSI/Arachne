@@ -32,12 +32,12 @@ services:
     ports:
       - "8888:8888"  # Port mapping (host:container)
     volumes:
-      - $USERPROFILE/ArachneDatanode/dist:/dist
+      - $USERPROFILE/ArachneDatanode/runtimes:/runtimes
       - $USERPROFILE/ArachneDatanode/execution-engine/tmp:/tmp
 
     environment:
-      - RUNTIMESERVICE_DIST_ARCHIVE=/dist/r_base_focal_amd64.tar.gz
-      - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/dist/
+      - RUNTIMESERVICE_DIST_ARCHIVE=/runtimes/r_base_focal_amd64.tar.gz
+      - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/runtimes/
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - docker.enable=false
       - applyRuntimeDependenciesComparisonLogic=true
@@ -51,11 +51,11 @@ services:
     networks:
       - arachne-network
     ports:
-      - "81:8080" # Port mapping (host:container)
+      - "8080:8080" # Port mapping (host:container)
     volumes:
       - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
     env_file:
-      - $USERPROFILE/ArachneDatanode/conf/datanode-windows.env  # Environment variables file
+      - $USERPROFILE/ArachneDatanode/conf/datanode.env  # Environment variables file
     depends_on:
       - arachne-datanode-postgres
       - arachne-execution-engine

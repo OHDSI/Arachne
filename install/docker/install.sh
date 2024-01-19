@@ -15,7 +15,7 @@ for folder in "${folders[@]}"; do
 done
 
 
-cp datanode-example.env ~/ArachneDatanode/datanode.env
+cp datanode.env ~/ArachneDatanode/datanode.env
 cd ~/ArachneDatanode
 wget https://storage.googleapis.com/arachne-datanode/descriptor_base.json
 

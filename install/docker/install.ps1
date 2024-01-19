@@ -85,7 +85,7 @@ try {
     }
 
     # Create ArachneDatanode Folder if not exists
-    $datanodeFolderPathDist = Join-Path $env:USERPROFILE "ArachneDatanode\dist"
+    $datanodeFolderPathDist = Join-Path $env:USERPROFILE "ArachneDatanode\runtimes"
     if (-not (Test-Path $datanodeFolderPathDist -PathType Container)) {
         New-Item -ItemType Directory -Path $datanodeFolderPathDist
         Write-Host "Created ArachneDatanode R-Package folder."
@@ -122,8 +122,8 @@ try {
     }
     $fileInfo_conf = @{
         envfile = @{
-            fileName = "datanode-windows.env"
-            url = "https://storage.googleapis.com/arachne-datanode/datanode.env"
+            fileName = "datanode.env"
+            url = "https://raw.githubusercontent.com/OHDSI/Arachne/master/install/docker/datanode.env"
             sizeThresholdMB = 0.01
         }
     }
