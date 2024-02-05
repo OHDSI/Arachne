@@ -5,18 +5,37 @@
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
 
 Set-ExecutionPolicy -ExecutionPolicy ByPass -Scope CurrentUser
+
 try {
     # Check if Docker is already installed
-    $dockerInstalled = Test-Path "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    #  1 .. $dockerInstalled = Test-Path "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    # $dockerInstalled = Test-Path "C:\Program Files\Rancher Desktop\Rancher Desktop.exe"
+
+
+    # Check if Docker Desktop is installed
+   <#  if (Test-Path "C:\Program Files\Docker\Docker\Docker Desktop.exe") {
+        Write-Host "Docker Desktop is installed"
+        Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" --NoWait 
+        Write-Host "Starting Docker Engine..."
+        $dockerInstalled = $true
+    }
+
+    # Check if Rancher Desktop is installed
+    if (Test-Path "C:\Program Files\Rancher Desktop\Rancher Desktop.exe") {
+        Write-Host "Rancher Desktop is installed"
+        Start-Process -FilePath "C:\Program Files\Rancher Desktop\Rancher Desktop.exe" --NoWait 
+        Write-Host "Starting Docker Engine..."
+        $dockerInstalled = $true
+    }
 
     if (-not $dockerInstalled) {
         Write-Host "Please install Docker"
     } else {
         Write-Host "Docker is already installed."
-    }
+    } #>
 
     # Check if Hyper-V is already enabled
-    $hypervEnabled = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online | Select-Object -ExpandProperty State
+    <# $hypervEnabled = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online | Select-Object -ExpandProperty State
 
     if ($hypervEnabled -eq 'Enabled') {
         Write-Host "Hyper-V is already enabled."
@@ -24,13 +43,12 @@ try {
         # Enable Hyper-V
         Write-Host "Enabling Hyper-V..."
         Enable-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online -NoRestart
-    }
-
-    # Start Docker Desktop
-    Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-    Write-Host "Starting Docker Engine..."
+    } #>
 
     # Check if Docker is running
+    Write-Host "WARNING!!!"
+    Write-Host "This script will work for both Docker Desktop and Rancher Desktop but dockerd should be enabled."
+
     $dockerRunning = $false
     $maxAttempts = 30
     $attempts = 0
@@ -54,7 +72,7 @@ try {
     if ($dockerRunning) {
         Write-Host "Docker has started successfully."
     } else {
-        Write-Host "Docker did not start within the expected time."
+        Write-Host "Docker did not start within the expected time."        
     }
 
     # Create Docker Networks and Volumes if not exists
