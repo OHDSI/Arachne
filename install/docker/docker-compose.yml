@@ -4,6 +4,7 @@ services:
   # Application Postgres Database
   arachne-datanode-postgres:
     image: postgres:15.5-alpine
+    pull_policy: always
     container_name: arachne-datanode-postgres
     restart: always
     logging:
@@ -24,6 +25,7 @@ services:
   # Execution Engine
   arachne-execution-engine:
     image: odysseusinc/execution_engine:latest
+    pull_policy: always
     platform: linux/amd64
     container_name: arachne-execution-engine
     restart: always
@@ -48,6 +50,7 @@ services:
   # Arachne Datanode Service
   arachne-datanode:
     image: odysseusinc/arachne-datanode-ce:latest
+    pull_policy: always
     container_name: arachne-datanode
     platform: linux/amd64
     restart: always
