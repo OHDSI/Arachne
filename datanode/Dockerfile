@@ -1,4 +1,4 @@
-FROM amazoncorretto:8u392
+FROM amazoncorretto:8u402
 MAINTAINER support@odysseusinc.com
 USER root
 VOLUME /tmp
