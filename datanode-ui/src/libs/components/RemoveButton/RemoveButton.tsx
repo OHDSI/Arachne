@@ -64,22 +64,24 @@ export const RemoveButton: React.FC<RemoveButtonProps> = props => {
     }
   };
 
-  return (
-    <Tooltip text={isCancel ? 'Cancel' : 'Delete'}>
-      <div>
-        <IconButton
-          color="info"
-          disabled={!showCancel}
-          onClick={handleDelete}
-          sx={{ width: 26, height: 26, minWidth: 0 }}
-        >
-          <Icon
-            iconName={isCancel ? "close": "delete"}
-            sx={{ fontSize: iconSize, opacity: 0.6 }}
-            color={showCancel ? "error" : "disabled"}
-          />
-        </IconButton>
-      </div>
-    </Tooltip>
+  return ( 
+    showCancel ? (
+        <Tooltip text={isCancel ? 'Cancel' : 'Delete'}>
+          <div>
+            <IconButton
+              color="info"
+              disabled={!showCancel}
+              onClick={handleDelete}
+              sx={{ width: 26, height: 26, minWidth: 0 }}
+            >
+              <Icon
+                iconName={isCancel ? "close": "delete"}
+                sx={{ fontSize: iconSize, opacity: 0.6 }}
+                color={showCancel ? "error" : "disabled"}
+              />
+            </IconButton>
+          </div>
+        </Tooltip>
+      ) : (<div></div>) 
   );
 };

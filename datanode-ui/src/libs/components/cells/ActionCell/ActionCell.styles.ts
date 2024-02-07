@@ -18,7 +18,7 @@
 import styled from "@emotion/styled";
 
 export const ActionsContainer = styled.div`
-  justify-content: flex-end;
+  justify-content: flex-start;
   display: flex;
   margin: -4px;
   > *:not(:last-child) {
