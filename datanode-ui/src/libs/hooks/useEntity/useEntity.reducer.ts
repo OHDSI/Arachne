@@ -55,7 +55,7 @@ export const reducer = <T extends object>(
       draft.status = Status.IN_PROGRESS;
       break;
     case EntityActions.DELETE_ENTITY_SUCCESS:
-      draft.status = Status.SUCCESS;
+      draft.status = Status.DELETE_SUCCESS;
       break;
       // case EntityActions.DELETE_ENTITY_ERROR:
       //   draft.status = Status.ERROR;
