@@ -60,45 +60,79 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
             + " GROUP BY analysis_id) AS FOO ON journal.date = FOO.latest AND journal.analysis_id=FOO.analysis_id "
             + " WHERE journal.state = :state AND journal.date < :time")
     List<Analysis> findAllExecutingMoreThan(@Param("state") String state, @Param("time") Date time);
-
     @Query(nativeQuery = true, value =
-            "select a.* from analyses a "
-                    + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                    + " JOIN (SELECT analysis_id, max(date) AS latest FROM analysis_state_journal "
-                    + " GROUP BY analysis_id) AS FOO ON journal.date = FOO.latest AND journal.analysis_id=FOO.analysis_id"
-                    + " \n--#pageable\n",
-        countQuery = "select count(a.*) from analyses a "
-                + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                + " JOIN (SELECT analysis_id, max(date) AS latest FROM analysis_state_journal "
-                + " GROUP BY analysis_id) AS FOO ON journal.date = FOO.latest AND journal.analysis_id=FOO.analysis_id")
-    Page<Analysis> findAllPagedOrderByState(Pageable pageable);
+            "select   a.*\n" +
+            "    ,JS.submitted \n" +
+            "    ,JS.finished\n" +
+            "    ,JS.status\n" +
+            "    ,SV.id\n" +
+            "from   analyses a  \n" +
+            "        JOIN (\n" +
+            "        SELECT   distinct analysis_id, \n" +
+            "            min(date) over(partition by j.analysis_id) AS submitted, \n" +
+            "            max(\n" +
+            "              case j.state \n" +
+            "                when 'EXECUTING' then null \n" +
+            "                when 'CREATED' then null\n" +
+            "                else j.date \n" +
+            "              end \n" +
+            "            ) over(partition by j.analysis_id) as finished,\n" +
+            "            FIRST_VALUE(j.state) over(partition by j.analysis_id order by j.date desc) status\n" +
+            "        FROM analysis_state_journal j\n" +
+            "    ) AS JS ON a.id=JS.analysis_id\n" +
+            "    LEFT JOIN (\n" +
+            "      with tab as (\n" +
+            "        values\n" +
+            "        (CAST(1 AS int), 'ABORTED'),\n" +
+            "        (CAST(2 AS int), 'ABORTING'),\n" +
+            "        (CAST(3 AS int), 'CREATED'),\n" +
+            "        (CAST(4 AS int), 'EXECUTED'),\n" +
+            "        (CAST(5 AS int), 'EXECUTING'),\n" +
+            "        (CAST(6 AS int), 'EXECUTION_FAILURE'),\n" +
+            "        (CAST(7 AS int), 'ABORT_FAILURE'),\n" +
+            "        (CAST(8 AS int), NULL),\n" +
+            "        (CAST(9 AS int), 'DEAD')\n" +
+            "      )  \n" +
+            "      select column1 as id,column2 as status\n" +
+            "      from tab\n" +
+            "    )SV ON JS.status=SV.status\n" +
+            " ORDER BY \n" +
+            "     CASE WHEN :direction = 'ASC' THEN\n" +
+            "            CASE :sortField \n" +
+            "              WHEN 'submitted'         THEN CAST(COALESCE(JS.submitted, CAST('epoch' as timestamp)) as text)\n" +
+            "              WHEN 'finished'          THEN CAST(COALESCE(JS.finished, CAST('epoch' as timestamp)) as text)\n" +
+            "              WHEN 'status'            THEN CAST(SV.id as text)\n" +
+            "              WHEN 'analysis'          THEN a.title \n" +
+            "              WHEN 'study'             THEN a.study_title \n" +
+            "              ELSE CAST(a.id as text)\n" +
+            "            END \n" +
+            "     END ASC,\n" +
+            "     CASE WHEN :direction = 'DESC' THEN\n" +
+            "            CASE :sortField \n" +
+            "              WHEN 'submitted'          THEN CAST(COALESCE(JS.submitted, CAST('epoch' as timestamp)) as text)\n" +
+            "              WHEN 'finished'           THEN CAST(COALESCE(JS.finished, CAST('epoch' as timestamp)) as text)\n" +
+            "              WHEN 'status'             THEN CAST(SV.id as text)\n" +
+            "              WHEN 'analysis'           THEN a.title \n" +
+            "              WHEN 'study'              THEN a.study_title \n" +
+            "              ELSE CAST(a.id as text)\n" +
+            "            END \n" +
+            "     END DESC",
+            countQuery = 
+                    "SELECT COUNT(a.*) " +
+                    "FROM   analyses a  \n" +
+                    "        JOIN (\n" +
+                    "        SELECT   distinct analysis_id, \n" +
+                    "            min(date) over(partition by j.analysis_id) AS submitted, \n" +
+                    "            max(\n" +
+                    "              case j.state \n" +
+                    "                when 'EXECUTING' then null \n" +
+                    "                when 'CREATED' then null\n" +
+                    "                else j.date \n" +
+                    "              end \n" +
+                    "            ) over(partition by j.analysis_id) as finished,\n" +
+                    "            FIRST_VALUE(j.state) over(partition by j.analysis_id order by j.date desc) status\n" +
+                    "        FROM analysis_state_journal j\n" +
+                    "    ) AS JS ON a.id=JS.analysis_id")
+    Page<Analysis> findAllPagedOrderByCustomFields(String direction,String sortField,Pageable pageable);
 
-    @Query(nativeQuery = true, value =
-            "select a.* from analyses a "
-                    + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                    + " JOIN (SELECT analysis_id, min(date) AS submitted FROM analysis_state_journal "
-                    + " GROUP BY analysis_id) AS SUB ON journal.date = SUB.submitted AND journal.analysis_id=SUB.analysis_id"
-                    + " \n--#pageable\n",
-            countQuery = "select count(a.*) from analyses a "
-                    + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                    + " JOIN (SELECT analysis_id, min(date) AS submitted FROM analysis_state_journal "
-                    + " GROUP BY analysis_id) AS SUB ON journal.date = SUB.submitted AND journal.analysis_id=SUB.analysis_id")
-    Page<Analysis> findAllPagedOrderBySubmitted(Pageable pageable);
-
-    @Query(nativeQuery = true, value =
-            "select a.*, "
-                    + "case journal.state "
-                    + "  when 'EXECUTING' then null "
-                    + "  when 'CREATED' then null"
-                    + "  else journal.date "
-                    + "end as finished FROM analyses a "
-                    + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                    + " JOIN (SELECT analysis_id, max(date) AS finished FROM analysis_state_journal "
-                    + " GROUP BY analysis_id) AS SUB ON journal.date = SUB.finished AND journal.analysis_id=SUB.analysis_id"
-                    + " \n--#pageable\n",
-            countQuery = "select count(a.*) from analyses a "
-                    + " JOIN analysis_state_journal AS journal ON journal.analysis_id = a.id "
-                    + " JOIN (SELECT analysis_id, max(date) AS finished FROM analysis_state_journal "
-                    + " GROUP BY analysis_id) AS SUB ON journal.date = SUB.finished AND journal.analysis_id=SUB.analysis_id")
-    Page<Analysis> findAllPagedOrderByFinished(Pageable pageable);
 }

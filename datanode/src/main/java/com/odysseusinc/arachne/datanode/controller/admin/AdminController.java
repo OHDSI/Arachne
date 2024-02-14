@@ -140,22 +140,23 @@ public class AdminController extends BaseController {
     @GetMapping("/api/v1/admin/submissions")
     public Page<SubmissionDTO> list(@PageableDefault(value = DEFAULT_PAGE_SIZE, sort = "id",
             direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Pageable p;
-        if (!isCustomSort(pageable)) {
-            p = pageable;
-        } else {
-            p = buildPageRequest(pageable);
-        }
         Page<Analysis> analyses;
-        if (isFinishedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByFinished(p);
-        } else if (isSubmittedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderBySubmitted(p);
-        } else if (isStatusSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByState(p);
-        } else {
+        String sortField=  isFinishedSort(pageable) ?"finished":
+                                (isSubmittedSort(pageable) ?"submitted":
+                                        (isStatusSort(pageable)?"status":""));
+        if(pageable.getSort() == null || "".equals(sortField))
+        {
+            Pageable p;
+            if (!isCustomSort(pageable)) {
+                p = pageable;
+            } else {
+                p = buildPageRequest(pageable);
+            }
             analyses = analysisRepository.findAll(p);
+        }else{
+            analyses = analysisRepository.findAllPagedOrderByCustomFields( pageable.getSort().get().findFirst().get().getDirection().name()
+                    ,sortField
+                    ,PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         }
         return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
     }
