@@ -6,8 +6,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/datanode
     driver-class-name: org.postgresql.Driver
     platform: postgresql
-    username: ohdsi
-    password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)
+    username: postgres
+    password: postgres
     connection-test-query: select 1
 
 server:
@@ -69,8 +69,8 @@ authenticator:
       service: org.ohdsi.authenticator.service.jdbc.JdbcAuthService
       config:
         jdbcUrl: jdbc:postgresql://localhost:5432/datanode
-        username: ohdsi
-        password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)
+        username: postgres
+        password: postgres
         query: select password, id, username, first_name as firstname, last_name as lastname, email from users where username=:username
         passwordEncoder: org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
         fieldsToExtract:

@@ -9,7 +9,7 @@ export const Chronometer: FC<{ inputDate: string }> = ({ inputDate }: any) => {
   const Item = (props: BoxProps) => {
     const { sx, ...other } = props;
     return (
-      <Box
+      <Box  
         sx={{
           bgcolor: (theme) =>
             theme.palette.mode === "dark" ? "#101010" : "grey.100",
@@ -31,15 +31,13 @@ export const Chronometer: FC<{ inputDate: string }> = ({ inputDate }: any) => {
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "row",
-        bgcolor: "background.paper",
+        display: "flex", 
         borderRadius: 1,
-      }}
+      }} 
     >
-      <Item>{!!timeArray && timeArray[0]}:</Item>
-      <Item>{!!timeArray && timeArray[1]}:</Item>
-      <Item>{!!timeArray && timeArray[2]}</Item>
+      <Item>{timeArray[0]}:</Item>
+      <Item>{timeArray[1]}:</Item>
+      <Item>{timeArray[2]}</Item>
     </Box>
   );
 };
