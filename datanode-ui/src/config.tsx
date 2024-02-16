@@ -21,7 +21,8 @@ import { originSubmissions } from "./libs/constants";
 import { getItemFromConstantArray, getSubmissionStatusInfo } from "./libs/utils";
 import { ColumnInterface, DBMSTypesInterface, SubmissionDTOInterface, TabsInterface } from "./libs/types";
 import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, SubmissionStatus, Roles } from "./libs/enums";
-import moment from "moment";
+import moment from "moment"; 
+import { Chronometer } from "./libs/components/Chronometer/Chronometer";
 
 // columns table
 export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
@@ -98,15 +99,14 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     accessor: "finished",
     id: "duration",
     disableSortBy: true,
-    Cell: (props): any => {
-      if (props.value) {
-        const start = moment(props.row.original.submitted);
+    Cell: (props): any => { 
+      const start = moment(props.row.original.submitted);
+      if (props.value) {       
         const end = moment(props.row.original.finished);
         const duration = moment.duration(end.diff(start));
-
         return duration.humanize();
       } else {
-        return <>-</>;
+        return <Chronometer inputDate={start.format('YYYY-MM-DD HH:mm:ss')} />
       }
     },
     isCropped: true,
