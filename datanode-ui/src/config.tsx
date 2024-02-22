@@ -16,13 +16,35 @@
  */
 
 import { IconButton } from "@mui/material";
-import { DateCell, Icon, NameCell, ShowFolderButton, StatusTag, Tooltip } from "./libs/components";
+import {
+  DateCell,
+  Icon,
+  NameCell,
+  ShowFolderButton,
+  StatusTag,
+  Tooltip,
+} from "./libs/components";
 import { originSubmissions } from "./libs/constants";
-import { getItemFromConstantArray, getSubmissionStatusInfo } from "./libs/utils";
-import { ColumnInterface, DBMSTypesInterface, SubmissionDTOInterface, TabsInterface } from "./libs/types";
-import { CreateSubmissionFormTabs, OriginSubmission, SubmissionResultTabs, SubmissionStatus, Roles } from "./libs/enums";
-import moment from "moment"; 
+import {
+  getItemFromConstantArray,
+  getSubmissionStatusInfo,
+} from "./libs/utils";
+import {
+  ColumnInterface,
+  DBMSTypesInterface,
+  SubmissionDTOInterface,
+  TabsInterface,
+} from "./libs/types";
+import {
+  CreateSubmissionFormTabs,
+  OriginSubmission,
+  SubmissionResultTabs,
+  SubmissionStatus,
+  Roles,
+} from "./libs/enums";
+import moment from "moment";
 import { Chronometer } from "./libs/components/Chronometer/Chronometer";
+import { TimeContainer } from "./libs/components/Chronometer/Chronometer.styles";
 
 // columns table
 export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
@@ -99,14 +121,14 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     accessor: "finished",
     id: "duration",
     disableSortBy: true,
-    Cell: (props): any => { 
+    Cell: (props): any => {
       const start = moment(props.row.original.submitted);
-      if (props.value) {       
+      if (props.value) {
         const end = moment(props.row.original.finished);
         const duration = moment.duration(end.diff(start));
-        return duration.humanize();
+        return <TimeContainer>{duration.humanize()}</TimeContainer>;
       } else {
-        return <Chronometer inputDate={start.format('YYYY-MM-DD HH:mm:ss')} />
+        return <Chronometer inputDate={start.format("YYYY-MM-DD HH:mm:ss")} />;
       }
     },
     isCropped: true,
@@ -168,7 +190,10 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     },
   },
 ];
-export const colsTableDatabase = (t: any, dbmsTypes: DBMSTypesInterface[]): ColumnInterface[] => ([
+export const colsTableDatabase = (
+  t: any,
+  dbmsTypes: DBMSTypesInterface[]
+): ColumnInterface[] => [
   {
     Header: t("tables.cols.name"),
     accessor: "name",
@@ -186,9 +211,9 @@ export const colsTableDatabase = (t: any, dbmsTypes: DBMSTypesInterface[]): Colu
     minWidth: 110,
     isCropped: true,
     Cell: (props): any => {
-      const type = dbmsTypes?.find(elem => elem.id === props.value);
+      const type = dbmsTypes?.find((elem) => elem.id === props.value);
       return type ? type.name : "-";
-    }
+    },
   },
   {
     Header: t("tables.cols.database"),
@@ -204,12 +229,18 @@ export const colsTableDatabase = (t: any, dbmsTypes: DBMSTypesInterface[]): Colu
     id: "cdmSchema",
     width: "5%",
     minWidth: 80,
-  }
-]);
+  },
+];
 export const colsTableUsers = (t: any): ColumnInterface[] => [
   {
     Header: t("tables.cols.name"),
-    accessor: ({ firstname, lastname }: { firstname: string, lastname: string }) => {
+    accessor: ({
+      firstname,
+      lastname,
+    }: {
+      firstname: string;
+      lastname: string;
+    }) => {
       return `${firstname} ${lastname}`;
     },
     id: "name",
@@ -234,10 +265,10 @@ export const colsTableUsers = (t: any): ColumnInterface[] => [
     width: "10%",
     minWidth: 200,
     isCropped: true,
-    Cell: ({ value }) => value.map(val => Roles[val]).join(","),
+    Cell: ({ value }) => value.map((val) => Roles[val]).join(","),
   },
 ];
-export const colsTableEnviroments = (t: any, onOpen): ColumnInterface[] => ([
+export const colsTableEnviroments = (t: any, onOpen): ColumnInterface[] => [
   {
     Header: t("tables.cols.number"),
     accessor: "id",
@@ -263,43 +294,43 @@ export const colsTableEnviroments = (t: any, onOpen): ColumnInterface[] => ([
     minWidth: 80,
     disableSortBy: true,
     Cell: (props) => {
-      return (
-        <ShowFolderButton onClick={() => onOpen(props.value)} />
-      );
+      return <ShowFolderButton onClick={() => onOpen(props.value)} />;
     },
   },
-
-
-]);
+];
 
 // tabs
-export const tabsSubmissionResult =
-  (t: any, setActive: (value: SubmissionResultTabs) => void): TabsInterface<SubmissionResultTabs>[] => [
-  	{
-  		value: SubmissionResultTabs.FILE_EXPLORER,
-  		title: t("modals.files_results.tabs.file_explorer"),
-  		onTabClick: setActive,
-  	},
-  	{
-  		value: SubmissionResultTabs.LOG,
-  		title: t("modals.files_results.tabs.logs"),
-  		onTabClick: setActive,
-  	},
-  ];
+export const tabsSubmissionResult = (
+  t: any,
+  setActive: (value: SubmissionResultTabs) => void
+): TabsInterface<SubmissionResultTabs>[] => [
+  {
+    value: SubmissionResultTabs.FILE_EXPLORER,
+    title: t("modals.files_results.tabs.file_explorer"),
+    onTabClick: setActive,
+  },
+  {
+    value: SubmissionResultTabs.LOG,
+    title: t("modals.files_results.tabs.logs"),
+    onTabClick: setActive,
+  },
+];
 
-export const tabsSubmissionForm =
-  (t: any, setActive: (value: CreateSubmissionFormTabs) => void): TabsInterface<CreateSubmissionFormTabs>[] => [
-  	{
-  		value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
-  		title: t("modals.create_submission.tabs.files_in_archive"),
-  		onTabClick: setActive,
-  	},
-  	{
-  		value: CreateSubmissionFormTabs.SEPARATE_FILES,
-  		title: t("modals.create_submission.tabs.separate_files"),
-  		onTabClick: setActive,
-  	},
-  ];
+export const tabsSubmissionForm = (
+  t: any,
+  setActive: (value: CreateSubmissionFormTabs) => void
+): TabsInterface<CreateSubmissionFormTabs>[] => [
+  {
+    value: CreateSubmissionFormTabs.FILES_IN_ARCHIVE,
+    title: t("modals.create_submission.tabs.files_in_archive"),
+    onTabClick: setActive,
+  },
+  {
+    value: CreateSubmissionFormTabs.SEPARATE_FILES,
+    title: t("modals.create_submission.tabs.separate_files"),
+    onTabClick: setActive,
+  },
+];
 
 export const tabsAdmin = (t: any): TabsInterface[] => [
   {
