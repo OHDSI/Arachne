@@ -95,6 +95,9 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     maxWidth: 150,
     minWidth: 150,
     isCropped: true,
+    Cell: (props): any => {
+      return props.value.includes('deleted_source_at') ?props.value.substring( 0,props.value.indexOf('_deleted_source_at') )?.concat(' (Removed)'): props.value; 
+    }
   },
   {
     Header: t("tables.cols.submitted"),
