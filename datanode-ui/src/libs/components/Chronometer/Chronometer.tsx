@@ -9,25 +9,29 @@ export const Chronometer: FC<{ inputDate: string }> = ({ inputDate }: any) => {
   const displayTime = useMemo(
     () =>
       (timeArray[0] > 1
-        ? timeArray[0] + " hours"
+        ? `${timeArray[0]} hours`
         : timeArray[0] === 1
-        ? timeArray[0] + " hour"
+        ? `${timeArray[0]} hour`
         : "") +
       " " +
       (timeArray[1] > 1
-        ? timeArray[1] + " minutes"
+        ? `${timeArray[1]} minutes`
         : timeArray[1] === 1
-        ? timeArray[1] + " minute"
+        ? `${timeArray[1]} minute`
         : ""),
     [timeArray]
   );
+  const displayTooltipTime = useMemo(
+    () =>
+      (timeArray[0] < 10 ? `0${timeArray[0]}` : timeArray[0]) +
+      ":" +
+      (timeArray[1] < 10 ? `0${timeArray[1]}` : timeArray[1]) +
+      ":" +
+      (timeArray[2] < 10 ? `0${timeArray[2]}` : timeArray[2]),
+    [timeArray]
+  );
   return (
-    <Tooltip
-      placement="right"
-      text={timeArray[0] + ":" + timeArray[1] + ":" + timeArray[2]}
-      key={inputDate}
-      show
-    >
+    <Tooltip placement="right" text={displayTooltipTime} key={inputDate} show>
       <TimeContainer>{displayTime}</TimeContainer>
     </Tooltip>
   );
