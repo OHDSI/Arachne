@@ -144,10 +144,7 @@ public class AdminController extends BaseController {
       direction = Sort.Direction.DESC) Pageable pageable) {
 
     Page<Analysis> analyses;
-    String sortField = isFinishedSort(pageable) ? "finished"
-        : isSubmittedSort(pageable) ? "submitted" : isStudySort(pageable) ? "study"
-            : (isAnalysisSort(pageable) ? "analysis" : (isStatusSort(pageable) ? "status" : ""));
-
+    String sortField = isFinishedSort(pageable) ? "finished" : isSubmittedSort(pageable) ? "submitted" : (isStatusSort(pageable) ? "status" : "");
     if (pageable.getSort() == null || "".equals(sortField)) {
       Pageable p;
       if (!isCustomSort(pageable)) {
@@ -157,17 +154,10 @@ public class AdminController extends BaseController {
       }
       analyses = analysisRepository.findAll(p);
     } else {
-        if (sortField.contains("finished") || sortField.contains("submitted")) {
-            analyses = analysisRepository.findAllPagedOrderBySubmittedAndFinished(
-                pageable.getSort().get().findFirst().get().getDirection().name()
-                , sortField
-                , PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
-        } else {
-            analyses = analysisRepository.findAllPagedOrderByAnalysisStudyStatus(
-                pageable.getSort().get().findFirst().get().getDirection().name()
-                , sortField
-                , PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
-        }
+      analyses =analysisRepository.findAllPagingSortingByCalculateFields(
+          pageable.getSort().get().findFirst().get().getDirection().name()
+          , sortField
+          , PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
     }
     return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
   }
@@ -210,15 +200,6 @@ public class AdminController extends BaseController {
 
     return isSortOf(pageable, "status"::equals);
   }
-
-  private boolean isAnalysisSort(final Pageable pageable) {
-    return isSortOf(pageable, "analysis"::equals);
-  }
-
-  private boolean isStudySort(final Pageable pageable) {
-    return isSortOf(pageable, "study"::equals);
-  }
-
   private boolean isSubmittedSort(final Pageable pageable) {
 
     return isSortOf(pageable, "submitted"::equals);
@@ -252,6 +233,8 @@ public class AdminController extends BaseController {
       p.add("author.firstName");
       p.add("author.lastName");
     });
+    propertiesMap.put("analysis", p -> p.add("title"));
+    propertiesMap.put("study", p -> p.add("studyTitle"));
   }
 
   private class EngineStatusResponse {

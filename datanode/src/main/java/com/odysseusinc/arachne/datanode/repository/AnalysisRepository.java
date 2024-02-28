@@ -16,8 +16,6 @@
 package com.odysseusinc.arachne.datanode.repository;
 
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
+public interface AnalysisRepository extends JpaRepository<Analysis, Long>,
+    AnalysisRepositoryExtended {
 
   Optional<Analysis> findById(Long id);
 
@@ -61,91 +60,4 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
           + " WHERE journal.state = :state AND journal.date < :time")
   List<Analysis> findAllExecutingMoreThan(@Param("state") String state, @Param("time") Date time);
 
-  @Query(nativeQuery = true,
-      value =
-          "SELECT a.* \n" +
-              "FROM    analyses a \n" +
-              "  JOIN analysis_state_journal AS J ON J.analysis_id = a.id\n" +
-              "  JOIN (\n" +
-              "          SELECT  J.analysis_id,   \n" +
-              "      MAX(J.date) AS finished\n" +
-              "    FROM  analysis_state_journal J\n" +
-              "                GROUP BY J.analysis_id  \n" +
-              "  )  JS ON J.analysis_id=JS.analysis_id and J.date = JS.finished         \n" +
-              "ORDER BY CASE WHEN :direction = 'ASC' THEN\n" +
-              "   CASE :sortField \n" +
-              "     WHEN 'status'            THEN (CASE  WHEN J.state = 'ABORT_FAILURE' THEN 'Failed to Abort' \n"
-              +
-              "               WHEN J.state = 'EXECUTION_FAILURE' THEN 'Failed'\n" +
-              "             ELSE J.state END )\n" +
-              "     WHEN 'analysis'          THEN a.title \n" +
-              "     WHEN 'study'             THEN a.study_title  \n" +
-              "   END \n" +
-              "  END ASC,\n" +
-              "  CASE WHEN :direction = 'DESC' THEN\n" +
-              "   CASE :sortField \n" +
-              "     WHEN 'status'             THEN (CASE  WHEN J.state = 'ABORT_FAILURE' THEN 'Failed to Abort' \n"
-              +
-              "               WHEN J.state = 'EXECUTION_FAILURE' THEN 'Failed'\n" +
-              "             ELSE J.state END ) \n" +
-              "     WHEN 'analysis'           THEN a.title  \n" +
-              "     WHEN 'study'              THEN a.study_title  \n" +
-              "   END \n" +
-              "  END DESC ",
-      countQuery =
-          "SELECT a.* \n" +
-              "FROM    analyses a \n" +
-              "  JOIN analysis_state_journal AS J ON J.analysis_id = a.id\n" +
-              "  JOIN (\n" +
-              "          SELECT  J.analysis_id,   \n" +
-              "      MAX(J.date) AS finished\n" +
-              "    FROM  analysis_state_journal J\n" +
-              "                GROUP BY J.analysis_id  \n" +
-              "  )  JS ON J.analysis_id=JS.analysis_id and J.date = JS.finished")
-  Page<Analysis> findAllPagedOrderByAnalysisStudyStatus(String direction, String sortField,
-      Pageable pageable);
-
-  @Query(nativeQuery = true, value =
-      "SELECT a.* \n" +
-          "FROM    analyses a \n" +
-          "  JOIN analysis_state_journal AS J ON J.analysis_id = a.id\n" +
-          "  JOIN (\n" +
-          "   SELECT  J.analysis_id,   \n" +
-          "     MAX(J.date) AS finished, \n" +
-          "     MIN(J.date) AS submitted  \n" +
-          "   FROM  analysis_state_journal J\n" +
-          "   GROUP BY J.analysis_id  \n" +
-          "  )  JS ON J.analysis_id=JS.analysis_id AND J.date = JS.finished \n" +
-          "ORDER BY \n" +
-          " CASE WHEN :direction = 'ASC' THEN\n" +
-          "  CASE :sortField \n" +
-          "   WHEN 'submitted'         THEN JS.submitted \n" +
-          "   WHEN 'finished'          THEN CASE WHEN J.state IN('EXECUTING','CREATED') THEN null \n"
-          +
-          "           ELSE JS.finished \n" +
-          "            END \n" +
-          "  END \n" +
-          " END ASC NULLS LAST,\n" +
-          " CASE WHEN :direction = 'DESC' THEN\n" +
-          "  CASE :sortField \n" +
-          "   WHEN 'submitted'         THEN JS.submitted \n" +
-          "   WHEN 'finished'          THEN CASE WHEN J.state IN('EXECUTING','CREATED') THEN null\n"
-          +
-          "           ELSE JS.finished \n" +
-          "            END \n" +
-          "  END \n" +
-          " END DESC NULLS LAST",
-      countQuery =
-          "SELECT COUNT(a.*) " +
-              "FROM    analyses a \n" +
-              "  JOIN analysis_state_journal AS J ON J.analysis_id = a.id\n" +
-              "  JOIN (\n" +
-              "    SELECT  J.analysis_id,   \n" +
-              "   MAX(J.date) AS finished, \n" +
-              "   MIN(J.date) AS submitted  \n" +
-              " FROM  analysis_state_journal J \n" +
-              "    GROUP BY J.analysis_id  \n" +
-              "  )  JS ON J.analysis_id=JS.analysis_id AND J.date = JS.finished ")
-  Page<Analysis> findAllPagedOrderBySubmittedAndFinished(String direction, String sortField,
-      Pageable pageable);
 }
