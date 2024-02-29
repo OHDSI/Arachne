@@ -5,7 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface AnalysisRepositoryExtended {
-  Page<Analysis> findAllPagingSortingByCalculateFields(String direction, String sortField,
-      Pageable pageable);
-
+    Page<Analysis> findAllPagingSortingByCalculateFields(String direction, String sortField, Pageable pageable);
 }

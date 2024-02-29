@@ -58,170 +58,169 @@ import java.util.stream.Collectors;
 @RestController
 public class AdminController extends BaseController {
 
-  public static final int SUGGEST_LIMIT = 10;
-  public static final int DEFAULT_PAGE_SIZE = 10;
-  private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
-  @Autowired
-  private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
-  @Autowired
-  private GenericConversionService conversionService;
-  @Autowired
-  private AnalysisRepository analysisRepository;
-  @Autowired
-  private AnalysisService analysisService;
-  @Autowired
-  private DataNodeService dataNodeService;
-  @Autowired
-  private ExecutionEngineIntegrationService executionEngineIntegrationService;
+    public static final int SUGGEST_LIMIT = 10;
+    public static final int DEFAULT_PAGE_SIZE = 10;
+    private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
+    @Autowired
+    private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
+    @Autowired
+    private  GenericConversionService conversionService;
+    @Autowired
+    private  AnalysisRepository analysisRepository;
+    @Autowired
+    private  AnalysisService analysisService;
+    @Autowired
+    private  DataNodeService dataNodeService;
+    @Autowired
+    private  ExecutionEngineIntegrationService executionEngineIntegrationService;
 
-  public AdminController(UserService userService) {
-    super(userService);
-    initProps();
-  }
-
-  @ApiOperation(value = "Get all admins", hidden = true)
-  @GetMapping("/api/v1/admin/admins")
-  public JsonResult<List<UserDTO>> getAdmins(
-      @RequestParam(name = "sortBy", required = false) String sortBy,
-      @RequestParam(name = "sortAsc", required = false) Boolean sortAsc
-  ) throws PermissionDeniedException {
-
-    JsonResult<List<UserDTO>> result;
-    List<User> users = userService.getAllAdmins(sortBy, sortAsc);
-    List<UserDTO> dtos = users.stream()
-        .map(user -> conversionService.convert(user, UserDTO.class))
-        .collect(Collectors.toList());
-    result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-    result.setResult(dtos);
-    return result;
-  }
-
-  @ApiOperation("Suggests user according to query to add admin")
-  @GetMapping("/api/v1/admin/admins/suggest")
-  public JsonResult<List<UserDTO>> suggestAdmins(
-      Principal principal,
-      @RequestParam("query") String query,
-      @RequestParam(value = "limit", required = false) Integer limit
-  ) {
-
-    JsonResult<List<UserDTO>> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-    userService
-        .findByUsername(principal.getName())
-        .ifPresent(user -> {
-          List<User> users = userService.suggestNotAdmin(user, query,
-              limit == null ? SUGGEST_LIMIT : limit);
-          result.setResult(users.stream().map(u -> conversionService
-                  .convert(u, UserDTO.class))
-              .collect(Collectors.toList())
-          );
-        });
-    return result;
-  }
-
-  @ApiOperation("Remove admin")
-  @DeleteMapping("/api/v1/admin/admins/{username:.+}")
-  public JsonResult<?> removeAdmin(@PathVariable String username) {
-
-    userService.findByUsername(username).ifPresent(user -> userService.remove(user.getId()));
-    return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-  }
-
-  @ApiOperation(value = "Invalidate all unfinished analyses")
-  @PostMapping(Constants.Api.Analysis.INVALIDATE_ALL_UNFINISHED)
-  public Integer invalidateAllUnfinishedAnalyses(final Principal principal)
-      throws PermissionDeniedException {
-
-    if (principal == null) {
-      throw new AuthException("user not found");
+    public AdminController(UserService userService) {
+        super(userService);
+        initProps();
     }
 
-    return analysisService.invalidateAllUnfinishedAnalyses(getUser(principal));
-  }
+    @ApiOperation(value = "Get all admins", hidden = true)
+    @GetMapping("/api/v1/admin/admins")
+    public JsonResult<List<UserDTO>> getAdmins(
+            @RequestParam(name = "sortBy", required = false) String sortBy,
+            @RequestParam(name = "sortAsc", required = false) Boolean sortAsc
+    ) throws PermissionDeniedException {
 
-  @ApiOperation(value = "list submissions")
-  @GetMapping("/api/v1/admin/submissions")
-  public Page<SubmissionDTO> list(@PageableDefault(value = DEFAULT_PAGE_SIZE, sort = "id",
-      direction = Sort.Direction.DESC) Pageable pageable) {
-
-    Page<Analysis> analyses;
-    String sortField = isFinishedSort(pageable) ? "finished" : isSubmittedSort(pageable) ? "submitted" : (isStatusSort(pageable) ? "status" : "");
-    if (pageable.getSort() == null || "".equals(sortField)) {
-      Pageable p;
-      if (!isCustomSort(pageable)) {
-        p = pageable;
-      } else {
-        p = buildPageRequest(pageable);
-      }
-      analyses = analysisRepository.findAll(p);
-    } else {
-      analyses =analysisRepository.findAllPagingSortingByCalculateFields(
-          pageable.getSort().get().findFirst().get().getDirection().name()
-          , sortField
-          , PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        JsonResult<List<UserDTO>> result;
+        List<User> users = userService.getAllAdmins(sortBy, sortAsc);
+        List<UserDTO> dtos = users.stream()
+                .map(user -> conversionService.convert(user, UserDTO.class))
+                .collect(Collectors.toList());
+        result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
+        result.setResult(dtos);
+        return result;
     }
-    return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
-  }
 
-  @ApiOperation(value = "get execution engine status")
-  @GetMapping("/api/v1/admin/execution-engine/status")
-  public EngineStatusResponse getExecutionEngineStatus() {
-    return new EngineStatusResponse(executionEngineIntegrationService.getExecutionEngineStatus());
-  }
+    @ApiOperation("Suggests user according to query to add admin")
+    @GetMapping("/api/v1/admin/admins/suggest")
+    public JsonResult<List<UserDTO>> suggestAdmins(
+            Principal principal,
+            @RequestParam("query") String query,
+            @RequestParam(value = "limit", required = false) Integer limit
+    ) {
 
-  protected Pageable buildPageRequest(Pageable pageable) {
-
-    if (pageable.getSort() == null) {
-      return pageable;
+        JsonResult<List<UserDTO>> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
+        userService
+                .findByUsername(principal.getName())
+                .ifPresent(user -> {
+                    List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
+                    result.setResult(users.stream().map(u -> conversionService
+                            .convert(u, UserDTO.class))
+                            .collect(Collectors.toList())
+                    );
+                });
+        return result;
     }
-    PageRequest result;
-    List<String> properties = new LinkedList<>();
-    Sort.Direction direction = Sort.Direction.ASC;
-    for (Sort.Order order : pageable.getSort()) {
-      direction = order.getDirection();
-      String property = order.getProperty();
-      if (propertiesMap.containsKey(property)) {
-        propertiesMap.get(property).accept(properties);
-      } else {
-        properties.add(property);
-      }
+
+    @ApiOperation("Remove admin")
+    @DeleteMapping("/api/v1/admin/admins/{username:.+}")
+    public JsonResult<?> removeAdmin(@PathVariable String username) {
+
+        userService.findByUsername(username).ifPresent(user -> userService.remove(user.getId()));
+        return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
     }
-    result = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), direction,
-        properties.toArray(new String[properties.size()]));
 
-    return result;
-  }
+    @ApiOperation(value = "Invalidate all unfinished analyses")
+    @PostMapping(Constants.Api.Analysis.INVALIDATE_ALL_UNFINISHED)
+    public Integer invalidateAllUnfinishedAnalyses(final Principal principal) throws PermissionDeniedException {
 
-  private boolean isCustomSort(final Pageable pageable) {
+        if (principal == null) {
+            throw new AuthException("user not found");
+        }
 
-    return isSortOf(pageable, propertiesMap::containsKey);
-  }
-
-  private boolean isStatusSort(final Pageable pageable) {
-
-    return isSortOf(pageable, "status"::equals);
-  }
-  private boolean isSubmittedSort(final Pageable pageable) {
-
-    return isSortOf(pageable, "submitted"::equals);
-  }
-
-  private boolean isFinishedSort(final Pageable pageable) {
-
-    return isSortOf(pageable, "finished"::equals);
-  }
-
-  private boolean isSortOf(final Pageable pageable, Function<String, Boolean> predicate) {
-
-    if (pageable.getSort() == null) {
-      return false;
+        return analysisService.invalidateAllUnfinishedAnalyses(getUser(principal));
     }
-    for (Sort.Order order : pageable.getSort()) {
-      if (predicate.apply(order.getProperty())) {
-        return true;
-      }
+
+    @ApiOperation(value = "list submissions")
+    @GetMapping("/api/v1/admin/submissions")
+    public Page<SubmissionDTO> list(@PageableDefault(value = DEFAULT_PAGE_SIZE, sort = "id",
+            direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Pageable p;
+        String sortField = isFinishedSort(pageable) ? "finished" : isSubmittedSort(pageable) ? "submitted" : (isStatusSort(pageable) ? "status" : "");
+        Page<Analysis> analyses;
+        if ("".equals(sortField)) {
+            if (!isCustomSort(pageable)) {
+                p = pageable;
+            } else {
+                p = buildPageRequest(pageable);
+            }
+            analyses = analysisRepository.findAll(p);
+        }else{
+            analyses =analysisRepository
+                    .findAllPagingSortingByCalculateFields(pageable.getSort().get().findFirst().get().getDirection().name(),
+                            sortField,
+                            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        }
+        return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
     }
-    return false;
-  }
+
+    @ApiOperation(value = "get execution engine status")
+    @GetMapping("/api/v1/admin/execution-engine/status")
+    public EngineStatusResponse getExecutionEngineStatus() {
+        return new EngineStatusResponse(executionEngineIntegrationService.getExecutionEngineStatus());
+    }
+
+    protected Pageable buildPageRequest(Pageable pageable) {
+
+        if (pageable.getSort() == null) {
+            return pageable;
+        }
+        PageRequest result;
+        List<String> properties = new LinkedList<>();
+        Sort.Direction direction = Sort.Direction.ASC;
+        for (Sort.Order order : pageable.getSort()) {
+            direction = order.getDirection();
+            String property = order.getProperty();
+            if (propertiesMap.containsKey(property)) {
+                propertiesMap.get(property).accept(properties);
+            } else {
+                properties.add(property);
+            }
+        }
+        result = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), direction,
+                properties.toArray(new String[properties.size()]));
+
+        return result;
+    }
+
+    private boolean isCustomSort(final Pageable pageable) {
+
+        return isSortOf(pageable, propertiesMap::containsKey);
+    }
+
+    private boolean isStatusSort(final Pageable pageable) {
+
+        return isSortOf(pageable, "status"::equals);
+    }
+
+    private boolean isSubmittedSort(final Pageable pageable) {
+
+        return isSortOf(pageable, "submitted"::equals);
+    }
+
+    private boolean isFinishedSort(final Pageable pageable) {
+
+        return isSortOf(pageable, "finished"::equals);
+    }
+
+    private boolean isSortOf(final Pageable pageable, Function<String, Boolean> predicate) {
+
+        if (pageable.getSort() == null) {
+            return false;
+        }
+        for (Sort.Order order : pageable.getSort()) {
+            if (predicate.apply(order.getProperty())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
   protected void initProps() {
 
