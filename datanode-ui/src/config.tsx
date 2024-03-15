@@ -89,6 +89,16 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     isCropped: true,
   },
   {
+    Header: t("tables.cols.env"),
+    accessor: (row: SubmissionDTOInterface) => row.environment || "-",
+    id: "environment",
+    maxWidth: 150,
+    minWidth: 150,
+    width: "30%",
+    Cell: NameCell,
+    isCropped: true,
+  },
+  {
     Header: t("tables.cols.data_source"),
     accessor: "dataSource.name",
     id: "dataSource.name",
@@ -137,16 +147,6 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     isCropped: true,
     minWidth: 100,
     maxWidth: 100,
-  },
-  {
-    Header: t("tables.cols.env"),
-    accessor: (row: SubmissionDTOInterface) => row.environment || "-",
-    id: "environment",
-    maxWidth: 150,
-    minWidth: 150,
-    width: "30%",
-    Cell: NameCell,
-    isCropped: true,
   },
   {
     Header: t("tables.cols.status"),
