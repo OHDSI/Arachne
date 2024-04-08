@@ -41,7 +41,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "datasource")
-@SQLDelete(sql = "UPDATE datasource SET deleted_at = current_timestamp WHERE id = ?")
+@SQLDelete(sql = "UPDATE datasource SET deleted_at = current_timestamp, name = name ||'_deleted_source_at_'||to_char(current_timestamp, 'YYYYMMDD\"T\"HH24MISS') WHERE id = ?")
 @ValidCredentials
 public class DataSource {
 

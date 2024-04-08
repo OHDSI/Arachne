@@ -146,7 +146,7 @@ export const PageList: React.FC<any> = (
               onReload={allowRerun ? () => onReload(props.row.original?.[removeId || "id"]) : null}
               withConfirmation
               isCancel={isCancel}
-              showCancel={(!isCancel || (isCancel && (props.row.original.status === 'CREATED' || props.row.original.status === 'EXECUTING'))) }
+              showCancel={(!isCancel || (isCancel && (props.row.original.status === 'EXECUTING'))) }
               entityName={props.row.original.title || props.row.original.name}
           />
       );

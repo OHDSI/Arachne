@@ -109,7 +109,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   	}, []);
 
   	useEffect(() => {
-  		setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : ""));
+  		setState(defaultState(activeTab === CreateSubmissionFormTabs.SEPARATE_FILES ? AnalysisTypes.STRATEGUS : AnalysisTypes.CUSTOM));
   	}, [activeTab]);
 
   	const getControlsList = async () => {
@@ -436,7 +436,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   									name="type"
   									disablePortal
   									id="type"
-  									disabled={controlsList.analysisTypes?.length === 0 || activeTab === CreateSubmissionFormTabs.SEPARATE_FILES}
+  									disabled={controlsList.analysisTypes?.length === 0 || !!state.type}
   									options={controlsList.analysisTypes}
   									value={state.type}
   									placeholder={t("forms.create_submission.analysis_type_placeholder")}

@@ -15,7 +15,7 @@
  *
  */
 
-import { Route, Routes, useParams } from "react-router";
+import { Route, Routes, useNavigate, useParams } from "react-router";
 import { tabs } from "./DatabaseEntity.config";
 import React, { useContext, useEffect } from "react";
 
@@ -50,6 +50,7 @@ export const DatabaseEntity: React.FC = () => {
     },
     id
   );
+  const navigate = useNavigate();
 
   const handleSave = (newValue: any, keyFile?: any, isAdmin?: boolean) => {
     const fd = new FormData();
@@ -84,6 +85,11 @@ export const DatabaseEntity: React.FC = () => {
       );
   }, [entity, dispatch]);
 
+  useEffect(() => {
+    if(status === Status.DELETE_SUCCESS)
+      navigate("/administration/databases");
+  }, [status]);
+ 
   const handleDelete = () => {
     showDialog<any>(ConfirmationDialog, {
       onSubmit: deleteEntity,
