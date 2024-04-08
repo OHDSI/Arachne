@@ -50,7 +50,7 @@ const defaultState = (type): SubmissionFormStateInterface => ({
   environmentId: "",
   datasourceId: "",
   type: type,
-  dockerImage: ""
+  dockerImage: "odysseusinc/execution_engine:latest"
 });
 
 interface SubmissionFormStateInterface {
@@ -362,7 +362,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   						</Grid>
               ): (
                 <Grid item xs={12}>
-  							<FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Image")}>
+  							<FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
   								<Input
   									id="docker-image"
   									name="docker-image"
