@@ -50,7 +50,7 @@ const defaultState = (type): SubmissionFormStateInterface => ({
   environmentId: "",
   datasourceId: "",
   type: type,
-  dockerImage: "odysseusinc/execution_engine:latest"
+  dockerImage: "odysseusinc/r-hades:latest"
 });
 
 interface SubmissionFormStateInterface {
