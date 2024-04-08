@@ -37,15 +37,18 @@ services:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/executions:/etc/executions
-      - ~/ArachneDatanode:/runtimes
     environment:
-      - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - applyRuntimeDependenciesComparisonLogic=true
       - libraries.location.strategus=strategus
       - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:latest
       - ANALYSIS_MOUNT=/tmp/executions
       - DOCKER_ENABLE=true
+      - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/runtimes/
+      - RUNTIMESERVICE_DIST_DEFAULTDESCRIPTORFILE=descriptor_base.json
+      - DOCKER_REGISTRY_USERNAME=
+      - DOCKER_REGISTRY_PASSWORD=
+      - DOCKER_REGISTRY_URL=
 
   # Arachne Datanode Service
   arachne-datanode:
@@ -57,11 +60,11 @@ services:
     networks:
       - arachne-network
     ports:
-      - "127.0.0.1:81:8080" # Port mapping (host:container)
+      - "8080:8080" # Port mapping (host:container)
     volumes:
       - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
     env_file:
-      - ~/ArachneDatanode/datanode.env  # Environment variables file
+      - datanode.env  # Environment variables file
     depends_on:
       - arachne-datanode-postgres
       - arachne-execution-engine
