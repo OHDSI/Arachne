@@ -40,4 +40,6 @@ public interface AnalysisService {
 
     void updateStatus(Long id, String password, String stage, String stdoutDiff);
 
+    void terminateAllOutdatedAnalyzes();
+
 }

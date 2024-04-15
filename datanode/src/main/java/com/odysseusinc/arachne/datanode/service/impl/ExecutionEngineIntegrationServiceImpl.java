@@ -21,6 +21,7 @@ import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationServic
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus;
 import com.odysseusinc.arachne.datanode.service.client.engine.EngineClient;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
+import com.odysseusinc.arachne.datanode.service.events.executionengine.EngineStatusChangedEvent;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
@@ -30,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -45,18 +48,20 @@ import static com.odysseusinc.arachne.datanode.service.ExecutionEngineStatus.ONL
 @Service
 public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineIntegrationService {
     private static final Logger logger = LoggerFactory.getLogger(ExecutionEngineIntegrationServiceImpl.class);
-
-    @Autowired
-    private ExecutionEngineClient engineClient;
+    private final ExecutionEngineClient engineClient;
     private final EngineClient engineStatusClient;
-
     private volatile ExecutionEngineStatus executionEngineStatus = OFFLINE;
+    private final ApplicationEventPublisher eventPublisher;
+    private final EngineStatusChangedEvent engineStatusChangedEvent = new EngineStatusChangedEvent(this);
+    @Value("${analysis.file.maxsize}")
+    protected Long maximumSize;
 
     @Autowired
-    public ExecutionEngineIntegrationServiceImpl(@Qualifier("engineStatusClient") EngineClient engineStatusClient) {
+    public ExecutionEngineIntegrationServiceImpl(ExecutionEngineClient engineClient, @Qualifier("engineStatusClient") EngineClient engineStatusClient, ApplicationEventPublisher eventPublisher) {
+        this.engineClient = engineClient;
         this.engineStatusClient = engineStatusClient;
+        this.eventPublisher = eventPublisher;
     }
-
     @Override
     public AnalysisRequestStatusDTO sendAnalysisRequest(
             AnalysisRequestDTO requestDTO, File analysisFolder, boolean compressedResult, boolean healthCheck
@@ -93,13 +98,14 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
             if (OFFLINE.equals(this.executionEngineStatus)) {
                 logger.info("Execution engine is online");
             }
-            executionEngineStatus = ONLINE;
+            engineStatusChangedEvent.setEngineStatus(executionEngineStatus = ONLINE);
         } catch (Exception e) {
             if (ONLINE.equals(this.executionEngineStatus)) {
                 logger.info("Execution engine is offline");
             }
-            executionEngineStatus = OFFLINE;
+            engineStatusChangedEvent.setEngineStatus(executionEngineStatus = OFFLINE);
         }
+        eventPublisher.publishEvent(engineStatusChangedEvent);
     }
 
     @Override

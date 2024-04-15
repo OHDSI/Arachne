@@ -40,7 +40,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -190,8 +192,9 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
             analysis.setStage(stage);
             analysis.setError(Optional.ofNullable(error).orElseGet(() -> evaluateErrorStatus(stage, resultDir)));
             analysis.setStdout(stdout);
-            analysisRepository.save(analysis);
             stateService.handleStateFromEE(analysis, stage, analysis.getError());
+            analysis.setLastUpdateEE(new Timestamp(new Date().getTime()));
+            analysisRepository.save(analysis);
             return analysis;
 
         }).orElseGet(() -> {

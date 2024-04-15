@@ -56,6 +56,7 @@ import org.springframework.web.client.RestClientException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -108,8 +109,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 	protected Long invalidateExecutingInterval;
 	@Value("${analysis.scheduler.invalidateMaxDaysExecutingInterval}")
 	protected Integer invalidateMaxDaysExecutingInterval;
-	@Value("${analysis.file.maxsize}")
-	protected Long maximumSize;
+	@Value("${analysis.max_wait_update_interval}")
+	protected String maxWaitUpdateInterval;
 	@Autowired
 	private EnvironmentDescriptorService environmentService;
 	@Value("${submission.result.files.exclusions}")
@@ -121,30 +122,27 @@ public class AnalysisServiceImpl implements AnalysisService {
 	@Value("${files.store.path}")
 	private String filesStorePath;
 
-	@Autowired
-	private EnvironmentDescriptorService descriptorService;
-
-
 	@PersistenceContext
 	private EntityManager em;
 
 	@EventListener(ApplicationReadyEvent.class)
 	@Transactional
 	public void init() {
-		List<Analysis> closing = analysisRepository.findAllByState(AnalysisState.ABORTING.name());
-		log.info("Found {} submissions pending to be aborted", closing.size());
-		closing.forEach(analysis -> executor.submit(() -> sendToEngineCancel(analysis.getId())));
+		invalidateAllUnfinishedAnalyses(null);
 	}
 
 	@Override
 	@Transactional
 	public Integer invalidateAllUnfinishedAnalyses(final User user) {
-		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(FINISHED_STATES);
-		unfinished.forEach(analysis -> {
-			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "] (mass invalidation)");
+		return invalidateAllUnfinishedAnalyses(analysisRepository.findAllByNotStateIn(FINISHED_STATES),user);
+	}
+
+	private Integer invalidateAllUnfinishedAnalyses(List<Analysis> analyses,final User user) {
+		analyses.forEach(analysis -> {
+			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + ( user == null ? "automatic process": user.getTitle() )+ "] (mass invalidation)");
 			executor.submit(() -> sendToEngineCancel(analysis.getId()));
 		});
-		return unfinished.size();
+		return analyses.size();
 	}
 
 	@Override
@@ -249,6 +247,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 			analysis.setActualEnvironment(Optional.ofNullable(descriptorId).flatMap(environmentService::byDescriptorId).orElse(null));
 			String reason = String.format("Accepted by engine as %s type", exchange.getType());
 			stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
+			analysis.setLastUpdateEE(new Timestamp(new Date().getTime()));
+			analysisRepository.save(analysis);
 		} catch (RestClientException | ArachneSystemRuntimeException e) {
 			log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
 			String reason = String.format("Execution engine request failed: %s", e.getMessage());
@@ -278,10 +278,18 @@ public class AnalysisServiceImpl implements AnalysisService {
 			log.debug("Submission [{}] is already completed, progress update from EE ignored", id);
 		} else {
             analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
+			analysis.setLastUpdateEE(new Timestamp(new Date().getTime()));
 			if (BY_STAGE_ORDER.compare(currentStage, stage) < 0) {
                 stateService.handleStateFromEE(analysis, stage, null);
             }
 		}
+	}
+
+	@Override
+	public void terminateAllOutdatedAnalyzes() {
+		Optional.ofNullable(analysisRepository.getAllOutdatedAnalysis(maxWaitUpdateInterval))
+				.filter(list -> !list.isEmpty())
+				.ifPresent(list -> invalidateAllUnfinishedAnalyses(list,null));
 	}
 
 	@Override
@@ -374,7 +382,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 	}
 
 	private EnvironmentDescriptor findEnvironment(Long descriptorId) {
-		EnvironmentDescriptor descriptor = Optional.ofNullable(descriptorService.byId(descriptorId)).orElseThrow(() ->
+		EnvironmentDescriptor descriptor = Optional.ofNullable(environmentService.byId(descriptorId)).orElseThrow(() ->
 				new BadRequestException("Invalid environment id: " + descriptorId)
 		);
 		if (descriptor.getTerminated() != null) {

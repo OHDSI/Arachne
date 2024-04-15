@@ -51,6 +51,7 @@ cohorts:
     countEnabled: true
     summaryEnabled: true
 analysis:
+  max_wait_update_interval: 1 hour
   scheduler:
     resendFailuresInterval: 60000
     invalidateExecutingInterval: 120000
