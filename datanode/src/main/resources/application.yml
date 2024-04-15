@@ -124,6 +124,7 @@ tmp:
     cron: 0 * * ? * *
 analysis:
   file.maxsize: 1048576
+  max_wait_update_interval: 1 hour
   scheduler:
     resendFailuresInterval: 600000
     invalidateExecutingInterval: 86400000

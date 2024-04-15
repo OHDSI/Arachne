@@ -43,6 +43,19 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
             + " WHERE journal.state = :state AND analyses.central_id IS NOT NULL")
     List<Analysis> findAllByState(@Param("state") String state);
 
+    @Query(value = "WITH analysis_state AS (" +
+            "SELECT DISTINCT ON (analysis_id) * " +
+            "FROM public.analysis_state_journal " +
+            "ORDER BY analysis_id, id DESC " +
+            ") " +
+            "SELECT an.* " +
+            "FROM analysis_state _as " +
+            "JOIN public.analyses an ON _as.analysis_id = an.id " +
+            "WHERE _as.state IN ('EXECUTING', 'CREATED') " +
+            "AND now() >= (an.lastupdate_ee + CAST(:interval AS INTERVAL))",
+            nativeQuery = true)
+    List<Analysis> getAllOutdatedAnalysis(@Param("interval") String interval);
+
     @Query(nativeQuery = true, value =
             "SELECT analyses.* "
                     + "FROM analyses "

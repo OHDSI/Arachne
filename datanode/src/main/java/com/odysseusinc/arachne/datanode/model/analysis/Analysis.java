@@ -37,6 +37,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,6 +117,6 @@ public class Analysis {
     @ManyToOne
     @JoinColumn(name = "actual_environment_id")
     private EnvironmentDescriptor actualEnvironment;
-
-
+    @Column(name = "lastupdate_ee")
+    private Timestamp lastUpdateEE;
 }
