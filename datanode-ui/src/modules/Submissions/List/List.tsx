@@ -157,6 +157,7 @@ export const List: React.FC = () => {
         listInitialSort: { id: "id", desc: true },
         cols: cols
       }}
+      hiddenColumns={["origin"]}
       isSilentReload={true}
       allowDelete={true}
       allowRerun={true}
