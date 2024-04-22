@@ -142,20 +142,20 @@ public class AdminController extends BaseController {
             direction = Sort.Direction.DESC) Pageable pageable) {
 
         Pageable p;
-        if (!isCustomSort(pageable)) {
-            p = pageable;
-        } else {
-            p = buildPageRequest(pageable);
-        }
+        String sortField = isFinishedSort(pageable) ? "finished" : isSubmittedSort(pageable) ? "submitted" : (isStatusSort(pageable) ? "status" : "");
         Page<Analysis> analyses;
-        if (isFinishedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByFinished(p);
-        } else if (isSubmittedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderBySubmitted(p);
-        } else if (isStatusSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByState(p);
-        } else {
+        if ("".equals(sortField)) {
+            if (!isCustomSort(pageable)) {
+                p = pageable;
+            } else {
+                p = buildPageRequest(pageable);
+            }
             analyses = analysisRepository.findAll(p);
+        }else{
+            analyses =analysisRepository
+                    .findAllPagingSortingByCalculateFields(pageable.getSort().get().findFirst().get().getDirection().name(),
+                            sortField,
+                            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         }
         return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
     }
@@ -222,25 +222,26 @@ public class AdminController extends BaseController {
         return false;
     }
 
-    protected void initProps() {
+  protected void initProps() {
 
-        propertiesMap.put("author.fullName", p -> {
-            p.add("author.firstName");
-            p.add("author.lastName");
-        });
-        propertiesMap.put("fullName", p -> {
-            p.add("author.firstName");
-            p.add("author.lastName");
-        });
-        propertiesMap.put("analysis", p -> p.add("title"));
-        propertiesMap.put("study", p -> p.add("studyTitle"));
-        propertiesMap.put("status", p -> p.add("journal.state"));
+    propertiesMap.put("author.fullName", p -> {
+      p.add("author.firstName");
+      p.add("author.lastName");
+    });
+    propertiesMap.put("fullName", p -> {
+      p.add("author.firstName");
+      p.add("author.lastName");
+    });
+    propertiesMap.put("analysis", p -> p.add("title"));
+    propertiesMap.put("study", p -> p.add("studyTitle"));
+  }
+
+  private class EngineStatusResponse {
+
+    public EngineStatusResponse(final ExecutionEngineStatus status) {
+      this.status = status;
     }
 
-    private class EngineStatusResponse {
-        public EngineStatusResponse(final ExecutionEngineStatus status) {
-            this.status = status;
-        }
-        public ExecutionEngineStatus status;
-    }
+    public ExecutionEngineStatus status;
+  }
 }
