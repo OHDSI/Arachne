@@ -15,12 +15,14 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.security.core.Authentication;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.function.Function;
 
 public interface AuthenticationService {
 
-    Authentication authenticate(String authToken, HttpServletRequest httpRequest);
+    Authentication authenticate(String authMethod, String authToken, HttpServletRequest httpRequest, HttpServletResponse response, Function<String, String> cookie);
 
 }

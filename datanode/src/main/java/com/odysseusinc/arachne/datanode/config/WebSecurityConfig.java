@@ -17,16 +17,11 @@ package com.odysseusinc.arachne.datanode.config;
 
 import com.odysseusinc.arachne.datanode.security.AuthenticationTokenFilter;
 import com.odysseusinc.arachne.datanode.security.EntryPointUnauthorizedHandler;
-import com.odysseusinc.arachne.datanode.service.AuthenticationService;
-import com.odysseusinc.arachne.datanode.service.UserRegistrationStrategy;
-import com.odysseusinc.arachne.datanode.service.impl.AuthenticationServiceImpl;
 import org.ohdsi.authenticator.service.authentication.AccessTokenResolver;
 import org.ohdsi.authenticator.service.authentication.AuthenticationMode;
-import org.ohdsi.authenticator.service.authentication.Authenticator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -69,12 +64,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AccessTokenResolver accessTokenResolver() {
 
         return new AccessTokenResolver(tokenHeader, authenticationMode);
-    }
-
-    @Bean
-    public AuthenticationService authenticationService(ApplicationContext context, Authenticator authenticator, UserRegistrationStrategy userRegisterStrategy) {
-
-        return new AuthenticationServiceImpl(context, authenticator, userRegisterStrategy, authenticationMode);
     }
 
     @Override
