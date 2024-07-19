@@ -27,9 +27,8 @@ import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
+import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
-import com.odysseusinc.arachne.datanode.service.impl.AnalysisResultsServiceImpl;
-import com.odysseusinc.arachne.datanode.service.impl.AnalysisServiceImpl;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
 import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +75,7 @@ import java.util.zip.ZipOutputStream;
 public class AnalysisController {
 
     @Autowired
-    private AnalysisServiceImpl analysisService;
+    private AnalysisService analysisService;
     @Autowired
     private AnalysisResultsService analysisResultsService;
     @Autowired
@@ -167,7 +166,7 @@ public class AnalysisController {
         String code = types().filter(t -> Objects.equals(t.name(), type)).findFirst().map(CommonAnalysisType::getCode).orElse(type);
         String filename = MessageFormat.format("{0}-a{1,number,#}-results", code, analysis.getId());
 
-        if (AnalysisResultsServiceImpl.isListOfArchive(resultFiles)) {
+        if (AnalysisResultsService.isListOfArchive(resultFiles)) {
             AnalysisFile headFile = resultFiles.stream().filter(f -> f.getLink().matches(".*\\.zip")).findFirst().orElseThrow(() -> {
                 log.error("Head file not found in multi-volume archive for results [{}]", analysisId);
                 return new IllegalOperationException(MessageFormat.format("No head file of multi-volume archvie for results [{0}]", analysisId));
