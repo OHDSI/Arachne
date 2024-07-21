@@ -14,11 +14,9 @@
  */
 package com.odysseusinc.arachne.datanode.service.client;
 
-import feign.Client;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import okhttp3.internal.platform.Platform;
 import org.apache.commons.net.util.TrustManagerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.KeyManagementException;
@@ -56,16 +53,6 @@ public class ArachneHttpClientBuilder {
 
     @Value("${server.ssl.strictMode:false}")
     private Boolean sslStrictMode;
-
-    public Client build() {
-
-        return new feign.okhttp.OkHttpClient(buildOkHttpClient(proxyEnabled));
-    }
-
-    public Client build(boolean proxyEnabled) {
-
-        return new feign.okhttp.OkHttpClient(buildOkHttpClient(proxyEnabled));
-    }
 
     public static TrustManager[] getTrustAllCertsManager() {
 
