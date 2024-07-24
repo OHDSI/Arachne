@@ -21,8 +21,10 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
-import com.odysseusinc.arachne.datanode.repository.AnalysisFileRepository;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile_;
+import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
+import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.model.FileHeader;
@@ -32,6 +34,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -58,17 +62,19 @@ import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 public class AnalysisResultsService {
 
     @Autowired
-    private AnalysisFileRepository analysisFileRepository;
-    @Autowired
     private AnalysisRepository analysisRepository;
     @Autowired
     private AnalysisStateService stateService;
+    @PersistenceContext
+    private EntityManager em;
 
     public List<AnalysisFile> getAnalysisResults(Analysis analysis) {
-
-        return analysisFileRepository.findAllByAnalysisIdAndType(
-                analysis.getId(),
-                AnalysisFileType.ANALYSYS_RESULT);
+        return JpaSugar.select(em, AnalysisFile.class, (cb, q) -> root ->
+                q.select(root).where(
+                        cb.equal(root.get(AnalysisFile_.analysis).get(Analysis_.id), analysis.getId()),
+                        cb.equal(root.get(AnalysisFile_.type), AnalysisFileType.ANALYSYS_RESULT)
+                )
+        ).getResultList();
     }
 
     public List<AnalysisFileDTO> getAnalysisResults(Long analysisId) {
@@ -175,17 +181,15 @@ public class AnalysisResultsService {
     public Analysis markExecuted(Long id, File resultDir, String stage, String error, String stdout) {
         return analysisRepository.findById(id).map(analysis -> {
             File[] files = resultDir.listFiles();
-            List<AnalysisFile> resultFiles = Stream.of(files).map(file ->
+            Stream.of(files).map(file ->
                     new AnalysisFile(file.getAbsolutePath(), AnalysisFileType.ANALYSYS_RESULT, analysis)
-            ).collect(Collectors.toList());
-            analysisFileRepository.saveAll(resultFiles);
+            ).forEach(em::persist);
 
             analysis.setAnalysisFolder(resultDir.getAbsolutePath());
+            String resultError = Optional.ofNullable(error).orElseGet(() -> evaluateErrorStatus(stage, resultDir));
             analysis.setStage(stage);
-            analysis.setError(Optional.ofNullable(error).orElseGet(() -> evaluateErrorStatus(stage, resultDir)));
             analysis.setStdout(stdout);
-            analysisRepository.save(analysis);
-            stateService.handleStateFromEE(analysis, stage, analysis.getError());
+            stateService.handleStateFromEE(analysis, stage, resultError);
             return analysis;
 
         }).orElseGet(() -> {

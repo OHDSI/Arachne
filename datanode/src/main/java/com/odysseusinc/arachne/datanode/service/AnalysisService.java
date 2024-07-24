@@ -30,13 +30,14 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisPreprocessorService;
 import com.odysseusinc.arachne.datanode.service.impl.DataSourceServiceImpl;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
+import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
@@ -45,8 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +53,7 @@ import org.springframework.web.client.RestClientException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Path;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -70,8 +70,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 @Slf4j
 @Service
@@ -82,11 +80,6 @@ public class AnalysisService {
 	);
 	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
 
-	private static final List<String> FINISHED_STATES = Stream.concat(
-			Stream.of(AnalysisState.ABORTED),
-			Stream.of(AnalysisState.values()).filter(AnalysisState::isTerminal)
-	).map(AnalysisState::toString).collect(Collectors.toList());
-
 	private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
 
 	@Autowired
@@ -95,8 +88,6 @@ public class AnalysisService {
 	private DataSourceToDataSourceUnsecuredDTOConverter datasourceConverter;
 	@Autowired
 	private AnalysisPreprocessorService preprocessorService;
-	@Autowired
-	private AnalysisRepository analysisRepository;
 	@Autowired
 	private AnalysisStateJournalRepository analysisStateJournalRepository;
 	@Autowired
@@ -120,30 +111,8 @@ public class AnalysisService {
 	@Value("${files.store.path}")
 	private String filesStorePath;
 
-	@Autowired
-	private EnvironmentDescriptorService descriptorService;
-
-
 	@PersistenceContext
 	private EntityManager em;
-
-	@EventListener(ApplicationReadyEvent.class)
-	@Transactional
-	public void init() {
-		List<Analysis> closing = analysisRepository.findAllByState(AnalysisState.ABORTING.name());
-		log.info("Found {} submissions pending to be aborted", closing.size());
-		closing.forEach(analysis -> executor.submit(() -> sendToEngineCancel(analysis.getId())));
-	}
-
-	@Transactional
-	public Integer invalidateAllUnfinishedAnalyses(final User user) {
-		List<Analysis> unfinished = analysisRepository.findAllByNotStateIn(FINISHED_STATES);
-		unfinished.forEach(analysis -> {
-			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "] (mass invalidation)");
-			executor.submit(() -> sendToEngineCancel(analysis.getId()));
-		});
-		return unfinished.size();
-	}
 
 	@Transactional
 	public void cancel(Long id, User user) {
@@ -170,7 +139,6 @@ public class AnalysisService {
 			String stage = result.getStage();
 			String stdout = result.getStdout();
 			analysis.setStage(stage);
-			analysis.setError(error);
 			analysis.setStdout(stdout);
 			log.info("Analysis {} state after abort: [{}], errors: [{}] (stdout {} bytes)", id, stage, error, StringUtils.length(stdout));
 			stateService.handleStateFromEE(analysis, stage, error);
@@ -187,7 +155,7 @@ public class AnalysisService {
 	) {
 		Analysis original = find(id);
 		Analysis analysis = toAnalysis(dto, user, original.getSourceFolder());
-		analysisRepository.save(analysis);
+		em.persist(analysis);
 		stateService.updateState(analysis, AnalysisState.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle(), id
@@ -220,7 +188,7 @@ public class AnalysisService {
 			analysis.setAnalysisFiles(analysisFiles);
 		}
 
-		analysisRepository.save(analysis);
+		em.persist(analysis);
 		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
@@ -254,20 +222,16 @@ public class AnalysisService {
 	}
 
 	@Transactional
-	public Analysis persist(Analysis analysis) {
-
-		Analysis exists = Objects.nonNull(analysis.getId()) ? analysisRepository.getOne(analysis.getId()) : null;
-		if (exists == null) {
-			log.debug("Analysis with id: '{}' is not exist. Saving...", analysis.getId());
-			return analysisRepository.save(analysis);
-		} else {
-			return exists;
-		}
+	public void update(Long id, Consumer<Analysis> updates) {
+		Analysis analysis = em.find(Analysis.class, id);
+		updates.accept(analysis);
 	}
 
 	@Transactional
 	public void updateStatus(Long id, String password, String stage, String stdoutDiff) {
-		Analysis analysis = analysisRepository.findOneExecuting(id, password).orElseThrow(() ->
+		Analysis analysis = findAnalysis(id).filter(entity ->
+				Objects.equals(entity.getCallbackPassword(), password)
+		).orElseThrow(() ->
 				new ValidationException("Submission [" + id + "] not found or password invalid")
 		);
         String currentStage = analysis.getStage();
@@ -276,10 +240,22 @@ public class AnalysisService {
 		} else {
             analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
 			if (BY_STAGE_ORDER.compare(currentStage, stage) < 0) {
+				analysis.setStage(stage);
                 stateService.handleStateFromEE(analysis, stage, null);
             }
 		}
 	}
+
+	@Transactional
+	public List<Long> getIncompleteIds() {
+        return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
+            Path<String> stage = root.get(Analysis_.stage);
+            return q.where(
+                    cb.isNull(root.get(Analysis_.error)),
+                    cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
+            );
+        }).getResultStream().map(Analysis::getId).collect(Collectors.toList());
+    }
 
 	@Transactional
 	public com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO get(Long id) {
@@ -302,12 +278,11 @@ public class AnalysisService {
 
 	@Transactional
 	public Optional<Analysis> findAnalysis(Long id) {
-
-		return analysisRepository.findById(id);
+		return Optional.ofNullable(em.find(Analysis.class, id));
 	}
 
 	private Analysis find(Long id) {
-		return analysisRepository.findById(id).orElseThrow(() -> new ValidationException("Analysis not found: " + id));
+		return findAnalysis(id).orElseThrow(() -> new ValidationException("Analysis not found: " + id));
 	}
 
 	private Analysis toAnalysis(com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, String sourceFolder) {
@@ -368,7 +343,7 @@ public class AnalysisService {
 	}
 
 	private EnvironmentDescriptor findEnvironment(Long descriptorId) {
-		EnvironmentDescriptor descriptor = Optional.ofNullable(descriptorService.byId(descriptorId)).orElseThrow(() ->
+		EnvironmentDescriptor descriptor = Optional.ofNullable(environmentService.byId(descriptorId)).orElseThrow(() ->
 				new BadRequestException("Invalid environment id: " + descriptorId)
 		);
 		if (descriptor.getTerminated() != null) {

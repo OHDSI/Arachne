@@ -14,6 +14,7 @@
  */
 package com.odysseusinc.arachne.datanode.service;
 
+import com.odysseusinc.arachne.datanode.engine.ExecutionEngineSyncService;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
@@ -36,6 +37,9 @@ public class AnalysisStateService {
 
     @Transactional
     public void handleStateFromEE(Analysis analysis, String stage, String error) {
+        if (error != null) {
+            analysis.setError(error);
+        }
         updateState(analysis, toState(error, stage), Optional.ofNullable(error).orElse("Update from Execution Engine"));
     }
 
@@ -53,7 +57,9 @@ public class AnalysisStateService {
     }
 
     private static AnalysisState toState(String error, String stage) {
-        if (Objects.equals(stage, Stage.ABORTED)) {
+        if (Objects.equals(error, ExecutionEngineSyncService.UNAVAILABLE)) {
+            return AnalysisState.DEAD;
+        } else if (Objects.equals(stage, Stage.ABORTED)) {
             return (error == null) ? AnalysisState.ABORTED : AnalysisState.ABORT_FAILURE;
         } else if (Objects.equals(stage, Stage.ABORT)) {
             return (error == null) ? AnalysisState.ABORTING : AnalysisState.ABORT_FAILURE;

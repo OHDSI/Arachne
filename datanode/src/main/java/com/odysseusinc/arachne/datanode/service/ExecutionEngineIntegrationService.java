@@ -29,5 +29,4 @@ public interface ExecutionEngineIntegrationService {
 
     AnalysisResultDTO sendCancel(Long analysisId);
 
-    ExecutionEngineStatus getExecutionEngineStatus();
 }

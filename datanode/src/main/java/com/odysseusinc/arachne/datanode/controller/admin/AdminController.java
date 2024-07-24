@@ -20,15 +20,19 @@ import com.odysseusinc.arachne.datanode.controller.BaseController;
 import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOConverter;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
+import com.odysseusinc.arachne.datanode.engine.EngineStatusDTO;
+import com.odysseusinc.arachne.datanode.engine.EngineStatusService;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import io.swagger.annotations.ApiOperation;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -55,11 +59,13 @@ public class AdminController extends BaseController {
     public static final int DEFAULT_PAGE_SIZE = 10;
     private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
     @Autowired
+    private EngineStatusService engine;
+    @Autowired
     private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
     @Autowired
-    private  GenericConversionService conversionService;
+    private GenericConversionService conversionService;
     @Autowired
-    private  AnalysisRepository analysisRepository;
+    private AnalysisRepository analysisRepository;
 
     public AdminController(UserService userService) {
         super(userService);
@@ -128,7 +134,9 @@ public class AdminController extends BaseController {
         } else {
             analyses = analysisRepository.findAll(p);
         }
-        return analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
+        Page<SubmissionDTO> items = analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
+        EngineStatusDTO engineStatus = engine.getStatusInfo();
+        return new PageWithStatus(items, engineStatus);
     }
 
     protected Pageable buildPageRequest(Pageable pageable) {
@@ -196,4 +204,13 @@ public class AdminController extends BaseController {
         propertiesMap.put("status", p -> p.add("journal.state"));
     }
 
+    @Getter
+    public static class PageWithStatus extends PageImpl<SubmissionDTO> {
+        private EngineStatusDTO engine;
+
+        public PageWithStatus(Page<SubmissionDTO> page, EngineStatusDTO engine) {
+            super(page.getContent(), page.getPageable(), page.getTotalElements());
+            this.engine = engine;
+        }
+    }
 }
