@@ -15,46 +15,45 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
+import com.odysseusinc.arachne.datanode.controller.Authenticator;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AuthenticationService;
 import com.odysseusinc.arachne.datanode.service.UserRegistrationStrategy;
-import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.ohdsi.authenticator.converter.TokenInfoToTokenConverter;
 import org.ohdsi.authenticator.service.authentication.AuthenticationMode;
-import org.ohdsi.authenticator.service.authentication.Authenticator;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Service;
 
-public class AuthenticationServiceImpl implements AuthenticationService, InitializingBean {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
+import java.util.function.Function;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AuthenticationServiceImpl implements AuthenticationService {
     private final Authenticator authenticator;
-
-    private final ApplicationContext applicationContext;
-
-    private UserDetailsService userDetailsService;
-
-    private UserRegistrationStrategy userRegisterStrategy;
-
-    private AuthenticationMode authenticationMode;
-
-    public AuthenticationServiceImpl(ApplicationContext applicationContext, Authenticator authenticator,
-                                     UserRegistrationStrategy userRegisterStrategy, AuthenticationMode authenticationMode) {
-
-        this.applicationContext = applicationContext;
-        this.authenticator = authenticator;
-        this.userRegisterStrategy = userRegisterStrategy;
-        this.authenticationMode = authenticationMode;
-    }
+    private final UserDetailsService userDetailsService;
+    private final UserRegistrationStrategy userRegisterStrategy;
+    @Value("${security.authentication.mode:" + AuthenticationMode.Const.STANDARD + "}")
+    private AuthenticationMode authenticationMode = AuthenticationMode.STANDARD;
 
     @Override
-    public Authentication authenticate(String accessToken, HttpServletRequest httpRequest) {
+    public Authentication authenticate(
+            String authMethod, String accessToken, HttpServletRequest httpRequest, HttpServletResponse response, Function<String, String> cookie
+    ) {
 
         if (StringUtils.isNotEmpty(accessToken)) {
             String username = authenticator.resolveUsername(accessToken);
@@ -68,16 +67,20 @@ public class AuthenticationServiceImpl implements AuthenticationService, Initial
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
                 }
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String path = httpRequest.getServletPath();
+                if (!path.endsWith("submissions")) {
+                    TokenInfoToTokenConverter tokenConverter = authenticator.getTokenInfoToTokenConverter();
+                    // Parsing doesn't include expiration date, so serialization will set a new expiration date
+                    String token = tokenConverter.toToken(tokenConverter.toTokenInfo(accessToken));
+                    String apply = cookie.apply(token);
+                    response.setHeader(HttpHeaders.SET_COOKIE, apply);
+                }
+
                 return authentication;
             }
         }
         return null;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        userDetailsService = applicationContext.getBean(UserDetailsService.class);
     }
 
     private void createUserByTokenIfNecessary(String username) {

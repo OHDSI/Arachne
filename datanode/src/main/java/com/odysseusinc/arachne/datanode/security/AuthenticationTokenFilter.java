@@ -15,31 +15,31 @@
 
 package com.odysseusinc.arachne.datanode.security;
 
+import com.odysseusinc.arachne.datanode.controller.AuthController;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.service.AuthenticationService;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ohdsi.authenticator.service.authentication.AccessTokenResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.filter.GenericFilterBean;
 
-public class AuthenticationTokenFilter extends GenericFilterBean {
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
-    Logger log = LoggerFactory.getLogger(AuthenticationTokenFilter.class);
+@Slf4j
+public class AuthenticationTokenFilter extends GenericFilterBean {
 
     @Autowired
     private AccessTokenResolver accessTokenResolver;
@@ -64,9 +64,9 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
                 httpRequest.getHeader(headerName)
         );
 
-        if (StringUtils.isNotEmpty(accessToken)){
+        if (StringUtils.isNotEmpty(accessToken)) {
             try {
-                authenticationService.authenticate(accessToken, httpRequest);
+                authenticationService.authenticate(authMethod, accessToken, httpRequest, (HttpServletResponse) response, token -> AuthController.authCookie(token, -1, accessTokenResolver));
             } catch (AuthenticationException | AuthException | org.ohdsi.authenticator.exception.AuthenticationException ex) {
                 logAuthenticationException(httpRequest, ex);
             }

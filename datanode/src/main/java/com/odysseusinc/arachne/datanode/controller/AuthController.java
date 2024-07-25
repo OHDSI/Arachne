@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ohdsi.authenticator.model.UserInfo;
 import org.ohdsi.authenticator.service.authentication.AccessTokenResolver;
 import org.ohdsi.authenticator.service.authentication.AuthenticationMode;
-import org.ohdsi.authenticator.service.authentication.Authenticator;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,6 +198,10 @@ public class AuthController {
     }
 
     private String authCookie(String token, int expiry) {
+        return authCookie(token, expiry, accessTokenResolver);
+    }
+
+    public static String authCookie(String token, int expiry, AccessTokenResolver accessTokenResolver) {
         return ResponseCookie.from(accessTokenResolver.getTokenHeaderName(), token)
                 .path("/")
                 .httpOnly(true)
