@@ -17,9 +17,10 @@ package com.odysseusinc.arachne.datanode.dto.submission;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
-import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -34,4 +35,6 @@ public class SubmissionDTO {
     private Date submitted;
     private Date finished;
     private String environment;
+    private String stage;
+    private String error;
 }

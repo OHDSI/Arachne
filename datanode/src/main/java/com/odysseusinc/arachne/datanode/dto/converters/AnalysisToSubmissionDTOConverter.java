@@ -47,6 +47,8 @@ public class AnalysisToSubmissionDTOConverter {
         dto.setId(analysis.getId());
         dto.setOrigin(analysis.getOrigin());
         dto.setStudy(analysis.getStudyTitle());
+        dto.setStage(analysis.getStage());
+        dto.setError(analysis.getError());
         DataSource dataSource = analysis.getDataSource();
         if (dataSource != null && conversionService.canConvert(dataSource.getClass(), DataSourceDTO.class)) {
             dto.setDataSource(conversionService.convert(dataSource, DataSourceDTO.class));
