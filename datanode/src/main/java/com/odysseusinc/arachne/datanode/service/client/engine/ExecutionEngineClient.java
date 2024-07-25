@@ -20,6 +20,7 @@ import com.odysseusinc.arachne.datanode.service.client.ArachneHttpClientBuilder;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorsDTO;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.okhttp.FailsafeCall;
@@ -38,9 +39,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -58,6 +61,13 @@ public class ExecutionEngineClient {
         this.properties = properties;
         this.httpClient = clientBuilder.buildOkHttpClient(properties.getProxyEnabledForEngine());
         this.objectMapper = objectMapper;
+    }
+
+    public EngineStatus status(List<Long> ids) {
+        String url = buildUrl("/api/v1/status" + ids.stream().map(id -> "id=" + id).collect(Collectors.joining("&", "?", "")));
+        Request request = new Request.Builder().get().url(url).build();
+        Call call = httpClient.newCall(request);
+        return executeRequest(url, FailsafeCall.with(noRetry()).compose(call), EngineStatus.class);
     }
 
     public AnalysisResultDTO cancel(long id) {
@@ -116,7 +126,7 @@ public class ExecutionEngineClient {
         try (Response response = call.execute()) {
             if (!response.isSuccessful()) {
                 log.error("Failed to execute to [{}]. Response code: [{}]", url, response.code());
-                throw new AnalysisExecutionException("Failed to get descriptors. Response code: " + response.code());
+                throw new AnalysisExecutionException("Failed to request [" + url + ". Response code: " + response.code());
             }
             ResponseBody responseBody = response.body();
             if (responseBody != null && Objects.equals(responseBody.contentType(), APPLICATION_JSON)) {
@@ -130,7 +140,7 @@ public class ExecutionEngineClient {
             log.warn("Request to [{}] timed out: {}", url, e.getMessage());
             throw new AnalysisExecutionException("Failed to request [" + url + "]: " + e.getMessage(), e);
         } catch (IOException e) {
-            log.error("Request to [{}] failed: {}", url, e.getMessage(), e);
+            log.debug("Request to [{}] failed: {}", url, e.getMessage(), e);
             throw new AnalysisExecutionException("Failed to request [" + url + "]: " + e.getMessage(), e);
         }
     }
@@ -146,6 +156,10 @@ public class ExecutionEngineClient {
             log.error("Failed to prepare analysis request", e);
             throw new AnalysisExecutionException("Failed to prepare analysis request: " + e.getMessage());
         }
+    }
+
+    private RetryPolicy<Response> noRetry() {
+        return RetryPolicy.<Response>builder().withMaxAttempts(1).build();
     }
 
     private RetryPolicy<Response> retryPolicy() {

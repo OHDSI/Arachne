@@ -32,8 +32,6 @@ import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.DataSourceHelper;
 import com.odysseusinc.arachne.datanode.service.DataSourceService;
 import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
-import com.odysseusinc.arachne.datanode.service.events.datasource.DataSourceCreatedEvent;
-import com.odysseusinc.arachne.datanode.service.events.datasource.DataSourceUpdatedEvent;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import org.apache.commons.io.FileUtils;
@@ -129,7 +127,6 @@ public class DataSourceServiceImpl implements DataSourceService {
         checkNotNull(dataSource, "given datasource is null");
         checkNotNull(owner, "given owner is null");
         DataSource created = dataSourceRepository.save(dataSource);
-        eventPublisher.publishEvent(new DataSourceCreatedEvent(this, owner, dataSource));
         return created;
     }
 
@@ -274,8 +271,6 @@ public class DataSourceServiceImpl implements DataSourceService {
         }
 
         DataSource updated = dataSourceRepository.save(exists);
-
-        eventPublisher.publishEvent(new DataSourceUpdatedEvent(this, user, updated));
 
         return updated;
     }
