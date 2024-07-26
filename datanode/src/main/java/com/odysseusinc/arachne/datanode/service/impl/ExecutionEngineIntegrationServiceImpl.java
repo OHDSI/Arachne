@@ -22,8 +22,12 @@ import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineCli
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
-import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,7 +54,7 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
         final File analysisTempDir = getTempDirectory("arachne_datanode_analysis_");
         try {
             final File archive = new File(analysisTempDir.toString(), "request.zip");
-            CommonFileUtils.compressAndSplit(analysisFolder, archive, null);
+            compressAndSplit(analysisFolder, archive);
             log.info("Request [{}] with files for [{}], sending now", requestDTO.getId(), analysisFolder.getName());
             return engineClient.sendAnalysisRequest(requestDTO, archive, compressedResult, healthCheck);
         } catch (ResourceAccessException exception) {
@@ -71,5 +78,37 @@ public class ExecutionEngineIntegrationServiceImpl implements ExecutionEngineInt
     @Override
     public AnalysisResultDTO sendCancel(Long analysisId) {
         return engineClient.cancel(analysisId);
+    }
+
+    private static void compressAndSplit(File analysisFolder, File archive) throws ZipException {
+        File zipDir = new File(archive.getParent());
+        try {
+            Files.createDirectories(zipDir.toPath());
+            ZipFile zipFile = new ZipFile(archive);
+            ZipParameters parameters = getParameters(analysisFolder);
+            List<File> filesToAdd = Files.walk(analysisFolder.toPath()).filter(path ->
+                    !Files.isDirectory(path)
+            ).map(Path::toFile).collect(Collectors.toList());
+
+            zipFile.addFiles(filesToAdd, parameters);
+        } catch (ZipException zipException) {
+            throw new ZipException(String.format("Zip exception [folder: %s, zipArchive: %s]: %s",
+                    analysisFolder.getAbsolutePath(), archive.getAbsolutePath(), zipException.getMessage()), zipException);
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage(), ioException);
+            throw new RuntimeException(ioException.getMessage());
+        }
+    }
+
+    private static ZipParameters getParameters(File analysisFolder) {
+        ZipParameters parameters = new ZipParameters();
+        parameters.setCompressionMethod(CompressionMethod.DEFLATE);
+        // High compression level was set selected as possible fix for a bug:
+        // http://www.lingala.net/zip4j/forum/index.php?topic=225.0
+        parameters.setCompressionLevel(CompressionLevel.MAXIMUM);
+        parameters.setIncludeRootFolder(false);
+        parameters.setReadHiddenFiles(false);
+        parameters.setDefaultFolderPath(analysisFolder.getAbsolutePath());
+        return parameters;
     }
 }

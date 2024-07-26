@@ -30,9 +30,9 @@ import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
-import com.odysseusinc.arachne.execution_engine_common.util.CommonFileUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +53,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -100,7 +101,7 @@ public class AnalysisController {
                 FileUtils.forceMkdir(zipDir);
                 File archiveFile = new File(zipDir, "analysis.zip");
                 zip.transferTo(archiveFile);
-                CommonFileUtils.unzipFiles(archiveFile, dir);
+                unzipFiles(dir, archiveFile);
             } catch (IOException e) {
                 log.error("Failed to save analysis files", e);
                 throw new IllegalOperationException(e.getMessage());
@@ -210,4 +211,16 @@ public class AnalysisController {
         return Stream.of(CommonAnalysisType.CUSTOM, CommonAnalysisType.STRATEGUS);
     }
 
+    private static void unzipFiles(File dir, File archiveFile) throws FileNotFoundException {
+        if (dir == null || !dir.exists()) {
+            throw new FileNotFoundException("Destination directory must be exist");
+        }
+        String destPath = dir.getAbsolutePath();
+        try {
+            ZipFile zipFile = new ZipFile(archiveFile);
+            zipFile.extractAll(destPath);
+        } catch (ZipException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+    }
 }
