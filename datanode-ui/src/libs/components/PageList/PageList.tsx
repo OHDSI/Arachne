@@ -237,7 +237,7 @@ export const PageList: React.FC<any> = (
                     columns.map(elem => elem.id)
                   );
                 }}
-                hiddenColumns={useStorage?.storage.columns}
+                hiddenColumns={hiddenColumns}
               />
             </Grid>
           </Grid>
