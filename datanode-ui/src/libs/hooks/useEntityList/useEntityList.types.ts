@@ -30,4 +30,5 @@ export interface IEntityList<T extends object = object> {
   totalElements: number;
   numberOfElements: number;
   error: any;
+  engine?: any;
 }

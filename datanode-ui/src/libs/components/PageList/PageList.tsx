@@ -112,6 +112,7 @@ export const PageList: React.FC<any> = (
     totalElements,
     removeEntity,
     status,
+    engine,
     error,
   } = useEntityList(
     {
@@ -128,7 +129,6 @@ export const PageList: React.FC<any> = (
   }, []);
 
   const onRowClick = (e: any) => {
-    console.log(e);
     onRowClickOutSide ? onRowClickOutSide(e) : navigate(`${e.original[rowId]}`);
   };
 
@@ -190,6 +190,7 @@ export const PageList: React.FC<any> = (
               onCreate={onCreate}
               onImport={onImport}
               count={totalElements}
+              engine={engine}
             />
           )}
         </>

@@ -105,7 +105,6 @@ export const List: React.FC = () => {
       } as any);
       setIdReload(getUUID());
     } catch(e) {
-      console.log(e);
       enqueueSnackbar({
         message: e.message,
         variant: "error",

@@ -22,6 +22,17 @@ import { Icon } from "../Icon/Icon";
 import { transparentize } from "polished";
 import { Box, Typography } from "@mui/material";
 import { Button } from "../Button/Button";
+import { StatusTag } from "../Table";
+
+export const getStatusTagType = (engine) => {
+  return engine.status === "OK" ? {
+    color: "success",
+    text: "Engine available"
+  } : {
+    color: "error",
+    text: "Engine not available"
+  }
+}
 
 export const ListHeaderPrimary: React.FC<ListHeaderProps> = ({
   iconName,
@@ -34,6 +45,7 @@ export const ListHeaderPrimary: React.FC<ListHeaderProps> = ({
   canCreate,
   count,
   customButtons,
+  engine,
 }) => {
   return (
     <>
@@ -88,10 +100,14 @@ export const ListHeaderPrimary: React.FC<ListHeaderProps> = ({
                   height: 23,
                   boxSizing: "border-box",
                   ml: 2,
+                  mr: 2
                 })}
               >
                 {count}
               </Box>
+            )}
+            {engine && (
+              <StatusTag {...getStatusTagType(engine)}/>
             )}
           </Grid>
 
