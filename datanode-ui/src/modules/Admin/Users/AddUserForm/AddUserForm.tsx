@@ -65,9 +65,7 @@ export const AddUserForm: React.FC<AddUserFormPropsInterface> =
   				variant: "success",
   			} as any);
   			afterCreate?.();
-  		} catch (e) {
-  			console.log(e);
-  		}
+  		} catch (e) {}
   	};
 
   	useEffect(() => {

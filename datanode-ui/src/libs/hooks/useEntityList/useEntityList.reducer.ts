@@ -37,6 +37,7 @@ export const reducer = (initialState: IEntityList, action: any) => {
       draft.numberOfElements = action.payload.numberOfElements || action.payload.result.length;
       draft.totalElements = action.payload.totalElements || action.payload.result.length;
       draft.sort = action.payload.sort;
+      draft.engine = action.payload?.engine
       draft.status = Status.SUCCESS;
       break;
     case EntityListConstants.FETCH_REQUEST_FAILED:

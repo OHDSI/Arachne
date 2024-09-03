@@ -108,7 +108,6 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   const entries = useMemo(() => {
-    console.log(pageIndex, pageSize, numberOfElements);
     return t("tables.base.showing", { minRow: pageIndex * pageSize + 1, maxRow: pageIndex * pageSize + numberOfElements, totalRow: totalElements });
   }, [pageIndex, numberOfElements, totalElements, t]);
 

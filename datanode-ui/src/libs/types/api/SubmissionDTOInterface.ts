@@ -30,4 +30,7 @@ export interface SubmissionDTOInterface {
     submitted: string;
     finished: string;
     environment: string;
+    stage: string;
+    error: any
+
 }

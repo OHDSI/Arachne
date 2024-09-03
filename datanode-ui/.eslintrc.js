@@ -67,6 +67,7 @@ module.exports = {
     "@typescript-eslint/no-duplicate-enum-values": 0,
     "no-unsafe-optional-chaining": 0,
     "react/react-in-jsx-scope": 0,
+    "no-duplicate-case": 0,
     "no-undef": 0,
     "indent": 0,
     "linebreak-style": [
