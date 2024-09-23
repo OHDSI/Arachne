@@ -21,25 +21,24 @@ import { SpinnerFormContainer } from "./ChooseRuntime.styles";
 import { AnalysisTypes, CreateSubmissionFormTabs, Status } from "../../../libs/enums";
 
 import {
-  Block,
-  Button,
-  Checkbox,
-  FormActionsContainer,
-  FormElement,
-  Grid,
-  Icon,
-  ImportJsonFile,
-  ImportZipFile,
-  Input,
-  Select,
-  Spinner,
-  TabsNavigationNew,
-  useNotifications
+	Block,
+	Button,
+	FormActionsContainer,
+	FormElement,
+	Grid,
+	Icon,
+	ImportJsonFile,
+	ImportZipFile,
+	Input,
+	Select,
+	Spinner,
+	TabsNavigationNew,
+	useNotifications
 } from "../../../libs/components";
 import { Paper } from "@mui/material";
 import { getAnalysisTypes, getEnvironments } from "../../../api/submissions";
 import { getDataSources } from "../../../api/data-sources";
-import { DataSourceDTOInterface, DescriptorInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
+import { DataSourceDTOInterface, EnvironmentInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { tabsSubmissionForm } from "../../../config";
 
@@ -70,13 +69,16 @@ interface CreateSubmissionFormInterfaceProps {
   isRerun?: boolean;
 }
 
+interface Envs {
+	docker: any[];
+	tarball: SelectInterface[];
+}
+
 interface ControlListInterfaceState {
   status: Status;
-  envs: SelectInterface<number>[];
   analysisTypes: SelectInterface<AnalysisTypes>[];
   dataSources: SelectInterface<number>[];
   entryFiles: SelectInterface<string>[];
-  dockerEnabled: boolean;
 }
 
 export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
@@ -86,13 +88,12 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   	const [isLoading, setIsLoading] = useState<boolean>(false);
   	const { enqueueSnackbar } = useNotifications();
   	const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
-  	const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
+		const [envs, setEnvs] = useState<Envs>({docker: null, tarball: []});
+		const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
   		status: Status.INITIAL,
-  		envs: [],
   		analysisTypes: [],
   		dataSources: [],
   		entryFiles: [],
-      dockerEnabled: true
   	});
 
   	const [status, setStatus] = useState(Status.INITIAL);
@@ -114,18 +115,19 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
 
   	const getControlsList = async () => {
   		try {
-			const environments: any = await getEnvironments();
-			const envs: DescriptorInterface[] = environments.descriptors;
+			  const environments: EnvironmentInterface = await getEnvironments();
   			const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
-  			const dataSources: DataSourceDTOInterface[] = await getDataSources();
+				const dataSources: DataSourceDTOInterface[] = await getDataSources();
+				setEnvs(() => ({
+					docker: environments.docker,
+					tarball: parseToSelectControlOptions(environments.tarball, "label")
+				}));
 
   			setControlsList(prevState => ({
   				...prevState,
   				status: Status.SUCCESS,
-  				envs: parseToSelectControlOptions(envs, "label"),
   				analysisTypes: parseToSelectControlOptions(types),
   				dataSources: parseToSelectControlOptions(dataSources),
-          dockerEnabled: environments.dockerEnabled
   			}));
 
   		} catch (e) {
@@ -170,34 +172,12 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   		}
   	};
 
-  	const isValid = useMemo(() => {
-  		if (activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE) {
-  			return controlsList.dockerEnabled ? (
-  				state.datasourceId &&
-          state.type &&
-          state.dockerImage &&
-          state.executableFileName
-  			) : (
-          state.datasourceId &&
-          state.type &&
-          state.environmentId &&
-          state.executableFileName
-        );
-  		}
-  		if (activeTab === CreateSubmissionFormTabs.SEPARATE_FILES) {
-  			return controlsList.dockerEnabled ? (
-          state.datasourceId &&
-          state.dockerImage &&
-          state.type &&
-          state.executableFileName
-        ) : (
-          state.datasourceId &&
-          state.environmentId &&
-          state.type &&
-          state.executableFileName
-        )
-  		}
-  	}, [state, activeTab]);
+		const isValid = useMemo(() => (
+			state.datasourceId &&
+			(!state.dockerImage !== !state.environmentId) &&
+			state.type &&
+			state.executableFileName
+		), [state, activeTab]);
 
   	const unpackZip = (zipFolder) => {
   		return Object.keys(zipFolder.files)
@@ -223,7 +203,9 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   		return analysisName;
   	};
 
-  	return (
+		const showDocker = envs.docker !== undefined; // Only hide if undefined, show on empty list
+		const showTarball: boolean = !!envs.tarball
+		return (
   		<Grid container>
   			<Paper elevation={3} sx={{ zIndex: 2, px: 2, width: "100%" }}>
   				<TabsNavigationNew tabs={tabs} active={activeTab} />
@@ -316,25 +298,12 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   								}} />
   							</Grid>
   						)}
-              {/* <Grid item xs={12}>
-              <FormElement
-  								name="docker-enabled"
-  								textLabel={t("forms.create_submission.docker_enabled", "Runtime Docker Image")}
-  								required
-  							>
-  								 <Checkbox
-                    name='docker-enabled'
-                    onChange={(e: any) => {
-                      setState({
-  											...state,
-  											dockerEnabled: !state.dockerEnabled
-  										});
-                    }}
-                    value={state.dockerEnabled}
-                  />
-  							</FormElement>
-              </Grid> */}
-  						{!controlsList.dockerEnabled ? (
+							{!showDocker && !showTarball ? (
+								<Grid item xs={12}>
+									<label>{t("forms.login.username")}</label>
+								</Grid>
+							) : <></>}
+							{showTarball ? (
                 <Grid item xs={12}>
   							<FormElement
   								name="env"
@@ -346,8 +315,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   									name="env"
   									disablePortal
   									id="env"
-  									disabled={controlsList?.envs?.length === 0}
-  									options={controlsList.envs}
+  									options={envs.tarball}
   									value={state.environmentId}
   									placeholder={t("forms.create_submission.env_placeholder")}
   									onChange={(env: any) => {
@@ -359,8 +327,9 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   									fullWidth
   								/>
   							</FormElement>
-  						</Grid>
-              ): (
+  							</Grid>
+              ): <></>}
+							{showDocker ? (
                 <Grid item xs={12}>
   							<FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
   								<Input
@@ -379,8 +348,8 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
   									fullWidth
   								/>
   							</FormElement>
-  						</Grid>
-              )}
+  							</Grid>
+              ): <></>}
   						<Grid item xs={12}>
   							<FormElement
   								name="data-source"

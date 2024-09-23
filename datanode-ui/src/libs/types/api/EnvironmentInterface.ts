@@ -15,9 +15,10 @@
  *
  */
 
-import { DescriptorInterface } from "@/libs/types";
+import { DockerDescriptorInterface } from "@/libs/types/api/DockerDescriptorInterface";
+import { TarballDescriptorInterface } from "@/libs/types/api/TarballDescriptorInterface";
 
 export interface EnvironmentInterface {
-  docker: boolean;
-  descriptors: DescriptorInterface[];
+  docker: DockerDescriptorInterface[];
+  tarball: TarballDescriptorInterface[];
 }

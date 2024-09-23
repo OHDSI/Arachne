@@ -14,6 +14,7 @@
  */
 package com.odysseusinc.arachne.datanode.engine;
 
+import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.AnalysisStateService;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
@@ -44,6 +45,8 @@ public class ExecutionEngineSyncService {
     private AnalysisService analysisService;
     @Autowired
     private AnalysisStateService analysisStateService;
+    @Autowired
+    private EnvironmentDescriptorService descriptorService;
 
     @Scheduled(fixedDelayString = "${executionEngine.status.period}")
     public void checkStatus() {
@@ -58,7 +61,7 @@ public class ExecutionEngineSyncService {
             return;
         }
         update(status, incomplete);
-
+        descriptorService.updateDescriptors(status.getEnvironments());
     }
 
     private void update(EngineStatus engineStatus, List<Long> incomplete) {

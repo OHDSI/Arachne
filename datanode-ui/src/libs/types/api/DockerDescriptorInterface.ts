@@ -1,4 +1,5 @@
 /*
+ *
  * Copyright 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,17 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package com.odysseusinc.arachne.datanode.environment;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(staticName = "of")
-public class EnvironmentDescriptorDto {
-    private final Long id;
-    private final String descriptorId;
-    private final String label;
-    private final String json;
+export interface DockerDescriptorInterface {
+  imageId: string;
+  tags: string[];
 }

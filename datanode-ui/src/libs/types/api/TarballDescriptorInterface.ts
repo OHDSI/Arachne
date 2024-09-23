@@ -15,9 +15,7 @@
  *
  */
 
-export interface DescriptorInterface {
-  id: number;
-  descriptorId: string;
+export interface TarballDescriptorInterface {
+  id: string;
   label: string;
-  json: string;
 }

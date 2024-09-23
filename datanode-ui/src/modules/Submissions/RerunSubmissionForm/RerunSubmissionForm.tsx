@@ -20,22 +20,11 @@ import { useTranslation } from "react-i18next";
 
 import { AnalysisTypes, CreateSubmissionFormTabs, Status } from "../../../libs/enums";
 
-import {
-  Block,
-  Button,
-  FormActionsContainer,
-  FormElement,
-  Grid,
-  Icon,
-  Input,
-  Select,
-  Spinner,
-  useNotifications
-} from "../../../libs/components";
+import { Block, Button, FormActionsContainer, FormElement, Grid, Icon, Input, Select, Spinner, useNotifications } from "../../../libs/components";
 
 import { getAnalysisTypes, getEnvironments, getSubmission, updateSubmission } from "../../../api/submissions";
 import { getDataSources, removeDataSource } from "../../../api/data-sources";
-import { DataSourceDTOInterface, DescriptorInterface, EnvironmentInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
+import { DataSourceDTOInterface, EnvironmentInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { useEntity } from "../../../libs/hooks";
 import { SpinnerFormContainer } from "../CreateSubmissionForm/ChooseRuntime.styles";
@@ -66,9 +55,14 @@ interface CreateSubmissionFormInterfaceProps {
   id: string;
 }
 
+interface Envs {
+  docker: any[];
+  tarball: SelectInterface[];
+}
+
 interface ControlListInterfaceState {
   status: Status;
-  envs: SelectInterface<number>[];
+  envs: Envs;
   analysisTypes: SelectInterface<AnalysisTypes>[];
   dataSources: SelectInterface<number>[];
   entryFiles: SelectInterface<string>[];
@@ -82,7 +76,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
   const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
     status: Status.INITIAL,
-    envs: [],
+    envs: {docker: null, tarball: []},
     analysisTypes: [],
     dataSources: [],
     entryFiles: [],
@@ -111,14 +105,17 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   const getControlsList = async () => {
     try {
       const environments: EnvironmentInterface = await getEnvironments();
-      const envs: DescriptorInterface[] = environments.descriptors;
+      const envs: EnvironmentInterface = environments;
       const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
       const dataSources: DataSourceDTOInterface[] = await getDataSources();
 
       setControlsList(prevState => ({
         ...prevState,
         status: Status.SUCCESS,
-        envs: parseToSelectControlOptions(envs, "label"),
+        envs: {
+          docker: envs.docker,
+          tarball: parseToSelectControlOptions(envs.tarball, "label")
+        },
         analysisTypes: parseToSelectControlOptions(types),
         dataSources: parseToSelectControlOptions(dataSources)
       }));
@@ -187,8 +184,8 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
                 name="env"
                 disablePortal
                 id="env"
-                disabled={controlsList?.envs?.length === 0}
-                options={controlsList.envs}
+                disabled={controlsList?.envs.tarball?.length === 0}
+                options={controlsList.envs.tarball}
                 value={state.environmentId}
                 placeholder={t("forms.create_submission.env_placeholder")}
                 onChange={(env: any) => {

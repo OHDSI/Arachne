@@ -22,6 +22,22 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor(staticName = "of")
 public class EnvironmentDto {
-    private final boolean dockerEnabled;
-    private final List<EnvironmentDescriptorDto> descriptors;
+    private final List<Docker> docker;
+    private final List<Tarball> tarball;
+
+    @Getter
+    @RequiredArgsConstructor(staticName = "of")
+    public static class Docker {
+        private final String imageId;
+        private final List<String> tags;
+    }
+
+    @Getter
+    @RequiredArgsConstructor(staticName = "of")
+    public static class Tarball {
+        private final String id;
+        private final String label;
+        private final String bundleName;
+        private final String json;
+    }
 }

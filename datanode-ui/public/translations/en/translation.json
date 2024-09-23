@@ -135,7 +135,8 @@
       "analysis_type": "Analysis Type",
       "analysis_type_placeholder": "Select Analysis Type...",
       "study_name": "Study Name",
-      "study_name_placeholder": "Enter Study Name..."
+      "study_name_placeholder": "Enter Study Name...",
+      "environments_not_configured": "Execution blocked: no environments configured. Please contact administrator."
     },
     "rerun_submission": {
       "success_message": "Submission Successfully Rerun",

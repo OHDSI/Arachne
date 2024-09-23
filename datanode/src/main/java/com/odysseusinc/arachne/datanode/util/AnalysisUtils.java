@@ -15,15 +15,18 @@
 
 package com.odysseusinc.arachne.datanode.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.io.FileUtils;
-import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 public class AnalysisUtils {
     private static final int TEMP_DIR_ATTEMPTS = 10000;
 
@@ -51,8 +54,8 @@ public class AnalysisUtils {
             Path uniquePath = Paths.get(parentDir, baseName + counter);
             try {
                 return Files.createDirectories(uniquePath).toFile();
-            } catch (IOException ignored) {
-
+            } catch (IOException ex) {
+                log.trace(ex.getMessage(), ex);
             }
         }
         throw new IllegalStateException("Failed to create directory within "
