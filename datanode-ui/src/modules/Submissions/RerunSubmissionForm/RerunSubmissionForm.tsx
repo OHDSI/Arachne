@@ -15,12 +15,12 @@
  *
  */
 
-import React, { memo, useEffect, useState, } from "react";
+import React, { memo, useEffect, useMemo, useState, } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AnalysisTypes, CreateSubmissionFormTabs, Status } from "../../../libs/enums";
 
-import { Block, Button, FormActionsContainer, FormElement, Grid, Icon, Input, Select, Spinner, useNotifications } from "../../../libs/components";
+import { AutocompleteInput, Block, Button, FormActionsContainer, FormElement, Grid, Icon, Input, Select, Spinner, useNotifications } from "../../../libs/components";
 
 import { getAnalysisTypes, getEnvironments, getSubmission, updateSubmission } from "../../../api/submissions";
 import { getDataSources, removeDataSource } from "../../../api/data-sources";
@@ -28,6 +28,7 @@ import { DataSourceDTOInterface, EnvironmentInterface, IdNameInterface, SelectIn
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { useEntity } from "../../../libs/hooks";
 import { SpinnerFormContainer } from "../CreateSubmissionForm/ChooseRuntime.styles";
+import { Box, Switch } from "@mui/material";
 
 const defaultState = (type = AnalysisTypes.COHORT): SubmissionFormStateInterface => ({
   title: "",
@@ -35,7 +36,7 @@ const defaultState = (type = AnalysisTypes.COHORT): SubmissionFormStateInterface
   study: "",
   environmentId: "",
   datasourceId: "",
-  type: type
+  type: type,
 });
 
 interface SubmissionFormStateInterface {
@@ -45,6 +46,7 @@ interface SubmissionFormStateInterface {
   environmentId: string;
   datasourceId: string;
   title: string;
+  dockerImage?: string;
 }
 
 interface CreateSubmissionFormInterfaceProps {
@@ -76,12 +78,12 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   const [state, setState] = useState<SubmissionFormStateInterface>(defaultState(null));
   const [controlsList, setControlsList] = useState<ControlListInterfaceState>({
     status: Status.INITIAL,
-    envs: {docker: null, tarball: []},
+    envs: { docker: null, tarball: [] },
     analysisTypes: [],
     dataSources: [],
     entryFiles: [],
   });
-
+  const [isDockerEnv, setIsDockerEnv] = useState(true);
   const { entity, status } = useEntity<any>(
     {
       get: getSubmission,
@@ -94,6 +96,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   useEffect(() => {
     if (status === Status.SUCCESS) {
       setState(entity);
+      setIsDockerEnv(entity.dockerImage)
     }
   }, [status, entity]);
 
@@ -109,24 +112,53 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
       const dataSources: DataSourceDTOInterface[] = await getDataSources();
 
+      const envsSelectControlList = envs.docker?.map(elem => ({
+        name: elem.tags.join(','),
+        value: elem.tags.join(',')
+      }))
+
       setControlsList(prevState => ({
         ...prevState,
         status: Status.SUCCESS,
         envs: {
-          docker: envs.docker,
+          docker: envsSelectControlList || [],
           tarball: parseToSelectControlOptions(envs.tarball, "label")
         },
         analysisTypes: parseToSelectControlOptions(types),
         dataSources: parseToSelectControlOptions(dataSources)
       }));
+      setState(prevState => ({...prevState, dockerImage: envsSelectControlList.length > 0 ? envsSelectControlList[0].value : ""}))
 
     } catch (e) {
       setControlsList(prevState => ({ ...prevState, status: Status.ERROR }));
     }
   };
 
+  const showTypesEnv = useMemo(() => {
+    return {
+      showDocker: ![undefined, null].includes(controlsList.envs.docker),
+      showTarball: !!controlsList.envs.tarball
+    }
+  }, [controlsList.envs]);
+
   const handleSave = async () => {
     setIsLoading(true);
+
+    const stateForSave: any = {
+      title: state.title,
+      datasourceId: state.datasourceId,
+      executableFileName: state.executableFileName,
+      study: state.study,
+      type: state.type
+    }
+
+    if (isDockerEnv) {
+      stateForSave.dockerImage = state.dockerImage
+    }
+
+    if (!isDockerEnv) {
+      stateForSave.environmentId = state.environmentId
+    }
     try {
       const result = await updateSubmission(id, state);
       enqueueSnackbar({
@@ -173,31 +205,112 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
               />
             </FormElement>
           </Grid>
-          <Grid item xs={12}>
-            <FormElement
-              name="env"
-              textLabel={t("forms.create_submission.env")}
-              required
+          <Grid
+            item
+            display="flex"
+            pr={2}
+            lineHeight="30px"
+            onClick={e => {
+              e.stopPropagation();
+            }}
+          >
+            <Box
+              component="label"
+              htmlFor="restrict-initial-event"
+              sx={[
+                isDockerEnv ? { opacity: 0.3 } : {},
+                { color: 'primary.main', fontWeight: 'bold' },
+              ]}
             >
-              <Select
-                className=""
-                name="env"
-                disablePortal
-                id="env"
-                disabled={controlsList?.envs.tarball?.length === 0}
-                options={controlsList.envs.tarball}
-                value={state.environmentId}
-                placeholder={t("forms.create_submission.env_placeholder")}
-                onChange={(env: any) => {
-                  setState({
-                    ...state,
-                    environmentId: env,
-                  });
+              Tarball environment
+            </Box>
+            <Grid item px={1}>
+              <Switch
+                id="restrict-initial-event"
+                value={isDockerEnv}
+                checked={isDockerEnv}
+                onChange={e => {
+                  setIsDockerEnv(prevState => !prevState);
                 }}
-                fullWidth
+                size="small"
+                color="info"
               />
-            </FormElement>
+            </Grid>
+            <Box
+              component="label"
+              htmlFor="restrict-initial-event"
+              sx={[
+                isDockerEnv ? {} : { opacity: 0.3 },
+                { color: 'primary.main', fontWeight: 'bold' },
+              ]}
+            >
+              Docker environment
+            </Box>
           </Grid>
+          {!showTypesEnv.showDocker && !showTypesEnv.showTarball ? (
+            <Grid item xs={12}>
+              <label>{t("forms.login.username")}</label>
+            </Grid>
+          ) : <></>}
+          {showTypesEnv.showTarball && !isDockerEnv && (
+            <Grid item xs={12}>
+              <FormElement
+                name="env"
+                textLabel={t("forms.create_submission.env")}
+                required
+              >
+                <Select
+                  className=""
+                  name="env"
+                  disablePortal
+                  id="env"
+                  disabled={controlsList?.envs.tarball?.length === 0}
+                  options={controlsList.envs.tarball}
+                  value={state.environmentId}
+                  placeholder={t("forms.create_submission.env_placeholder")}
+                  onChange={(env: any) => {
+                    setState({
+                      ...state,
+                      environmentId: env,
+                    });
+                  }}
+                  fullWidth
+                />
+              </FormElement>
+            </Grid>
+          )}
+          {showTypesEnv.showDocker && isDockerEnv && (
+                <Grid item xs={12}>
+                  <FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
+                    {/* <Input
+											id="docker-image"
+											name="docker-image"
+											type="text"
+											size="medium"
+											placeholder={t("forms.create_submission.docker_image_placeholder", "Enter Docker Image...")}
+											value={state.dockerImage}
+											onChange={(e: any) => {
+												setState({
+													...state,
+													dockerImage: e.target.value,
+												});
+											}}
+											fullWidth
+										/> */}
+                    <AutocompleteInput
+                      value={state.dockerImage}
+                      onChange={value => {
+                        setState({
+                          ...state,
+                          dockerImage: value,
+                        });
+                      }}
+                      options={controlsList.envs.docker || []}
+                      className="autocompleteValue"
+                    />
+                  </FormElement>
+                </Grid>
+              )}
           <Grid item xs={12}>
             <FormElement
               name="data-source"
