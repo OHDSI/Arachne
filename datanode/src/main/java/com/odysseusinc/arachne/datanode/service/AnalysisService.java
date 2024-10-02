@@ -16,11 +16,13 @@
 package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
+import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO;
+import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO.Environment;
+import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO.Environment.Tarball;
 import com.odysseusinc.arachne.datanode.dto.converters.DataSourceToDataSourceUnsecuredDTOConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
-import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
@@ -40,6 +42,7 @@ import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestTypeDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -197,29 +200,37 @@ public class AnalysisService {
 		return analysis.getId();
 	}
 
-	@Async
-	@Transactional
-	public void sendToEngine(Analysis analysis) {
-
-		preprocessorService.runPreprocessor(analysis);
-		AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
-		analysisRequestDTO.setResultExclusions(resultExclusions);
-		analysisRequestDTO.setDockerImage(analysis.getDockerImage());
-		File analysisFolder = new File(analysis.getSourceFolder());
-		Long id = analysis.getId();
-		try {
-			AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false);
-			String descriptorId = exchange.getActualDescriptorId();
+    @Async
+    @Transactional
+    public void sendToEngine(Analysis analysis) {
+        preprocessorService.runPreprocessor(analysis);
+        AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
+        analysisRequestDTO.setResultExclusions(resultExclusions);
+        File analysisFolder = new File(analysis.getSourceFolder());
+        Long id = analysis.getId();
+        try {
+            AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false);
+            String descriptorId = exchange.getActualDescriptorId();
 			log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
-			analysis.setActualEnvironment(Optional.ofNullable(descriptorId).flatMap(environmentService::byDescriptorId).orElse(null));
-			String reason = String.format("Accepted by engine as %s type", exchange.getType());
-			stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
-		} catch (RestClientException | ArachneSystemRuntimeException e) {
-			log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
-			String reason = String.format("Execution engine request failed: %s", e.getMessage());
-			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
-		}
-	}
+
+			if (exchange.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
+				stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Analysis type not recognized");
+			} else {
+				EnvironmentDescriptor descriptor = Optional.ofNullable(analysis.getDockerImage()).map(image ->
+						environmentService.ensureImageExists(image, descriptorId)
+				).orElseGet(() ->
+						environmentService.ensureTarballExists(descriptorId)
+				);
+				analysis.setActualEnvironment(descriptor);
+				String reason = String.format("Accepted by engine as %s type", exchange.getType());
+				stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
+			}
+        } catch (RestClientException | ArachneSystemRuntimeException e) {
+            log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
+            String reason = String.format("Execution engine request failed: %s", e.getMessage());
+            stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
+        }
+    }
 
 	@Transactional
 	public void update(Long id, Consumer<Analysis> updates) {
@@ -258,16 +269,33 @@ public class AnalysisService {
     }
 
 	@Transactional
-	public com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO get(Long id) {
+	public AnalysisDTO get(Long id) {
 		Analysis analysis = find(id);
-		com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto = new com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO();
+		AnalysisDTO dto = new AnalysisDTO();
 		dto.setType(analysis.getType());
 		dto.setDatasourceId(analysis.getDataSource().getId());
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
-		dto.setEnvironmentId(analysis.getEnvironment().getId());
+		String environmentId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElseGet(() ->
+				Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null)
+		);
+		dto.setEnvironmentId(environmentId);
 		dto.setDockerImage(analysis.getDockerImage());
+		Environment environment = Optional.ofNullable(analysis.getDockerImage()).map(image -> {
+			Environment env = new Environment();
+			String imageId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null);
+			env.setDocker(new Environment.Docker(image, imageId));
+			return env;
+		}).orElseGet(() -> {
+			Tarball.Actual actual = Optional.ofNullable(analysis.getActualEnvironment()).map(env ->
+							new Tarball.Actual(env.getDescriptorId(), env.getLabel())
+			).orElse(null);
+			Environment env = new Environment();
+			env.setTarball(new Tarball(environmentId, actual));
+			return env;
+		});
+		dto.setEnvironment(environment);
 		return dto;
 	}
 
@@ -309,8 +337,8 @@ public class AnalysisService {
 
 		analysis.setType(dto.getType());
 
-		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).map(this::findEnvironment).orElse(null));
-		analysis.setDockerImage(dto.getDockerImage());
+		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).flatMap(environmentService::byDescriptorId).orElse(null));
+		analysis.setDockerImage(StringUtils.defaultIfBlank(dto.getDockerImage(), null));
 		analysis.setDataSource(dataSource);
 
 		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
@@ -342,18 +370,7 @@ public class AnalysisService {
 		return author;
 	}
 
-	private EnvironmentDescriptor findEnvironment(Long descriptorId) {
-		EnvironmentDescriptor descriptor = Optional.ofNullable(environmentService.byId(descriptorId)).orElseThrow(() ->
-				new BadRequestException("Invalid environment id: " + descriptorId)
-		);
-		if (descriptor.getTerminated() != null) {
-			throw new BadRequestException("Invalid environment id: " + descriptorId);
-		} else {
-			return descriptor;
-		}
-	}
-
-	private AnalysisRequestDTO toDto(Analysis analysis) {
+    private AnalysisRequestDTO toDto(Analysis analysis) {
 		AnalysisRequestDTO dto = new AnalysisRequestDTO();
 		dto.setDataSource(datasourceConverter.convert(analysis.getDataSource()));
 		dto.setId(analysis.getId());

@@ -18,7 +18,7 @@
 import React, { useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ModalContext, UseModalContext } from "../../../libs/hooks";
-import { PageList, CodeEditor } from "../../../libs/components";
+import { CodeEditor, PageList } from "../../../libs/components";
 import { colsTableEnviroments } from "../../../config";
 import { getEnvironments } from "../../../api/submissions";
 import { useDispatch } from "react-redux";
@@ -80,7 +80,7 @@ export const EnviromentsList: React.FC = () => {
         iconName: "",
         fetch: async () => {
           const envs = await getEnvironments();
-          return envs.descriptors;
+          return envs.tarball;
         },
         cols: cols
       }}

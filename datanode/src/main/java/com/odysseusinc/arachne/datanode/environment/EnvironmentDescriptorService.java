@@ -15,146 +15,139 @@
 package com.odysseusinc.arachne.datanode.environment;
 
 
-import com.odysseusinc.arachne.datanode.service.client.engine.AnalysisExecutionException;
-import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
+import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor.Type;
+import com.odysseusinc.arachne.datanode.environment.EnvironmentDto.Docker;
+import com.odysseusinc.arachne.datanode.environment.EnvironmentDto.Tarball;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
-import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorDTO;
-import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorsDTO;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus.Environments;
+import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.TarballEnvironmentDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.time.Clock;
-import java.time.Instant;
+import javax.persistence.metamodel.SingularAttribute;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class EnvironmentDescriptorService {
-    volatile boolean firstFetch = true;
-
-    private final Optional<Supplier<RuntimeEnvironmentDescriptorsDTO>> fetchDescriptors;
-    private final Clock clock = Clock.systemUTC();
 
     @PersistenceContext
     private EntityManager em;
 
-    private volatile boolean docker;
+    private volatile Environments environments;
 
-    public EnvironmentDescriptorService(ExecutionEngineClient client) {
-        this.fetchDescriptors = client.getDescriptors();
-    }
-
-    @Scheduled(fixedDelayString = "${execution.descriptors.delayMs:60000}")
     @Transactional
-    public void updateDescriptors() {
-        fetchDescriptors.map(this::getDescriptors).ifPresent(descriptorsDTO -> {
-            Map<String, List<EnvironmentDescriptor>> index = getAll().collect(
-                    Collectors.groupingBy(EnvironmentDescriptor::getDescriptorId)
-            );
-            Instant now = clock.instant();
-            docker = descriptorsDTO.isDocker();
-            List<Long> updated = descriptorsDTO.getDescriptors().stream().map(dto -> {
-                String json = SerializationUtils.serialize(dto);
-                return Optional.ofNullable(index.get(dto.getId())).flatMap(entities -> {
-                    Map<Boolean, List<EnvironmentDescriptor>> matches = entities.stream().collect(Collectors.partitioningBy(entity ->
-                            Objects.equals(entity.getJson(), json)
-                    ));
-                    return matches.get(true).stream().findFirst().map(descriptor -> {
-                         descriptor.setTerminated(null);
-                         return descriptor;
-                    });
-                }).orElseGet(create(dto, SerializationUtils.serialize(dto)));
-            }).map(EnvironmentDescriptor::getId).collect(Collectors.toList());
-            log.debug("Processed {} descriptors", updated.size());
-            getActive().filter(descriptor ->
-                    !updated.contains(descriptor.getId())
-            ).forEach(desc -> {
-                log.info("Terminated descriptor {} [{}]", desc.getId(), desc.getDescriptorId());
-                desc.setTerminated(now);
-            });
-            if (firstFetch) {
-                firstFetch = false;
-                getAll().forEach(dto ->
-                        log.info("Validated descriptor #{} [{}] - [{}], {} bytes", dto.getId(), dto.getDescriptorId(), dto.getLabel(), dto.getJson().length())
-                );
-            }
-        });
+    public EnvironmentDescriptor ensureImageExists(String label, String descriptorId) {
+        String safeId = Optional.ofNullable(descriptorId).orElse(label);
+        return by((cb, root) -> cb.and(
+                cb.equal(root.get(EnvironmentDescriptor_.label), label),
+                cb.equal(root.get(EnvironmentDescriptor_.descriptorId), safeId)
+        )).orElseGet(() ->
+                create(Type.DOCKER, label, safeId, null)
+        );
     }
 
-    private RuntimeEnvironmentDescriptorsDTO getDescriptors(Supplier<RuntimeEnvironmentDescriptorsDTO> supplier) {
-        try {
-            return supplier.get();
-        } catch (AnalysisExecutionException e) {
-            // Suppress stacktrace for a known exception to avoid log pollution
-            log.error(e.getMessage());
-            return null;
+    @Transactional
+    public EnvironmentDescriptor ensureTarballExists(String descriptorId) {
+        TarballEnvironmentDTO environment = Optional.ofNullable(environments).map(Environments::getTarball).flatMap(envs ->
+                envs.stream().filter(env -> Objects.equals(env.getId(), descriptorId)).findFirst()
+        ).orElseGet(() -> {
+            // Engine config has changed before we synced up and user submitted analysis at that exact moment.
+            // Failing here would result in transaction rollback, so we have to accept the situation for what it is.
+            return new TarballEnvironmentDTO(descriptorId, descriptorId, null, null);
+        });
+
+        String json = SerializationUtils.serialize(environment);
+        return by((cb, root) -> cb.and(
+                cb.equal(root.get(EnvironmentDescriptor_.label), environment.getLabel()),
+                cb.equal(root.get(EnvironmentDescriptor_.descriptorId), descriptorId)
+        )).filter(descriptor -> json.equals(descriptor.getJson())).orElseGet(() ->
+                create(Type.TARBALL, environment.getBundleName(), descriptorId, json)
+        );
+    }
+
+
+    @Transactional
+    public void updateDescriptors(Environments update) {
+        logIfDiffers(update, Environments::getDocker, desc ->
+                log.info("DOCKER image [{}]: {}", desc.getImageId(), desc.getTags())
+        );
+        logIfDiffers(update, Environments::getTarball, desc ->
+                log.info("TARBALL descriptor [{}] ({}) -> [{}]", desc.getId(), desc.getLabel(), desc.getBundleName())
+        );
+        environments = update;
+    }
+
+    private <T> void logIfDiffers(Environments update, Function<Environments, List<T>> resolver, Consumer<T> statement) {
+        Integer size = Optional.ofNullable(environments).map(resolver).map(List::size).orElse(0);
+        List<T> latest = Optional.ofNullable(update).map(resolver).orElseGet(Collections::emptyList);
+        if (size != latest.size()) {
+            latest.forEach(statement);
         }
     }
 
     @Transactional
-    public EnvironmentDescriptor byId(Long id) {
-        return em.find(EnvironmentDescriptor.class, id);
+    public Optional<EnvironmentDescriptor> byDescriptorId(String descriptorId) {
+        return by(EnvironmentDescriptor_.descriptorId, descriptorId);
     }
 
     @Transactional
-    public Optional<EnvironmentDescriptor> byDescriptorId(String descriptorId) {
+    public Optional<EnvironmentDescriptor> by(SingularAttribute<EnvironmentDescriptor, String> attribute, String value) {
+        return by((cb, root) -> cb.equal(root.get(attribute), value));
+    }
+
+    private Optional<EnvironmentDescriptor> by(BiFunction<CriteriaBuilder, Path<EnvironmentDescriptor>, Predicate> fnPredicate) {
         CriteriaQuery<EnvironmentDescriptor> cq = JpaSugar.query(em, EnvironmentDescriptor.class, (cb, query) -> {
             Root<EnvironmentDescriptor> root = query.from(EnvironmentDescriptor.class);
-            return query.select(root).where(
-                    cb.equal(root.get(EnvironmentDescriptor_.descriptorId), descriptorId)
-            );
+            return query.select(root).where(fnPredicate.apply(cb, root));
         });
         return em.createQuery(cq).getResultStream().findFirst();
     }
 
     @Transactional
     public EnvironmentDto listEnvironments() {
-        return EnvironmentDto.of(docker, listActive());
+        List<Docker> docker = Optional.ofNullable(environments.getDocker()).map(envs ->
+                envs.stream().map(env ->
+                        Docker.of(env.getImageId(), env.getTags())
+                ).collect(Collectors.toList())
+        ).orElse(null);
+
+        List<Tarball> tarball = Optional.ofNullable(environments.getTarball()).map(envs ->
+                envs.stream().map(env ->
+                        Tarball.of(env.getId(), env.getLabel(), env.getBundleName(), SerializationUtils.serialize(env))
+                ).collect(Collectors.toList())
+        ).orElse(null);
+        return EnvironmentDto.of(docker, tarball);
     }
 
-    @Transactional
-    public List<EnvironmentDescriptorDto> listActive() {
-        return getActive().map(entity ->
-                EnvironmentDescriptorDto.of(entity.getId(), entity.getDescriptorId(), entity.getLabel(), entity.getJson())
-        ).collect(Collectors.toList());
-    }
-
-    private Stream<EnvironmentDescriptor> getActive() {
-        return getAll().filter(descriptor ->
-                descriptor.getTerminated() == null
-        );
-    }
-
-    private Stream<EnvironmentDescriptor> getAll() {
-        return JpaSugar.selectAll(em, EnvironmentDescriptor.class).getResultStream();
-    }
-
-    private Supplier<EnvironmentDescriptor> create(RuntimeEnvironmentDescriptorDTO dto, String json) {
-        return () -> {
-            log.info("Created descriptor [{}] - [{}], bundle name [{}]", dto.getId(), dto.getLabel(), dto.getBundleName());
-            EnvironmentDescriptor entity = new EnvironmentDescriptor();
-            entity.setDescriptorId(dto.getId());
-            entity.setBase(dto.getId().toLowerCase().startsWith("default"));
-            entity.setLabel(dto.getLabel());
-            entity.setJson(json);
-            em.persist(entity);
-            return entity;
-        };
+    private EnvironmentDescriptor create(String type, String label, String descriptorId, String json) {
+        log.info("Registered [{}] env [{}] - [{}]", type, label, descriptorId);
+        EnvironmentDescriptor entity = new EnvironmentDescriptor();
+        entity.setType(type);
+        entity.setDescriptorId(descriptorId);
+        entity.setBase(Optional.ofNullable(descriptorId).map(id -> id.toLowerCase().startsWith("default")).orElse(false));
+        entity.setLabel(label);
+        entity.setJson(json);
+        em.persist(entity);
+        return entity;
     }
 
 

@@ -14,7 +14,9 @@
  */
 package com.odysseusinc.arachne.datanode.environment;
 
-import java.time.Instant;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,8 +24,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
 
 @Entity
 @Table(name = "environment_descriptor")
@@ -50,4 +51,12 @@ public class EnvironmentDescriptor {
 
     @Column(name = "terminated")
     private Instant terminated;
+
+    @Column(name = "type")
+    private String type;
+
+    public interface Type {
+        String DOCKER = "docker";
+        String TARBALL = "tarball";
+    }
 }

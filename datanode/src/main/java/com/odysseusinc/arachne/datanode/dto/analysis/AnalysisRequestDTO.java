@@ -39,7 +39,7 @@ public class AnalysisRequestDTO {
     @NotNull
     private String type;
 
-    private Long environmentId;
+    private String environmentId;
 
     private String dockerImage;
 }
