@@ -236,22 +236,6 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
       return analysisName;
     };
 
-    /*
-    analysisName: "IR Analysis"
-    analysisType: "CUSTOM"
-    dockerRuntimeEnvironmentImage: "odysseusinc.com/r-hades:latest"
-    entryPoint: "R/main.R"
-    runtimeEnvironmentName: "Default Runtime"
-    studyName: "My study"
-
-     executableFileName: string;
-  study: string;
-  type: AnalysisTypes;
-  environmentId?: string;
-  datasourceId: string;
-  title: string;
-  dockerImage?: string;
-    */
     return (
       <Grid container>
         <Paper elevation={3} sx={{ zIndex: 2, px: 2, width: "100%" }}>
@@ -281,7 +265,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
 
                         setState(prevState => {
                           return metadata ? {
-                            ...state,
+                            ...prevState,
                             title: metadata.analysisName,
                             study: metadata.studyName,
                             dockerImage: metadata.dockerRuntimeEnvironmentImage,
@@ -289,7 +273,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                             executableFileName: metadata.entryPoint.toLowerCase(),
                             environmentId: metadata.runtimeEnvironmentName
                           } : {
-                            ...state,
+                            ...prevState,
                             title: analysisName.join(),
                           }
                         });
