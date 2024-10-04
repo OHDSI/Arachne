@@ -209,6 +209,9 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
       return Object.keys(zipFolder.files)
         .map(fileId => zipFolder.files[fileId])
         .filter(file => {
+          return !(file.name.indexOf('_') === 0 || file.name.indexOf('.') === 0)
+        })
+        .filter(file => {
           return (
             file.name.toLowerCase().includes(".sql", -5) ||
             file.name.toLowerCase().includes(".r", -5)
