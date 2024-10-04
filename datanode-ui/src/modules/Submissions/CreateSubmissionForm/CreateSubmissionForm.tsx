@@ -218,9 +218,13 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
           );
         })
         .map(file => {
+          const filename = file.name.split('/')
+          if(filename.length > 1) {
+            filename.shift()
+          }
           return {
-            name: file.name,
-            value: file.name,
+            name: filename.join('/').toLowerCase(),
+            value: filename.join('/').toLowerCase(),
           };
         });
     };
@@ -232,6 +236,22 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
       return analysisName;
     };
 
+    /*
+    analysisName: "IR Analysis"
+    analysisType: "CUSTOM"
+    dockerRuntimeEnvironmentImage: "odysseusinc.com/r-hades:latest"
+    entryPoint: "R/main.R"
+    runtimeEnvironmentName: "Default Runtime"
+    studyName: "My study"
+
+     executableFileName: string;
+  study: string;
+  type: AnalysisTypes;
+  environmentId?: string;
+  datasourceId: string;
+  title: string;
+  dockerImage?: string;
+    */
     return (
       <Grid container>
         <Paper elevation={3} sx={{ zIndex: 2, px: 2, width: "100%" }}>
@@ -249,7 +269,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               {activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE && (
                 <>
                   <Grid item xs={12}>
-                    <ImportZipFile titleButton={t("forms.create_submission.files_in_archive.upload")} onChange={(zipFolder: any, zip: any) => {
+                    <ImportZipFile titleButton={t("forms.create_submission.files_in_archive.upload")} onChange={(zipFolder: any, zip: any, metadata: any) => {
 
                       if (zip) {
                         const analysisName = getAnalysisName(zip);
@@ -259,9 +279,19 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                           entryFiles: unpackZip(zipFolder)
                         }));
 
-                        setState({
-                          ...state,
-                          title: analysisName.join(),
+                        setState(prevState => {
+                          return metadata ? {
+                            ...state,
+                            title: metadata.analysisName,
+                            study: metadata.studyName,
+                            dockerImage: metadata.dockerRuntimeEnvironmentImage,
+                            type: metadata.analysisType,
+                            executableFileName: metadata.entryPoint.toLowerCase(),
+                            environmentId: metadata.runtimeEnvironmentName
+                          } : {
+                            ...state,
+                            title: analysisName.join(),
+                          }
                         });
                       } else {
                         setControlsList(prevState => ({
