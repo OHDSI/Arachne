@@ -218,9 +218,13 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
           );
         })
         .map(file => {
+          const filename = file.name.split('/')
+          if(filename.length > 1) {
+            filename.shift()
+          }
           return {
-            name: file.name,
-            value: file.name,
+            name: filename.join('/').toLowerCase(),
+            value: filename.join('/').toLowerCase(),
           };
         });
     };
@@ -249,7 +253,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               {activeTab === CreateSubmissionFormTabs.FILES_IN_ARCHIVE && (
                 <>
                   <Grid item xs={12}>
-                    <ImportZipFile titleButton={t("forms.create_submission.files_in_archive.upload")} onChange={(zipFolder: any, zip: any) => {
+                    <ImportZipFile titleButton={t("forms.create_submission.files_in_archive.upload")} onChange={(zipFolder: any, zip: any, metadata: any) => {
 
                       if (zip) {
                         const analysisName = getAnalysisName(zip);
@@ -259,9 +263,19 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                           entryFiles: unpackZip(zipFolder)
                         }));
 
-                        setState({
-                          ...state,
-                          title: analysisName.join(),
+                        setState(prevState => {
+                          return metadata ? {
+                            ...prevState,
+                            title: metadata.analysisName,
+                            study: metadata.studyName,
+                            dockerImage: metadata.dockerRuntimeEnvironmentImage,
+                            type: metadata.analysisType,
+                            executableFileName: metadata.entryPoint.toLowerCase(),
+                            environmentId: metadata.runtimeEnvironmentName
+                          } : {
+                            ...prevState,
+                            title: analysisName.join(),
+                          }
                         });
                       } else {
                         setControlsList(prevState => ({

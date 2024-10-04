@@ -56,12 +56,19 @@ export const ImportZipFile: FC<any> = props => {
             <input
               type="file"
               accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
-              onChange={e => {
+              onChange={async e => {
                 const archive = e.target.files[0];
+                let json = null;
                 const zip = new JSZip();
-                zip.loadAsync(archive).then(files_zip => {
+                zip.loadAsync(archive).then(async files_zip => {
+                  const fileMetadata = Object.values(files_zip.files).find(elem => (elem.name.indexOf('metadata.json') >= 0 || elem.name.indexOf('execution-config.json') >= 0) && !(elem.name.indexOf('_') === 0))
+                  
+                  if(fileMetadata) {
+                    const res = await zip.file(fileMetadata.name).async("string");
+                    json = JSON.parse(res)
+                  }
                   setCurrentFile(archive);
-                  onChange(files_zip, archive);
+                  onChange(files_zip, archive, json);
                 });
                 // readFile(file);
               }}
