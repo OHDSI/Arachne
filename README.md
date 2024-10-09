@@ -22,14 +22,15 @@ ARACHNE DataNode is a open source web application designed to execute [OHDSI stu
 | commons     | Shared code                                |
 | datanode    | ARACHNE DataNode backend application       |
 | datanode-ui | ARACHNE DataNode frontend application      |
-| docs        | Documentation assets                       |
-| example     | Analysis R Code example                    |   
-| install     | Installation files                         |  
+| docs        | Documentation assets                       |  
+| install     | Docker Compose                             |  
 | src         | Code style configuration                   |
 
 # Documentation
+
 ### Deployment
  - [Deployment with Docker](install/docker)
+
 ### Development
  - [Analysis Preparation](https://github.com/OHDSI/Arachne/wiki/R-Code-Development)
  - [R Environment](https://github.com/OHDSI/Arachne/wiki/R-Environment-Development)
