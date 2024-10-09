@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -79,7 +80,9 @@ public class AnalysisResultsService {
 
     public List<AnalysisFileDTO> getAnalysisResults(Long analysisId) {
         return analysisFiles(analysisId, files -> {
-            if (isListOfArchive(files)) {
+            if (files.isEmpty()) {
+                return Collections.emptyList();
+            } else if (isListOfArchive(files)) {
                 return listFilesInZip(getValidZipArchive(files)
                         .orElseThrow(() -> new IllegalOperationException(MessageFormat.format("ZIP archive is not found in analysis [{0}]", analysisId))));
             } else {
