@@ -160,7 +160,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       stateForSave.environmentId = state.environmentId
     }
     try {
-      const result = await updateSubmission(id, state);
+      const result = await updateSubmission(id, stateForSave);
       enqueueSnackbar({
         message: t("forms.rerun_submission.success_message"),
         variant: "success",
