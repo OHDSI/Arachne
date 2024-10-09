@@ -25,7 +25,7 @@ import {
 } from "./LatestSubmissions.styles";
 import { useList } from "../../../libs/hooks";
 import { getSubmissions } from "../../../api/submissions";
-import { Status } from "../../../libs/enums";
+import { Status, SubmissionStatus } from "../../../libs/enums";
 import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from "../../../libs/components";
 import { getSubmissionStatusInfo, getItemFromConstantArray } from "../../../libs/utils";
 import { originSubmissions } from "../../../libs/constants";
@@ -67,46 +67,53 @@ export const LatestSubmissions: React.FC<any> = props => {
       <LatestSubmissionsList>
         {status === Status.SUCCESS &&
           (rawData?.length ? (
-          	rawData
-          		.slice(0, 5)
-          		.map(item => {
-          			const status = getSubmissionStatusInfo(item.status);
-          			const origin = getItemFromConstantArray(
-          				originSubmissions,
-          				item.origin
-          			);
-          			return (
-          				<LatestSubmissionsListItem
-          					key={item.id + "favorite"}
-          					onClick={() => {
-          						props.openSubmission(item);
-          					}}
-          				>
-          					<div className="list-item-section">
-          						<span>
-          							{item.analysis}{" "}
-          							<span style={{ fontWeight: 300, color: "#016c75" }}>
-          								{`[ ${origin.name} ]`}
-          							</span>
-          						</span>
-          					</div>
+            rawData
+              .slice(0, 5)
+              .map(item => {
+                let status = null;
+                const origin = getItemFromConstantArray(
+                  originSubmissions,
+                  item.origin
+                );
 
-          					<div className="list-item-section">
-          						{status && (
-          							<StatusTag text={status.name} color={status.color} />
-          						)}
-          					</div>
-          				</LatestSubmissionsListItem>
-          			);
-          		})
+                if (item.error) {
+                  status = getSubmissionStatusInfo(SubmissionStatus.FAILED);
+                } else {
+                  status = getSubmissionStatusInfo(item.stage);
+                }
+
+                return (
+                  <LatestSubmissionsListItem
+                    key={item.id + "favorite"}
+                    onClick={() => {
+                      props.openSubmission(item);
+                    }}
+                  >
+                    <div className="list-item-section">
+                      <span>
+                        {item.analysis}{" "}
+                        <span style={{ fontWeight: 300, color: "#016c75" }}>
+                          {`[ ${item.dataSource.name} ]`}
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="list-item-section">
+                      {status && (
+                        <StatusTag text={status.name} color={status.color} />
+                      )}
+                    </div>
+                  </LatestSubmissionsListItem>
+                );
+              })
           ) : (
-          	<LatestSubmissionsListItem light>
-          		<EmptyTableStub
-          			noDataText={t("common.components.latest_submissions.no_data")}
-          			addButtonText={t("common.components.latest_submissions.go_to")}
-          			onAdd={() => navigate("/submissions")}
-          		/>
-          	</LatestSubmissionsListItem>
+            <LatestSubmissionsListItem light>
+              <EmptyTableStub
+                noDataText={t("common.components.latest_submissions.no_data")}
+                addButtonText={t("common.components.latest_submissions.go_to")}
+                onAdd={() => navigate("/submissions")}
+              />
+            </LatestSubmissionsListItem>
           ))}
         {status === Status.ERROR && (
           <LatestSubmissionsListItem light>
