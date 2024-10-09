@@ -24,7 +24,7 @@ services:
 
   # Execution Engine
   arachne-execution-engine:
-    image: odysseusinc/execution_engine:2.3.1
+    image: odysseusinc/execution_engine:2.5.0
     pull_policy: always
     platform: linux/amd64
     container_name: arachne-execution-engine
@@ -41,8 +41,8 @@ services:
       - applyRuntimeDependenciesComparisonLogic=true
       - libraries.location.strategus=strategus
       - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:latest
-      - ANALYSIS_MOUNT=/tmp/executions
       - DOCKER_IMAGE_FILTER=odysseusinc/r-hades(.+)
+      - ANALYSIS_MOUNT=/tmp/executions
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/runtimes/
       - RUNTIMESERVICE_DIST_DEFAULTDESCRIPTORFILE=descriptor_base.json
