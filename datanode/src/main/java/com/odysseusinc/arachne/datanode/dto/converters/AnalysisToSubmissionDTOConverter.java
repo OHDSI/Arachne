@@ -69,8 +69,12 @@ public class AnalysisToSubmissionDTOConverter {
                     entry.getState() == AnalysisState.CREATED
             ).findFirst().map(AnalysisStateEntry::getDate).ifPresent(dto::setSubmitted);
         });
-        EnvironmentDescriptor environment = Optional.ofNullable(analysis.getActualEnvironment()).orElseGet(analysis::getEnvironment);
-        dto.setEnvironment(Optional.ofNullable(environment).map(EnvironmentDescriptor::getLabel).orElse(null));
+        String environment = Optional.ofNullable(analysis.getDockerImage()).orElseGet(() ->
+                Optional.ofNullable(
+                        Optional.ofNullable(analysis.getActualEnvironment()).orElseGet(analysis::getEnvironment)
+                ).map(EnvironmentDescriptor::getLabel).orElse(null)
+        );
+        dto.setEnvironment(environment);
         return dto;
     }
 }

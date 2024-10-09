@@ -22,7 +22,6 @@ import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO.Environment.Tar
 import com.odysseusinc.arachne.datanode.dto.converters.DataSourceToDataSourceUnsecuredDTOConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
-import com.odysseusinc.arachne.datanode.exception.ArachneSystemRuntimeException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
@@ -32,6 +31,7 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -49,10 +49,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClientException;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -67,6 +66,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -113,6 +113,8 @@ public class AnalysisService {
 	private String datanodePort;
 	@Value("${files.store.path}")
 	private String filesStorePath;
+	@Autowired
+	private TransactionTemplate tx;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -153,7 +155,7 @@ public class AnalysisService {
 	}
 
 	@Transactional
-	public Long rerun(
+	public CompletableFuture<Long> rerun(
 			Long id, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user
 	) {
 		Analysis original = find(id);
@@ -163,12 +165,11 @@ public class AnalysisService {
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle(), id
 		);
-		sendToEngine(analysis);
-		return analysis.getId();
+		return sendToEngine(analysis);
 	}
 
 	@Transactional
-	public Long run(
+	public CompletableFuture<Long> run(
 			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Consumer<File> writeFiles
 	) {
 		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
@@ -196,41 +197,49 @@ public class AnalysisService {
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
 		);
-		sendToEngine(analysis);
-		return analysis.getId();
+		return sendToEngine(analysis);
 	}
 
-    @Async
-    @Transactional
-    public void sendToEngine(Analysis analysis) {
+    private CompletableFuture<Long> sendToEngine(Analysis analysis) {
         preprocessorService.runPreprocessor(analysis);
         AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
-        analysisRequestDTO.setResultExclusions(resultExclusions);
         File analysisFolder = new File(analysis.getSourceFolder());
-        Long id = analysis.getId();
-        try {
-            AnalysisRequestStatusDTO exchange = engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false);
-            String descriptorId = exchange.getActualDescriptorId();
-			log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
-
-			if (exchange.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
-				stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Analysis type not recognized");
-			} else {
-				EnvironmentDescriptor descriptor = Optional.ofNullable(analysis.getDockerImage()).map(image ->
-						environmentService.ensureImageExists(image, descriptorId)
-				).orElseGet(() ->
-						environmentService.ensureTarballExists(descriptorId)
-				);
-				analysis.setActualEnvironment(descriptor);
-				String reason = String.format("Accepted by engine as %s type", exchange.getType());
-				stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
-			}
-        } catch (RestClientException | ArachneSystemRuntimeException e) {
-            log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
-            String reason = String.format("Execution engine request failed: %s", e.getMessage());
-            stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
-        }
+        return CompletableFuture.supplyAsync(() ->
+                engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false), executor
+        ).handle((result, e) -> {
+            Long id = analysisRequestDTO.getId();
+            if (e != null) {
+                log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
+                String reason = String.format("Execution engine request failed: %s", e.getMessage());
+                stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
+            } else {
+                afterSend(id, result);
+            }
+            return id;
+        });
     }
+
+	private void afterSend(Long id, AnalysisRequestStatusDTO exchange) {
+        Analysis analysis = find(id);
+		String descriptorId = exchange.getActualDescriptorId();
+		log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
+
+		if (exchange.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
+			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Analysis type not recognized");
+		} else {
+			EnvironmentDescriptor descriptor = Optional.ofNullable(analysis.getDockerImage()).map(image ->
+					environmentService.ensureImageExists(image, descriptorId)
+			).orElseGet(() ->
+					environmentService.ensureTarballExists(descriptorId)
+			);
+			analysis.setActualEnvironment(descriptor);
+            // Resolution of state conflicts from concurrent changes should be implemented more reliably
+            if (analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).map(q -> q.getState() == AnalysisState.CREATED).orElse(true)) {
+                String reason = String.format("Accepted by engine as %s type", exchange.getType());
+                stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
+            }
+		}
+	}
 
 	@Transactional
 	public void update(Long id, Consumer<Analysis> updates) {
@@ -337,8 +346,12 @@ public class AnalysisService {
 
 		analysis.setType(dto.getType());
 
-		analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).flatMap(environmentService::byDescriptorId).orElse(null));
-		analysis.setDockerImage(StringUtils.defaultIfBlank(dto.getDockerImage(), null));
+		String image = dto.getDockerImage();
+		if (image == null) {
+			analysis.setEnvironment(Optional.ofNullable(dto.getEnvironmentId()).flatMap(environmentService::byDescriptorId).orElse(null));
+		} else {
+			analysis.setDockerImage(image);
+		}
 		analysis.setDataSource(dataSource);
 
 		analysis.setCallbackPassword(UUID.randomUUID().toString().replace("-", ""));
@@ -381,6 +394,7 @@ public class AnalysisService {
 		dto.setResultCallback(analysis.getResultCallback());
 		dto.setCallbackPassword(analysis.getCallbackPassword());
 		dto.setRequested(new Date());
+		dto.setResultExclusions(resultExclusions);
 		return dto;
 	}
 

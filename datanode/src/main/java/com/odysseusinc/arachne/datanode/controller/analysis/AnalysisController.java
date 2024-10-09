@@ -38,7 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,6 +64,7 @@ import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,8 +83,9 @@ public class AnalysisController {
     @Autowired
     private UserService userService;
 
+    @Async
     @PostMapping(path = "zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> executeZip(
+    public CompletableFuture<?> executeZip(
             @RequestPart("file") List<MultipartFile> archive,
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
@@ -110,12 +112,12 @@ public class AnalysisController {
             }
 
         };
-        Long id = analysisService.run(dto, user, writeFiles);
-        return ResponseEntity.ok(id);
+        return analysisService.run(dto, user, writeFiles);
     }
 
+    @Async
     @PostMapping(path = "files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> executeFiles(
+    public CompletableFuture<Long> executeFiles(
             @RequestPart("file") List<MultipartFile> archive,
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
@@ -129,8 +131,7 @@ public class AnalysisController {
                         throw new RuntimeException(e);
                     }
                 });
-        Long id = analysisService.run(dto, user, files);
-        return ResponseEntity.ok(id);
+        return analysisService.run(dto, user, files);
     }
 
     @GetMapping("{id}")

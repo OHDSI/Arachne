@@ -56,6 +56,7 @@ public class EnvironmentDescriptorService {
 
     @Transactional
     public EnvironmentDescriptor ensureImageExists(String label, String descriptorId) {
+        log.info("Actual env: {} ({})", label, descriptorId);
         String safeId = Optional.ofNullable(descriptorId).orElse(label);
         return by((cb, root) -> cb.and(
                 cb.equal(root.get(EnvironmentDescriptor_.label), label),
