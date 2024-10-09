@@ -223,8 +223,8 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
             filename.shift()
           }
           return {
-            name: filename.join('/').toLowerCase(),
-            value: filename.join('/').toLowerCase(),
+            name: filename.join('/'),
+            value: filename.join('/'),
           };
         });
     };
