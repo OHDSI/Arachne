@@ -31,7 +31,6 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -67,9 +66,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -83,7 +84,8 @@ public class AnalysisService {
 	);
 	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
 
-	private final ExecutorService executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
+	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
+	private final Executor delayedExecutor = runnable -> executor.schedule(() -> ((Executor) ForkJoinPool.commonPool()).execute(runnable), 1, TimeUnit.SECONDS);
 
 	@Autowired
 	private DataSourceServiceImpl dataSourceService;
@@ -205,7 +207,7 @@ public class AnalysisService {
         AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
         File analysisFolder = new File(analysis.getSourceFolder());
         return CompletableFuture.supplyAsync(() ->
-                engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false), executor
+                engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false), delayedExecutor
         ).handle((result, e) -> {
             Long id = analysisRequestDTO.getId();
             if (e != null) {
