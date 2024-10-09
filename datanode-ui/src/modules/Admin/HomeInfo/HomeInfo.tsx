@@ -33,7 +33,7 @@ export const HomeInfo: React.FC<any> = (props) => {
               <a target="_blank" href='https://github.com/OHDSI/Arachne/wiki/R-Code-Development' rel="noreferrer">R Code Development Guide</a>
             </li>
             <li>
-              <a target="_blank" href='https://github.com/OHDSI/Arachne/blob/main/example' rel="noreferrer">Example and Template for R code</a>
+              <a target="_blank" href='https://github.com/darwin-eu-studies/CohortDiagnosticsTemplate' rel="noreferrer">Example and Template for R code</a>
             </li>
             <li>
               <a target="_blank" href='https://github.com/OHDSI/Arachne/wiki/R-Environment-Development' rel="noreferrer"> R Environment Development Guide</a>
