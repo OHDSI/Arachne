@@ -125,13 +125,13 @@ public class EnvironmentDescriptorService {
 
     @Transactional
     public EnvironmentDto listEnvironments() {
-        List<Docker> docker = Optional.ofNullable(environments.getDocker()).map(envs ->
+        List<Docker> docker = Optional.ofNullable(environments).map(Environments::getDocker).map(envs ->
                 envs.stream().map(env ->
                         Docker.of(env.getImageId(), env.getTags())
                 ).collect(Collectors.toList())
         ).orElse(null);
 
-        List<Tarball> tarball = Optional.ofNullable(environments.getTarball()).map(envs ->
+        List<Tarball> tarball = Optional.ofNullable(environments).map(Environments::getTarball).map(envs ->
                 envs.stream().map(env ->
                         Tarball.of(env.getId(), env.getLabel(), env.getBundleName(), SerializationUtils.serialize(env))
                 ).collect(Collectors.toList())
