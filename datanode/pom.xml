@@ -388,7 +388,7 @@
                 at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:51) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
                 at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:34) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
             -->
-            <version>5.3.26</version>
+            <version>5.3.39</version>
         </dependency>
 
         <dependency>
