@@ -23,7 +23,7 @@
         <start-class>com.odysseusinc.arachne.datanode.WebApplicationStarter</start-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <jjwt.version>0.10.8</jjwt.version>
+        <jjwt.version>0.12.6</jjwt.version>
         <postgresql.version>42.3.9</postgresql.version>
         <javaDockerVersion>3.3.3</javaDockerVersion>
         <handlebars.version>4.2.0</handlebars.version>
