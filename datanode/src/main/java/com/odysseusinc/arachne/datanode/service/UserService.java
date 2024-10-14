@@ -15,17 +15,48 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
+import com.odysseusinc.arachne.commons.utils.UserIdUtils;
+import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
+import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.model.user.User;
+import org.ohdsi.authenticator.model.UserInfo;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface UserService extends UserDetailsService {
+
+    static UserDTO toDto(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(UserIdUtils.idToUuid(user.getId()));
+        dto.setFirstname(user.getFirstName());
+        dto.setLastname(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+        if (user.getRoles() != null) {
+            dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+        }
+        dto.setEnabled(Objects.nonNull(user.getEnabled()) ? user.getEnabled() : false);
+        return dto;
+    }
+
+    static User toEntity(UserInfo source) {
+        org.ohdsi.authenticator.model.User authUser = source.getUser();
+        User user = new User();
+
+        user.setUsername(source.getUsername());
+        user.setEmail(authUser.getEmail());
+        user.setFirstName(authUser.getFirstName());
+        user.setLastName(authUser.getLastName());
+        return user;
+    }
 
     User get(Long id) throws NotExistException;
 

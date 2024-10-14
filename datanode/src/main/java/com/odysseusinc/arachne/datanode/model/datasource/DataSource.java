@@ -16,10 +16,8 @@
 package com.odysseusinc.arachne.datanode.model.datasource;
 
 import com.google.common.base.MoreObjects;
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonHealthStatus;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.ValidCredentials;
-import com.odysseusinc.arachne.datanode.model.datanode.DataNode;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,11 +28,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -84,13 +80,6 @@ public class DataSource {
     @Column(name = "dbms_password", nullable = true)
     @Type(type = "encryptedString")
     private String password;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private DataNode dataNode;
-
-    @Column
-    @Enumerated(value = EnumType.STRING)
-    private CommonHealthStatus healthStatus = CommonHealthStatus.NOT_COLLECTED;
 
     @Column
     private Date deletedAt;
@@ -144,8 +133,6 @@ public class DataSource {
                 .add("cdmSchema", cdmSchema)
                 .add("username", "***")
                 .add("password", "***")
-                .add("dataNode", dataNode)
-                .add("healthStatus", healthStatus)
                 .add("healthStatusDescription", healthStatusDescription)
                 .add("targetSchema", targetSchema)
                 .add("resultSchema", resultSchema)
@@ -154,13 +141,4 @@ public class DataSource {
                 .toString();
     }
 
-    public Date getDeletedAt() {
-
-        return deletedAt;
-    }
-
-    public void setDeletedAt(final Date deletedAt) {
-
-        this.deletedAt = deletedAt;
-    }
 }

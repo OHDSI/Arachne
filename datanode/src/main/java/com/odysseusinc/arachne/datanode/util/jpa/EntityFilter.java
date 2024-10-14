@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,23 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.odysseusinc.arachne.datanode.util.jpa;
 
-package com.odysseusinc.arachne.datanode.dto.datasource;
+import javax.persistence.criteria.AbstractQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import java.util.function.Function;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonHealthStatus;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class DataSourceDTO extends AbstractDataSourceDTO {
-    private Long id;
-    private String uuid;
-
-    private Boolean published;
-    private Boolean hasKeytab;
-
-    private CommonHealthStatus healthStatus;
-    private String healthStatusDescription;
-
+public interface EntityFilter<E> {
+    Function<Path<E>, Predicate> apply(CriteriaBuilder criteriaBuilder, AbstractQuery<?> query);
 }

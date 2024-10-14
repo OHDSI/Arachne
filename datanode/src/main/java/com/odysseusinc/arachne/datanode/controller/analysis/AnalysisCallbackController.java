@@ -15,6 +15,8 @@
 
 package com.odysseusinc.arachne.datanode.controller.analysis;
 
+import com.odysseusinc.arachne.datanode.Api;
+import com.odysseusinc.arachne.datanode.Api.Part;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
@@ -68,8 +70,8 @@ public class AnalysisCallbackController {
     @PostMapping(value = RESULT_URI, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void analysisResult(@PathVariable Long id,
                                @PathVariable String password,
-                               @RequestPart("analysisResult") AnalysisResultDTO result,
-                               @RequestPart("file") MultipartFile[] files
+                               @RequestPart(Part.ANALYSIS_RESULT) AnalysisResultDTO result,
+                               @RequestPart(Part.FILE) MultipartFile[] files
     ) throws IOException {
 
         if (!id.equals(result.getId())) {

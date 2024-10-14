@@ -23,7 +23,6 @@ import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.RoleRepository;
 import com.odysseusinc.arachne.datanode.repository.UserRepository;
-import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.events.user.UserDeletedEvent;
 import org.slf4j.Logger;
@@ -52,18 +51,12 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final String USER_NOT_FOUND_EXCEPTION = "User with id='$s' is not found";
     private static final String ROLE_ADMIN_IS_NOT_FOUND_EXCEPTION = "ROLE_ADMIN is not found";
-    private static final String RELINKING_ALL_USERS_LOG = "Relinking all DataNode users on Central";
-    private static final String RELINKING_ALL_USERS_ERROR_LOG = "Relinking users on Central error: {}";
     private static final String REMOVING_USER_LOG = "Removing user with id='{}'";
 
-    @Autowired
-    protected GenericConversionService conversionService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private DataNodeService dataNodeService;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -105,12 +98,9 @@ public class UserServiceImpl implements UserService {
     }
 
     protected void toggleUser(String login, Boolean enabled) {
-
-        dataNodeService.findCurrentDataNode().ifPresent(dataNode -> {
-            User user = userRepository.findOneByUsernameIgnoreCase(login).orElseThrow(IllegalArgumentException::new);
-            user.setEnabled(enabled);
-            userRepository.save(user);
-        });
+        User user = userRepository.findOneByUsernameIgnoreCase(login).orElseThrow(IllegalArgumentException::new);
+        user.setEnabled(enabled);
+        userRepository.save(user);
     }
 
     @Override

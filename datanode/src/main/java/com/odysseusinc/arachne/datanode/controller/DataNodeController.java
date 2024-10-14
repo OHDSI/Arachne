@@ -16,8 +16,7 @@
 package com.odysseusinc.arachne.datanode.controller;
 
 import com.odysseusinc.arachne.datanode.dto.datanode.DataNodeModeDTO;
-import com.odysseusinc.arachne.datanode.service.DataNodeService;
-import org.springframework.core.convert.support.GenericConversionService;
+import com.odysseusinc.arachne.datanode.model.datanode.FunctionalMode;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,19 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DataNodeController {
 
-    private final DataNodeService dataNodeService;
-
-    private final GenericConversionService conversionService;
-
-    public DataNodeController(DataNodeService dataNodeService, GenericConversionService conversionService) {
-
-        this.dataNodeService = dataNodeService;
-        this.conversionService = conversionService;
-    }
-
     @RequestMapping(method = RequestMethod.GET, value = "/api/v1/datanode/mode")
     public DataNodeModeDTO getDataNodeMode() {
-
-        return conversionService.convert(dataNodeService.getDataNodeMode(), DataNodeModeDTO.class);
+        DataNodeModeDTO dto = new DataNodeModeDTO();
+        dto.setMode(FunctionalMode.STANDALONE);
+        return dto;
     }
 }

@@ -16,10 +16,10 @@
 package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
+import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO.Environment;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO.Environment.Tarball;
-import com.odysseusinc.arachne.datanode.dto.converters.DataSourceToDataSourceUnsecuredDTOConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
@@ -36,7 +36,6 @@ import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisPreprocessorService;
-import com.odysseusinc.arachne.datanode.service.impl.DataSourceServiceImpl;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
@@ -69,7 +68,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -88,9 +86,7 @@ public class AnalysisService {
 	private final Executor delayedExecutor = runnable -> executor.schedule(() -> ((Executor) ForkJoinPool.commonPool()).execute(runnable), 1, TimeUnit.SECONDS);
 
 	@Autowired
-	private DataSourceServiceImpl dataSourceService;
-	@Autowired
-	private DataSourceToDataSourceUnsecuredDTOConverter datasourceConverter;
+	private DataSourceService dataSourceService;
 	@Autowired
 	private AnalysisPreprocessorService preprocessorService;
 	@Autowired
@@ -207,7 +203,7 @@ public class AnalysisService {
         AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
         File analysisFolder = new File(analysis.getSourceFolder());
         return CompletableFuture.supplyAsync(() ->
-                engineIntegrationService.sendAnalysisRequest(analysisRequestDTO, analysisFolder, true, false), delayedExecutor
+                engineIntegrationService.sendAnalysis(analysisRequestDTO, analysisFolder), delayedExecutor
         ).handle((result, e) -> {
             Long id = analysisRequestDTO.getId();
             if (e != null) {
@@ -387,7 +383,7 @@ public class AnalysisService {
 
     private AnalysisRequestDTO toDto(Analysis analysis) {
 		AnalysisRequestDTO dto = new AnalysisRequestDTO();
-		dto.setDataSource(datasourceConverter.convert(analysis.getDataSource()));
+		dto.setDataSource(dataSourceService.toUnsecuredDto(analysis.getDataSource()));
 		dto.setId(analysis.getId());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
 		dto.setRequestedDescriptorId(Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null));

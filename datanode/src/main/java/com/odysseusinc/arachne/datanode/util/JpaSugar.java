@@ -23,6 +23,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+
+import com.odysseusinc.arachne.datanode.util.jpa.EntityFilter;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -62,6 +64,13 @@ public interface JpaSugar {
         return em.createQuery(criteriaQuery);
     }
 
+    static <E> Long count(EntityManager em, Class<E> clazz, EntityFilter<E> filter) {
+        CriteriaQuery<Long> query = query(em, Long.class, (cb, cq) -> {
+            Root<E> root = cq.from(clazz);
+            return cq.select(cb.count(root)).where(filter.apply(cb, cq).apply(root));
+        });
+        return em.createQuery(query).getSingleResult();
+    }
 
 
     /**

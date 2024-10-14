@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.config;
 
+import com.odysseusinc.arachne.datanode.Api;
 import com.odysseusinc.arachne.datanode.security.AuthenticationTokenFilter;
 import com.odysseusinc.arachne.datanode.security.EntryPointUnauthorizedHandler;
 import org.ohdsi.authenticator.service.authentication.AccessTokenResolver;
@@ -52,9 +53,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean authenticationTokenFilterRegistration(AuthenticationTokenFilter filter) {
-
-        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+    public FilterRegistrationBean<AuthenticationTokenFilter> authenticationTokenFilterRegistration(AuthenticationTokenFilter filter) {
+        FilterRegistrationBean<AuthenticationTokenFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);
         registrationBean.setEnabled(false);
         return registrationBean;
@@ -106,8 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/submissions/**").permitAll()
                 .antMatchers("/admin-settings/**").permitAll()
                 .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .antMatchers("/api/v1/data-sources/**/check/result/**").permitAll()
-                .antMatchers("/api/v1/data-sources/**/check/update/**").permitAll()
+                .antMatchers(Api.PREFIX + "/*/*" + Api.SUFFIX_STATUS, Api.PREFIX + "/*/*"  + Api.SUFFIX_RESULT).permitAll()
                 .antMatchers("/api/v1/datanode/mode").permitAll()
 
                 .antMatchers("/api**").authenticated()
