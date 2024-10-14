@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,15 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.datanode.dto.datasource;
+package com.odysseusinc.arachne.datanode.datasource;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonHealthStatus;
+import com.odysseusinc.arachne.commons.api.v1.dto.CommonModelType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class DataSourceDTO extends AbstractDataSourceDTO {
-    private Long id;
-    private String uuid;
-
-    private Boolean published;
-    private Boolean hasKeytab;
-
-    private CommonHealthStatus healthStatus;
-    private String healthStatusDescription;
-
+@AllArgsConstructor(staticName = "of")
+public class CheckResult {
+    private CommonModelType modelType;
+    private String cdmVersion;
 }

@@ -25,7 +25,7 @@ import static org.testinfected.hamcrest.validation.ViolationMatchers.violation;
 
 import com.odysseusinc.arachne.TestContainersInitializer;
 import com.odysseusinc.arachne.commons.types.DBMSType;
-import com.odysseusinc.arachne.datanode.dto.datasource.CreateDataSourceDTO;
+import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
 import java.util.Set;
@@ -57,13 +57,13 @@ public class ValidatorTest {
     public void shouldValidateCreateDatasourceDTO() {
 
         //Should pass with keyfile
-        CreateDataSourceDTO bqDataSourceDTO = prepareDataSourceDTO(DBMSType.BIGQUERY);
+        WriteDataSourceDTO bqDataSourceDTO = prepareDataSourceDTO(DBMSType.BIGQUERY);
         bqDataSourceDTO.setKeyfile(mockKeyFile);
-        Set<ConstraintViolation<CreateDataSourceDTO>> violations = validator.validate(bqDataSourceDTO);
+        Set<ConstraintViolation<WriteDataSourceDTO>> violations = validator.validate(bqDataSourceDTO);
         assertThat(violations, succeeds());
 
         //Should fail without username
-        CreateDataSourceDTO pgDataSourceDTO = prepareDataSourceDTO(DBMSType.POSTGRESQL);
+        WriteDataSourceDTO pgDataSourceDTO = prepareDataSourceDTO(DBMSType.POSTGRESQL);
         violations = validator.validate(pgDataSourceDTO);
         assertThat(violations, fails());
         assertThat(violations, hasSize(1));
@@ -75,7 +75,7 @@ public class ValidatorTest {
         assertThat(violations, succeeds());
 
         //Should fail without username not using kerberos
-        CreateDataSourceDTO impalaDataSourceDTO = prepareDataSourceDTO(DBMSType.IMPALA);
+        WriteDataSourceDTO impalaDataSourceDTO = prepareDataSourceDTO(DBMSType.IMPALA);
         violations = validator.validate(impalaDataSourceDTO);
         assertThat(violations, fails());
         assertThat(violations, hasSize(1));
@@ -162,9 +162,9 @@ public class ValidatorTest {
         assertThat(violations, violates(violation(on("krbUser"))));
     }
 
-    private CreateDataSourceDTO prepareDataSourceDTO(DBMSType type) {
+    private WriteDataSourceDTO prepareDataSourceDTO(DBMSType type) {
 
-        CreateDataSourceDTO dataSourceDTO = new CreateDataSourceDTO();
+        WriteDataSourceDTO dataSourceDTO = new WriteDataSourceDTO();
         dataSourceDTO.setDbmsType(type.getValue());
         dataSourceDTO.setName("testDataSource");
         dataSourceDTO.setConnectionString("jdbc:postgresql://localhost/datanode_test");

@@ -14,15 +14,17 @@
  */
 package com.odysseusinc.arachne.commons.utils.strategus;
 
-import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.commons.utils.JsonMatcher;
 
-public class StrategusMatcher extends JsonMatcher {
+
+public final class StrategusMatcher extends JsonMatcher {
+    public static final StrategusMatcher INSTANCE = new StrategusMatcher();
 
     public static final String STRATEGUS_EXT = "json";
+    public static final String TYPE_STRATEGUS_JSON = "strategusjson";
 
-    {
-        putToMap(CommonFileUtils.TYPE_STRATEGUS_JSON, StrategusExpression.class);
+    private StrategusMatcher() {
+        putToMap(TYPE_STRATEGUS_JSON, StrategusExpression.class);
     }
 
     @Override

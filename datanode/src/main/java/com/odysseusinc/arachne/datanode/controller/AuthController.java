@@ -15,15 +15,12 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthMethodDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationModeDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationResponse;
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
-import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.DataNodeService;
 import com.odysseusinc.arachne.datanode.service.UserRegistrationStrategy;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,38 +64,16 @@ public class AuthController {
     private Authenticator authenticator;
 
     @Autowired
-    private ConversionService conversionService;
-
-    @Autowired
-    private DataNodeService dataNodeService;
-
-    @Autowired
     private UserRegistrationStrategy userRegisterStrategy;
 
     @Autowired
     private AccessTokenResolver accessTokenResolver;
-
-    @Value("${datanode.jwt.header}")
-    private String tokenHeader;
 
     @Value("${security.method}")
     private String authMethod;
 
     @Value("${security.authentication.mode:" + AuthenticationMode.Const.STANDARD + "}")
     private AuthenticationMode authenticationMode = AuthenticationMode.STANDARD;
-
-    /**
-     * @return
-     * @deprecated not required as authenticator was implemented that provides authentication source
-     * in a very flexible way.
-     */
-    @ApiOperation("Get auth method")
-    @RequestMapping(value = "/api/v1/auth/method", method = GET)
-    @Deprecated
-    public JsonResult<CommonAuthMethodDTO> authMethod() {
-
-        throw new BadRequestException();
-    }
 
 
     @ApiOperation("Get authentication mode")
@@ -119,7 +93,7 @@ public class AuthController {
                 authMethod,
                 new UsernamePasswordCredentials(request.getUsername(), request.getPassword())
         );
-        User centralUser = conversionService.convert(userInfo, User.class);
+        User centralUser = UserService.toEntity(userInfo);
         userRegisterStrategy.registerUser(centralUser);
 
         return Optional.ofNullable(userInfo).map(UserInfo::getToken).map(token ->

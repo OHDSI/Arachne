@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.system.settings.service;
 
+import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingsGroupDTO;
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingsGroup;
@@ -34,4 +35,6 @@ public interface SystemSettingsService {
     boolean isSecuredSetting(SystemSetting systemSetting);
 
     boolean isConfigChanged();
+
+    SystemSettingsGroupDTO toDto(SystemSettingsGroup group);
 }

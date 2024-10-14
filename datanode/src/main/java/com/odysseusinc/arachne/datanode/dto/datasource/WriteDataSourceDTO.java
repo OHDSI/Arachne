@@ -15,20 +15,13 @@
 
 package com.odysseusinc.arachne.datanode.dto.datasource;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonHealthStatus;
+import com.odysseusinc.arachne.datanode.dto.datasource.validation.ValidCredentials;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class DataSourceDTO extends AbstractDataSourceDTO {
-    private Long id;
-    private String uuid;
-
-    private Boolean published;
-    private Boolean hasKeytab;
-
-    private CommonHealthStatus healthStatus;
-    private String healthStatusDescription;
+@ValidCredentials
+public class WriteDataSourceDTO extends AbstractDataSourceDTO {
 
 }

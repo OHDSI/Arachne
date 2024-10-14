@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6432/arachne
+    username: ohdsi
+    password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)

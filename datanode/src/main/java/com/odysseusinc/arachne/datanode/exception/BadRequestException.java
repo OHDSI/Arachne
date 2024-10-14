@@ -15,10 +15,15 @@
 
 package com.odysseusinc.arachne.datanode.exception;
 
+import lombok.Getter;
+
+import java.util.Map;
+
+@Getter
 public class BadRequestException extends RuntimeException {
+    private Map<String, Object> errors;
 
     public BadRequestException() {
-
     }
 
     public BadRequestException(String message) {
@@ -26,8 +31,8 @@ public class BadRequestException extends RuntimeException {
         super(message);
     }
 
-    public BadRequestException(String message, Throwable cause) {
-
-        super(message, cause);
+    public BadRequestException(String message, Map<String, Object> errors) {
+        super(message);
+        this.errors = errors;
     }
 }

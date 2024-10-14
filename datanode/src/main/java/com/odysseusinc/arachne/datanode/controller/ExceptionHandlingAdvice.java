@@ -26,12 +26,14 @@ import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.IntegrationValidationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
+import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.nohandlerfoundexception.NoHandlerFoundExceptionUtils;
 import feign.FeignException;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -63,9 +65,7 @@ public class ExceptionHandlingAdvice extends BaseController {
 
     private NoHandlerFoundExceptionUtils noHandlerFoundExceptionUtils;
 
-    public ExceptionHandlingAdvice(UserService userService, NoHandlerFoundExceptionUtils noHandlerFoundExceptionUtils) {
-
-        super(userService);
+    public ExceptionHandlingAdvice(NoHandlerFoundExceptionUtils noHandlerFoundExceptionUtils) {
         this.noHandlerFoundExceptionUtils = noHandlerFoundExceptionUtils;
     }
 
@@ -203,9 +203,11 @@ public class ExceptionHandlingAdvice extends BaseController {
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity badRequestHandler() {
-
-        return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> badRequestHandler(BadRequestException e) {
+        JsonResult<?> result = new JsonResult<>();
+        result.setErrorMessage(e.getMessage());
+        result.setValidatorErrors(e.getErrors());
+        return ResponseEntity.badRequest().body(result);
     }
 
     @ExceptionHandler(ServiceNotAvailableException.class)
@@ -225,4 +227,12 @@ public class ExceptionHandlingAdvice extends BaseController {
         noHandlerFoundExceptionUtils.handleNotFoundError(request, response);
     }
 
+    protected User getAdmin(Principal principal) throws PermissionDeniedException {
+
+        final User user = userService.getUser(principal);
+        if (!user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN"))) {
+            throw new PermissionDeniedException("Access denied");
+        }
+        return user;
+    }
 }

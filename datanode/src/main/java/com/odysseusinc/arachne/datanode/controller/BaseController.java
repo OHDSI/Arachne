@@ -18,23 +18,17 @@ package com.odysseusinc.arachne.datanode.controller;
 import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.VALIDATION_ERROR;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
-import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
-import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.UserService;
-import java.security.Principal;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
 public abstract class BaseController {
+    @Autowired
+    protected UserService userService;
 
-    protected final UserService userService;
-
-    protected BaseController(UserService userService) {
-
-        this.userService = userService;
-    }
-
-    protected <T> JsonResult<T> setValidationErrors(BindingResult binding) {
+    protected static <T> JsonResult<T> setValidationErrors(BindingResult binding) {
 
         JsonResult<T> result;
         result = new JsonResult<>(VALIDATION_ERROR);
@@ -44,17 +38,4 @@ public abstract class BaseController {
         return result;
     }
 
-    protected User getUser(Principal principal) throws PermissionDeniedException {
-
-        return userService.getUser(principal);
-    }
-
-    protected User getAdmin(Principal principal) throws PermissionDeniedException {
-
-        final User user = userService.getUser(principal);
-        if (!user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN"))) {
-            throw new PermissionDeniedException("Access denied");
-        }
-        return user;
-    }
 }

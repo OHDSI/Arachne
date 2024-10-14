@@ -16,32 +16,8 @@
 package com.odysseusinc.arachne.datanode;
 
 public interface Constants {
-
-
     String LOGIN_REGEX = "^[_'.@A-Za-z0-9-]*$";
     String DUMMY_PASSWORD = "password_was_set";
-
-    interface Api {
-        String PATTERN = "/api/**";
-
-        interface Analysis {
-            String INVALIDATE_ALL_UNFINISHED = "/api/v1/admin/analysis/invalidate";
-        }
-
-        interface DataSource {
-            String ADD = "/api/v1/data-sources";
-            String ALL = "/api/v1/data-sources";
-            String GET = "/api/v1/data-sources/{id}";
-            String DELETE = "/api/v1/data-sources/{id}";
-            String UPDATE = "/api/v1/data-sources/{id}";
-            String CENTRAL_REGISTER = "/api/v1/data-sources/{id}/register-on-central";
-            String DS_MODEL_CHECK_FIRSTCHECK ="/api/v1/data-sources/{id}/check/result/{password}/firstcheck";
-            String DS_MODEL_CHECK_UPDATE = "/api/v1/data-sources/{id}/check/update/{password}";
-            String GET_BUSINESS = "/api/v1/data-sources/{id}/business";
-            String UPDATE_BUSINESS = "/api/v1/data-sources/{id}/business";
-            String DELETE_KEYTAB = "/api/v1/data-sources/{id}/keytab";
-        }
-    }
 
     interface Analysis {
         String ERROR_REPORT_FILENAME = "errorReport.txt";

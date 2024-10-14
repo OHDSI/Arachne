@@ -35,7 +35,6 @@ import okhttp3.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.temporal.ChronoUnit;
@@ -81,16 +80,13 @@ public class ExecutionEngineClient {
     }
 
     public AnalysisRequestStatusDTO sendAnalysisRequest(
-            AnalysisRequestDTO analysisRequest,
-            File file,
-            boolean compressedResult,
-            boolean healthCheck) {
+            AnalysisRequestDTO analysisRequest, boolean compressedResult, String name, RequestBody requestBody
+    ) {
         String json = toJson(analysisRequest);
         MultipartBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("analysisRequest", EMPTY_FILENAME, RequestBody.create(json, APPLICATION_JSON))
-                .addFormDataPart("file", file.getName(),
-                        RequestBody.create(file, okhttp3.MediaType.parse("application/octet-stream")))
+                .addFormDataPart("file", name, requestBody)
                 .build();
         String url = buildUrl(properties.getAnalysisUri());
         Request request = new Request.Builder()
@@ -98,7 +94,6 @@ public class ExecutionEngineClient {
                 .header("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("arachne-compressed", "true")
                 .header("arachne-waiting-compressed-result", Boolean.toString(compressedResult))
-                .header("arachne-datasource-check", Boolean.toString(healthCheck))
                 .post(body)
                 .build();
         Call call = httpClient.newCall(request);

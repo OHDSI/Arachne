@@ -16,39 +16,23 @@
 package com.odysseusinc.arachne.datanode.dto.datasource.validation;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
-import com.odysseusinc.arachne.datanode.dto.datasource.CreateDataSourceDTO;
+import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.context.CredentialsValidationContextBuilder;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.mock.web.MockMultipartFile;
+
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class CreateDataSourceCredentialsValidator extends BaseValidator implements ConstraintValidator<ValidCredentials, CreateDataSourceDTO> {
-
-    private static final String USERNAME_FIELDNAME = "dbUsername";
-    private static final String KEYFILE_FIELDNAME = "keyfile";
-    private static final String KRB_USER_FIELD = "krbUser";
-
-    private static final MultipartFile DUMMY_FILE = new MockMultipartFile("keyfile", new byte[16]);
+public class CreateDataSourceCredentialsValidator extends BaseValidator implements ConstraintValidator<ValidCredentials, WriteDataSourceDTO> {
 
     @Override
-    public void initialize(ValidCredentials validCredentials) {
-
-    }
-
-    @Override
-    public boolean isValid(CreateDataSourceDTO createDataSourceDTO, ConstraintValidatorContext context) {
-
-        return isValid(context, CredentialsValidationContextBuilder.newContextOfType(DBMSType.valueOf(createDataSourceDTO.getDbmsType()))
-                .withUsername(USERNAME_FIELDNAME, createDataSourceDTO.getDbUsername())
-                //Dummy file is used to omit controller incoming parameter validation since keyfile receives separately
-                .withKeyfile(KEYFILE_FIELDNAME, ObjectUtils.firstNonNull(createDataSourceDTO.getKeyfile(), DUMMY_FILE))
-                .usingKerberos(createDataSourceDTO.getUseKerberos())
-                .withKerberosAuthMechanism(createDataSourceDTO.getKrbAuthMechanism())
-                .withKerberosUser(KRB_USER_FIELD, createDataSourceDTO.getKrbUser())
+    public boolean isValid(WriteDataSourceDTO writeDataSourceDTO, ConstraintValidatorContext context) {
+        return isValid(context, CredentialsValidationContextBuilder.newContextOfType(DBMSType.valueOf(writeDataSourceDTO.getDbmsType()))
+                .withUsername("dbUsername", writeDataSourceDTO.getDbUsername())
+                .usingKerberos(writeDataSourceDTO.getUseKerberos())
+                .withKerberosAuthMechanism(writeDataSourceDTO.getKrbAuthMechanism())
+                .withKerberosUser("krbUser", writeDataSourceDTO.getKrbUser())
                 .build());
     }
 }
