@@ -35,9 +35,11 @@ import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
+import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.service.impl.AnalysisPreprocessorService;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
+import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestTypeDTO;
@@ -49,7 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -93,8 +94,8 @@ public class AnalysisService {
 	private AnalysisStateJournalRepository analysisStateJournalRepository;
 	@Autowired
 	private AnalysisStateService stateService;
-	@Autowired
-	private ExecutionEngineIntegrationService engineIntegrationService;
+    @Autowired
+    private ExecutionEngineClient engine;
 	@Value("${analysis.scheduler.invalidateExecutingInterval}")
 	protected Long invalidateExecutingInterval;
 	@Value("${analysis.scheduler.invalidateMaxDaysExecutingInterval}")
@@ -111,10 +112,8 @@ public class AnalysisService {
 	private String datanodePort;
 	@Value("${files.store.path}")
 	private String filesStorePath;
-	@Autowired
-	private TransactionTemplate tx;
 
-	@PersistenceContext
+    @PersistenceContext
 	private EntityManager em;
 
 	@Transactional
@@ -137,7 +136,7 @@ public class AnalysisService {
 		Analysis analysis = find(id);
 		log.info("Analysis {} [{}] cancellation attempt to send to engine", id, analysis.getTitle());
 		try {
-			AnalysisResultDTO result = engineIntegrationService.sendCancel(id);
+            AnalysisResultDTO result = engine.cancel(id);
 			String error = result.getError();
 			String stage = result.getStage();
 			String stdout = result.getStdout();
@@ -200,12 +199,14 @@ public class AnalysisService {
 
     private CompletableFuture<Long> sendToEngine(Analysis analysis) {
         preprocessorService.runPreprocessor(analysis);
-        AnalysisRequestDTO analysisRequestDTO = toDto(analysis);
-        File analysisFolder = new File(analysis.getSourceFolder());
+        AnalysisRequestDTO request = toDto(analysis);
+        java.nio.file.Path path = new File(analysis.getSourceFolder()).toPath();
+		Long id = request.getId();
+        log.info("Request [{}] prepared with files from [{}]", id, path);
+        String name = "request-" + id + ".zip";
         return CompletableFuture.supplyAsync(() ->
-                engineIntegrationService.sendAnalysis(analysisRequestDTO, analysisFolder), delayedExecutor
+                engine.sendAnalysisRequest(request, true, name, ZipUtils.zipDir(path)), delayedExecutor
         ).handle((result, e) -> {
-            Long id = analysisRequestDTO.getId();
             if (e != null) {
                 log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
                 String reason = String.format("Execution engine request failed: %s", e.getMessage());
@@ -217,7 +218,7 @@ public class AnalysisService {
         });
     }
 
-	private void afterSend(Long id, AnalysisRequestStatusDTO exchange) {
+    private void afterSend(Long id, AnalysisRequestStatusDTO exchange) {
         Analysis analysis = find(id);
 		String descriptorId = exchange.getActualDescriptorId();
 		log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
