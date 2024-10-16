@@ -62,10 +62,18 @@ export const ImportZipFile: FC<any> = props => {
                 const zip = new JSZip();
                 zip.loadAsync(archive).then(async files_zip => {
                   const fileMetadata = Object.values(files_zip.files).find(elem => (elem.name.indexOf('metadata.json') >= 0 || elem.name.indexOf('execution-config.json') >= 0) && !(elem.name.indexOf('_') === 0))
-                  
+                  console.log(fileMetadata)
                   if(fileMetadata) {
                     const res = await zip.file(fileMetadata.name).async("string");
-                    json = JSON.parse(res)
+                    try {
+                      json = JSON.parse(res)
+                    } catch (e) {
+                      console.log(e)
+                      enqueueSnackbar({
+                        message: `Your metadata ${fileMetadata.name.split('/').reverse()[0]} has invalid format because ${e.message}`,
+                        variant: "error",
+                      } as any);
+                    }
                   }
                   setCurrentFile(archive);
                   onChange(files_zip, archive, json);
