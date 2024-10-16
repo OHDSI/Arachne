@@ -56,7 +56,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Path;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -73,6 +77,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -285,6 +290,7 @@ public class AnalysisService {
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
+		dto.setFiles(getFileNames(Paths.get(analysis.getSourceFolder())));
 		String environmentId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElseGet(() ->
 				Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null)
 		);
@@ -395,6 +401,17 @@ public class AnalysisService {
 		dto.setRequested(new Date());
 		dto.setResultExclusions(resultExclusions);
 		return dto;
+	}
+
+	private List<String> getFileNames(java.nio.file.Path path) {
+		try (Stream<java.nio.file.Path> paths = Files.walk(path)) {
+			return paths.filter(Files::isRegularFile).map(file ->
+					path.relativize(file).toString()
+			).collect(Collectors.toList());
+		} catch (IOException e) {
+			log.warn("Error listing files in [{}]: {}", path, e.getMessage());
+			return Collections.emptyList();
+		}
 	}
 
 }
