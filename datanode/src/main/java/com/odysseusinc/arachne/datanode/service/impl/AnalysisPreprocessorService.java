@@ -15,8 +15,8 @@
 
 package com.odysseusinc.arachne.datanode.service.impl;
 
-import com.odysseusinc.arachne.commons.service.preprocessor.AbstractPreprocessorService;
-import com.odysseusinc.arachne.commons.service.preprocessor.PreprocessorRegistry;
+import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
+import com.odysseusinc.arachne.commons.service.preprocessor.PreprocessorService;
 import com.odysseusinc.arachne.commons.utils.CommonFileUtils;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,35 +24,32 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
-public class AnalysisPreprocessorService extends AbstractPreprocessorService<Analysis> {
+public class AnalysisPreprocessorService implements PreprocessorService<Analysis> {
 
     @Autowired
-    public AnalysisPreprocessorService(PreprocessorRegistry<Analysis> preprocessorRegistry) {
+    private List<Preprocessor<Analysis>> preprocessors;
 
-        super(preprocessorRegistry);
-    }
-
-    @Override
     protected boolean before(Analysis analysis) {
-
         File analysisFolder = new File(analysis.getSourceFolder());
         return analysisFolder.exists() && analysisFolder.isDirectory();
     }
 
-    @Override
     protected List<File> getFiles(Analysis analysis) {
-
         File analysisFolder = new File(analysis.getSourceFolder());
         return CommonFileUtils.getFiles(analysisFolder);
     }
 
     @Override
-    protected Optional<String> getContentType(Analysis analysis, File file) {
+    public void runPreprocessor(Analysis analysis) {
+        if (before(analysis)) {
 
-        return Optional.of(CommonFileUtils.getContentType(file.getName(), file.getAbsolutePath()));
+            getFiles(analysis).forEach(file -> {
+                preprocessors.forEach(preprocessor -> preprocessor.preprocess(analysis, file));
+            });
+        }
     }
+
 }

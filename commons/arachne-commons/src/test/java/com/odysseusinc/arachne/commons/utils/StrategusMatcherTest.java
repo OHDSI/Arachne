@@ -30,16 +30,16 @@ public class StrategusMatcherTest {
 
     @Test
     public void shouldDetectStrategusType() throws IOException {
-        StrategusMatcher matcher = new StrategusMatcher();
+        StrategusMatcher matcher = StrategusMatcher.INSTANCE;
         String contentType = matcher.getContentType("strategusStudy.json", getResource("/strategus/strategusStudy.json"));
-        assertThat(contentType, is(equalTo(CommonFileUtils.TYPE_STRATEGUS_JSON)));
+        assertThat(contentType, is(equalTo(StrategusMatcher.TYPE_STRATEGUS_JSON)));
     }
 
     @Test
     public void shouldDetectStrategusWithoutMetadata() throws IOException {
-        StrategusMatcher matcher = new StrategusMatcher();
+        StrategusMatcher matcher = StrategusMatcher.INSTANCE;
         String contentType = matcher.getContentType("strategusStudy.json", getResource("/strategus/strategusStudy2.json"));
-        assertThat(contentType, is(equalTo(CommonFileUtils.TYPE_STRATEGUS_JSON)));
+        assertThat(contentType, is(equalTo(StrategusMatcher.TYPE_STRATEGUS_JSON)));
     }
 
     private InputStreamSource getResource(String path) throws IOException {

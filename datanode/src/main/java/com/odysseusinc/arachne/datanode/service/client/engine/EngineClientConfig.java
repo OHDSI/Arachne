@@ -14,7 +14,6 @@
  */
 package com.odysseusinc.arachne.datanode.service.client.engine;
 
-import com.odysseusinc.arachne.datanode.service.client.ArachneHttpClientBuilder;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -37,12 +36,5 @@ public class EngineClientConfig {
     private String token;
     @Value("${proxy.enabledForEngine}")
     private Boolean proxyEnabledForEngine;
-
-    private final ArachneHttpClientBuilder arachneHttpClientBuilder;
-
-    public EngineClientConfig(ArachneHttpClientBuilder arachneHttpClientBuilder) {
-
-        this.arachneHttpClientBuilder = arachneHttpClientBuilder;
-    }
 
 }

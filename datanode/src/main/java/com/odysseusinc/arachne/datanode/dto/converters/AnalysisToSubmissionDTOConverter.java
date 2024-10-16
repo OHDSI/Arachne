@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.dto.converters;
 
+import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
@@ -37,9 +38,6 @@ import java.util.Optional;
 public class AnalysisToSubmissionDTOConverter {
     private final static Comparator<AnalysisStateEntry> BY_DATE = Comparator.nullsFirst(Comparator.comparing(AnalysisStateEntry::getDate));
 
-    @Autowired
-    private GenericConversionService conversionService;
-
     public SubmissionDTO convert(Analysis analysis) {
 
         SubmissionDTO dto = new SubmissionDTO();
@@ -49,10 +47,7 @@ public class AnalysisToSubmissionDTOConverter {
         dto.setStudy(analysis.getStudyTitle());
         dto.setStage(analysis.getStage());
         dto.setError(analysis.getError());
-        DataSource dataSource = analysis.getDataSource();
-        if (dataSource != null && conversionService.canConvert(dataSource.getClass(), DataSourceDTO.class)) {
-            dto.setDataSource(conversionService.convert(dataSource, DataSourceDTO.class));
-        }
+        dto.setDataSource(Optional.ofNullable(analysis.getDataSource()).map(DataSourceService::toDto).orElse(null));
         dto.setAuthor(analysis.getAuthor());
 
         Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {

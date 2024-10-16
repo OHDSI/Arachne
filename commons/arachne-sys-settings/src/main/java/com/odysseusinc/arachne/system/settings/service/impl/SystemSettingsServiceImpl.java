@@ -15,6 +15,8 @@
 
 package com.odysseusinc.arachne.system.settings.service.impl;
 
+import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingDTO;
+import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingsGroupDTO;
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingType;
@@ -31,11 +33,11 @@ import java.util.Map;
 import java.util.Objects;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 
@@ -47,6 +49,9 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
     private static String encryptedSuffix = ")";
 
     private boolean isConfigChanged;
+
+    @Autowired
+    private ConfigurableEnvironment env;
 
     @Autowired
     private StringEncryptor stringEncryptor;
@@ -155,5 +160,56 @@ public class SystemSettingsServiceImpl implements SystemSettingsService {
     public boolean isConfigChanged() {
 
         return isConfigChanged;
+    }
+
+    public SystemSettingsGroupDTO toDto(SystemSettingsGroup group) {
+        SystemSettingsGroupDTO dto = new SystemSettingsGroupDTO();
+        dto.setId(group.getId());
+        dto.setLabel(group.getLabel());
+        dto.setName(group.getName());
+        LinkedList<SystemSettingDTO> dtos = new LinkedList<>();
+        for (SystemSetting systemSetting : group.getSettings()) {
+            dtos.add(toDto(systemSetting));
+        }
+        dto.setFieldList(dtos);
+        return dto;
+    }
+
+    public SystemSettingDTO toDto(SystemSetting systemSetting) {
+        SystemSettingDTO dto = new SystemSettingDTO();
+        dto.setId(systemSetting.getId());
+        dto.setLabel(systemSetting.getLabel());
+        dto.setName(systemSetting.getName());
+        dto.setType(systemSetting.getType().toString());
+        if (!isSecuredSetting(systemSetting)) {
+            if (systemSetting.getValue() != null) {
+                String value = getDecryptedValue(systemSetting.getValue());
+                dto.setValue(value);
+            } else if (env.containsProperty(systemSetting.getName())) {
+                dto.setValue(env.getProperty(systemSetting.getName()));
+            }
+        } else {
+            dto.setIsSet(systemSetting.getValue() != null || env.containsProperty(systemSetting.getName()));
+        }
+        /*
+        // Get not decrypted props
+        else {
+            String value = null;
+
+            MutablePropertySources mutablePropertySources = env.getPropertySources();
+            Iterator iterator = mutablePropertySources.iterator();
+
+            while (iterator.hasNext()) {
+                PropertySource<?> ps = (PropertySource) iterator.next();
+                PropertySource<?> original = ps instanceof EncryptablePropertySource ? ((EncryptablePropertySource)ps).getDelegate() : ps;
+
+                value = (String) original.getProperty(systemSetting.getName());
+
+                if (value != null) break;
+            }
+
+            dto.setValue(value);
+        }*/
+        return dto;
     }
 }

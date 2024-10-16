@@ -21,7 +21,6 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisReques
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus;
-import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.RuntimeEnvironmentDescriptorsDTO;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.okhttp.FailsafeCall;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +34,12 @@ import okhttp3.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,16 +78,13 @@ public class ExecutionEngineClient {
     }
 
     public AnalysisRequestStatusDTO sendAnalysisRequest(
-            AnalysisRequestDTO analysisRequest,
-            File file,
-            boolean compressedResult,
-            boolean healthCheck) {
+            AnalysisRequestDTO analysisRequest, boolean compressedResult, String name, RequestBody requestBody
+    ) {
         String json = toJson(analysisRequest);
         MultipartBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("analysisRequest", EMPTY_FILENAME, RequestBody.create(json, APPLICATION_JSON))
-                .addFormDataPart("file", file.getName(),
-                        RequestBody.create(file, okhttp3.MediaType.parse("application/octet-stream")))
+                .addFormDataPart("file", name, requestBody)
                 .build();
         String url = buildUrl(properties.getAnalysisUri());
         Request request = new Request.Builder()
@@ -98,28 +92,11 @@ public class ExecutionEngineClient {
                 .header("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("arachne-compressed", "true")
                 .header("arachne-waiting-compressed-result", Boolean.toString(compressedResult))
-                .header("arachne-datasource-check", Boolean.toString(healthCheck))
                 .post(body)
                 .build();
         Call call = httpClient.newCall(request);
         FailsafeCall failsafeCall = FailsafeCall.with(retryPolicy()).compose(call);
         return executeRequest(url, failsafeCall, AnalysisRequestStatusDTO.class);
-    }
-
-    public Optional<Supplier<RuntimeEnvironmentDescriptorsDTO>> getDescriptors() {
-        Optional<String> uri = Optional.ofNullable(properties.getDescriptorsUri());
-        if (!uri.isPresent()) {
-            log.warn("Descriptor support is not configured (set property 'execution.engine.descriptorsUrl' to enable)");
-        }
-        return uri.map(this::buildUrl).map(url -> () -> {
-            Request request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .build();
-            Call call = httpClient.newCall(request);
-            FailsafeCall failsafeCall = FailsafeCall.with(retryPolicy()).compose(call);
-            return executeRequest(url, failsafeCall, RuntimeEnvironmentDescriptorsDTO.class);
-        });
     }
 
     private <T> T executeRequest(String url, FailsafeCall call, Class<T> valueType) {

@@ -3,7 +3,7 @@ spring:
   flyway:
     table: "flyway_schema_history"
   datasource:
-    url: jdbc:postgresql://localhost:5432/datanode
+    url: jdbc:postgresql://localhost:6432/arachne
     driver-class-name: org.postgresql.Driver
     platform: postgresql
     username: ohdsi
@@ -68,7 +68,7 @@ authenticator:
     db:
       service: org.ohdsi.authenticator.service.jdbc.JdbcAuthService
       config:
-        jdbcUrl: jdbc:postgresql://localhost:5432/datanode
+        jdbcUrl: jdbc:postgresql://localhost:6432/arachne
         username: ohdsi
         password: ENC(0Lpfvg9UPAyaaZpSIqwaDg==)
         query: select password, id, username, first_name as firstname, last_name as lastname, email from users where username=:username

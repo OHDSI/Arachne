@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SystemSettingsController {
 
     @Autowired
-    protected GenericConversionService conversionService;
-    @Autowired
     private SystemSettingsService systemSettingsService;
 
     @RequestMapping(value = "/api/v1/admin/system-settings", method = RequestMethod.GET)
@@ -49,7 +47,7 @@ public class SystemSettingsController {
         SystemSettingsGroupListDTO dto = new SystemSettingsGroupListDTO();
         dto.setList(new LinkedList<>());
         for (SystemSettingsGroup systemSettingsGroup : systemSettingsService.getAll()) {
-            dto.getList().add(conversionService.convert(systemSettingsGroup, SystemSettingsGroupDTO.class));
+            dto.getList().add(systemSettingsService.toDto(systemSettingsGroup));
         }
         dto.setApplied(!systemSettingsService.isConfigChanged());
         JsonResult<SystemSettingsGroupListDTO> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);

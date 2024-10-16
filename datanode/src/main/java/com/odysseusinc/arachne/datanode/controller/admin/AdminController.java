@@ -16,7 +16,6 @@
 package com.odysseusinc.arachne.datanode.controller.admin;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
-import com.odysseusinc.arachne.datanode.controller.BaseController;
 import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOConverter;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
@@ -30,7 +29,6 @@ import com.odysseusinc.arachne.datanode.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -53,22 +51,21 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
-public class AdminController extends BaseController {
+public class AdminController {
 
     public static final int SUGGEST_LIMIT = 10;
     public static final int DEFAULT_PAGE_SIZE = 10;
     private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
     @Autowired
+    protected UserService userService;
+    @Autowired
     private EngineStatusService engine;
     @Autowired
     private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
     @Autowired
-    private GenericConversionService conversionService;
-    @Autowired
     private AnalysisRepository analysisRepository;
 
-    public AdminController(UserService userService) {
-        super(userService);
+    public AdminController() {
         initProps();
     }
 
@@ -82,7 +79,7 @@ public class AdminController extends BaseController {
         JsonResult<List<UserDTO>> result;
         List<User> users = userService.getAllAdmins(sortBy, sortAsc);
         List<UserDTO> dtos = users.stream()
-                .map(user -> conversionService.convert(user, UserDTO.class))
+                .map(UserService::toDto)
                 .collect(Collectors.toList());
         result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
         result.setResult(dtos);
@@ -102,8 +99,7 @@ public class AdminController extends BaseController {
                 .findByUsername(principal.getName())
                 .ifPresent(user -> {
                     List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
-                    result.setResult(users.stream().map(u -> conversionService
-                            .convert(u, UserDTO.class))
+                    result.setResult(users.stream().map(UserService::toDto)
                             .collect(Collectors.toList())
                     );
                 });
@@ -202,6 +198,15 @@ public class AdminController extends BaseController {
         propertiesMap.put("analysis", p -> p.add("title"));
         propertiesMap.put("study", p -> p.add("studyTitle"));
         propertiesMap.put("status", p -> p.add("journal.state"));
+    }
+
+    protected User getAdmin(Principal principal) throws PermissionDeniedException {
+
+        final User user = userService.getUser(principal);
+        if (!user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN"))) {
+            throw new PermissionDeniedException("Access denied");
+        }
+        return user;
     }
 
     @Getter

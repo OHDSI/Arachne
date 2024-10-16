@@ -15,214 +15,135 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.SYSTEM_ERROR;
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.UNAUTHORIZED;
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.VALIDATION_ERROR;
-import static java.util.Arrays.asList;
-
 import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
-import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
-import com.odysseusinc.arachne.datanode.exception.IntegrationValidationException;
-import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.nohandlerfoundexception.NoHandlerFoundExceptionUtils;
-import feign.FeignException;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.ohdsi.authenticator.exception.AuthenticationException;
 import org.ohdsi.authenticator.exception.BadCredentialsAuthenticationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-@ControllerAdvice
-public class ExceptionHandlingAdvice extends BaseController {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-    private static final String ERROR_MESSAGE_WITH_TOKEN = "Please contact system administrator and provide this error token: %s";
-    private static final String ERROR_MESSAGE = "An error has occurred. Please contact system administrator";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlingAdvice.class);
+import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.VALIDATION_ERROR;
+
+@Slf4j
+@ControllerAdvice
+public class ExceptionHandlingAdvice {
+
+    @Autowired
+    protected UserService userService;
     @Value("${datanode.app.errorsTokenEnabled}")
     private boolean errorsTokenEnabled;
 
+    @Autowired
     private NoHandlerFoundExceptionUtils noHandlerFoundExceptionUtils;
 
-    public ExceptionHandlingAdvice(UserService userService, NoHandlerFoundExceptionUtils noHandlerFoundExceptionUtils) {
-
-        super(userService);
-        this.noHandlerFoundExceptionUtils = noHandlerFoundExceptionUtils;
-    }
-
-    @ExceptionHandler({SQLException.class, DataAccessException.class})
-    public ResponseEntity handleDataAccessExceptions(Exception ex) {
-
-        return getErrorResponse(SYSTEM_ERROR, ex);
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public ResponseEntity<String> exceptionHandler(HttpServletRequest request, AsyncRequestTimeoutException e) {
+        // Log only message, not getting a meaningful stacktrace here (only Spring classes)
+        log.warn("Timed out waiting for response on [{}]: {}", request.getRequestURI(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).build();
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<JsonResult> exceptionHandler(Exception ex) {
-
-        return getErrorResponse(SYSTEM_ERROR, ex);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(MethodArgumentNotValidException ex) {
-
-        return getValidationErrorResponse(ex.getBindingResult(), ex);
+    public ResponseEntity<String> exceptionHandler(Exception ex) {
+        String token = token();
+        log.error("[{}]: {}", token, ex.getMessage(), ex);
+        return ResponseEntity.internalServerError().body("Error code [" + token + "]. Please provide this code to contact system administrator");
     }
 
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(BindException ex) {
-
-        return getValidationErrorResponse(ex.getBindingResult(), ex);
-    }
-
-    private ResponseEntity<JsonResult> getValidationErrorResponse(BindingResult bindingResult, Exception ex) {
-
-        JsonResult result = new JsonResult<>(VALIDATION_ERROR);
-        if (bindingResult.hasErrors()) {
-            result = setValidationErrors(bindingResult);
-        }
-        return getErrorResponse(result, ex);
-    }
-
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(IOException ex) {
-
-        return getErrorResponse(SYSTEM_ERROR, ex);
+    public ResponseEntity<JsonResult<?>> exceptionHandler(BindException ex) {
+        List<FieldError> errors = ex.getBindingResult().getFieldErrors();
+        JsonResult<?> result = new JsonResult<>(VALIDATION_ERROR);
+        result.setValidatorErrors(errors.stream().collect(Collectors.toMap(FieldError::getField, ExceptionHandlingAdvice::fieldMessage)));
+        result.setErrorMessage(ex.getMessage());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @ExceptionHandler(AuthException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(AuthException ex) {
-
-        return authExceptionHandler(ex);
+    public ResponseEntity<String> exceptionHandler(AuthException ex) {
+        return unauthorized(ex);
     }
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(org.springframework.security.core.AuthenticationException ex) {
-
-        return authExceptionHandler(ex);
+    public ResponseEntity<String> exceptionHandler(org.springframework.security.core.AuthenticationException ex) {
+        return unauthorized(ex);
     }
 
     @ExceptionHandler(BadCredentialsAuthenticationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(BadCredentialsAuthenticationException ex) {
-        return getErrorResponse(UNAUTHORIZED, ex);
+    public ResponseEntity<String> exceptionHandler(BadCredentialsAuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message(ex));
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(AuthenticationException ex) {
-
-        return authExceptionHandler(ex);
+    public ResponseEntity<String> exceptionHandler(AuthenticationException ex) {
+        return unauthorized(ex);
     }
 
-    public ResponseEntity<JsonResult> authExceptionHandler(Exception ex) {
-
-        JsonResult result = new JsonResult(UNAUTHORIZED);
-        result.setErrorMessage(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(result);
-    }
-
-
-    private ResponseEntity<JsonResult> getErrorResponse(JsonResult.ErrorCode errorCode, Exception ex) {
-
-        JsonResult result = new JsonResult<>(errorCode);
-        return getErrorResponse(result, ex);
-    }
-
-    private ResponseEntity<JsonResult> getErrorResponse(final JsonResult result, final Exception ex) {
-
-        final String message = getErrorMessage(result, ex);
-        result.setErrorMessage(message);
-
-        if (errorsTokenEnabled) {
-            final String errorToken = generateErrorToken();
-            result.setErrorMessage(String.format(ERROR_MESSAGE_WITH_TOKEN, errorToken));
-            LOGGER.error("{}. error-token: {}", message, errorToken, ex);
-        } else {
-            LOGGER.error(message, ex);
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    private String getErrorMessage(final JsonResult result, final Exception ex) {
-
-        return asList(UNAUTHORIZED.getCode(), VALIDATION_ERROR.getCode()).contains(result.getErrorCode()) ?
-                ex.getMessage() : ERROR_MESSAGE;
-    }
-
-    @ExceptionHandler(IntegrationValidationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(IntegrationValidationException ex) {
-
-        LOGGER.error(ex.getMessage(), ex);
-        return new ResponseEntity<>(ex.getJsonResult(), HttpStatus.OK);
+    public ResponseEntity<String> unauthorized(Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message(e));
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(ValidationException ex) {
-
-        return getErrorResponse(VALIDATION_ERROR, ex);
-    }
-
-    @ExceptionHandler(NotExistException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(NotExistException ex) {
-
-        return getErrorResponse(SYSTEM_ERROR, ex);
-    }
-
-    @ExceptionHandler(IllegalOperationException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(IllegalOperationException ex) {
-
-        return getErrorResponse(SYSTEM_ERROR, ex);
-    }
-
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<JsonResult> exceptionHandler(FeignException ex) {
-
-        LOGGER.error(ex.getMessage(), ex);
-        JsonResult result = new JsonResult(SYSTEM_ERROR);
-        result.setErrorMessage("External system is not available");
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    public ResponseEntity<JsonResult<?>> exceptionHandler(ValidationException ex) {
+        JsonResult<?> result = new JsonResult<>(VALIDATION_ERROR);
+        result.setErrorMessage(ex.getMessage());
+        return ResponseEntity.badRequest().body(result);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity badRequestHandler() {
-
-        return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> badRequestHandler(BadRequestException e) {
+        return ResponseEntity.badRequest().body(message(e));
     }
 
     @ExceptionHandler(ServiceNotAvailableException.class)
-    public ResponseEntity serviceNotAvailableHanlder() {
-
+    public ResponseEntity<?> serviceNotAvailableHanlder() {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-    }
-
-    private String generateErrorToken() {
-
-        return UUID.randomUUID().toString();
     }
 
     @ExceptionHandler({NoHandlerFoundException.class})
     public void handleNotFoundError(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
         noHandlerFoundExceptionUtils.handleNotFoundError(request, response);
+    }
+
+    private String message(Exception e) {
+        String message = e.getMessage();
+        if (errorsTokenEnabled) {
+            String token = token();
+            log.error("[{}]. error-token: {}", token, message, e);
+            return "Error code [" + token + "]. Please provide this code to contact system administrator";
+        } else {
+            log.error(message, e);
+            return message;
+        }
+    }
+
+    private static String fieldMessage(FieldError field) {
+        return Optional.ofNullable(field.getDefaultMessage()).orElseGet(() -> "Rejected value: [" + field.getRejectedValue() + "]");
+    }
+
+    private static String token() {
+        return UUID.randomUUID().toString();
     }
 
 }
