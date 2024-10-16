@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.commons.api.v1.dto;
+package com.odysseusinc.arachne.datanode.util;
 
-import java.io.Serializable;
+import org.apache.commons.io.output.ProxyOutputStream;
 
-public class CommonUuidDTO implements Serializable {
-    private String uuid;
+import java.io.IOException;
+import java.io.OutputStream;
 
-    public String getUuid() {
-        return uuid;
+public class NoCloseOutputStream extends ProxyOutputStream {
+    public NoCloseOutputStream(OutputStream proxy) {
+        super(proxy);
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    @Override
+    public void close() throws IOException {
     }
 }
