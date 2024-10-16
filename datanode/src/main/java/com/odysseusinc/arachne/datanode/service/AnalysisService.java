@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.service;
 
+import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO;
@@ -36,7 +37,6 @@ import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
-import com.odysseusinc.arachne.datanode.service.impl.AnalysisPreprocessorService;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.datanode.util.JpaSugar;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
@@ -94,8 +94,6 @@ public class AnalysisService {
 	@Autowired
 	private DataSourceService dataSourceService;
 	@Autowired
-	private AnalysisPreprocessorService preprocessorService;
-	@Autowired
 	private AnalysisStateJournalRepository analysisStateJournalRepository;
 	@Autowired
 	private AnalysisStateService stateService;
@@ -117,6 +115,8 @@ public class AnalysisService {
 	private String datanodePort;
 	@Value("${files.store.path}")
 	private String filesStorePath;
+	@Autowired
+	private List<Preprocessor<Analysis>> preprocessors;
 
     @PersistenceContext
 	private EntityManager em;
@@ -203,15 +203,14 @@ public class AnalysisService {
 	}
 
     private CompletableFuture<Long> sendToEngine(Analysis analysis) {
-        preprocessorService.runPreprocessor(analysis);
-        AnalysisRequestDTO request = toDto(analysis);
-        java.nio.file.Path path = new File(analysis.getSourceFolder()).toPath();
-		Long id = request.getId();
-        log.info("Request [{}] prepared with files from [{}]", id, path);
-        String name = "request-" + id + ".zip";
-        return CompletableFuture.supplyAsync(() ->
-                engine.sendAnalysisRequest(request, true, name, ZipUtils.zipDir(path)), delayedExecutor
-        ).handle((result, e) -> {
+		Long id = analysis.getId();
+		java.nio.file.Path path = Paths.get(analysis.getSourceFolder());
+
+        return CompletableFuture.runAsync(
+				() -> preprocess(analysis, path, id), delayedExecutor
+		).thenApplyAsync(__ ->
+				engine.sendAnalysisRequest(toDto(analysis), true, "request-" + id + ".zip", ZipUtils.zipDir(path)), delayedExecutor
+		).handle((result, e) -> {
             if (e != null) {
                 log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
                 String reason = String.format("Execution engine request failed: %s", e.getMessage());
@@ -411,6 +410,21 @@ public class AnalysisService {
 		} catch (IOException e) {
 			log.warn("Error listing files in [{}]: {}", path, e.getMessage());
 			return Collections.emptyList();
+		}
+	}
+
+	private void preprocess(Analysis analysis, java.nio.file.Path path, Long id) {
+		try (Stream<java.nio.file.Path> files = Files.walk(path)) {
+			files.filter(Files::isRegularFile).forEach(file ->
+					preprocessors.forEach(preprocessor ->
+							preprocessor.preprocess(analysis, file.toFile())
+					)
+			);
+			log.info("Request [{}] prepared with files from [{}]", id, path);
+		} catch (IOException e) {
+			log.info("Request [{}] failed when running preprocessors [{}]: {}", id, e.getClass(), e.getMessage(), e);
+			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Error running preprocessors: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 	}
 
