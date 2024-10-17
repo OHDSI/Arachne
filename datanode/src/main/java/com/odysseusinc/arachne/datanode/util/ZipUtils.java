@@ -14,10 +14,12 @@
  */
 package com.odysseusinc.arachne.datanode.util;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.io.input.ProxyInputStream;
+import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableFunction;
 
 import javax.validation.constraints.NotNull;
@@ -31,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -62,27 +65,19 @@ public class ZipUtils {
         };
     }
 
-    @SafeVarargs
-    public static Map<Function<String, FailableFunction<InputStream, Object, IOException>>, Map<String, Object>> processZip(
-            InputStream source,
-            Function<String, FailableFunction<InputStream, Object, IOException>>... converters
-    ) {
+    public static <T> List<T> processZip(InputStream source, FailableBiFunction<String, InputStream, T, IOException> converter) {
+        ImmutableList.Builder<T> builder = ImmutableList.builder();
         try (ZipArchiveInputStream zip = new ZipArchiveInputStream(source, UTF_8.name(), true, false, true)) {
             Map<Function<String, FailableFunction<InputStream, Object, IOException>>, Map<String, Object>> results = new HashMap<>();
             ArchiveEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
                     String name = entry.getName();
-                    for (Function<String, FailableFunction<InputStream, Object, IOException>> converter : converters) {
-                        FailableFunction<InputStream, Object, IOException> found = converter.apply(name);
-                        if (found != null) {
-                            results.computeIfAbsent(converter, __ -> new HashMap<>()).put(name, found.apply(new NoCloseInputStream(zip)));
-                            break;
-                        }
-                    }
+                    T apply = converter.apply(name, new NoCloseInputStream(zip));
+                    builder.add(apply);
                 }
             }
-            return results;
+            return builder.build();
         } catch (IOException e) {
             throw new RuntimeException("Error processing zip", e);
         }

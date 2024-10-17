@@ -17,7 +17,6 @@ package com.odysseusinc.arachne.datanode.controller.analysis;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
-import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
@@ -30,9 +29,9 @@ import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
+import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -65,11 +62,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
-
 
 @Slf4j
 @RestController
@@ -97,20 +93,17 @@ public class AnalysisController {
                 new BadRequestException("No files submitted in request")
         );
 
-        Consumer<File> writeFiles = dir -> {
-            File zipDir = Paths.get(dir.getPath(), Constants.Analysis.SUBMISSION_ARCHIVE_SUBDIR).toFile();
+        Function<Path, List<Path>> writeFiles = dir -> {
             try {
-                FileUtils.forceMkdir(zipDir);
-                File archiveFile = new File(zipDir, "analysis.zip");
-                zip.transferTo(archiveFile);
-                unzipFiles(dir, archiveFile);
+                return ZipUtils.processZip(zip.getInputStream(), (name, in) -> {
+                    Path path = dir.resolve(name);
+                    FileUtils.copyInputStreamToFile(in, path.toFile());
+                    return path;
+                });
             } catch (IOException e) {
-                log.error("Failed to save analysis files", e);
+                log.error("Failed to save analysis files for [{}]:", zip.getName(), e);
                 throw new IllegalOperationException(e.getMessage());
-            } finally {
-                FileUtils.deleteQuietly(zipDir);
             }
-
         };
         return analysisService.run(dto, user, writeFiles);
     }
@@ -123,14 +116,16 @@ public class AnalysisController {
             Principal principal
     ) throws PermissionDeniedException {
         User user = userService.getUser(principal);
-        Consumer<File> files = dir ->
-                archive.forEach(file -> {
+        Function<Path, List<Path>> files = dir ->
+                archive.stream().map(file -> {
                     try {
-                        file.transferTo(new File(dir, file.getOriginalFilename()));
+                        Path path = dir.resolve(file.getOriginalFilename());
+                        file.transferTo(path);
+                        return path;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                });
+                }).collect(Collectors.toList());
         return analysisService.run(dto, user, files);
     }
 
@@ -196,11 +191,7 @@ public class AnalysisController {
         analysisService.cancel(analysisId, userService.getUser(principal));
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/types",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
-    )
+    @GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<OptionDTO> getTypes() {
 
         return types()
@@ -212,16 +203,4 @@ public class AnalysisController {
         return Stream.of(CommonAnalysisType.CUSTOM, CommonAnalysisType.STRATEGUS);
     }
 
-    private static void unzipFiles(File dir, File archiveFile) throws FileNotFoundException {
-        if (dir == null || !dir.exists()) {
-            throw new FileNotFoundException("Destination directory must be exist");
-        }
-        String destPath = dir.getAbsolutePath();
-        try {
-            ZipFile zipFile = new ZipFile(archiveFile);
-            zipFile.extractAll(destPath);
-        } catch (ZipException ex) {
-            log.error(ex.getMessage(), ex);
-        }
-    }
 }
