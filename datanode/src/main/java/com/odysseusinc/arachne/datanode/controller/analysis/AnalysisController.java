@@ -17,8 +17,9 @@ package com.odysseusinc.arachne.datanode.controller.analysis;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
+import com.odysseusinc.arachne.datanode.analysis.UploadDTO;
+import com.odysseusinc.arachne.datanode.analysis.UploadService;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
-import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
@@ -29,7 +30,6 @@ import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
-import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,7 +61,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
@@ -73,11 +71,32 @@ import java.util.zip.ZipOutputStream;
 public class AnalysisController {
 
     @Autowired
+    private UploadService uploadService;
+    @Autowired
     private AnalysisService analysisService;
     @Autowired
     private AnalysisResultsService analysisResultsService;
     @Autowired
     private UserService userService;
+
+    @PostMapping(path = "/upload/zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UploadDTO uploadZip(Principal principal, @RequestPart("file") List<MultipartFile> archive) {
+        User user = userService.getUser(principal);
+        return uploadService.uploadZip(user, archive);
+    }
+
+    @PostMapping(path = "/upload/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UploadDTO uploadFiles(Principal principal, @RequestPart("file") List<MultipartFile> files) {
+        User user = userService.getUser(principal);
+        return uploadService.uploadFiles(user, files);
+    }
+
+    @Async
+    @PostMapping(path = "/execute/{id}")
+    public CompletableFuture<?> execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
+        User user = userService.getUser(principal);
+        return analysisService.run(user, request, id);
+    }
 
     @Async
     @PostMapping(path = "zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -87,45 +106,18 @@ public class AnalysisController {
             Principal principal
     ) throws PermissionDeniedException {
         User user = userService.getUser(principal);
-        MultipartFile zip = archive.stream().reduce((a, b) -> {
-            throw new BadRequestException("Multiple files submitted. Only one zip archive is expected");
-        }).orElseThrow(() ->
-                new BadRequestException("No files submitted in request")
-        );
-
-        Function<Path, List<Path>> writeFiles = dir -> {
-            try {
-                return ZipUtils.processZip(zip.getInputStream(), (name, in) -> {
-                    Path path = dir.resolve(name);
-                    FileUtils.copyInputStreamToFile(in, path.toFile());
-                    return path;
-                });
-            } catch (IOException e) {
-                log.error("Failed to save analysis files for [{}]:", zip.getName(), e);
-                throw new IllegalOperationException(e.getMessage());
-            }
-        };
-        return analysisService.run(dto, user, writeFiles);
+        UploadDTO upload = uploadService.uploadZip(user, archive);
+        return analysisService.run(user, dto, upload.getName());
     }
 
     @Async
     @PostMapping(path = "files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CompletableFuture<Long> executeFiles(
-            @RequestPart("file") List<MultipartFile> archive,
+            @RequestPart("file") List<MultipartFile> files,
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
-    ) throws PermissionDeniedException {
+    ) {
         User user = userService.getUser(principal);
-        Function<Path, List<Path>> files = dir ->
-                archive.stream().map(file -> {
-                    try {
-                        Path path = dir.resolve(file.getOriginalFilename());
-                        file.transferTo(path);
-                        return path;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());
         return analysisService.run(dto, user, files);
     }
 
@@ -139,16 +131,13 @@ public class AnalysisController {
         return analysisService.getStdout(id);
     }
 
+    @Async
     @PostMapping("{id}/rerun")
-    public void rerun(@PathVariable("id") Long id, @Valid @RequestBody AnalysisRequestDTO analysisRequestDTO, Principal principal) {
-        analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
+    public CompletableFuture<?> rerun(@PathVariable("id") Long id, @Valid @RequestBody AnalysisRequestDTO analysisRequestDTO, Principal principal) {
+        return analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "{id}/results",
-            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
-    )
+    @GetMapping(path = "{id}/results", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void downloadResults(@PathVariable("id") Long analysisId, HttpServletResponse response) throws IOException {
 
         Analysis analysis = analysisService.findAnalysis(analysisId)
@@ -156,7 +145,7 @@ public class AnalysisController {
         List<AnalysisFile> resultFiles = analysisResultsService.getAnalysisResults(analysis);
         Path stdoutDir = Files.createTempDirectory("node_analysis");
         Path stdoutFile = stdoutDir.resolve("stdout.txt");
-        try(Writer writer = new FileWriter(stdoutFile.toFile())) {
+        try (Writer writer = new FileWriter(stdoutFile.toFile())) {
             IOUtils.write(analysis.getStdout(), writer);
         }
         String type = analysis.getType();
@@ -168,11 +157,11 @@ public class AnalysisController {
                 log.error("Head file not found in multi-volume archive for results [{}]", analysisId);
                 return new IllegalOperationException(MessageFormat.format("No head file of multi-volume archvie for results [{0}]", analysisId));
             });
-            try(ZipFile zip = new ZipFile(headFile.getLink())) {
+            try (ZipFile zip = new ZipFile(headFile.getLink())) {
                 zip.extractAll(stdoutDir.toString());
             }
         } else {
-            for(AnalysisFile f : resultFiles) {
+            for (AnalysisFile f : resultFiles) {
                 Files.copy(Paths.get(f.getLink()), stdoutDir);
             }
         }
@@ -187,7 +176,7 @@ public class AnalysisController {
     }
 
     @PostMapping("{id}/cancel")
-    public void cancel(@PathVariable("id") Long analysisId, Principal principal) throws IOException {
+    public void cancel(@PathVariable("id") Long analysisId, Principal principal) {
         analysisService.cancel(analysisId, userService.getUser(principal));
     }
 

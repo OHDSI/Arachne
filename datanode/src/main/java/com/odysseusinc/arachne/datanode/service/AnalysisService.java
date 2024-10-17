@@ -16,6 +16,9 @@
 package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
+import com.odysseusinc.arachne.datanode.analysis.Upload;
+import com.odysseusinc.arachne.datanode.analysis.UploadDTO;
+import com.odysseusinc.arachne.datanode.analysis.UploadService;
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisDTO;
@@ -51,15 +54,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.Path;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -92,13 +95,15 @@ public class AnalysisService {
 	private final Executor delayedExecutor = runnable -> executor.schedule(() -> ((Executor) ForkJoinPool.commonPool()).execute(runnable), 1, TimeUnit.SECONDS);
 
 	@Autowired
+	private UploadService uploadService;
+	@Autowired
 	private DataSourceService dataSourceService;
 	@Autowired
 	private AnalysisStateJournalRepository analysisStateJournalRepository;
 	@Autowired
 	private AnalysisStateService stateService;
-    @Autowired
-    private ExecutionEngineClient engine;
+	@Autowired
+	private ExecutionEngineClient engine;
 	@Value("${analysis.scheduler.invalidateExecutingInterval}")
 	protected Long invalidateExecutingInterval;
 	@Value("${analysis.scheduler.invalidateMaxDaysExecutingInterval}")
@@ -141,7 +146,7 @@ public class AnalysisService {
 		Analysis analysis = find(id);
 		log.info("Analysis {} [{}] cancellation attempt to send to engine", id, analysis.getTitle());
 		try {
-            AnalysisResultDTO result = engine.cancel(id);
+			AnalysisResultDTO result = engine.cancel(id);
 			String error = result.getError();
 			String stage = result.getStage();
 			String stdout = result.getStdout();
@@ -161,7 +166,7 @@ public class AnalysisService {
 			Long id, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user
 	) {
 		Analysis original = find(id);
-		Analysis analysis = toAnalysis(dto, user, original.getSourceFolder());
+		Analysis analysis = save(dto, user, original.getSourceFolder());
 		em.persist(analysis);
 		stateService.updateState(analysis, AnalysisState.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
@@ -170,38 +175,35 @@ public class AnalysisService {
 		return sendToEngine(analysis);
 	}
 
-	@Transactional
-	public CompletableFuture<Long> run(
-			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Function<java.nio.file.Path, List<java.nio.file.Path>> writeFiles
-	) {
-		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
-		Analysis analysis = toAnalysis(dto, user, sourceFolder);
-		java.nio.file.Path dir = Paths.get(sourceFolder);
-		List<java.nio.file.Path> files = writeFiles.apply(dir);
+    @Transactional
+    public CompletableFuture<Long> run(
+			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, List<MultipartFile> files
+    ) {
+		UploadDTO upload = uploadService.uploadFiles(user, files);
+        return run(user, dto, upload.getName());
+    }
 
-		List<AnalysisFile> analysisFiles = files.stream().filter(Files::isRegularFile).map(path -> {
-			AnalysisFile analysisFile = new AnalysisFile();
-			analysisFile.setAnalysis(analysis);
-			analysisFile.setType(AnalysisFileType.ANALYSIS);
-			analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
-			analysisFile.setLink(path.toAbsolutePath().toString());
-			return analysisFile;
-		}).collect(Collectors.toList());
-		analysis.setAnalysisFiles(analysisFiles);
+    @Transactional
+    public CompletableFuture<Long> run(User user, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, String uploadId) {
+        Upload upload = uploadService.findUnassigned(uploadId);
+        Path path = Paths.get(filesStorePath).resolve(upload.getName());
+        List<Path> files = UploadService.scan(path, Function.identity());
+        Analysis analysis = save(dto, user, path.toString());
+        upload.setAnalysisId(analysis.getId());
+        analysis.setAnalysisFiles(files.stream().filter(Files::isRegularFile).map(toAnalysisFile(analysis)).collect(Collectors.toList()));
+        stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
+        log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
+                analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
+        );
+        return sendToEngine(analysis);
+    }
 
-		em.persist(analysis);
-		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
-		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
-				analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
-		);
-		return sendToEngine(analysis);
-	}
 
     private CompletableFuture<Long> sendToEngine(Analysis analysis) {
 		Long id = analysis.getId();
-		java.nio.file.Path path = Paths.get(analysis.getSourceFolder());
+		Path path = Paths.get(analysis.getSourceFolder());
 
-        return CompletableFuture.runAsync(
+		return CompletableFuture.runAsync(
 				() -> preprocess(analysis, path, id), delayedExecutor
 		).thenApplyAsync(__ ->
 				engine.sendAnalysisRequest(toDto(analysis), true, "request-" + id + ".zip", ZipUtils.zipDir(path)), delayedExecutor
@@ -266,25 +268,26 @@ public class AnalysisService {
 
 	@Transactional
 	public List<Long> getIncompleteIds() {
-        return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
-            Path<String> stage = root.get(Analysis_.stage);
-            return q.where(
-                    cb.isNull(root.get(Analysis_.error)),
-                    cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
-            );
-        }).getResultStream().map(Analysis::getId).collect(Collectors.toList());
-    }
+		return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
+			javax.persistence.criteria.Path<String> stage = root.get(Analysis_.stage);
+			return q.where(
+					cb.isNull(root.get(Analysis_.error)),
+					cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
+			);
+		}).getResultStream().map(Analysis::getId).collect(Collectors.toList());
+	}
 
 	@Transactional
 	public AnalysisDTO get(Long id) {
 		Analysis analysis = find(id);
+        Path sourcedir = Paths.get(analysis.getSourceFolder());
 		AnalysisDTO dto = new AnalysisDTO();
 		dto.setType(analysis.getType());
 		dto.setDatasourceId(analysis.getDataSource().getId());
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
-		dto.setFiles(getFileNames(Paths.get(analysis.getSourceFolder())));
+        dto.setFiles(UploadService.scan(sourcedir, UploadService.toRelativePath(sourcedir)));
 		String environmentId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElseGet(() ->
 				Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null)
 		);
@@ -297,7 +300,7 @@ public class AnalysisService {
 			return env;
 		}).orElseGet(() -> {
 			Tarball.Actual actual = Optional.ofNullable(analysis.getActualEnvironment()).map(env ->
-							new Tarball.Actual(env.getDescriptorId(), env.getLabel())
+					new Tarball.Actual(env.getDescriptorId(), env.getLabel())
 			).orElse(null);
 			Environment env = new Environment();
 			env.setTarball(new Tarball(environmentId, actual));
@@ -321,7 +324,7 @@ public class AnalysisService {
 		return findAnalysis(id).orElseThrow(() -> new ValidationException("Analysis not found: " + id));
 	}
 
-	private Analysis toAnalysis(com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, String sourceFolder) {
+	private Analysis save(com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, String sourceFolder) {
 		Long datasourceId = dto.getDatasourceId();
 		DataSource dataSource = dataSourceService.getById(datasourceId);
 		if (Objects.isNull(dataSource)) {
@@ -371,6 +374,7 @@ public class AnalysisService {
 
 		analysis.setOrigin(AnalysisOrigin.DIRECT_UPLOAD);
 		analysis.setAuthor(Optional.ofNullable(user).map(this::toAuthor).orElse(null));
+        em.persist(analysis);
 		return analysis;
 	}
 
@@ -382,7 +386,7 @@ public class AnalysisService {
 		return author;
 	}
 
-    private AnalysisRequestDTO toDto(Analysis analysis) {
+	private AnalysisRequestDTO toDto(Analysis analysis) {
 		AnalysisRequestDTO dto = new AnalysisRequestDTO();
 		dto.setDataSource(dataSourceService.toUnsecuredDto(analysis.getDataSource()));
 		dto.setId(analysis.getId());
@@ -397,19 +401,8 @@ public class AnalysisService {
 		return dto;
 	}
 
-	private List<String> getFileNames(java.nio.file.Path path) {
-		try (Stream<java.nio.file.Path> paths = Files.walk(path)) {
-			return paths.filter(Files::isRegularFile).map(file ->
-					path.relativize(file).toString()
-			).collect(Collectors.toList());
-		} catch (IOException e) {
-			log.warn("Error listing files in [{}]: {}", path, e.getMessage());
-			return Collections.emptyList();
-		}
-	}
-
-	private void preprocess(Analysis analysis, java.nio.file.Path path, Long id) {
-		try (Stream<java.nio.file.Path> files = Files.walk(path)) {
+	private void preprocess(Analysis analysis, Path path, Long id) {
+		try (Stream<Path> files = Files.walk(path)) {
 			files.filter(Files::isRegularFile).forEach(file ->
 					preprocessors.forEach(preprocessor ->
 							preprocessor.preprocess(analysis, file.toFile())
@@ -421,6 +414,17 @@ public class AnalysisService {
 			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Error running preprocessors: " + e.getMessage());
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static Function<Path, AnalysisFile> toAnalysisFile(Analysis analysis) {
+		return path -> {
+			AnalysisFile analysisFile = new AnalysisFile();
+			analysisFile.setAnalysis(analysis);
+			analysisFile.setType(AnalysisFileType.ANALYSIS);
+			analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
+			analysisFile.setLink(path.toAbsolutePath().toString());
+			return analysisFile;
+		};
 	}
 
 }
