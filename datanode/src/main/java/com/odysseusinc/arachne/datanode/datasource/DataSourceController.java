@@ -16,7 +16,6 @@
 package com.odysseusinc.arachne.datanode.datasource;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
@@ -51,8 +50,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.NO_ERROR;
 
 @RestController
 @RequestMapping("/api/v1/data-sources")
@@ -96,7 +93,7 @@ public class DataSourceController {
 
     @ApiOperation(value = "Returns all data sources for current data node")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonResult<List<DataSourceDTO>> list(
+    public List<DataSourceDTO> list(
             @RequestParam(name = "sortBy", required = false) String sortBy,
             @RequestParam(name = "sortAsc", required = false) Boolean sortAsc,
             Principal principal
@@ -105,47 +102,37 @@ public class DataSourceController {
         if (principal == null) {
             throw new AuthException("user not found");
         }
-        JsonResult<List<DataSourceDTO>> result = new JsonResult<>(NO_ERROR);
         List<DataSourceDTO> dtos = dataSourceService.findAllNotDeleted(sortBy, sortAsc).stream()
                 .map(DataSourceService::toDto)
                 .collect(Collectors.toList());
-
-        result.setResult(dtos);
-        return result;
+        return dtos;
     }
 
     @ApiOperation(value = "Get data source")
     @GetMapping(value = "/{id}")
-    public JsonResult<DataSourceDTO> get(Principal principal, @PathVariable("id") Long id) throws PermissionDeniedException {
+    public DataSourceDTO get(Principal principal, @PathVariable("id") Long id) throws PermissionDeniedException {
 
         if (principal == null) {
             throw new AuthException("user not found");
         }
-        JsonResult<DataSourceDTO> result = new JsonResult<>(NO_ERROR);
         DataSource dataSource = dataSourceService.getById(id);
-        DataSourceDTO resultDTO = DataSourceService.toDto(dataSource);
-        result.setResult(resultDTO);
-        return result;
+        return DataSourceService.toDto(dataSource);
     }
 
     @ApiOperation(value = "Removes data source from current data node")
     @DeleteMapping("/{id}")
-    public JsonResult<Boolean> delete(Principal principal, @PathVariable("id") Long id) {
+    public Boolean delete(Principal principal, @PathVariable("id") Long id) {
         if (principal == null) {
             throw new AuthException("user not found");
         }
-        JsonResult<Boolean> result = new JsonResult<>();
         dataSourceService.delete(id);
-        result.setErrorCode(NO_ERROR.getCode());
-        result.setResult(Boolean.TRUE);
-        return result;
+        return true;
     }
 
     @ApiOperation("Remove kerberos keytab")
     @DeleteMapping("/{id}/keytab")
-    public JsonResult<?> removeKeytab(@PathVariable("id") Long id) {
+    public void removeKeytab(@PathVariable("id") Long id) {
         dataSourceService.removeKeytab(id);
-        return new JsonResult<>(NO_ERROR);
     }
 
     @ApiOperation("List supported DBMS")

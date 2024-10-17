@@ -18,8 +18,8 @@ package com.odysseusinc.arachne.datanode.controller;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationModeDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationResponse;
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
+import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.UserRegistrationStrategy;
 import com.odysseusinc.arachne.datanode.service.UserService;
@@ -48,8 +48,6 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Optional;
 
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.NO_ERROR;
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.UNAUTHORIZED;
 import static io.netty.handler.codec.http.cookie.CookieHeaderNames.SameSite;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -79,14 +77,14 @@ public class AuthController {
     @ApiOperation("Get authentication mode")
     @RequestMapping(value = "/api/v1/auth/mode", method = GET)
     @Deprecated
-    public JsonResult<CommonAuthenticationModeDTO> authenticationMode() {
+    public CommonAuthenticationModeDTO authenticationMode() {
 
-        return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR, new CommonAuthenticationModeDTO(authenticationMode.getValue()));
+        return new CommonAuthenticationModeDTO(authenticationMode.getValue());
     }
 
     @ApiOperation(value = "Sign in user. Returns JWT token.")
     @RequestMapping(value = "${api.loginEnteryPoint}", method = RequestMethod.POST)
-    public ResponseEntity<JsonResult<?>> login(
+    public ResponseEntity<?> login(
             @Valid @RequestBody CommonAuthenticationRequest request) {
 
         UserInfo userInfo = authenticator.authenticate(
@@ -96,7 +94,7 @@ public class AuthController {
         User centralUser = UserService.toEntity(userInfo);
         userRegisterStrategy.registerUser(centralUser);
 
-        return Optional.ofNullable(userInfo).map(UserInfo::getToken).map(token ->
+        return Optional.ofNullable(userInfo).map(UserInfo::getToken).<ResponseEntity<?>>map(token ->
                 ok(new CommonAuthenticationResponse(token), authCookie(token, -1))
         ).orElseGet(() ->
                 unauthorized("Cannot refresh token user info is either null or does not contain token")
@@ -105,11 +103,11 @@ public class AuthController {
 
     @ApiOperation("Refresh session token.")
     @RequestMapping(value = "/api/v1/auth/refresh", method = RequestMethod.POST)
-    public ResponseEntity<JsonResult<?>> refresh(HttpServletRequest request) {
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
 
         String accessToken = request.getHeader(accessTokenResolver.getTokenHeaderName());
         UserInfo userInfo = authenticator.refreshToken(accessToken);
-        return userService.findByUsername(userInfo.getUsername()).map(user ->
+        return userService.findByUsername(userInfo.getUsername()).<ResponseEntity<?>>map(user ->
                 ok(userInfo.getToken(), authCookie(userInfo.getToken(), -1))
         ).orElseGet(() ->
                 unauthorized("User is not registered")
@@ -118,13 +116,11 @@ public class AuthController {
 
     @ApiOperation("Get current principal")
     @RequestMapping(value = "/api/v1/auth/me", method = GET)
-    public JsonResult<UserInfoDTO> principal(Principal principal) {
-
-        JsonResult<UserInfoDTO> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-
-        userService
-                .findByUsername(principal.getName())
-                .ifPresent(user -> {
+    public UserInfoDTO principal(Principal principal) {
+        String name = principal.getName();
+        return userService
+                .findByUsername(name)
+                .map(user -> {
                     UserInfoDTO userInfoDTO = new UserInfoDTO();
                     userInfoDTO.setUsername(user.getUsername());
                     final boolean isAdmin = user.getRoles().stream()
@@ -132,15 +128,13 @@ public class AuthController {
                     userInfoDTO.setIsAdmin(isAdmin);
                     userInfoDTO.setFirstname(user.getFirstName());
                     userInfoDTO.setLastname(user.getLastName());
-                    result.setResult(userInfoDTO);
-                });
-
-        return result;
+                    return userInfoDTO;
+                }).orElseThrow(() -> new AuthException("User not found: [" + name + "]"));
     }
 
     @ApiOperation("Logout")
     @RequestMapping(value = "/api/v1/auth/logout", method = RequestMethod.POST)
-    public ResponseEntity<JsonResult<?>> logout(HttpServletRequest request) {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
 
         try {
             String accessToken = request.getHeader(accessTokenResolver.getTokenHeaderName());
@@ -150,25 +144,21 @@ public class AuthController {
             return ok(true, authCookie("", 0));
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
-            JsonResult<Boolean> result = new JsonResult<>(JsonResult.ErrorCode.SYSTEM_ERROR, false);
-            result.setErrorMessage(ex.getMessage());
-            return ResponseEntity.ok(result);
+            return ResponseEntity.internalServerError().body(ex.getMessage());
         }
     }
 
-    private <T> ResponseEntity<JsonResult<?>> ok(T body, String s) {
+    private <T> ResponseEntity<?> ok(T body, String s) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, s)
-                .body(new JsonResult<>(NO_ERROR, body));
+                .body(body);
     }
 
-    private ResponseEntity<JsonResult<?>> unauthorized(String errorMessage) {
-        JsonResult<String> result = new JsonResult<>(UNAUTHORIZED);
-        result.setErrorMessage(errorMessage);
+    private ResponseEntity<?> unauthorized(String errorMessage) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.SET_COOKIE, authCookie("", 0))
-                .body(result);
+                .body(errorMessage);
     }
 
     private String authCookie(String token, int expiry) {
