@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Path;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,6 +75,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -172,27 +172,22 @@ public class AnalysisService {
 
 	@Transactional
 	public CompletableFuture<Long> run(
-			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Consumer<File> writeFiles
+			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, Function<java.nio.file.Path, List<java.nio.file.Path>> writeFiles
 	) {
 		String sourceFolder = AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath();
 		Analysis analysis = toAnalysis(dto, user, sourceFolder);
-		File analysisDir = new File(sourceFolder);
-		writeFiles.accept(analysisDir);
-		File[] filesList = analysisDir.listFiles();
+		java.nio.file.Path dir = Paths.get(sourceFolder);
+		List<java.nio.file.Path> files = writeFiles.apply(dir);
 
-		if (Objects.nonNull(filesList)) {
-			List<AnalysisFile> analysisFiles = Arrays.stream(filesList)
-					.filter(File::isFile)
-					.map(f -> {
-						AnalysisFile analysisFile = new AnalysisFile();
-						analysisFile.setAnalysis(analysis);
-						analysisFile.setType(AnalysisFileType.ANALYSIS);
-						analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
-						analysisFile.setLink(f.getPath());
-						return analysisFile;
-					}).collect(Collectors.toList());
-			analysis.setAnalysisFiles(analysisFiles);
-		}
+		List<AnalysisFile> analysisFiles = files.stream().filter(Files::isRegularFile).map(path -> {
+			AnalysisFile analysisFile = new AnalysisFile();
+			analysisFile.setAnalysis(analysis);
+			analysisFile.setType(AnalysisFileType.ANALYSIS);
+			analysisFile.setStatus(AnalysisFileStatus.UNPROCESSED);
+			analysisFile.setLink(path.toAbsolutePath().toString());
+			return analysisFile;
+		}).collect(Collectors.toList());
+		analysis.setAnalysisFiles(analysisFiles);
 
 		em.persist(analysis);
 		stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
