@@ -19,8 +19,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService;
-import com.odysseusinc.arachne.datanode.service.ExecutionEngineIntegrationService.OctetStreamRequestBody;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.SqlUtils;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
@@ -63,8 +61,6 @@ public class CheckDataSourceService {
     private final Cache<Long, CompletableFuture<CheckResult>> results = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build();
 
     @Autowired
-    private ExecutionEngineIntegrationService engine;
-    @Autowired
     private ExecutionEngineClient engineClient;
 
     @Autowired
@@ -97,8 +93,7 @@ public class CheckDataSourceService {
         byte[] zip = ZipUtils.zipFile(SQL_FILENAME, sql.getBytes(StandardCharsets.UTF_8));
 
         try {
-            OctetStreamRequestBody body = new OctetStreamRequestBody(sink -> sink.write(zip));
-            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, false, "datasource-check-" + id, body);
+            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, false, "datasource-check-" + id, sink -> sink.write(zip));
             if (status.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
                 future.completeExceptionally(new ValidationException("Check error: Execution not recognized"));
             }

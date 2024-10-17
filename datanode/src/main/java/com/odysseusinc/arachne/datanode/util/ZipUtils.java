@@ -16,6 +16,7 @@ package com.odysseusinc.arachne.datanode.util;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.apache.commons.lang3.function.FailableFunction;
 
@@ -37,8 +38,6 @@ import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 
 public class ZipUtils {
     public static byte[] zipFile(String name, @NotNull byte[] content) {
@@ -55,17 +54,12 @@ public class ZipUtils {
         return out.toByteArray();
     }
 
-    public static void zip(Path archiveFile, Path path) throws IOException {
-        try (
-                OutputStream out = Files.newOutputStream(archiveFile, CREATE, WRITE);
-                ZipOutputStream zip = new ZipOutputStream(out)
-        ) {
-            if (Files.isDirectory(path)) {
-                Files.walkFileTree(path, new AddZipEntryFileVisitor(path, zip));
-            } else {
-                addZipEntry(zip, path, path.getFileName().toString());
+    public static IOConsumer<OutputStream> zipDir(Path directory) {
+        return out -> {
+            try (ZipOutputStream zip = new ZipOutputStream(out)) {
+                Files.walkFileTree(directory, new AddZipEntryFileVisitor(directory, zip));
             }
-        }
+        };
     }
 
     @SafeVarargs
@@ -112,7 +106,7 @@ public class ZipUtils {
         zos.closeEntry();
     }
 
-    private static class AddZipEntryFileVisitor extends SimpleFileVisitor<Path> {
+    public static class AddZipEntryFileVisitor extends SimpleFileVisitor<Path> {
         private final Path directory;
         private final ZipOutputStream zip;
 
