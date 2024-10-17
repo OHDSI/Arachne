@@ -23,7 +23,7 @@ import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 public class TestContainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>();
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.8");
 
     private static void startContainers() {
         Startables.deepStart(Stream.of(

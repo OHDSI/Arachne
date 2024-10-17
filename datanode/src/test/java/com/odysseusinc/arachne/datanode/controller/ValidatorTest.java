@@ -58,7 +58,6 @@ public class ValidatorTest {
 
         //Should pass with keyfile
         WriteDataSourceDTO bqDataSourceDTO = prepareDataSourceDTO(DBMSType.BIGQUERY);
-        bqDataSourceDTO.setKeyfile(mockKeyFile);
         Set<ConstraintViolation<WriteDataSourceDTO>> violations = validator.validate(bqDataSourceDTO);
         assertThat(violations, succeeds());
 
@@ -87,14 +86,12 @@ public class ValidatorTest {
         assertThat(violations, succeeds());
 
         //Should pass with keyfile
-        impalaDataSourceDTO.setKeyfile(mockKeyFile);
         violations = validator.validate(impalaDataSourceDTO);
         assertThat(violations, succeeds());
 
         //Should fail without kerberos user during kerberos password auth
         impalaDataSourceDTO.setUseKerberos(true);
         impalaDataSourceDTO.setKrbUser(null);
-        impalaDataSourceDTO.setKeyfile(null);
         impalaDataSourceDTO.setKrbAuthMechanism(KerberosAuthMechanism.PASSWORD);
         violations = validator.validate(impalaDataSourceDTO);
         assertThat(violations, fails());
