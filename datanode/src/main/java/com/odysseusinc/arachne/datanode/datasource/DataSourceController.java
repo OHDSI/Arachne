@@ -160,7 +160,7 @@ public class DataSourceController {
     }
 
     @Async
-    @PostMapping(value = "/{id}/check")
+    @GetMapping(value = "/{id}/check")
     public CompletableFuture<CheckResult> check(@PathVariable Long id) {
         return checkService.check(id);
     }
