@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,15 @@ package com.odysseusinc.arachne.datanode.exception;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Getter
 @NoArgsConstructor
-public class BadRequestException extends RuntimeException {
-    public BadRequestException(String message) {
+public class ResourceConflictException extends RuntimeException {
+    private Map<String, Object> errors;
+
+    public ResourceConflictException(String message, Map<String, Object> errors) {
         super(message);
+        this.errors = errors;
     }
 }
