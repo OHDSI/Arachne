@@ -15,7 +15,6 @@
 
 package com.odysseusinc.arachne.datanode.controller.admin;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOConverter;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,47 +71,36 @@ public class AdminController {
 
     @ApiOperation(value = "Get all admins", hidden = true)
     @GetMapping("/api/v1/admin/admins")
-    public JsonResult<List<UserDTO>> getAdmins(
+    public List<UserDTO> getAdmins(
             @RequestParam(name = "sortBy", required = false) String sortBy,
             @RequestParam(name = "sortAsc", required = false) Boolean sortAsc
     ) throws PermissionDeniedException {
 
-        JsonResult<List<UserDTO>> result;
         List<User> users = userService.getAllAdmins(sortBy, sortAsc);
         List<UserDTO> dtos = users.stream()
                 .map(UserService::toDto)
                 .collect(Collectors.toList());
-        result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-        result.setResult(dtos);
-        return result;
+        return dtos;
     }
 
     @ApiOperation("Suggests user according to query to add admin")
     @GetMapping("/api/v1/admin/admins/suggest")
-    public JsonResult<List<UserDTO>> suggestAdmins(
+    public Optional<List<UserDTO>> suggestAdmins(
             Principal principal,
             @RequestParam("query") String query,
             @RequestParam(value = "limit", required = false) Integer limit
     ) {
-
-        JsonResult<List<UserDTO>> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-        userService
-                .findByUsername(principal.getName())
-                .ifPresent(user -> {
-                    List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
-                    result.setResult(users.stream().map(UserService::toDto)
-                            .collect(Collectors.toList())
-                    );
-                });
-        return result;
+        User user = userService.getUser(principal);
+        List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
+        return Optional.of(users.stream().map(UserService::toDto).collect(Collectors.toList()));
     }
 
     @ApiOperation("Remove admin")
     @DeleteMapping("/api/v1/admin/admins/{username:.+}")
-    public JsonResult<?> removeAdmin(@PathVariable String username) {
-
-        userService.findByUsername(username).ifPresent(user -> userService.remove(user.getId()));
-        return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
+    public void removeAdmin(@PathVariable String username) {
+        userService.findByUsername(username).ifPresent(user ->
+                userService.remove(user.getId())
+        );
     }
 
     @ApiOperation(value = "list submissions")
@@ -198,15 +187,6 @@ public class AdminController {
         propertiesMap.put("analysis", p -> p.add("title"));
         propertiesMap.put("study", p -> p.add("studyTitle"));
         propertiesMap.put("status", p -> p.add("journal.state"));
-    }
-
-    protected User getAdmin(Principal principal) throws PermissionDeniedException {
-
-        final User user = userService.getUser(principal);
-        if (!user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN"))) {
-            throw new PermissionDeniedException("Access denied");
-        }
-        return user;
     }
 
     @Getter

@@ -15,23 +15,21 @@
 
 package com.odysseusinc.arachne.system.settings.api.v1.controller;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
-import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingsGroupDTO;
 import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingsGroupListDTO;
 import com.odysseusinc.arachne.system.settings.api.v1.dto.SystemSettingsListDTO;
 import com.odysseusinc.arachne.system.settings.exception.NoSuchSystemSettingException;
 import com.odysseusinc.arachne.system.settings.model.SystemSettingsGroup;
 import com.odysseusinc.arachne.system.settings.service.SystemSettingsService;
 import io.swagger.annotations.Api;
-import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.LinkedList;
 
 @Api(hidden = true)
 @RestController
@@ -42,7 +40,7 @@ public class SystemSettingsController {
     private SystemSettingsService systemSettingsService;
 
     @RequestMapping(value = "/api/v1/admin/system-settings", method = RequestMethod.GET)
-    public JsonResult<SystemSettingsGroupListDTO> systemSettings() {
+    public SystemSettingsGroupListDTO systemSettings() {
 
         SystemSettingsGroupListDTO dto = new SystemSettingsGroupListDTO();
         dto.setList(new LinkedList<>());
@@ -50,21 +48,17 @@ public class SystemSettingsController {
             dto.getList().add(systemSettingsService.toDto(systemSettingsGroup));
         }
         dto.setApplied(!systemSettingsService.isConfigChanged());
-        JsonResult<SystemSettingsGroupListDTO> result = new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
-        result.setResult(dto);
-        return result;
+        return dto;
     }
 
     @RequestMapping(value = "/api/v1/admin/system-settings", method = RequestMethod.POST)
-    public JsonResult saveSystemSettings(
+    public void saveSystemSettings(
             @RequestBody SystemSettingsListDTO systemSettingListDTO)
             throws NoSuchSystemSettingException, BindException {
 
         if (systemSettingListDTO != null) {
             systemSettingsService.saveSystemSetting(systemSettingListDTO.getValues());
         }
-
-        return new JsonResult<>(JsonResult.ErrorCode.NO_ERROR);
     }
 
 
