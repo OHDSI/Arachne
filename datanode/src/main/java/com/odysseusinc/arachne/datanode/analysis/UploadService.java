@@ -15,12 +15,14 @@
 
 package com.odysseusinc.arachne.datanode.analysis;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,9 @@ public class UploadService {
 	@Value("${files.store.path}")
 	private String storageDir;
 
+	@Autowired
+	private MetadataService metadataService;
+
     @PersistenceContext
 	private EntityManager em;
 
@@ -55,6 +60,7 @@ public class UploadService {
 		return dir -> archive.stream().map(file -> {
 			try {
 				Path path = dir.resolve(Objects.requireNonNull(file.getOriginalFilename()));
+				Files.createDirectories(path.getParent());
 				file.transferTo(path);
 				return path;
 			} catch (IOException e) {
@@ -104,7 +110,8 @@ public class UploadService {
 		List<Path> files = writeFiles.apply(path);
 		log.info("User {} [{}] uploaded {} files to [{}]", user.getId(), user.getTitle(), files.size(), path);
 		List<String> names = files.stream().map(toRelativePath(path)).collect(Collectors.toList());
-		return new UploadDTO(name, names);
+		JsonNode metadata = metadataService.detect(files);
+		return new UploadDTO(name, names, metadata);
 	}
 
 	private String timestamp() {

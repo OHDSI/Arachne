@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.analysis;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,4 +28,5 @@ public class UploadDTO {
     @NotNull
     private String name;
     private List<String> files;
+    private JsonNode metadata;
 }
