@@ -17,6 +17,7 @@ package com.odysseusinc.arachne.datanode.service.client.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odysseusinc.arachne.datanode.service.client.ArachneHttpClientBuilder;
+import com.odysseusinc.arachne.datanode.util.NoCloseOutputStream;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
@@ -31,10 +32,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.BufferedSink;
+import org.apache.commons.io.function.IOConsumer;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -78,13 +83,18 @@ public class ExecutionEngineClient {
     }
 
     public AnalysisRequestStatusDTO sendAnalysisRequest(
-            AnalysisRequestDTO analysisRequest, boolean compressedResult, String name, RequestBody requestBody
+            AnalysisRequestDTO analysisRequest, boolean compressedResult, String name, IOConsumer<OutputStream> bodyWriter
     ) {
         String json = toJson(analysisRequest);
+        // ZipOutputStream must be auto-closed to finalize the archive, however underlying sink should
+        // not be closed as okhttp might have more data to write in the same request
+        OctetStreamRequestBody x = new OctetStreamRequestBody(sink ->
+                bodyWriter.accept(new NoCloseOutputStream(sink.outputStream()))
+        );
         MultipartBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("analysisRequest", EMPTY_FILENAME, RequestBody.create(json, APPLICATION_JSON))
-                .addFormDataPart("file", name, requestBody)
+                .addFormDataPart("file", name, x)
                 .build();
         String url = buildUrl(properties.getAnalysisUri());
         Request request = new Request.Builder()
@@ -144,5 +154,29 @@ public class ExecutionEngineClient {
                 .withMaxAttempts(2)
                 .withBackoff(2, 4, ChronoUnit.SECONDS)
                 .build();
+    }
+
+    private static class OctetStreamRequestBody extends RequestBody {
+        private final IOConsumer<BufferedSink> consumer;
+
+        public OctetStreamRequestBody(IOConsumer<BufferedSink> consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public okhttp3.MediaType contentType() {
+            return okhttp3.MediaType.parse(javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM);
+        }
+
+        @Override
+        public long contentLength() {
+            return -1L;
+        }
+
+        @Override
+        public void writeTo(@NotNull BufferedSink sink) throws IOException {
+            consumer.accept(sink);
+        }
+
     }
 }
