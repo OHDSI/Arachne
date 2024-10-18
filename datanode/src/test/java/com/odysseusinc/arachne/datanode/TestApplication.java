@@ -17,6 +17,7 @@ package com.odysseusinc.arachne.datanode;
 
 import com.odysseusinc.arachne.datanode.config.SchedulerConfig;
 import com.odysseusinc.arachne.datanode.config.WebSecurityConfig;
+import com.odysseusinc.arachne.datanode.controller.AuthController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -38,6 +39,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {"com.odysseusinc.arachne.*"})
 @ComponentScan(basePackages = {"com.odysseusinc.arachne.*", "org.ohdsi.authenticator.*"},
         excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthController.class),
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebApplicationStarter.class),
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebSecurityConfig.class),
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = SchedulerConfig.class)
