@@ -20,6 +20,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -42,4 +43,6 @@ public class AnalysisRequestDTO {
     private String environmentId;
 
     private String dockerImage;
+
+    private Map<String, String> parameters;
 }

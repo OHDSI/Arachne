@@ -92,7 +92,7 @@ public class AnalysisController {
     }
 
     @Async
-    @PostMapping(path = "/execute/{id}")
+    @PostMapping(path = "/execute/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<?> execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
         User user = userService.getUser(principal);
         return analysisService.run(user, request, id);
