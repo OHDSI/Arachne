@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,20 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.commons.service.preprocessor;
+package com.odysseusinc.arachne.datanode.exception;
 
-public interface PreprocessorService<T> {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-    void runPreprocessor(T analysis);
+import java.util.Map;
+
+@Getter
+@NoArgsConstructor
+public class ResourceConflictException extends RuntimeException {
+    private Map<String, Object> errors;
+
+    public ResourceConflictException(String message, Map<String, Object> errors) {
+        super(message);
+        this.errors = errors;
+    }
 }

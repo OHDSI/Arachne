@@ -15,9 +15,9 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
+import com.odysseusinc.arachne.datanode.exception.ResourceConflictException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.service.UserService;
@@ -38,12 +38,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult.ErrorCode.VALIDATION_ERROR;
 
 @Slf4j
 @ControllerAdvice
@@ -72,12 +70,11 @@ public class ExceptionHandlingAdvice {
     }
 
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<JsonResult<?>> exceptionHandler(BindException ex) {
-        List<FieldError> errors = ex.getBindingResult().getFieldErrors();
-        JsonResult<?> result = new JsonResult<>(VALIDATION_ERROR);
-        result.setValidatorErrors(errors.stream().collect(Collectors.toMap(FieldError::getField, ExceptionHandlingAdvice::fieldMessage)));
-        result.setErrorMessage(ex.getMessage());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    public ResponseEntity<?> exceptionHandler(BindException ex) {
+        Map<String, Object> errors = ex.getBindingResult().getFieldErrors().stream().collect(
+                Collectors.toMap(FieldError::getField, ExceptionHandlingAdvice::fieldMessage)
+        );
+        return validationError(ex.getMessage(), errors);
     }
 
     @ExceptionHandler(AuthException.class)
@@ -105,10 +102,13 @@ public class ExceptionHandlingAdvice {
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<JsonResult<?>> exceptionHandler(ValidationException ex) {
-        JsonResult<?> result = new JsonResult<>(VALIDATION_ERROR);
-        result.setErrorMessage(ex.getMessage());
-        return ResponseEntity.badRequest().body(result);
+    public ResponseEntity<?> exceptionHandler(ValidationException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<?> validationHandler(ResourceConflictException e) {
+        return validationError(e.getMessage(), e.getErrors());
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -136,6 +136,10 @@ public class ExceptionHandlingAdvice {
             log.error(message, e);
             return message;
         }
+    }
+
+    private static ResponseEntity<ValidationErrors> validationError(String message, Map<String, Object> errors) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ValidationErrors.of(message, errors));
     }
 
     private static String fieldMessage(FieldError field) {

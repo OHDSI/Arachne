@@ -145,7 +145,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
           dataSources: parseToSelectControlOptions(dataSources),
         }));
 
-        setState(prevState => ({...prevState, dockerImage: envsSelectControlList.length == 0 ? envsSelectControlList[0].value : ""}))
+        setState(prevState => ({...prevState, dockerImage: envsSelectControlList?.length == 0 ? envsSelectControlList[0].value : ""}))
 
       } catch (e) {
         setControlsList(prevState => ({ ...prevState, status: Status.ERROR }));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,24 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.datanode.exception;
+package com.odysseusinc.arachne.datanode.controller;
 
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Response structure to report multiple validation errors on a form.
+ */
 @Getter
-@NoArgsConstructor
-public class BadRequestException extends RuntimeException {
-    public BadRequestException(String message) {
-        super(message);
-    }
+@RequiredArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "of")
+public class ValidationErrors implements Serializable {
+    private final String errorMessage;
+    private Map<String, Object> validatorErrors = new HashMap<>();
 }
