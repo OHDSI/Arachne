@@ -62,7 +62,6 @@ export const ImportZipFile: FC<any> = props => {
                 const zip = new JSZip();
                 zip.loadAsync(archive).then(async files_zip => {
                   const fileMetadata = Object.values(files_zip.files).find(elem => (elem.name.indexOf('metadata.json') >= 0 || elem.name.indexOf('execution-config.json') >= 0) && !(elem.name.indexOf('_') === 0))
-                  console.log(fileMetadata)
                   if(fileMetadata) {
                     const res = await zip.file(fileMetadata.name).async("string");
                     try {

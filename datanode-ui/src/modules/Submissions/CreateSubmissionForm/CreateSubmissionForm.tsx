@@ -42,6 +42,7 @@ import { getDataSources } from "../../../api/data-sources";
 import { DataSourceDTOInterface, EnvironmentInterface, IdNameInterface, SelectInterface } from "../../../libs/types";
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { tabsSubmissionForm } from "../../../config";
+import { uniq } from "lodash";
 
 const defaultState = (type): SubmissionFormStateInterface => ({
   title: "",
@@ -127,10 +128,10 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
         const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
         const dataSources: DataSourceDTOInterface[] = await getDataSources();
 
-        const envsSelectControlList = environments.docker?.map(elem => ({
-          name: elem.tags.join(','),
-          value: elem.tags.join(',')
-        }))
+        const envsSelectControlList = uniq(environments.docker?.map(elem => elem.tags).flat()).map(elem => ({
+            name: elem,
+            value: elem
+          }))
 
         setEnvs(() => ({
           docker: envsSelectControlList || [],

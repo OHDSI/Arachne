@@ -96,6 +96,10 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   useEffect(() => {
     if (status === Status.SUCCESS) {
       setState(entity);
+      setControlsList(prevState => ({
+        ...prevState,
+        entryFiles: entity.files.map(elem => ({ name: elem, value: elem }))
+      }));
       setIsDockerEnv(entity.dockerImage)
     }
   }, [status, entity]);
@@ -127,7 +131,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
         analysisTypes: parseToSelectControlOptions(types),
         dataSources: parseToSelectControlOptions(dataSources)
       }));
-      setState(prevState => ({...prevState, dockerImage: envsSelectControlList.length > 0 ? envsSelectControlList[0].value : ""}))
+      setState(prevState => ({ ...prevState, dockerImage: envsSelectControlList.length > 0 ? envsSelectControlList[0].value : "" }))
 
     } catch (e) {
       setControlsList(prevState => ({ ...prevState, status: Status.ERROR }));
@@ -187,18 +191,19 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
         <Grid item container xs={12} p={2} spacing={2}>
           <Grid item xs={12}>
             <FormElement name="type" textLabel={t("forms.create_submission.entry_point")} required>
-              <Input
-                id="entry"
-                name="entry"
-                type="text"
-                size="medium"
-                disabled={true}
+              <Select
+                className=""
+                name="entry-point"
+                disablePortal
+                id="entry point"
+                disabled={controlsList?.entryFiles?.length === 0}
+                options={controlsList.entryFiles}
                 value={state.executableFileName}
                 placeholder={t("forms.create_submission.entry_point_placeholder")}
-                onChange={(e: any) => {
+                onChange={(type: any) => {
                   setState({
                     ...state,
-                    title: e.target.value,
+                    executableFileName: type,
                   });
                 }}
                 fullWidth
@@ -280,9 +285,9 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
             </Grid>
           )}
           {showTypesEnv.showDocker && isDockerEnv && (
-                <Grid item xs={12}>
-                  <FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
-                    {/* <Input
+            <Grid item xs={12}>
+              <FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
+                {/* <Input
 											id="docker-image"
 											name="docker-image"
 											type="text"
@@ -297,20 +302,20 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
 											}}
 											fullWidth
 										/> */}
-                    <AutocompleteInput
-                      value={state.dockerImage}
-                      onChange={value => {
-                        setState({
-                          ...state,
-                          dockerImage: value,
-                        });
-                      }}
-                      options={controlsList.envs.docker || []}
-                      className="autocompleteValue"
-                    />
-                  </FormElement>
-                </Grid>
-              )}
+                <AutocompleteInput
+                  value={state.dockerImage}
+                  onChange={value => {
+                    setState({
+                      ...state,
+                      dockerImage: value,
+                    });
+                  }}
+                  options={controlsList.envs.docker || []}
+                  className="autocompleteValue"
+                />
+              </FormElement>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <FormElement
               name="data-source"
