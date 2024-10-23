@@ -80,7 +80,7 @@ export const EnviromentsList: React.FC = () => {
         iconName: "",
         fetch: async () => {
           const envs = await getEnvironments();
-          return envs.tarball;
+          return envs.tarball || [];
         },
         cols: cols
       }}

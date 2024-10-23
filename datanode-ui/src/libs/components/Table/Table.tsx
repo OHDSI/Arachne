@@ -94,7 +94,7 @@ export const Table: FC<TableProps> = props => {
   const options = {
     stateReducer: reducer,
     columns: props.columns,
-    data: props.data,
+    data: props.data || [],
     disableSortBy: !enableSorting,
     onEdit,
     initialState: {

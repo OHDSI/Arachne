@@ -34,8 +34,8 @@ export const reducer = (initialState: IEntityList, action: any) => {
       draft.actions = action.payload.actions;
       draft.pageCount = action.payload.totalPages || 1;
       draft.pageNumber = action.payload.pageable?.pageNumber || 0;
-      draft.numberOfElements = action.payload.numberOfElements || action.payload.result.length;
-      draft.totalElements = action.payload.totalElements || action.payload.result.length;
+      draft.numberOfElements = action.payload?.numberOfElements || action.payload?.result?.length || 0;
+      draft.totalElements = action.payload?.totalElements || action.payload?.result?.length || 0;
       draft.sort = action.payload.sort;
       draft.engine = action.payload?.engine
       draft.status = Status.SUCCESS;
