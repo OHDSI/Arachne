@@ -20,8 +20,8 @@ import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
-import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
+import com.odysseusinc.arachne.datanode.exception.ResourceConflictException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource_;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -114,7 +114,7 @@ public class DataSourceService {
                         cb.equal(root.get(DataSource_.name), name)
                 )
         )).getResultStream().findFirst().map(conflict -> {
-            throw new BadRequestException("Data source name [" + name + "] is not unique", ImmutableMap.of("name", "Name conflict with datasource [" + conflict.getId() + "] is not unique"));
+            throw new ResourceConflictException("Data source name [" + name + "] is not unique", ImmutableMap.of("name", "Name conflict with datasource [" + conflict.getId() + "] is not unique"));
         });
     }
 
