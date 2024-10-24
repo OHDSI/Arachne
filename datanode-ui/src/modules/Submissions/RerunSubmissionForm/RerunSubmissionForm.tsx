@@ -29,6 +29,7 @@ import { parseToSelectControlOptions } from "../../../libs/utils";
 import { useEntity } from "../../../libs/hooks";
 import { SpinnerFormContainer } from "../CreateSubmissionForm/ChooseRuntime.styles";
 import { Box, Switch } from "@mui/material";
+import { uniq } from "lodash";
 
 const defaultState = (type = AnalysisTypes.COHORT): SubmissionFormStateInterface => ({
   title: "",
@@ -116,9 +117,9 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       const types: IdNameInterface<AnalysisTypes>[] = await getAnalysisTypes();
       const dataSources: DataSourceDTOInterface[] = await getDataSources();
 
-      const envsSelectControlList = envs.docker?.map(elem => ({
-        name: elem.tags.join(','),
-        value: elem.tags.join(',')
+      const envsSelectControlList = uniq(envs.docker?.map(elem => elem.tags).flat()).map(elem => ({
+        name: elem,
+        value: elem
       }))
 
       setControlsList(prevState => ({
