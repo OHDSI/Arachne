@@ -45,6 +45,7 @@ import {
 import moment from "moment";
 import { Chronometer } from "./libs/components/Chronometer/Chronometer";
 import { TimeContainer } from "./libs/components/Chronometer/Chronometer.styles";
+import { CheckDatabase } from "./libs/components/CheckDatabase";
 
 // columns table
 export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
@@ -241,6 +242,16 @@ export const colsTableDatabase = (
       width: "5%",
       minWidth: 80,
     },
+    {
+      Header: '',
+      accessor: "id",
+      id: "id",
+      minWidth: 80,
+      Cell: (props): any => {
+        return <CheckDatabase {...props}/>
+      },
+    },
+
   ];
 export const colsTableUsers = (t: any): ColumnInterface[] => [
   {

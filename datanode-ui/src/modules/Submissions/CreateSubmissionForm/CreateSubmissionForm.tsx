@@ -43,6 +43,7 @@ import { DataSourceDTOInterface, EnvironmentInterface, IdNameInterface, SelectIn
 import { parseToSelectControlOptions } from "../../../libs/utils";
 import { tabsSubmissionForm } from "../../../config";
 import { uniq } from "lodash";
+import CreateOptions from "../../../components/CreateOptions";
 
 const defaultState = (type): SubmissionFormStateInterface => ({
   title: "",
@@ -51,6 +52,7 @@ const defaultState = (type): SubmissionFormStateInterface => ({
   environmentId: "",
   datasourceId: "",
   type: type,
+  parameters: null
 });
 
 interface SubmissionFormStateInterface {
@@ -61,6 +63,7 @@ interface SubmissionFormStateInterface {
   datasourceId: string;
   title: string;
   dockerImage?: string;
+  parameters?: any
 }
 
 interface CreateSubmissionFormInterfaceProps {
@@ -162,7 +165,8 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
           datasourceId: state.datasourceId,
           executableFileName: state.executableFileName,
           study: state.study,
-          type: state.type
+          type: state.type,
+          parameters: state.parameters
         }
 
         fd.append("file", fileState);
@@ -208,24 +212,17 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
 
     const unpackZip = (zipFolder) => {
       return Object.keys(zipFolder.files)
-        .map(fileId => zipFolder.files[fileId])
         .filter(file => {
-          return !(file.name.indexOf('_') === 0 || file.name.indexOf('.') === 0)
+          return !(file.indexOf('_') === 0 || file.indexOf('.') === 0)
         })
         .filter(file => {
-          return (
-            file.name.toLowerCase().includes(".sql", -5) ||
-            file.name.toLowerCase().includes(".r", -5)
-          );
+          return (file.toLowerCase().includes(".sql", -3) || file.toLowerCase().includes(".r", -3)) && !file.toLowerCase().includes(".rproj");
         })
         .map(file => {
-          const filename = file.name.split('/')
-          if(filename.length > 1) {
-            filename.shift()
-          }
+          const fileElement = zipFolder.files[file]
           return {
-            name: file.name,
-            value: file.name,
+            name: fileElement.name,
+            value: fileElement.name,
           };
         });
     };
@@ -263,7 +260,6 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                           ...prevState,
                           entryFiles: unpackZip(zipFolder)
                         }));
-
                         setState(prevState => {
                           return metadata ? {
                             ...prevState,
@@ -272,7 +268,8 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                             dockerImage: metadata.dockerRuntimeEnvironmentImage,
                             type: metadata.analysisType,
                             executableFileName: metadata.entryPoint.toLowerCase(),
-                            environmentId: metadata.runtimeEnvironmentName
+                            environmentId: metadata.runtimeEnvironmentName,
+                            parameters: metadata.EnvironmentVariables
                           } : {
                             ...prevState,
                             title: analysisName.join(),
@@ -430,6 +427,21 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                   </FormElement>
                 </Grid>
               )}
+             {state.parameters && (
+               <Grid item xs={12}>
+               <FormElement name="Environment variables" textLabel="Environment variables">
+                 <CreateOptions
+                   vars={state.parameters}
+                   onChange={(options: any) => {
+                     setState({
+                       ...state,
+                       parameters: options,
+                     });
+                   }}
+                 />
+               </FormElement>
+             </Grid>
+             )}
               <Grid item xs={12}>
                 <FormElement
                   name="data-source"

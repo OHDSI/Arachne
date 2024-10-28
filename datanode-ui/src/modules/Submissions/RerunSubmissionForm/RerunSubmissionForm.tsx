@@ -30,6 +30,7 @@ import { useEntity } from "../../../libs/hooks";
 import { SpinnerFormContainer } from "../CreateSubmissionForm/ChooseRuntime.styles";
 import { Box, Switch } from "@mui/material";
 import { uniq } from "lodash";
+import CreateOptions from "../../../components/CreateOptions";
 
 const defaultState = (type = AnalysisTypes.COHORT): SubmissionFormStateInterface => ({
   title: "",
@@ -48,6 +49,7 @@ interface SubmissionFormStateInterface {
   datasourceId: string;
   title: string;
   dockerImage?: string;
+  parameters?: any
 }
 
 interface CreateSubmissionFormInterfaceProps {
@@ -96,7 +98,9 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
 
   useEffect(() => {
     if (status === Status.SUCCESS) {
-      setState(entity);
+      setState({
+        ...entity
+      });
       setControlsList(prevState => ({
         ...prevState,
         entryFiles: entity.files.map(elem => ({ name: elem, value: elem }))
@@ -154,7 +158,8 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
       datasourceId: state.datasourceId,
       executableFileName: state.executableFileName,
       study: state.study,
-      type: state.type
+      type: state.type,
+      parameters: state.parameters
     }
 
     if (isDockerEnv) {
@@ -288,21 +293,6 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
           {showTypesEnv.showDocker && isDockerEnv && (
             <Grid item xs={12}>
               <FormElement name="docker-image" textLabel={t("forms.create_submission.docker_image", "Docker Runtime Image")}>
-                {/* <Input
-											id="docker-image"
-											name="docker-image"
-											type="text"
-											size="medium"
-											placeholder={t("forms.create_submission.docker_image_placeholder", "Enter Docker Image...")}
-											value={state.dockerImage}
-											onChange={(e: any) => {
-												setState({
-													...state,
-													dockerImage: e.target.value,
-												});
-											}}
-											fullWidth
-										/> */}
                 <AutocompleteInput
                   value={state.dockerImage}
                   onChange={value => {
@@ -317,6 +307,21 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
               </FormElement>
             </Grid>
           )}
+           {state.parameters && (
+               <Grid item xs={12}>
+               <FormElement name="Environment variables" textLabel="Environment variables">
+                 <CreateOptions
+                   vars={state.parameters}
+                   onChange={(options: any) => {
+                     setState({
+                       ...state,
+                       parameters: options,
+                     });
+                   }}
+                 />
+               </FormElement>
+             </Grid>
+             )}
           <Grid item xs={12}>
             <FormElement
               name="data-source"
