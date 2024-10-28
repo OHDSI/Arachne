@@ -99,11 +99,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
   useEffect(() => {
     if (status === Status.SUCCESS) {
       setState({
-        ...entity,
-        parameters: {
-          "param1": 2,
-          "param2": "value1"
-        }
+        ...entity
       });
       setControlsList(prevState => ({
         ...prevState,
