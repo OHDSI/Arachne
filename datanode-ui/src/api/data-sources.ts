@@ -35,3 +35,6 @@ export const updateDataSource = (data, id): Promise<DataSourceDTOInterface> =>
 
 export const getDbmsTypes = (): Promise<DBMSTypesInterface[]> =>
   api.get("/data-sources/dbms-types");
+
+export const checkDatabaseById = (id): Promise<any> =>
+  api.get(`/data-sources/${id}/check`);
