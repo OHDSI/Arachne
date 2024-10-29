@@ -429,7 +429,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
               )}
              {state.parameters && (
                <Grid item xs={12}>
-               <FormElement name="Environment variables" textLabel="Environment variables">
+               <FormElement name="Environment variables" textLabel="Environment Variables">
                  <CreateOptions
                    vars={state.parameters}
                    onChange={(options: any) => {
