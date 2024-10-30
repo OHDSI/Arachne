@@ -70,6 +70,24 @@ export const AutocompleteInput: React.FC<AutocompleteInput> = props => {
     onChange(inputValue);
   }, [inputValue]);
 
+  useEffect(() => {
+    setValue((prevState) => {
+      if (![undefined, null, ""].includes(initValue)) {
+        const index = options.findIndex(elem => elem.value === initValue || elem.name === initValue);
+        if (index >= 0) {
+          return options[index];
+        } else {
+          return {
+            name: `${initValue}`,
+            value: initValue,
+          };
+        }
+      } else {
+        return options[0];
+      }
+    })
+  }, [initValue])
+
   return (
     <>
       <Global

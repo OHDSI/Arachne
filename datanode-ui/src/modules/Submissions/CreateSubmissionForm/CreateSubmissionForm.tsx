@@ -267,7 +267,7 @@ export const CreateSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> 
                             study: metadata.studyName,
                             dockerImage: metadata.dockerRuntimeEnvironmentImage,
                             type: metadata.analysisType,
-                            executableFileName: metadata.entryPoint.toLowerCase(),
+                            executableFileName: metadata.entryPoint,
                             environmentId: metadata.runtimeEnvironmentName,
                             parameters: metadata.EnvironmentVariables
                           } : {
