@@ -1,0 +1,8 @@
+{
+  "analysisName": "Simvastatin",
+  "analysisType": "COHORT",
+  "runtimeEnvironmentName": "Default Runtime",
+  "dockerRuntimeEnvironmentImage": "ohdsi/r-hades:latest",
+  "entryPoint": "TestCDMConnector/main.R",
+  "studyName": "My study"
+}

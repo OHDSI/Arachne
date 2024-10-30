@@ -58,6 +58,8 @@ files:
   store:
     path: /var/arachne/files
 datanode:
+  metadata:
+    filenames: analysisMetadata.json
   checkDataSourceTimeout: 45000
   app:
     errorsTokenEnabled: false

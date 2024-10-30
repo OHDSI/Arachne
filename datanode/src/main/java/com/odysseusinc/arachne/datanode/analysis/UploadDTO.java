@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,20 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.datanode;
+package com.odysseusinc.arachne.datanode.analysis;
 
-public interface Constants {
-    String LOGIN_REGEX = "^[_'.@A-Za-z0-9-]*$";
-    String DUMMY_PASSWORD = "password_was_set";
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-    interface Analysis {
-        String ERROR_REPORT_FILENAME = "errorReport.txt";
-        String ERROR_REPORTR_FILENAME = "errorReportR.txt";
-    }
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
+@Getter
+@AllArgsConstructor
+public class UploadDTO {
+    @NotNull
+    private String name;
+    private List<String> files;
+    private JsonNode metadata;
 }
