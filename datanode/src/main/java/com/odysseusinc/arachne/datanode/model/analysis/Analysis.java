@@ -14,6 +14,8 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
+import com.odysseusinc.arachne.datanode.converter.GsonConverter;
+import com.odysseusinc.arachne.datanode.converter.StringMapConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
@@ -24,6 +26,7 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -39,6 +42,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -116,6 +120,10 @@ public class Analysis {
     @ManyToOne
     @JoinColumn(name = "actual_environment_id")
     private EnvironmentDescriptor actualEnvironment;
+
+    @Column(name = "parameters")
+    @Convert(converter = StringMapConverter.class)
+    private Map<String, String> parameters;
 
 
 }

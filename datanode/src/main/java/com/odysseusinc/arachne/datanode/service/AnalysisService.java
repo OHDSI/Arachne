@@ -287,6 +287,7 @@ public class AnalysisService {
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
+		dto.setParameters(analysis.getParameters());
         dto.setFiles(UploadService.scan(sourcedir, UploadService.toRelativePath(sourcedir)));
 		String environmentId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElseGet(() ->
 				Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null)
@@ -337,6 +338,7 @@ public class AnalysisService {
 		Analysis analysis = new Analysis();
 
 		analysis.setExecutableFileName(dto.getExecutableFileName());
+		analysis.setParameters(dto.getParameters());
 		analysis.setSourceFolder(sourceFolder);
 		// This is not used but we need to have something because not null in DB
 		analysis.setAnalysisFolder(AnalysisUtils.createUniqueDir(filesStorePath).getAbsolutePath());
@@ -391,6 +393,7 @@ public class AnalysisService {
 		dto.setDataSource(dataSourceService.toUnsecuredDto(analysis.getDataSource()));
 		dto.setId(analysis.getId());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
+		dto.setParameters(analysis.getParameters());;
 		dto.setRequestedDescriptorId(Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null));
 		dto.setDockerImage(analysis.getDockerImage());
 		dto.setUpdateStatusCallback(analysis.getUpdateStatusCallback());
