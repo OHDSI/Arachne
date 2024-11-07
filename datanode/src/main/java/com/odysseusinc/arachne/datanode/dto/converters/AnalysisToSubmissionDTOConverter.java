@@ -16,18 +16,13 @@
 package com.odysseusinc.arachne.datanode.dto.converters;
 
 import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
-import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
-import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.support.GenericConversionService;
+import com.odysseusinc.arachne.datanode.util.Fn;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -36,40 +31,36 @@ import java.util.Optional;
  */
 @Component
 public class AnalysisToSubmissionDTOConverter {
-    private final static Comparator<AnalysisStateEntry> BY_DATE = Comparator.nullsFirst(Comparator.comparing(AnalysisStateEntry::getDate));
 
     public SubmissionDTO convert(Analysis analysis) {
+        return Fn.create(SubmissionDTO::new, dto -> {
+            dto.setAnalysis(analysis.getTitle());
+            dto.setId(analysis.getId());
+            dto.setOrigin(analysis.getOrigin());
+            dto.setStudy(analysis.getStudyTitle());
 
-        SubmissionDTO dto = new SubmissionDTO();
-        dto.setAnalysis(analysis.getTitle());
-        dto.setId(analysis.getId());
-        dto.setOrigin(analysis.getOrigin());
-        dto.setStudy(analysis.getStudyTitle());
-        dto.setStage(analysis.getStage());
-        dto.setError(analysis.getError());
-        dto.setDataSource(Optional.ofNullable(analysis.getDataSource()).map(DataSourceService::toDto).orElse(null));
-        dto.setAuthor(analysis.getAuthor());
-
-        Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {
-            history.stream().filter(entry ->
-                    entry.getDate() != null && entry.getState() != null
-            ).max(BY_DATE).ifPresent(entry -> {
-                AnalysisState state = entry.getState();
-                dto.setStatus(state.toString());
-                if (state.isTerminal()) {
-                    dto.setFinished(entry.getDate());
-                }
+            dto.setDataSource(Optional.ofNullable(analysis.getDataSource()).map(DataSourceService::toDto).orElse(null));
+            dto.setAuthor(analysis.getAuthor());
+            dto.setEnvironment(getEnvironment(analysis));
+            dto.setState(analysis.getState());
+            dto.setStage(analysis.getStage());
+            dto.setSubmitted(analysis.getCreated());
+            Optional.ofNullable(analysis.getCurrentState()).ifPresent(currentState -> {
+                dto.setError(currentState.getError());
+                Optional.ofNullable(currentState.getDate()).filter(date ->
+                        analysis.getState().isTerminal()
+                ).map(
+                        Date::toInstant
+                ).ifPresent(dto::setFinished);
             });
-            history.stream().filter(entry ->
-                    entry.getState() == AnalysisState.CREATED
-            ).findFirst().map(AnalysisStateEntry::getDate).ifPresent(dto::setSubmitted);
         });
-        String environment = Optional.ofNullable(analysis.getDockerImage()).orElseGet(() ->
+    }
+
+    private static String getEnvironment(Analysis analysis) {
+        return Optional.ofNullable(analysis.getDockerImage()).orElseGet(() ->
                 Optional.ofNullable(
                         Optional.ofNullable(analysis.getActualEnvironment()).orElseGet(analysis::getEnvironment)
                 ).map(EnvironmentDescriptor::getLabel).orElse(null)
         );
-        dto.setEnvironment(environment);
-        return dto;
     }
 }

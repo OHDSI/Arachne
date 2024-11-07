@@ -1,7 +1,23 @@
+/*
+ * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.odysseusinc.arachne.datanode.jpa;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
@@ -27,6 +43,7 @@ public interface JpaPath<E, T> extends Function<Path<E>, Path<T>>, JpaQueryExpre
         return path -> path.get(attribute);
     }
 
+
     static <E, V, U> JpaPath<E, U> of(SingularAttribute<? super E, V> attribute1, SingularAttribute<? super V, U> attribute2) {
         return path -> path.get(attribute1).get(attribute2);
     }
@@ -40,6 +57,11 @@ public interface JpaPath<E, T> extends Function<Path<E>, Path<T>>, JpaQueryExpre
      */
     static <E, V> JpaPath<E, V> joinLeft(SingularAttribute<? super E, V> attribute) {
         return path -> ((Root<E>) path).join(attribute, JoinType.LEFT);
+    }
+
+
+    default <E1> JpaPath<E1, T> left(SingularAttribute<? super E1, E> attribute) {
+        return path -> apply(((From<E,E1>) path).join(attribute, JoinType.LEFT));
     }
 
     default <E1> JpaPath<E1, T> on(SingularAttribute<? super E1, E> attribute) {

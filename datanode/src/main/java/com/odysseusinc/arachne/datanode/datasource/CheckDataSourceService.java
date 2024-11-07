@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -93,7 +93,7 @@ public class CheckDataSourceService {
         byte[] zip = ZipUtils.zipFile(SQL_FILENAME, sql.getBytes(StandardCharsets.UTF_8));
 
         try {
-            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, false, "datasource-check-" + id, sink -> sink.write(zip));
+            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, null, false, "datasource-check-" + id, sink -> sink.write(zip)).join();
             if (status.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
                 future.completeExceptionally(new ValidationException("Check error: Execution not recognized"));
             }

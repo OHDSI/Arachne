@@ -1,5 +1,6 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ *
+ * Copyright 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.odysseusinc.arachne.datanode.jpa;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import java.util.function.BiFunction;
-
-@FunctionalInterface
-public interface JpaOrder<E> extends BiFunction<CriteriaBuilder, Path<E>, Order> {
+export enum SubmissionState {
+  INITIALIZE = "INITIALIZE",
+  EXECUTE = "EXECUTE",
+  COMPLETED = "COMPLETED",
+  ABORT = "ABORT",
+  ABORTED = "ABORTED",
+  FAILED = "FAILED",
+  ABORT_FAILED = "ABORT_FAILED",
+  UNKNOWN = "UNKNOWN"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@ import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.analysis.AnalysisOrchestrator;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
@@ -37,7 +38,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +60,6 @@ import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
@@ -72,6 +71,8 @@ public class AnalysisController {
 
     @Autowired
     private UploadService uploadService;
+    @Autowired
+    private AnalysisOrchestrator orchestrator;
     @Autowired
     private AnalysisService analysisService;
     @Autowired
@@ -91,34 +92,31 @@ public class AnalysisController {
         return uploadService.uploadFiles(user, files);
     }
 
-    @Async
     @PostMapping(path = "/execute/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<?> execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
+    public Long execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
         User user = userService.getUser(principal);
-        return analysisService.run(user, request, id);
+        return orchestrator.run(user, request, id);
     }
 
-    @Async
     @PostMapping(path = "zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CompletableFuture<?> executeZip(
+    public Long executeZip(
             @RequestPart("file") List<MultipartFile> archive,
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
     ) throws PermissionDeniedException {
         User user = userService.getUser(principal);
         UploadDTO upload = uploadService.uploadZip(user, archive);
-        return analysisService.run(user, dto, upload.getName());
+        return orchestrator.run(user, dto, upload.getName());
     }
 
-    @Async
     @PostMapping(path = "files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CompletableFuture<Long> executeFiles(
+    public Long executeFiles(
             @RequestPart("file") List<MultipartFile> files,
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
     ) {
         User user = userService.getUser(principal);
-        return analysisService.run(dto, user, files);
+        return orchestrator.run(dto, user, files);
     }
 
     @GetMapping("{id}")
@@ -131,10 +129,9 @@ public class AnalysisController {
         return analysisService.getStdout(id);
     }
 
-    @Async
     @PostMapping("{id}/rerun")
-    public CompletableFuture<?> rerun(@PathVariable("id") Long id, @Valid @RequestBody AnalysisRequestDTO analysisRequestDTO, Principal principal) {
-        return analysisService.rerun(id, analysisRequestDTO, userService.getUser(principal));
+    public Long rerun(@PathVariable("id") Long id, @Valid @RequestBody AnalysisRequestDTO analysisRequestDTO, Principal principal) {
+        return orchestrator.rerun(id, analysisRequestDTO, userService.getUser(principal));
     }
 
     @GetMapping(path = "{id}/results", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -177,7 +174,7 @@ public class AnalysisController {
 
     @PostMapping("{id}/cancel")
     public void cancel(@PathVariable("id") Long analysisId, Principal principal) {
-        analysisService.cancel(analysisId, userService.getUser(principal));
+        orchestrator.cancel(analysisId, userService.getUser(principal));
     }
 
     @GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)

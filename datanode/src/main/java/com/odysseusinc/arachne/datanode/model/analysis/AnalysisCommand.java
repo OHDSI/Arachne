@@ -1,6 +1,5 @@
 /*
- *
- * Copyright 2023 Odysseus Data Services, Inc.
+ * Copyright 2019, 2023 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,23 +11,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+package com.odysseusinc.arachne.datanode.model.analysis;
 
-export enum SubmissionStatus {
-  CREATED = "CREATED",
-  EXECUTED = "EXECUTED",
-  EXECUTING = "EXECUTING",
-  EXECUTION_FAILURE = "EXECUTION_FAILURE",
-  ABORTING = "ABORTING",
-  ABORT_FAILURE = "ABORT_FAILURE",
-  ABORTED = "ABORTED",
-  DEAD = "DEAD",
-  INITIALIZE = "INITIALIZE",
-  EXECUTE = "EXECUTE",
-  COMPLETED = "COMPLETED",
-  PENDING = "PENDING",
-  FAILED = "FAILED",
-  
-
+public enum AnalysisCommand {
+    ABORT
 }

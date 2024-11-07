@@ -14,9 +14,10 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,10 +28,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "analysis_state_journal")
-@Embeddable
+@Getter
+@Setter
 public class AnalysisStateEntry {
 
     @Id
@@ -39,74 +42,15 @@ public class AnalysisStateEntry {
     private Long id;
     @Column(name = "date")
     private Date date;
-    @Column(name = "state")
+    @Column(name = "command")
     @Enumerated(value = EnumType.STRING)
-    private AnalysisState state;
+    private AnalysisCommand command;
     @Column(name = "reason")
     private String reason;
     @ManyToOne(fetch = FetchType.EAGER)
     private Analysis analysis;
-
-    public AnalysisStateEntry() {
-
-    }
-
-    public AnalysisStateEntry(Date date, AnalysisState state, String reason, Analysis analysis) {
-
-        this.date = date;
-        this.state = state;
-        this.reason = reason;
-        this.analysis = analysis;
-
-    }
-
-    public Long getId() {
-
-        return id;
-    }
-
-    public void setId(Long id) {
-
-        this.id = id;
-    }
-
-    public Date getDate() {
-
-        return date;
-    }
-
-    public void setDate(Date date) {
-
-        this.date = date;
-    }
-
-    public AnalysisState getState() {
-
-        return state;
-    }
-
-    public void setState(AnalysisState state) {
-
-        this.state = state;
-    }
-
-    public String getReason() {
-
-        return reason;
-    }
-
-    public void setReason(String reason) {
-
-        this.reason = reason;
-    }
-
-    public Analysis getAnalysis() {
-
-        return analysis;
-    }
-
-    public void setAnalysis(Analysis analysis) {
-
-        this.analysis = analysis;
-    }
+    @Column(name = "stage")
+    private String stage;
+    @Column(name = "error")
+    private String error;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.commons.service.preprocessor.Preprocessor;
 import com.odysseusinc.arachne.datanode.analysis.Upload;
-import com.odysseusinc.arachne.datanode.analysis.UploadDTO;
 import com.odysseusinc.arachne.datanode.analysis.UploadService;
 import com.odysseusinc.arachne.datanode.controller.analysis.AnalysisCallbackController;
 import com.odysseusinc.arachne.datanode.datasource.DataSourceService;
@@ -28,21 +27,21 @@ import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
+import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
-import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
-import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestTypeDTO;
@@ -54,10 +53,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,12 +71,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -92,14 +88,11 @@ public class AnalysisService {
 	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
 
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
-	private final Executor delayedExecutor = runnable -> executor.schedule(() -> ((Executor) ForkJoinPool.commonPool()).execute(runnable), 1, TimeUnit.SECONDS);
 
 	@Autowired
 	private UploadService uploadService;
 	@Autowired
 	private DataSourceService dataSourceService;
-	@Autowired
-	private AnalysisStateJournalRepository analysisStateJournalRepository;
 	@Autowired
 	private AnalysisStateService stateService;
 	@Autowired
@@ -127,105 +120,66 @@ public class AnalysisService {
 	private EntityManager em;
 
 	@Transactional
-	public void cancel(Long id, User user) {
-		Analysis analysis = find(id);
-		AnalysisState state = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).orElseThrow(() ->
-				new ValidationException("Analysis not running: " + id)
-		).getState();
-		if (state == AnalysisState.EXECUTING) {
-			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "]");
-			executor.submit(() -> sendToEngineCancel(analysis.getId()));
-		} else {
+	public void ensureCancellable(Long id) {
+		AnalysisStateEntry state = find(id).getCurrentState();
+        String stage = state.getStage();
+        if (state.getCommand() == AnalysisCommand.ABORT) {
+            throw new ValidationException("Analysis " + id + " has already been aborted. Current state: [" + state + "]");
+        }
+        if (Objects.equals(stage, Stage.ABORT) && !TERMINAL_STAGES.contains(stage)) {
 			throw new ValidationException("Analysis not running: " + id + ", current state [" + state + "]");
 		}
-
 	}
 
 	@Transactional
-	public void sendToEngineCancel(Long id) {
+	public void handleCancelSuccess(Long id, AnalysisResultDTO result) {
 		Analysis analysis = find(id);
-		log.info("Analysis {} [{}] cancellation attempt to send to engine", id, analysis.getTitle());
-		try {
-			AnalysisResultDTO result = engine.cancel(id);
-			String error = result.getError();
-			String stage = result.getStage();
-			String stdout = result.getStdout();
-			analysis.setStage(stage);
-			analysis.setStdout(stdout);
-			log.info("Analysis {} state after abort: [{}], errors: [{}] (stdout {} bytes)", id, stage, error, StringUtils.length(stdout));
-			stateService.handleStateFromEE(analysis, stage, error);
-		} catch (Exception e) {
-			log.warn("Analysis {} failed to abort: {}: {}", id, e.getClass(), e.getMessage());
-			log.debug(e.getMessage(), e);
-			stateService.updateState(analysis, AnalysisState.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
-		}
+		String error = result.getError();
+		String stage = result.getStage();
+		String stdout = result.getStdout();
+		analysis.setStdout(stdout);
+		log.info("Analysis {} state after abort: [{}], errors: [{}] (stdout {} bytes)", id, stage, error, StringUtils.length(stdout));
+		stateService.handleStateFromEE(analysis, stage, error);
 	}
 
 	@Transactional
-	public CompletableFuture<Long> rerun(
+	public Long rerun(
 			Long id, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user
 	) {
 		Analysis original = find(id);
 		Analysis analysis = save(dto, user, original.getSourceFolder());
 		em.persist(analysis);
-		stateService.updateState(analysis, AnalysisState.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
+        stateService.updateState(analysis.getId(),  "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle(), id
 		);
-		return sendToEngine(analysis);
+		return analysis.getId();
 	}
 
     @Transactional
-    public CompletableFuture<Long> run(
-			com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, User user, List<MultipartFile> files
-    ) {
-		UploadDTO upload = uploadService.uploadFiles(user, files);
-        return run(user, dto, upload.getName());
-    }
-
-    @Transactional
-    public CompletableFuture<Long> run(User user, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, String uploadId) {
+    public Long run(User user, com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO dto, String uploadId) {
         Upload upload = uploadService.findUnassigned(uploadId);
         Path path = Paths.get(filesStorePath).resolve(upload.getName());
         List<Path> files = UploadService.scan(path, Function.identity());
         Analysis analysis = save(dto, user, path.toString());
         upload.setAnalysisId(analysis.getId());
         analysis.setAnalysisFiles(files.stream().filter(Files::isRegularFile).map(toAnalysisFile(analysis)).collect(Collectors.toList()));
-        stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
+        stateService.updateState(analysis.getId(),  "Created by [" + user.getTitle() + "]");
         log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
                 analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
         );
-        return sendToEngine(analysis);
+		return analysis.getId();
     }
 
 
-    private CompletableFuture<Long> sendToEngine(Analysis analysis) {
-		Long id = analysis.getId();
-		Path path = Paths.get(analysis.getSourceFolder());
-
-		return CompletableFuture.runAsync(
-				() -> preprocess(analysis, path, id), delayedExecutor
-		).thenApplyAsync(__ ->
-				engine.sendAnalysisRequest(toDto(analysis), true, "request-" + id + ".zip", ZipUtils.zipDir(path)), delayedExecutor
-		).handle((result, e) -> {
-            if (e != null) {
-                log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
-                String reason = String.format("Execution engine request failed: %s", e.getMessage());
-                stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
-            } else {
-                afterSend(id, result);
-            }
-            return id;
-        });
-    }
-
-    private void afterSend(Long id, AnalysisRequestStatusDTO exchange) {
+	@Transactional
+	public void afterSend(Long id, AnalysisRequestStatusDTO exchange) {
         Analysis analysis = find(id);
 		String descriptorId = exchange.getActualDescriptorId();
 		log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
 
 		if (exchange.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
-			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Analysis type not recognized");
+            stateService.updateState(analysis.getId(), "Analysis type not recognized");
 		} else {
 			EnvironmentDescriptor descriptor = Optional.ofNullable(analysis.getDockerImage()).map(image ->
 					environmentService.ensureImageExists(image, descriptorId)
@@ -233,11 +187,6 @@ public class AnalysisService {
 					environmentService.ensureTarballExists(descriptorId)
 			);
 			analysis.setActualEnvironment(descriptor);
-            // Resolution of state conflicts from concurrent changes should be implemented more reliably
-            if (analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).map(q -> q.getState() == AnalysisState.CREATED).orElse(true)) {
-                String reason = String.format("Accepted by engine as %s type", exchange.getType());
-                stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
-            }
 		}
 	}
 
@@ -260,7 +209,6 @@ public class AnalysisService {
 		} else {
             analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
 			if (BY_STAGE_ORDER.compare(currentStage, stage) < 0) {
-				analysis.setStage(stage);
                 stateService.handleStateFromEE(analysis, stage, null);
             }
 		}
@@ -269,9 +217,9 @@ public class AnalysisService {
 	@Transactional
 	public List<Long> getIncompleteIds() {
 		return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
-			javax.persistence.criteria.Path<String> stage = root.get(Analysis_.stage);
+			Join<Analysis, AnalysisStateEntry> state = root.join(Analysis_.currentState, JoinType.LEFT);
+			javax.persistence.criteria.Path<String> stage = state.get(AnalysisStateEntry_.stage);
 			return q.where(
-					cb.isNull(root.get(Analysis_.error)),
 					cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
 			);
 		}).getResultStream().map(Analysis::getId).collect(Collectors.toList());
@@ -388,6 +336,11 @@ public class AnalysisService {
 		return author;
 	}
 
+	@Transactional
+	public AnalysisRequestDTO toEEDto(Long id) {
+		return toDto(find(id));
+	}
+
 	private AnalysisRequestDTO toDto(Analysis analysis) {
 		AnalysisRequestDTO dto = new AnalysisRequestDTO();
 		dto.setDataSource(dataSourceService.toUnsecuredDto(analysis.getDataSource()));
@@ -404,6 +357,14 @@ public class AnalysisService {
 		return dto;
 	}
 
+	@Transactional
+	public Path preprocess(Long id) {
+		Analysis analysis = find(id);
+		Path path = Paths.get(analysis.getSourceFolder());
+		preprocess(analysis, path, analysis.getId());
+		return path;
+	}
+
 	private void preprocess(Analysis analysis, Path path, Long id) {
 		try (Stream<Path> files = Files.walk(path)) {
 			files.filter(Files::isRegularFile).forEach(file ->
@@ -414,7 +375,7 @@ public class AnalysisService {
 			log.info("Request [{}] prepared with files from [{}]", id, path);
 		} catch (IOException e) {
 			log.info("Request [{}] failed when running preprocessors [{}]: {}", id, e.getClass(), e.getMessage(), e);
-			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Error running preprocessors: " + e.getMessage());
+            stateService.updateState(analysis.getId(), "Error running preprocessors: " + e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}
@@ -429,5 +390,4 @@ public class AnalysisService {
 			return analysisFile;
 		};
 	}
-
 }
