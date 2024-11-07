@@ -12,14 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.odysseusinc.arachne.datanode.util.jpa;
+package com.odysseusinc.arachne.datanode.jpa;
 
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import java.util.function.Function;
 
-public interface EntityFilter<E> {
-    Function<Path<E>, Predicate> apply(CriteriaBuilder criteriaBuilder, AbstractQuery<?> query);
+/**
+ * Predicate-building function way to filter specific type of entities by an arbitrary criteria.
+ *
+ * @param <E> entity type
+ */
+@FunctionalInterface
+public interface EntityFilter<E> extends JpaFunction<E, Predicate> {
+
 }
