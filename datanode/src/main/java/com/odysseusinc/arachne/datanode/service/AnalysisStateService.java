@@ -45,12 +45,17 @@ public class AnalysisStateService {
 
     @Transactional
     public void updateState(Analysis analysis, AnalysisState state, String reason) {
-        Optional<AnalysisStateEntry> entry = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId());
+//        Optional<AnalysisStateEntry> entry = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId());
+        Optional<AnalysisStateEntry> entry = Optional.ofNullable(analysis.getCurrentState());
         AnalysisState current = entry.map(AnalysisStateEntry::getState).orElse(null);
         if (current != state) {
             AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(new Date(), state, reason, analysis);
-            log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), state.name(), reason);
             analysisStateJournalRepository.save(analysisStateEntry);
+            if (current == null) {
+                analysis.setInitialState(analysisStateEntry);
+            }
+            analysis.setCurrentState(analysisStateEntry);
+            log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), state.name(), reason);
         } else if (Objects.equals(entry.map(AnalysisStateEntry::getReason).orElse(null), reason)) {
             log.info("Analysis [{}] is already in state {} (new reason [{}])", analysis.getId(), state.name(), reason);
         }

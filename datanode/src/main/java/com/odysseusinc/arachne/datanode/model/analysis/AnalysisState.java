@@ -16,23 +16,31 @@ package com.odysseusinc.arachne.datanode.model.analysis;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum AnalysisState {
-    CREATED(false),
-    EXECUTION_FAILURE(true),
-    EXECUTING(false),
-    EXECUTED(true),
-    ABORTING(false),
-    ABORT_FAILURE(true),
-    ABORTED(true),
-    DEAD(true),
-    UNKNOWN(false)
-    ;
+    CREATED(false, 1),
+    EXECUTING(false, 2),
+    EXECUTED(true, 3),
+    EXECUTION_FAILURE(true, 5),
+    ABORT_FAILURE(true, 6),
+    ABORTING(false, 7),
+    ABORTED(true, 8),
+    DEAD(true, 9),
+    UNKNOWN(false, 10);
+
+    public static final List<AnalysisState> TERMINAL_STATES = Arrays.stream(values()).filter(AnalysisState::isTerminal).collect(Collectors.toList());
 
     @Getter
-    final boolean terminal;
+    private final boolean terminal;
+    @Getter
+    private final int priority;
 
-    AnalysisState(boolean terminal) {
+    AnalysisState(boolean terminal, int priority) {
         this.terminal = terminal;
+        this.priority = priority;
     }
 
 }

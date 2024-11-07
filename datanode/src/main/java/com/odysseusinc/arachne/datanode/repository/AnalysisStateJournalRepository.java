@@ -21,6 +21,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+/**
+ * @deprecated use EntityManager instead
+ */
 public interface AnalysisStateJournalRepository extends JpaRepository<AnalysisStateEntry, Long> {
     @Query(value =
             " SELECT journal.* FROM analysis_state_journal AS journal "

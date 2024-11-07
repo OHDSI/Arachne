@@ -15,16 +15,16 @@
 
 package com.odysseusinc.arachne.datanode.controller.admin;
 
+import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
 import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOConverter;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusService;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
-import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.analysis.AnalysisListService;
 import io.swagger.annotations.ApiOperation;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,9 +62,7 @@ public class AdminController {
     @Autowired
     private EngineStatusService engine;
     @Autowired
-    private AnalysisToSubmissionDTOConverter analysisToSubmissionDTO;
-    @Autowired
-    private AnalysisRepository analysisRepository;
+    private AnalysisListService analysisListService;
 
     public AdminController() {
         initProps();
@@ -109,19 +108,9 @@ public class AdminController {
             direction = Sort.Direction.DESC) Pageable pageable) {
 
         Pageable p = isCustomSort(pageable) ? buildPageRequest(pageable) : pageable;
-        Page<Analysis> analyses;
-        if (isFinishedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByFinished(p);
-        } else if (isSubmittedSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderBySubmitted(p);
-        } else if (isStatusSort(pageable)) {
-            analyses = analysisRepository.findAllPagedOrderByState(p);
-        } else {
-            analyses = analysisRepository.findAll(p);
-        }
-        Page<SubmissionDTO> items = analyses.map(analysis -> analysisToSubmissionDTO.convert(analysis));
+        Page<SubmissionDTO> list = analysisListService.list(Collections.emptyMap(), p);
         EngineStatusDTO engineStatus = engine.getStatusInfo();
-        return new PageWithStatus(items, engineStatus);
+        return new PageWithStatus(list, engineStatus);
     }
 
     protected Pageable buildPageRequest(Pageable pageable) {
@@ -186,7 +175,7 @@ public class AdminController {
         });
         propertiesMap.put("analysis", p -> p.add("title"));
         propertiesMap.put("study", p -> p.add("studyTitle"));
-        propertiesMap.put("status", p -> p.add("journal.state"));
+        propertiesMap.put("status", p -> p.add("status"));
     }
 
     @Getter

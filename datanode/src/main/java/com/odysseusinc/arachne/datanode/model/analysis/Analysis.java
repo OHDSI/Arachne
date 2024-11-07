@@ -76,6 +76,14 @@ public class Analysis {
     @NotNull
     @Column(name = "analysis_folder")
     private String analysisFolder;
+    @ManyToOne
+    @JoinColumn(name = "initial_state_id")
+    private AnalysisStateEntry initialState;
+
+    @ManyToOne
+    @JoinColumn(name = "current_state_id")
+    private AnalysisStateEntry currentState;
+
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
     private List<AnalysisStateEntry> stateHistory = new ArrayList<>();
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
