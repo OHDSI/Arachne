@@ -19,7 +19,6 @@ export * from "./Status";
 export * from "./DBMSType";
 export * from "./FileExtension";
 export * from "./DateFormat";
-export * from "./SubmissionStatus";
 export * from "./SubmissionStages";
 export * from "./AntivirusFileStatus";
 export * from "./OriginSubmission";

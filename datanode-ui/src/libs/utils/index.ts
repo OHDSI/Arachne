@@ -23,7 +23,6 @@ export * from "./getFormatDate";
 export * from "./getItemFromConstantArray";
 export * from "./getReducerWithProduce";
 export * from "./getSortDirection";
-export * from "./getSubmissionStatusInfo";
 export * from "./getSubmissionStageInfo";
 export * from "./getUUID";
 export * from "./parseDbmsTypesForSelectForm";

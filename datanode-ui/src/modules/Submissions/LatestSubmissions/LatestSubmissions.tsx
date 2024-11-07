@@ -25,9 +25,9 @@ import {
 } from "./LatestSubmissions.styles";
 import { useList } from "../../../libs/hooks";
 import { getSubmissions } from "../../../api/submissions";
-import { Status, SubmissionStatus, SubmissionStages } from "../../../libs/enums";
+import { Status, SubmissionStages } from "../../../libs/enums";
 import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from "../../../libs/components";
-import { getSubmissionStageInfo, getSubmissionStatusInfo, getItemFromConstantArray } from "../../../libs/utils";
+import { getSubmissionStageInfo, getItemFromConstantArray } from "../../../libs/utils";
 import { originSubmissions } from "../../../libs/constants";
 
 export const LatestSubmissions: React.FC<any> = props => {

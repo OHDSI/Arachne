@@ -27,7 +27,6 @@ import {
 import { originSubmissions } from "./libs/constants";
 import {
   getItemFromConstantArray,
-  getSubmissionStatusInfo,
   getSubmissionStageInfo,
 } from "./libs/utils";
 import {
@@ -40,7 +39,6 @@ import {
   CreateSubmissionFormTabs,
   OriginSubmission,
   SubmissionResultTabs,
-  SubmissionStatus,
   SubmissionStages,
   Roles,
 } from "./libs/enums";
