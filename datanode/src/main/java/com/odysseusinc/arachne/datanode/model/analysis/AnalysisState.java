@@ -21,26 +21,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum AnalysisState {
-    CREATED(false, 1),
-    EXECUTING(false, 2),
-    EXECUTED(true, 3),
-    EXECUTION_FAILURE(true, 5),
-    ABORT_FAILURE(true, 6),
-    ABORTING(false, 7),
-    ABORTED(true, 8),
-    DEAD(true, 9),
-    UNKNOWN(false, 10);
-
-    public static final List<AnalysisState> TERMINAL_STATES = Arrays.stream(values()).filter(AnalysisState::isTerminal).collect(Collectors.toList());
+    CREATED(false),
+    EXECUTION_FAILURE(true),
+    EXECUTING(false),
+    EXECUTED(true),
+    ABORTING(false),
+    ABORT_FAILURE(true),
+    ABORTED(true),
+    DEAD(true),
+    UNKNOWN(false)
+    ;
 
     @Getter
-    private final boolean terminal;
-    @Getter
-    private final int priority;
+    final boolean terminal;
 
-    AnalysisState(boolean terminal, int priority) {
+    AnalysisState(boolean terminal) {
         this.terminal = terminal;
-        this.priority = priority;
     }
 
 }

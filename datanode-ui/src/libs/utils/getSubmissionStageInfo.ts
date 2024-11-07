@@ -15,34 +15,24 @@
  *
  */
 
-import { SubmissionStatus } from "../enums";
+import { SubmissionStages } from "../enums";
 
-/**
- * @deprecated Use `getSubmissionStageInfo.ts` instead.
- */
-export function getSubmissionStatusInfo(value: SubmissionStatus) {
+
+export function getSubmissionStageInfo(value: SubmissionStages, error: String) {
+  if (error) {
+    return { color: "error", name: "Failed" };
+  }
   switch (value) {
-    case SubmissionStatus.CREATED:
-      return { color: "default", name: "Created" };
-    case SubmissionStatus.EXECUTING:
+    case SubmissionStages.INITIALIZE:
+      return { color: "secondary", name: "Initialize" };
+    case SubmissionStages.EXECUTE:
       return { color: "warning", name: "Executing" };
-    case SubmissionStatus.EXECUTED:
-    case SubmissionStatus.COMPLETED:
+    case SubmissionStages.COMPLETED:
       return { color: "success", name: "Completed" };
-    case SubmissionStatus.EXECUTION_FAILURE:
-    case SubmissionStatus.FAILED:
-    case SubmissionStatus.ABORT_FAILURE:
-      return { color: "error", name: "Failed" };
-    case SubmissionStatus.ABORTING:
+    case SubmissionStages.ABORT:
       return { color: "warning", name: "Aborting" };
-    case SubmissionStatus.ABORTED:
+    case SubmissionStages.ABORTED:
       return { color: "error", name: "Canceled" };
-    case SubmissionStatus.PENDING:
-      return { color: "warning", name: "Pending" };
-    case SubmissionStatus.DEAD:
-      return { color: "error", name: "Timed out" };
-    case SubmissionStatus.INITIALIZE:
-      return { color: 'secondary', name: 'Initialize' };
     default:
       return { color: "secondary", name: "N/A" };
   }

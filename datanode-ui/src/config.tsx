@@ -28,6 +28,7 @@ import { originSubmissions } from "./libs/constants";
 import {
   getItemFromConstantArray,
   getSubmissionStatusInfo,
+  getSubmissionStageInfo,
 } from "./libs/utils";
 import {
   ColumnInterface,
@@ -40,6 +41,7 @@ import {
   OriginSubmission,
   SubmissionResultTabs,
   SubmissionStatus,
+  SubmissionStages,
   Roles,
 } from "./libs/enums";
 import moment from "moment";
@@ -160,13 +162,8 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
       const id = props?.row?.original?.id;
       const stage = props?.row?.original?.stage;
       const error = props?.row?.original?.error;
-      if (error) {
-        const status = getSubmissionStatusInfo(SubmissionStatus.FAILED);
-        return <StatusTag text={status.name} color={status.color} />;
-      }
-
-      const status = getSubmissionStatusInfo(stage);
-      return <StatusTag text={status.name} color={status.color} />;
+      const stageInfo = getSubmissionStageInfo(stage, error);
+      return <StatusTag text={stageInfo.name} color={stageInfo.color} />;
     },
   },
   {
@@ -181,8 +178,7 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
       const stage = row?.original?.stage;
       const error = row?.original?.error;
       return error ||
-        stage === SubmissionStatus.COMPLETED ||
-        stage === SubmissionStatus.FAILED ? (
+        stage === SubmissionStages.COMPLETED ? (
         <Tooltip text={t("common.tooltips.download_results")}>
           <IconButton
             color="info"

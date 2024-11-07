@@ -15,6 +15,9 @@
  *
  */
 
+/**
+ * @deprecated Use `SubmissionStages.ts` instead.
+ */
 export enum SubmissionStatus {
   CREATED = "CREATED",
   EXECUTED = "EXECUTED",

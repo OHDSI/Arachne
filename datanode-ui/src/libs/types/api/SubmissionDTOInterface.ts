@@ -15,7 +15,7 @@
  *
  */
 
-import { OriginSubmission, SubmissionStatus } from "../../enums";
+import { OriginSubmission, SubmissionStatus, SubmissionStages } from "../../enums";
 import { DataSourceDTOInterface } from "./DataSourceDTOInterface";
 import { AuthorDTOInterface } from "./AuthorDTOInterface";
 
@@ -30,7 +30,7 @@ export interface SubmissionDTOInterface {
     submitted: string;
     finished: string;
     environment: string;
-    stage: string;
+    stage: SubmissionStages;
     error: any
 
 }

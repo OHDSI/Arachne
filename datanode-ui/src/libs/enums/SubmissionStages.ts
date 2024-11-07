@@ -15,16 +15,10 @@
  *
  */
 
-export * from "./convertListToHashMap";
-export * from "./downloadFile";
-export * from "./formatBytes";
-export * from "./getCodeLanguageByFileExtension";
-export * from "./getFormatDate";
-export * from "./getItemFromConstantArray";
-export * from "./getReducerWithProduce";
-export * from "./getSortDirection";
-export * from "./getSubmissionStatusInfo";
-export * from "./getSubmissionStageInfo";
-export * from "./getUUID";
-export * from "./parseDbmsTypesForSelectForm";
-export * from "./parseToSelectControlOptions";
+export enum SubmissionStages {
+  INITIALIZE = "INITIALIZE",
+  EXECUTE = "EXECUTE",
+  COMPLETED = "COMPLETED",
+  ABORT = "ABORT",
+  ABORTED = "ABORTED"
+}
