@@ -25,7 +25,7 @@ import {
 } from "./LatestSubmissions.styles";
 import { useList } from "../../../libs/hooks";
 import { getSubmissions } from "../../../api/submissions";
-import { Status, SubmissionStages } from "../../../libs/enums";
+import { Status, SubmissionState } from "../../../libs/enums";
 import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from "../../../libs/components";
 import { getSubmissionStageInfo, getItemFromConstantArray } from "../../../libs/utils";
 import { originSubmissions } from "../../../libs/constants";

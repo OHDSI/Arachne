@@ -37,6 +37,7 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -60,6 +61,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+//import javax.persistence.criteria.Path;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -151,7 +156,6 @@ public class AnalysisService {
 			String error = result.getError();
 			String stage = result.getStage();
 			String stdout = result.getStdout();
-			analysis.setStage(stage);
 			analysis.setStdout(stdout);
 			log.info("Analysis {} state after abort: [{}], errors: [{}] (stdout {} bytes)", id, stage, error, StringUtils.length(stdout));
 			stateService.handleStateFromEE(analysis, stage, error);
@@ -263,7 +267,6 @@ public class AnalysisService {
 		} else {
             analysis.setStdout(StringUtils.join(analysis.getStdout(), stdoutDiff));
 			if (BY_STAGE_ORDER.compare(currentStage, stage) < 0) {
-				analysis.setStage(stage);
                 stateService.handleStateFromEE(analysis, stage, null);
             }
 		}
@@ -272,9 +275,9 @@ public class AnalysisService {
 	@Transactional
 	public List<Long> getIncompleteIds() {
 		return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
-			javax.persistence.criteria.Path<String> stage = root.get(Analysis_.stage);
+			Join<Analysis, AnalysisStateEntry> state = root.join(Analysis_.currentState, JoinType.LEFT);
+			javax.persistence.criteria.Path<String> stage = state.get(AnalysisStateEntry_.stage);
 			return q.where(
-					cb.isNull(root.get(Analysis_.error)),
 					cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
 			);
 		}).getResultStream().map(Analysis::getId).collect(Collectors.toList());
@@ -417,7 +420,7 @@ public class AnalysisService {
 			log.info("Request [{}] prepared with files from [{}]", id, path);
 		} catch (IOException e) {
 			log.info("Request [{}] failed when running preprocessors [{}]: {}", id, e.getClass(), e.getMessage(), e);
-			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Error running preprocessors: " + e.getMessage());
+			stateService.updateState(analysis, AnalysisCommand.EXECUTION_FAILURE, "Error running preprocessors: " + e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}

@@ -15,9 +15,11 @@
 package com.odysseusinc.arachne.datanode.engine;
 
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
+import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
 import com.odysseusinc.arachne.datanode.service.AnalysisStateService;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.ExecutionOutcome;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
@@ -68,38 +70,35 @@ public class ExecutionEngineSyncService {
         incomplete.forEach(id -> {
             ExecutionOutcome status = submissions.get(id);
             analysisService.update(id, analysis -> {
+
                 if (status != null) {
                     String error = status.getError();
                     String stage = status.getStage();
-                    //TODO check that something changed.
                     if (!Objects.equals(error, analysis.getError()) || !Objects.equals(stage, analysis.getStage())) {
-                        // TODO stdout handling. The challenge is that any modification here will interfere with normal incremental writing.
-                        //  So that normal writing will have to be changed as well.
-//                        analysis.setStage(stage);
                         analysisStateService.handleStateFromEE(analysis, stage, error);
                     }
                 } else {
                     if (analysis.getStage() == null) {
-                        analysis.setStage(Stage.INITIALIZE);
-                        analysisStateService.handleStateFromEE(analysis, Stage.INITIALIZE, UNAVAILABLE);
-//TODO DEV that is handling of the old executions
-//                        AnalysisResultStatusDTO dbStatus = analysis.getStatus();
-//                        if (dbStatus == null) {
-//                            analysis.setStage(Stage.INITIALIZE);
-//                            analysisStateService.handleStateFromEE(analysis, Stage.INITIALIZE, UNAVAILABLE);
-//                        }
-//                        else if (dbStatus == AnalysisResultStatusDTO.EXECUTED) {
-//                            analysis.setStage(Stage.COMPLETED);
-//                        } else if (dbStatus == AnalysisResultStatusDTO.FAILED) {
-//                            analysis.setStage(Stage.EXECUTE);
-//                            analysisStateService.handleStateFromEE(analysis, Stage.EXECUTE, "Failed");
-//                        }
+                        handleAnalysisStatus(analysis);
                     } else {
                         analysisStateService.handleStateFromEE(analysis, analysis.getStage(), UNAVAILABLE);
-                        analysis.setError(UNAVAILABLE);
                     }
                 }
             });
         });
+    }
+    /**
+     * @deprecated
+     * This method handles the analysis status, and it will be removed once the 'getStatus' field is deprecated or removed.
+     */
+    private void handleAnalysisStatus(Analysis analysis) {
+        AnalysisResultStatusDTO dbStatus = analysis.getStatus();
+        if (dbStatus == null) {
+            analysisStateService.handleStateFromEE(analysis, Stage.INITIALIZE, UNAVAILABLE);
+        } else if (dbStatus == AnalysisResultStatusDTO.EXECUTED) {
+            analysisStateService.handleStateFromEE(analysis, Stage.COMPLETED, null);
+        } else if (dbStatus == AnalysisResultStatusDTO.FAILED) {
+            analysisStateService.handleStateFromEE(analysis, Stage.EXECUTE, "Failed");
+        }
     }
 }

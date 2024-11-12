@@ -15,8 +15,6 @@
 
 package com.odysseusinc.arachne.datanode.controller.admin;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.util.JsonResult;
-import com.odysseusinc.arachne.datanode.dto.converters.AnalysisToSubmissionDTOConverter;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusDTO;

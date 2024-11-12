@@ -40,28 +40,31 @@ public class AnalysisStateEntry {
     private Long id;
     @Column(name = "date")
     private Date date;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Analysis analysis;
+
     @Column(name = "state")
     @Enumerated(value = EnumType.STRING)
     private AnalysisState state;
-    @Column(name = "reason")
-    private String reason;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Analysis analysis;
-    @Column(name = "stage")
-    private String stage;
-
-    @Column(name = "error")
-    private String error;
 
     @Column(name = "command")
     @Enumerated(value = EnumType.STRING)
     private AnalysisCommand command;
+    @Column(name = "reason")
+    private String reason;
+
+    @Column(name = "stage")
+    private String stage;
+    @Column(name = "error")
+    private String error;
+
 
     public AnalysisStateEntry() {
 
     }
 
-    public AnalysisStateEntry(Date date, AnalysisState state, String reason, Analysis analysis, String stage, String error, AnalysisCommand command) {
+    public AnalysisStateEntry(Date date, Analysis analysis, AnalysisState state, AnalysisCommand command, String reason, String stage, String error) {
 
         this.date = date;
         this.state = state;

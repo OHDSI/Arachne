@@ -8,17 +8,22 @@ import com.odysseusinc.arachne.datanode.jpa.JpaPath;
 import com.odysseusinc.arachne.datanode.jpa.JpaQueryExpression;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor_;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor_;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource_;
-import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +33,17 @@ import java.util.function.Function;
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class AnalysisListService extends JpaListService<Analysis, SubmissionDTO> {
 
-    private static final int FAILED = 4;
-    private static final ImmutableMap<String, Integer> STAGE_PRIORITIES = ImmutableMap.of(
-            Stage.ABORT, 1,
-            Stage.ABORTED, 2,
-            Stage.COMPLETED, 3,
-            Stage.EXECUTE, 5,
-            Stage.INITIALIZE, 6
-    );
+
+    private static final ImmutableMap<AnalysisState, Integer> STATE_PRIORITY_ORDER = ImmutableMap.<AnalysisState, Integer>builder()
+            .put(AnalysisState.ABORT, 10)
+            .put(AnalysisState.ABORTED, 20)
+            .put(AnalysisState.COMPLETED, 30)
+            .put(AnalysisState.DEAD, 40)
+            .put(AnalysisState.EXECUTE, 50)
+            .put(AnalysisState.FAILED, 60)
+            .put(AnalysisState.INITIALIZE, 70)
+            .put(AnalysisState.UNKNOWN, 80)
+            .build();
 
     @Autowired
     private AnalysisToSubmissionDTOConverter converter;
@@ -48,32 +56,34 @@ public class AnalysisListService extends JpaListService<Analysis, SubmissionDTO>
                 .put("dataSource.name", JpaPath.of(Analysis_.dataSource, DataSource_.name))
                 .put("title", JpaPath.of(Analysis_.title))
                 .put("environment", JpaPath.of(Analysis_.environment))
-                .put("submitted", JpaPath.of(Analysis_.initialState, AnalysisStateEntry_.date))
+                .put("submitted", JpaPath.of(AnalysisStateEntry_.date).left(Analysis_.initialState))
                 .put("finished", finished())
                 .put("status", status())
                 .build();
     }
 
     private static JpaQueryExpression<Analysis, Date> finished() {
-        return cb -> root -> {
-            Path<Date> date = root.get(Analysis_.currentState).get(AnalysisStateEntry_.date);
+        return cb -> path -> {
+            Root<Analysis> root = (Root<Analysis>) path;
+            Join<Analysis, AnalysisStateEntry> state = root.join(Analysis_.currentState, JoinType.LEFT);
+            Path<Date> date = state.get(AnalysisStateEntry_.date);
             return cb.<Date>selectCase()
-                    .when(cb.isNotNull(root.get(Analysis_.error)), date)
-                    .when(root.get(Analysis_.stage).in(Stage.COMPLETED, Stage.ABORTED), date)
+                    .when(state.get(AnalysisStateEntry_.state).in(AnalysisState.TERMINAL_VALUES), date)
                     .otherwise(cb.nullLiteral(Date.class));
         };
     }
 
     private static JpaQueryExpression<Analysis, Integer> status() {
-        return cb -> root -> {
+        return cb -> path -> {
+            Root<Analysis> root = (Root<Analysis>) path;
             CriteriaBuilder.Case<Integer> caseExpression = cb.selectCase();
-            caseExpression.when(cb.isNotNull(root.get(Analysis_.error)), FAILED);
-            for (Map.Entry<String, Integer> entry : STAGE_PRIORITIES.entrySet()) {
-                caseExpression = caseExpression.when(root.get(Analysis_.stage).in(
-                        entry.getKey()), entry.getValue()
+            for (Map.Entry<AnalysisState, Integer> entry : STATE_PRIORITY_ORDER.entrySet()) {
+                caseExpression = caseExpression.when(
+                        cb.equal(root.join(Analysis_.currentState, JoinType.LEFT).get(AnalysisStateEntry_.state), entry.getKey()),
+                        entry.getValue()
                 );
             }
-            return caseExpression.otherwise(10);
+            return caseExpression;
         };
     }
 

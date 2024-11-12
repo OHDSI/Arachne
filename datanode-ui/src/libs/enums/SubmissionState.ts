@@ -15,10 +15,13 @@
  *
  */
 
-export enum SubmissionStages {
+export enum SubmissionState {
   INITIALIZE = "INITIALIZE",
   EXECUTE = "EXECUTE",
   COMPLETED = "COMPLETED",
   ABORT = "ABORT",
-  ABORTED = "ABORTED"
+  ABORTED = "ABORTED",
+  DEAD = "DEAD",
+  FAILED = "FAILED",
+  UNKNOWN = "UNKNOWN"
 }

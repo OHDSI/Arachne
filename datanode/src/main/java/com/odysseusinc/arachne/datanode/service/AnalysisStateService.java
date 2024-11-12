@@ -14,7 +14,6 @@
  */
 package com.odysseusinc.arachne.datanode.service;
 
-import com.odysseusinc.arachne.datanode.engine.ExecutionEngineSyncService;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
@@ -40,16 +39,8 @@ public class AnalysisStateService {
 
     @Transactional
     public void handleStateFromEE(Analysis analysis, String stage, String error) {
-        handleStateFromEE(analysis, AnalysisCommand.UPDATE, stage, error);
-    }
-
-    @Transactional
-    public void handleStateFromEE(Analysis analysis, AnalysisCommand command, String stage, String error) {
-        if (error != null) {
-            analysis.setError(error);
-        }
         String reason = Optional.ofNullable(error).orElse("Update from Execution Engine");
-        updateState(analysis, command, stage, error, reason);
+        updateState(analysis, AnalysisCommand.UPDATE, stage, error, reason);
     }
 
     @Transactional
@@ -60,27 +51,24 @@ public class AnalysisStateService {
     @Transactional
     public void updateState(Analysis analysis, AnalysisCommand command, String stage, String error, String reason) {
         AnalysisState state = toState(error, command, stage);
-            Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
+        Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
         Boolean hasChanged = currentState.map(s ->
                 s.getState() != state
         ).orElse(true);
         if (hasChanged) {
-            //todo dev stage should be copied from the last stage and command in case it is null.
             AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(
                     new Date(),
-                    state,
-                    reason,
-                    analysis,
-                    ObjectUtils.defaultIfNull(stage, currentState.map(AnalysisStateEntry::getStage).orElse(null)),
-                    error,
-                    ObjectUtils.defaultIfNull(command, currentState.map(AnalysisStateEntry::getCommand).orElse(null))
+                    analysis, state,
+                    ObjectUtils.defaultIfNull(command, currentState.map(AnalysisStateEntry::getCommand).orElse(null)), reason,
+                    ObjectUtils.defaultIfNull(stage, currentState.map(AnalysisStateEntry::getStage).orElse(null)), error
             );
             analysisStateJournalRepository.save(analysisStateEntry);
             if (!currentState.isPresent()) {
                 analysis.setInitialState(analysisStateEntry);
             }
             analysis.setCurrentState(analysisStateEntry);
-            log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), command.name(), reason);
+            log.info("Analysis [{}] state updated to {} ({}), determined from command: '{}', stage: '{}', error: '{}'",
+                    analysis.getId(), state.name(), reason, command, stage, error);
         } else if (Objects.equals(currentState.map(AnalysisStateEntry::getReason).orElse(null), reason)) {
             log.info("Analysis [{}] is already in state {} (new reason [{}])", analysis.getId(), command.name(), reason);
         }

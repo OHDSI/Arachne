@@ -14,8 +14,11 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This status is generated based on the AnalysisCommand and EE Stage.
@@ -28,10 +31,11 @@ public enum AnalysisState {
     COMPLETED(true),
     ABORT,
     ABORTED(true),
-    DEAD,
+    DEAD(true),
     FAILED(true),
-    UNKNOWN //TODO DEV do we need it?
-    ;
+    UNKNOWN;
+
+    public static final List<AnalysisState> TERMINAL_VALUES = Arrays.stream(AnalysisState.values()).filter(AnalysisState::isTerminal).collect(Collectors.toList());
 
     @Getter
     final boolean terminal;
@@ -44,4 +48,4 @@ public enum AnalysisState {
     AnalysisState(boolean terminal) {
         this.terminal = terminal;
     }
-    }
+}

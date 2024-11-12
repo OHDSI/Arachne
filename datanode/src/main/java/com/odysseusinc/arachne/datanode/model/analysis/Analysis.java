@@ -14,7 +14,6 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import com.odysseusinc.arachne.datanode.converter.GsonConverter;
 import com.odysseusinc.arachne.datanode.converter.StringMapConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
@@ -97,12 +96,6 @@ public class Analysis {
     @Column(name = "result_status")
     @Enumerated(value = EnumType.STRING)
     private AnalysisResultStatusDTO status;
-    @Deprecated
-    @Column(name = "stage")
-    private String stage;
-    @Deprecated
-    @Column(name = "error")
-    private String error;
     @Column(name = "title")
     private String title;
     @Column(name = "study_title")
@@ -136,12 +129,14 @@ public class Analysis {
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> parameters;
 
-    @Deprecated
     public String getStage() {
         return Optional.ofNullable(currentState).map(AnalysisStateEntry::getStage).orElse(null);
     }
 
-    @Deprecated
+    public AnalysisState getState() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getState).orElse(null);
+    }
+
     public String getError() {
         return Optional.ofNullable(currentState).map(AnalysisStateEntry::getError).orElse(null);
     }

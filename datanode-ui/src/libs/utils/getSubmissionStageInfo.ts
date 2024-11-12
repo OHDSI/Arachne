@@ -15,24 +15,26 @@
  *
  */
 
-import { SubmissionStages } from "../enums";
+import { SubmissionState } from "../enums";
 
-
-export function getSubmissionStageInfo(value: SubmissionStages, error: String) {
-  if (error) {
-    return { color: "error", name: "Failed" };
-  }
+export function getSubmissionStageInfo(value: SubmissionState, error: string) {
   switch (value) {
-    case SubmissionStages.INITIALIZE:
+    case SubmissionState.INITIALIZE:
       return { color: "secondary", name: "Initialize" };
-    case SubmissionStages.EXECUTE:
+    case SubmissionState.EXECUTE:
       return { color: "warning", name: "Executing" };
-    case SubmissionStages.COMPLETED:
+    case SubmissionState.COMPLETED:
       return { color: "success", name: "Completed" };
-    case SubmissionStages.ABORT:
+    case SubmissionState.ABORT:
       return { color: "warning", name: "Aborting" };
-    case SubmissionStages.ABORTED:
+    case SubmissionState.ABORTED:
       return { color: "error", name: "Canceled" };
+    case SubmissionState.DEAD:
+      return { color: "error", name: "Dead" };
+    case SubmissionState.FAILED:
+      return { color: "error", name: "Failed" };
+    case SubmissionState.UNKNOWN:
+      return { color: "secondary", name: "Unknown" };
     default:
       return { color: "secondary", name: "N/A" };
   }

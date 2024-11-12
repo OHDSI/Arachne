@@ -190,7 +190,6 @@ public class AnalysisResultsService {
 
             analysis.setAnalysisFolder(resultDir.getAbsolutePath());
             String resultError = Optional.ofNullable(error).orElseGet(() -> evaluateErrorStatus(stage, resultDir));
-            analysis.setStage(stage);
             analysis.setStdout(stdout);
             stateService.handleStateFromEE(analysis, stage, resultError);
             return analysis;

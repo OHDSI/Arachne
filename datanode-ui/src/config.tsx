@@ -39,7 +39,7 @@ import {
   CreateSubmissionFormTabs,
   OriginSubmission,
   SubmissionResultTabs,
-  SubmissionStages,
+  SubmissionState,
   Roles,
 } from "./libs/enums";
 import moment from "moment";
@@ -158,9 +158,9 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     Cell: (props: any) => {
 
       const id = props?.row?.original?.id;
-      const stage = props?.row?.original?.stage;
+      const state = props?.row?.original?.state;
       const error = props?.row?.original?.error;
-      const stageInfo = getSubmissionStageInfo(stage, error);
+      const stageInfo = getSubmissionStageInfo(state, error);
       return <StatusTag text={stageInfo.name} color={stageInfo.color} />;
     },
   },
@@ -173,10 +173,10 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     disableSortBy: true,
     Cell: ({ row }: { row: { original: SubmissionDTOInterface } }) => {
       const id = row?.original?.id;
-      const stage = row?.original?.stage;
+      const state = row?.original?.state;
       const error = row?.original?.error;
       return error ||
-        stage === SubmissionStages.COMPLETED ? (
+      state === SubmissionState.COMPLETED ? (
         <Tooltip text={t("common.tooltips.download_results")}>
           <IconButton
             color="info"

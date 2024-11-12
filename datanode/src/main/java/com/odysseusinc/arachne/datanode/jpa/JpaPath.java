@@ -2,6 +2,7 @@ package com.odysseusinc.arachne.datanode.jpa;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
@@ -27,6 +28,7 @@ public interface JpaPath<E, T> extends Function<Path<E>, Path<T>>, JpaQueryExpre
         return path -> path.get(attribute);
     }
 
+
     static <E, V, U> JpaPath<E, U> of(SingularAttribute<? super E, V> attribute1, SingularAttribute<? super V, U> attribute2) {
         return path -> path.get(attribute1).get(attribute2);
     }
@@ -40,6 +42,11 @@ public interface JpaPath<E, T> extends Function<Path<E>, Path<T>>, JpaQueryExpre
      */
     static <E, V> JpaPath<E, V> joinLeft(SingularAttribute<? super E, V> attribute) {
         return path -> ((Root<E>) path).join(attribute, JoinType.LEFT);
+    }
+
+
+    default <E1> JpaPath<E1, T> left(SingularAttribute<? super E1, E> attribute) {
+        return path -> apply(((From<E,E1>) path).join(attribute, JoinType.LEFT));
     }
 
     default <E1> JpaPath<E1, T> on(SingularAttribute<? super E1, E> attribute) {

@@ -17,6 +17,7 @@ package com.odysseusinc.arachne.datanode.dto.submission;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,11 +31,11 @@ public class SubmissionDTO {
     private String analysis;
     private AnalysisOrigin origin;
     private DataSourceDTO dataSource;
-    private String status;
+    private AnalysisState state;
     private AnalysisAuthor author;
     private Date submitted;
     private Date finished;
     private String environment;
-    private String stage;
     private String error;
+
 }
