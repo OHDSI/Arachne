@@ -43,6 +43,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -96,8 +97,10 @@ public class Analysis {
     @Column(name = "result_status")
     @Enumerated(value = EnumType.STRING)
     private AnalysisResultStatusDTO status;
+    @Deprecated
     @Column(name = "stage")
     private String stage;
+    @Deprecated
     @Column(name = "error")
     private String error;
     @Column(name = "title")
@@ -132,6 +135,16 @@ public class Analysis {
     @Column(name = "parameters")
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> parameters;
+
+    @Deprecated
+    public String getStage() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getStage).orElse(null);
+    }
+
+    @Deprecated
+    public String getError() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getError).orElse(null);
+    }
 
 
 }

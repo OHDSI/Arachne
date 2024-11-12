@@ -16,11 +16,14 @@ package com.odysseusinc.arachne.datanode.service;
 
 import com.odysseusinc.arachne.datanode.engine.ExecutionEngineSyncService;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,43 +40,80 @@ public class AnalysisStateService {
 
     @Transactional
     public void handleStateFromEE(Analysis analysis, String stage, String error) {
-        if (error != null) {
-            analysis.setError(error);
-        }
-        updateState(analysis, toState(error, stage), Optional.ofNullable(error).orElse("Update from Execution Engine"));
+        handleStateFromEE(analysis, AnalysisCommand.UPDATE, stage, error);
     }
 
     @Transactional
-    public void updateState(Analysis analysis, AnalysisState state, String reason) {
-//        Optional<AnalysisStateEntry> entry = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId());
-        Optional<AnalysisStateEntry> entry = Optional.ofNullable(analysis.getCurrentState());
-        AnalysisState current = entry.map(AnalysisStateEntry::getState).orElse(null);
-        if (current != state) {
-            AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(new Date(), state, reason, analysis);
+    public void handleStateFromEE(Analysis analysis, AnalysisCommand command, String stage, String error) {
+        if (error != null) {
+            analysis.setError(error);
+        }
+        String reason = Optional.ofNullable(error).orElse("Update from Execution Engine");
+        updateState(analysis, command, stage, error, reason);
+    }
+
+    @Transactional
+    public void updateState(Analysis analysis, AnalysisCommand command, String reason) {
+        updateState(analysis, command, null, null, reason);
+    }
+
+    @Transactional
+    public void updateState(Analysis analysis, AnalysisCommand command, String stage, String error, String reason) {
+        AnalysisState state = toState(error, command, stage);
+            Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
+        Boolean hasChanged = currentState.map(s ->
+                s.getState() != state
+        ).orElse(true);
+        if (hasChanged) {
+            //todo dev stage should be copied from the last stage and command in case it is null.
+            AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(
+                    new Date(),
+                    state,
+                    reason,
+                    analysis,
+                    ObjectUtils.defaultIfNull(stage, currentState.map(AnalysisStateEntry::getStage).orElse(null)),
+                    error,
+                    ObjectUtils.defaultIfNull(command, currentState.map(AnalysisStateEntry::getCommand).orElse(null))
+            );
             analysisStateJournalRepository.save(analysisStateEntry);
-            if (current == null) {
+            if (!currentState.isPresent()) {
                 analysis.setInitialState(analysisStateEntry);
             }
             analysis.setCurrentState(analysisStateEntry);
-            log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), state.name(), reason);
-        } else if (Objects.equals(entry.map(AnalysisStateEntry::getReason).orElse(null), reason)) {
-            log.info("Analysis [{}] is already in state {} (new reason [{}])", analysis.getId(), state.name(), reason);
+            log.info("Analysis [{}] state updated to {} ({})", analysis.getId(), command.name(), reason);
+        } else if (Objects.equals(currentState.map(AnalysisStateEntry::getReason).orElse(null), reason)) {
+            log.info("Analysis [{}] is already in state {} (new reason [{}])", analysis.getId(), command.name(), reason);
         }
     }
 
-    private static AnalysisState toState(String error, String stage) {
-        if (Objects.equals(error, ExecutionEngineSyncService.UNAVAILABLE)) {
-            return AnalysisState.DEAD;
-        } else if (Objects.equals(stage, Stage.ABORTED)) {
-            return (error == null) ? AnalysisState.ABORTED : AnalysisState.ABORT_FAILURE;
-        } else if (Objects.equals(stage, Stage.ABORT)) {
-            return (error == null) ? AnalysisState.ABORTING : AnalysisState.ABORT_FAILURE;
-        } else if (Objects.equals(stage, Stage.COMPLETED)) {
-            return (error == null) ? AnalysisState.EXECUTED : AnalysisState.EXECUTION_FAILURE;
-        } else if (Objects.equals(stage, Stage.EXECUTE) || Objects.equals(stage, Stage.INITIALIZE)) {
-            return (error == null) ? AnalysisState.EXECUTING : AnalysisState.EXECUTION_FAILURE;
-        } else {
-            return AnalysisState.UNKNOWN;
+    private static AnalysisState toState(String error, AnalysisCommand command, String stage) {
+        switch (command) {
+            case CREATED:
+                return AnalysisState.INITIALIZE;
+            case EXECUTING:
+                return AnalysisState.EXECUTE;
+            case EXECUTION_FAILURE:
+            case ABORT_FAILURE:
+                return AnalysisState.FAILED;
+            case ABORTING:
+                return AnalysisState.ABORT;
+            case UNAVAILABLE:
+                return AnalysisState.DEAD;
+            case UPDATE:
+                if (StringUtils.isNotEmpty(error)) {
+                    return AnalysisState.FAILED;
+                } else if (Objects.equals(stage, Stage.ABORTED)) {
+                    return AnalysisState.ABORTED;
+                } else if (Objects.equals(stage, Stage.ABORT)) {
+                    return AnalysisState.ABORT;
+                } else if (Objects.equals(stage, Stage.COMPLETED)) {
+                    return AnalysisState.COMPLETED;
+                } else if (Objects.equals(stage, Stage.EXECUTE)) {
+                    return AnalysisState.EXECUTE;
+                } else if (Objects.equals(stage, Stage.INITIALIZE)) {
+                    return AnalysisState.INITIALIZE;
+                }
         }
+        return AnalysisState.UNKNOWN;
     }
 }

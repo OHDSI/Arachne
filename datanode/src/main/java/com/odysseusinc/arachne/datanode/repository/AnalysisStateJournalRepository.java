@@ -24,7 +24,9 @@ import org.springframework.data.repository.query.Param;
 /**
  * @deprecated use EntityManager instead
  */
+@Deprecated
 public interface AnalysisStateJournalRepository extends JpaRepository<AnalysisStateEntry, Long> {
+    @Deprecated
     @Query(value =
             " SELECT journal.* FROM analysis_state_journal AS journal "
                     + " JOIN (SELECT analysis_id, max(date) AS latest FROM analysis_state_journal "

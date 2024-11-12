@@ -14,34 +14,14 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * This status is generated based on the AnalysisCommand and EE Stage.
- * It is used solely to simplify sorting and filtering. Please avoid using it in any logic.
- */
-public enum AnalysisState {
-
-    INITIALIZE,
-    EXECUTE,
-    COMPLETED(true),
-    ABORT,
-    ABORTED(true),
-    DEAD,
-    FAILED(true),
-    UNKNOWN //TODO DEV do we need it?
-    ;
-
-    @Getter
-    final boolean terminal;
-
-
-    AnalysisState() {
-        terminal = false;
-    }
-
-    AnalysisState(boolean terminal) {
-        this.terminal = terminal;
-    }
-    }
+public enum AnalysisCommand {
+    CREATED,
+    EXECUTING,
+    EXECUTION_FAILURE,
+    ABORTING,
+    ABORT_FAILURE,
+    UNAVAILABLE,
+    UPDATE;
+}

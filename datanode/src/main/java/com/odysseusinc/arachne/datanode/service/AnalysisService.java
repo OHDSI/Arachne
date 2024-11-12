@@ -30,11 +30,13 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
+import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
@@ -129,11 +131,10 @@ public class AnalysisService {
 	@Transactional
 	public void cancel(Long id, User user) {
 		Analysis analysis = find(id);
-		AnalysisState state = analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).orElseThrow(() ->
-				new ValidationException("Analysis not running: " + id)
-		).getState();
-		if (state == AnalysisState.EXECUTING) {
-			stateService.updateState(analysis, AnalysisState.ABORTING, "Cancelled by [" + user.getTitle() + "]");
+		AnalysisStateEntry state = analysis.getCurrentState();
+
+		if (state.getCommand() == AnalysisCommand.EXECUTING || Objects.equals(state.getStage(), Stage.EXECUTE)) {
+			stateService.updateState(analysis, AnalysisCommand.ABORTING, "Cancelled by [" + user.getTitle() + "]");
 			executor.submit(() -> sendToEngineCancel(analysis.getId()));
 		} else {
 			throw new ValidationException("Analysis not running: " + id + ", current state [" + state + "]");
@@ -157,7 +158,7 @@ public class AnalysisService {
 		} catch (Exception e) {
 			log.warn("Analysis {} failed to abort: {}: {}", id, e.getClass(), e.getMessage());
 			log.debug(e.getMessage(), e);
-			stateService.updateState(analysis, AnalysisState.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
+			stateService.updateState(analysis, AnalysisCommand.ABORT_FAILURE, "Failed to complete termination command in Execution Engine");
 		}
 	}
 
@@ -168,7 +169,7 @@ public class AnalysisService {
 		Analysis original = find(id);
 		Analysis analysis = save(dto, user, original.getSourceFolder());
 		em.persist(analysis);
-		stateService.updateState(analysis, AnalysisState.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
+		stateService.updateState(analysis, AnalysisCommand.CREATED, "Rerun analysis [" + id + "] by [" + user.getTitle() + "]");
 		log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}], reruns analysis {})",
 				analysis.getId(), analysis.getDataSource().getId(), user.getTitle(), id
 		);
@@ -191,7 +192,7 @@ public class AnalysisService {
         Analysis analysis = save(dto, user, path.toString());
         upload.setAnalysisId(analysis.getId());
         analysis.setAnalysisFiles(files.stream().filter(Files::isRegularFile).map(toAnalysisFile(analysis)).collect(Collectors.toList()));
-        stateService.updateState(analysis, AnalysisState.CREATED, "Created by [" + user.getTitle() + "]");
+        stateService.updateState(analysis, AnalysisCommand.CREATED, "Created by [" + user.getTitle() + "]");
         log.info("Request [{}] sending to engine for DS [{}] (manual upload by [{}])",
                 analysis.getId(), analysis.getDataSource().getId(), user.getTitle()
         );
@@ -211,7 +212,7 @@ public class AnalysisService {
             if (e != null) {
                 log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
                 String reason = String.format("Execution engine request failed: %s", e.getMessage());
-                stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, reason);
+                stateService.updateState(analysis, AnalysisCommand.EXECUTION_FAILURE, reason);
             } else {
                 afterSend(id, result);
             }
@@ -225,7 +226,7 @@ public class AnalysisService {
 		log.info("Request [{}] of type [{}] sent successfully, descriptor in use [{}]", id, exchange.getType(), descriptorId);
 
 		if (exchange.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
-			stateService.updateState(analysis, AnalysisState.EXECUTION_FAILURE, "Analysis type not recognized");
+			stateService.updateState(analysis, AnalysisCommand.EXECUTION_FAILURE, "Analysis type not recognized");
 		} else {
 			EnvironmentDescriptor descriptor = Optional.ofNullable(analysis.getDockerImage()).map(image ->
 					environmentService.ensureImageExists(image, descriptorId)
@@ -233,10 +234,12 @@ public class AnalysisService {
 					environmentService.ensureTarballExists(descriptorId)
 			);
 			analysis.setActualEnvironment(descriptor);
-            // Resolution of state conflicts from concurrent changes should be implemented more reliably
-            if (analysisStateJournalRepository.findLatestByAnalysisId(analysis.getId()).map(q -> q.getState() == AnalysisState.CREATED).orElse(true)) {
+			AnalysisStateEntry state = analysis.getCurrentState();
+
+			// Resolution of state conflicts from concurrent changes should be implemented more reliably
+            if (Optional.ofNullable(state).map(s -> s.getCommand() == AnalysisCommand.CREATED).orElse(true)) {
                 String reason = String.format("Accepted by engine as %s type", exchange.getType());
-                stateService.updateState(analysis, AnalysisState.EXECUTING, reason);
+                stateService.updateState(analysis, AnalysisCommand.EXECUTING, reason);
             }
 		}
 	}

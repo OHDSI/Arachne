@@ -49,21 +49,22 @@ public class AnalysisToSubmissionDTOConverter {
         dto.setError(analysis.getError());
         dto.setDataSource(Optional.ofNullable(analysis.getDataSource()).map(DataSourceService::toDto).orElse(null));
         dto.setAuthor(analysis.getAuthor());
+//TODO DEV need to be revised
+//        Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {
+//            history.stream().filter(entry ->
+//                    entry.getDate() != null && entry.getState() != null
+//            ).max(BY_DATE).ifPresent(entry -> {
+//                AnalysisState state = entry.getState();
+//                dto.setStatus(state.toString());
+//                if (state.isTerminal()) {
+//                    dto.setFinished(entry.getDate());
+//                }
+//            });
+//            history.stream().filter(entry ->
+//                    entry.getState() == AnalysisState.CREATED
+//            ).findFirst().map(AnalysisStateEntry::getDate).ifPresent(dto::setSubmitted);
+//        });
 
-        Optional.ofNullable(analysis.getStateHistory()).ifPresent(history -> {
-            history.stream().filter(entry ->
-                    entry.getDate() != null && entry.getState() != null
-            ).max(BY_DATE).ifPresent(entry -> {
-                AnalysisState state = entry.getState();
-                dto.setStatus(state.toString());
-                if (state.isTerminal()) {
-                    dto.setFinished(entry.getDate());
-                }
-            });
-            history.stream().filter(entry ->
-                    entry.getState() == AnalysisState.CREATED
-            ).findFirst().map(AnalysisStateEntry::getDate).ifPresent(dto::setSubmitted);
-        });
         String environment = Optional.ofNullable(analysis.getDockerImage()).orElseGet(() ->
                 Optional.ofNullable(
                         Optional.ofNullable(analysis.getActualEnvironment()).orElseGet(analysis::getEnvironment)
