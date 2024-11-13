@@ -1,36 +1,37 @@
-/*
- * Copyright 2023 Odysseus Data Services, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.odysseusinc.arachne.datanode.util;
+package com.odysseusinc.arachne.datanode.jpa;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
-
-import com.odysseusinc.arachne.datanode.util.jpa.EntityFilter;
-import org.springframework.data.domain.Pageable;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  * Syntactic sugar to get more expressive semantics on the JPA operations.
  */
 public interface JpaSugar {
+
+    /**
+     * Constructs a function to navigate from one path to another by a single metamode attribute.
+     */
+    static <T, V> Function<Path<T>, Path<V>> path(SingularAttribute<? super T, V> attribute) {
+        return path -> path.get(attribute);
+    }
+
+    /**
+     * Constructs a function to navigate from one path to another throuhg a chain of 2 attributes.
+     */
+    static <T, V, U> Function<Path<T>, Path<U>> path(
+            SingularAttribute<? super T, V> attribute1, SingularAttribute<? super V, U> attribute2
+    ) {
+        return root -> root.get(attribute1).get(attribute2);
+    }
 
     /**
      * Creates e select query to fetch all the entities of a given type
@@ -72,6 +73,20 @@ public interface JpaSugar {
         return em.createQuery(query).getSingleResult();
     }
 
+   /**
+     * Creates a generic tupled query.
+     *
+     * @param em entity manager to use
+     * @param clazz Root class to use in FROM query section. Note that while nothing prevents caller from spawning
+     * a multi-root query using this method, however it is not advised to do so, as this is not something what the
+     * reader might expect
+     * @param query query building function. Takes criteria builder, criteria query, root path and produces complete query
+     * @param <T> root entity type
+     * @param <V> method return type.
+     */
+    static <T, V> V queryTuple(EntityManager em, Class<T> clazz, TypedJPAFunction<Tuple, T, V> query) {
+        return query(em, Tuple.class, (cb, cq) -> query.apply(cb, cq).apply(cq.from(clazz)));
+    }
 
     /**
      * The most basic syntactic sugar function that saves the caller the need to write

@@ -25,7 +25,7 @@ import com.odysseusinc.arachne.datanode.exception.ResourceConflictException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource_;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.util.JpaSugar;
+import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

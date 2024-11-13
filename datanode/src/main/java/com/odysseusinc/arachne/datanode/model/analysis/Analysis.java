@@ -14,7 +14,6 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import com.odysseusinc.arachne.datanode.converter.GsonConverter;
 import com.odysseusinc.arachne.datanode.converter.StringMapConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
@@ -43,6 +42,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -76,6 +76,14 @@ public class Analysis {
     @NotNull
     @Column(name = "analysis_folder")
     private String analysisFolder;
+    @ManyToOne
+    @JoinColumn(name = "initial_state_id")
+    private AnalysisStateEntry initialState;
+
+    @ManyToOne
+    @JoinColumn(name = "current_state_id")
+    private AnalysisStateEntry currentState;
+
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
     private List<AnalysisStateEntry> stateHistory = new ArrayList<>();
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
@@ -88,10 +96,6 @@ public class Analysis {
     @Column(name = "result_status")
     @Enumerated(value = EnumType.STRING)
     private AnalysisResultStatusDTO status;
-    @Column(name = "stage")
-    private String stage;
-    @Column(name = "error")
-    private String error;
     @Column(name = "title")
     private String title;
     @Column(name = "study_title")
@@ -124,6 +128,18 @@ public class Analysis {
     @Column(name = "parameters")
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> parameters;
+
+    public String getStage() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getStage).orElse(null);
+    }
+
+    public AnalysisState getState() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getState).orElse(null);
+    }
+
+    public String getError() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getError).orElse(null);
+    }
 
 
 }

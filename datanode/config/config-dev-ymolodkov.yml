@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/arachne
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicTypeDescriptor: TRACE
+      org.hibernate.type: TRACE
+      org.hibernate.engine.query.spi.AbstractQueryImpl: TRACE  # Logs query parameters
+      org.hibernate.event.internal.DefaultLoadEventListener: TRACE  # Logs entity load events
+authenticator:
+  methods:
+    db:
+      service: org.ohdsi.authenticator.service.jdbc.JdbcAuthService
+      config:
+        jdbcUrl: jdbc:postgresql://localhost:5432/arachne
+datanode:
+  baseURL: https://host.docker.internal
+  port: 8880
+
