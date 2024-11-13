@@ -136,7 +136,7 @@ export const RerunSubmissionForm: React.FC<CreateSubmissionFormInterfaceProps> =
         analysisTypes: parseToSelectControlOptions(types),
         dataSources: parseToSelectControlOptions(dataSources)
       }));
-      setState(prevState => ({ ...prevState, dockerImage: envsSelectControlList.length > 0 ? envsSelectControlList[0].value : "" }))
+      setState(prevState => ({ ...prevState, dockerImage: envsSelectControlList.length > 0 ? envsSelectControlList[0]?.value : "" }))
 
     } catch (e) {
       setControlsList(prevState => ({ ...prevState, status: Status.ERROR }));
