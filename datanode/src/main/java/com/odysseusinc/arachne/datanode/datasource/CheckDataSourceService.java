@@ -93,7 +93,7 @@ public class CheckDataSourceService {
         byte[] zip = ZipUtils.zipFile(SQL_FILENAME, sql.getBytes(StandardCharsets.UTF_8));
 
         try {
-            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, false, "datasource-check-" + id, sink -> sink.write(zip));
+            AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, null, false, "datasource-check-" + id, sink -> sink.write(zip));
             if (status.getType() == AnalysisRequestTypeDTO.NOT_RECOGNIZED) {
                 future.completeExceptionally(new ValidationException("Check error: Execution not recognized"));
             }
