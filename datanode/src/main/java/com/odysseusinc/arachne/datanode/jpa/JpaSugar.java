@@ -27,6 +27,8 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 
+import static com.odysseusinc.arachne.datanode.jpa.JpaConditional.conjunction;
+
 /**
  * Syntactic sugar to get more expressive semantics on the JPA operations.
  */
@@ -80,6 +82,19 @@ public interface JpaSugar {
         return em.createQuery(criteriaQuery);
     }
 
+    /**
+     * Creates a simple select query, with no ordering but straightforward, SQL-like semantics
+     *
+     * @param em entity manager to use
+     * @param clazz Root class to use in FROM query section
+     * @param <T> root entity type
+     */
+    static <T> Where<T, T, TypedQuery<T>> select(EntityManager em, Class<T> clazz) {
+        return conditions -> select(em, clazz, (cb, query) -> root -> query.where(
+                conjunction(conditions).apply(cb, root))
+        );
+    }
+
     static <E> Long count(EntityManager em, Class<E> clazz, EntityFilter<E> filter) {
         CriteriaQuery<Long> query = query(em, Long.class, (cb, cq) -> {
             Root<E> root = cq.from(clazz);
@@ -126,6 +141,16 @@ public interface JpaSugar {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<E> q = cb.createCriteriaUpdate(clazz);
         return em.createQuery(query.apply(cb, q).apply(q.from(clazz))).executeUpdate();
+    }
+
+    @FunctionalInterface
+    interface Where<T, R, Y> extends Function<JpaConditional<R>[], Y> {
+        @Override
+        default Y apply(JpaConditional<R>[] fn) {
+            return where(fn);
+        }
+
+        Y where(JpaConditional<R>... biFunctions);
     }
 
 }
