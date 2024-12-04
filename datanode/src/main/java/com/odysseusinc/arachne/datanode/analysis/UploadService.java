@@ -98,7 +98,7 @@ public class UploadService {
 	}
 
 	private UploadDTO upload(User user, String name, Function<Path, List<Path>> writeFiles) {
-		Path path = Paths.get(storageDir).resolve(timestamp() + "-" + name);
+		Path path = Paths.get(storageDir).resolve(name);
         try {
 			Files.createDirectories(path);
 		} catch (IOException e) {
