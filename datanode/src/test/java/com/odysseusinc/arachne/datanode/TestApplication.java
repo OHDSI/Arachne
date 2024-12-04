@@ -48,6 +48,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @PropertySource("classpath:application.properties")
 @Import(MailSenderAutoConfiguration.class)
+@Deprecated
 public class TestApplication {
 
     public static void main(String[] args) {
