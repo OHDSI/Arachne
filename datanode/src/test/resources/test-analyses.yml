@@ -1,15 +1,24 @@
 test:
   analyses:
-    - title: Maggie'sGrowth
+    - title: MaggiesGrowth
       executionDelay: 1000
       execution:
         - stdout: "Initializing growth tracking for the population."
         - stdout: "Calculating growth rates and comparing them to expected averages."
-        - stdout: "Growth data successfully recorded for Maggie's cohort."
+        - stdout: "Growth data successfully recorded for Maggies cohort."
 
-    - title: Bart'sPrank
+    - title: BartsPrank
       executionDelay: 1000
       execution:
         - stdout: "Initializing prank detection for the population of pranksters."
         - stdout: "Identifying potential pranks in the cohort based on historical data."
-          error: "Bart's prank failed due to invalid prank data."
+          error: "Barts prank failed due to invalid prank data."
+
+    - title: LisasResearch
+      executionDelay: 1200
+      execution:
+        - stdout: "Initializing research tracking for Lisas new project."
+        - stdout: "Analyzing data patterns for the research subject."
+        - stdout: "Research data compilation underway."
+        - stdout: "Testing hypotheses with collected data."
+        - stdout: "Research completed successfully for Lisas project."

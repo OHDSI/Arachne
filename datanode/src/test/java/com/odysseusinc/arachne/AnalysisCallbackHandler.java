@@ -28,14 +28,14 @@ public class AnalysisCallbackHandler {
     @Autowired
     private AnalysisCallbackController callbackController;
 
-    @EventListener(value = {AnalysisEvent.ExecuteProgress.class, AnalysisEvent.Initialized.class})
+    @EventListener(value = {AnalysisEvent.ExecuteProgress.class, AnalysisEvent.Initiated.class, AnalysisEvent.CancelInitiated.class})
     public void executeState(AnalysisEvent event) {
         Analysis analysis = event.getAnalysis();
         callbackController.updateSubmission(analysis.getId(), analysis.getPassword(), status(analysis));
         publisher.publishEvent(new EventProcessed(event));
     }
 
-    @EventListener(value = {AnalysisEvent.Completed.class, AnalysisEvent.ExecuteFailed.class})
+    @EventListener(value = {AnalysisEvent.Completed.class, AnalysisEvent.ExecuteFailed.class, AnalysisEvent.Canceled.class})
     public void finish(AnalysisEvent event) throws IOException {
         Analysis analysis = event.getAnalysis();
         callbackController.analysisResult(analysis.getId(), analysis.getPassword(), result(analysis), new MultipartFile[]{});

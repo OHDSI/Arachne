@@ -3,6 +3,7 @@ package com.odysseusinc.arachne.ee;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.odysseusinc.arachne.datanode.util.Fn;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -12,19 +13,22 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.CANCEL;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.FINISH;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.FINISH_CANCEL;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.RUN_ANALYSIS;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.START;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.COMPLETE_ANALYSIS;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.COMPLETE_CANCEL;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.EXECUTE_ANALYSIS;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.INITIATE;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.INITIATE_CANCEL;
 import static com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage.ABORT;
 import static com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage.ABORTED;
 import static com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage.COMPLETED;
@@ -36,31 +40,39 @@ import static com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage.I
 @Component
 @RequiredArgsConstructor
 public class ExecutionEngineProcessor {
+
+    private static final Set<String> INACTIVE_STAGES = new HashSet<>(Arrays.asList(Stage.ABORT, Stage.ABORTED, Stage.COMPLETED));
+
+
     private final ApplicationEventPublisher publisher;
     private final List<Analysis> analyses;
     private final Map<Command, StageTransition> stageTransitions = ImmutableMap.of(
-            START, Fn.create(StageTransition::new, tr -> {
+            INITIATE, Fn.create(StageTransition::new, tr -> {
                 tr.setTo(INITIALIZE);
-                tr.setPost(a -> publishEvent(AnalysisEvent.Initialized::new, a));
+                tr.setPost(a -> publishEvent(AnalysisEvent.Initiated::new, a));
             }),
-            RUN_ANALYSIS, Fn.create(StageTransition::new, tr -> {
+            EXECUTE_ANALYSIS, Fn.create(StageTransition::new, tr -> {
                 tr.setFrom(INITIALIZE);
                 tr.setTo(EXECUTE);
                 tr.setPost(a -> publishEvent(AnalysisEvent.Executed::new, a));
+
             }),
-            FINISH, Fn.create(StageTransition::new, tr -> {
+            COMPLETE_ANALYSIS, Fn.create(StageTransition::new, tr -> {
                 tr.setFrom(EXECUTE);
                 tr.setTo(COMPLETED);
                 tr.setPre(this::execution);
                 tr.setPost(a -> publishEvent(AnalysisEvent.Completed::new, a));
             }),
-            CANCEL, Fn.create(StageTransition::new, tr -> {
+            INITIATE_CANCEL, Fn.create(StageTransition::new, tr -> {
                 tr.setFrom(EXECUTE);
                 tr.setTo(ABORT);
+                tr.setPost(a -> publishEvent(AnalysisEvent.CancelInitiated::new, a));
             }),
-            FINISH_CANCEL, Fn.create(StageTransition::new, tr -> {
+            COMPLETE_CANCEL, Fn.create(StageTransition::new, tr -> {
                 tr.setFrom(ABORT);
                 tr.setTo(ABORTED);
+                tr.setPre(this::cancel);
+                tr.setPost(a -> publishEvent(AnalysisEvent.Canceled::new, a));
             })
     );
 
@@ -79,6 +91,10 @@ public class ExecutionEngineProcessor {
         try {
             List<Analysis.Progress> progresses = analysis.getExecution();
             for (int i = 0; i < progresses.size(); i++) {
+                if (INACTIVE_STAGES.contains(analysis.getStage())) {
+                    log.info("Aborting execution for analysis [{}] at step [{}] as it is not active (stage: [{}]).", analysis.getId(), i + 1, analysis.getStage());
+                    return false;
+                }
                 Analysis.Progress progress = progresses.get(i);
                 TimeUnit.MILLISECONDS.sleep(analysis.getExecutionDelay());
                 if (progress.getError() == null) {
@@ -95,6 +111,19 @@ public class ExecutionEngineProcessor {
             return true;
         } catch (Throwable e) {
             log.error("Unexpected error during execution for analysis [{}]: {}", analysis.getId(), e.getMessage(), e);
+            analysis.setError("Unexpected execution failure.");
+            publishEvent(AnalysisEvent.ExecuteFailed::new, analysis);
+            return false;
+        }
+    }
+
+    private boolean cancel(Analysis analysis) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(analysis.getExecutionDelay() );
+            log.info("Progress: Aborted");
+            return true;
+        } catch (Throwable e) {
+            log.error("Unexpected error during aborting for analysis [{}]: {}", analysis.getId(), e.getMessage(), e);
             analysis.setError("Unexpected execution failure.");
             publishEvent(AnalysisEvent.ExecuteFailed::new, analysis);
             return false;
@@ -130,36 +159,43 @@ public class ExecutionEngineProcessor {
     }
 
     public enum Command {
-        START, RUN_ANALYSIS, CANCEL, FINISH, FINISH_CANCEL
+        INITIATE, EXECUTE_ANALYSIS, INITIATE_CANCEL, COMPLETE_ANALYSIS, COMPLETE_CANCEL
     }
 
     @Getter
     @Setter
     public static class StageTransition {
+        public static final int TRANSITION_DELAY = 50;
         private String from;
         private String to;
         private Function<Analysis, Boolean> pre;
         private Consumer<Analysis> post;
 
         public void handleStage(Analysis analysis) {
-            if (!Objects.equals(analysis.getStage(), from)) {
-                //todo that should be error event here.
-                analysis.setError("Invalid stage: Expected " + from + ", but found " + analysis.getStage());
-                return;
-            }
-
-            String predefinedFailure = analysis.getPredefinedFailures().get(from);
-            if (predefinedFailure == null) {
-                Boolean success = Optional.ofNullable(pre).map(a -> a.apply(analysis)).orElse(true);
-                if (success) {
-                    analysis.setStage(to);
-                    log.info("Stage transition for analysis {}: {} -> {}", analysis.getId(), from, to);
-                    Optional.ofNullable(post).ifPresent(a -> a.accept(analysis));
+            try {
+                if (!Objects.equals(analysis.getStage(), from)) {
+                    //todo that should be error event here.
+                    analysis.setError("Invalid stage: Expected " + from + ", but found " + analysis.getStage());
+                    return;
                 }
-            } else {
-                //todo that should be error event here.
-                analysis.setError(predefinedFailure);
-                log.error("Predefined failure for analysis {} at stage {}: {}", analysis.getId(), from, predefinedFailure);
+
+                String predefinedFailure = analysis.getPredefinedFailures().get(from);
+                if (predefinedFailure == null) {
+                    Boolean success = Optional.ofNullable(pre).map(a -> a.apply(analysis)).orElse(true);
+                    if (success) {
+                        analysis.setStage(to);
+                        log.info("Stage transition for analysis {}: {} -> {}", analysis.getId(), from, to);
+                        Optional.ofNullable(post).ifPresent(a -> a.accept(analysis));
+                    }
+                } else {
+                    //todo that should be error event here.
+                    analysis.setError(predefinedFailure);
+                    log.error("Predefined failure for analysis {} at stage {}: {}", analysis.getId(), from, predefinedFailure);
+                }
+            } catch (Exception e) {
+                String errorMessage = "Unexpected error during stage transition for analysis " + analysis.getId();
+                analysis.setError(errorMessage);
+                log.error(errorMessage, e);
             }
         }
     }

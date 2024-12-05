@@ -8,7 +8,7 @@ import lombok.Setter;
 public abstract class AnalysisEvent {
     private Analysis analysis;
 
-    public static class Initialized extends AnalysisEvent {
+    public static class Initiated extends AnalysisEvent {
     }
     public static class ExecuteProgress extends AnalysisEvent {
     }
@@ -18,5 +18,8 @@ public abstract class AnalysisEvent {
     }
     public static class Completed extends AnalysisEvent {
     }
-
+    public static class CancelInitiated extends AnalysisEvent {
+    }
+    public static class Canceled extends AnalysisEvent {
+    }
 }

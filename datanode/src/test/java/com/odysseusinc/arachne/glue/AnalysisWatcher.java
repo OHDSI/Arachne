@@ -19,9 +19,9 @@ public class AnalysisWatcher {
     @EventListener(AnalysisCallbackHandler.EventProcessed.class)
     public synchronized void updateSubmission(AnalysisCallbackHandler.EventProcessed event) {
         Object analysisEvent = event.getEvent();
-        if (analysisEvent instanceof AnalysisEvent.Initialized) {
+        if (analysisEvent instanceof AnalysisEvent.Initiated) {
             initialized = true;
-        } else if (analysisEvent instanceof AnalysisEvent.Completed || analysisEvent instanceof AnalysisEvent.ExecuteFailed) {
+        } else if (analysisEvent instanceof AnalysisEvent.Completed || analysisEvent instanceof AnalysisEvent.ExecuteFailed|| analysisEvent instanceof AnalysisEvent.Canceled) {
             terminated = true;
         } else if (analysisEvent instanceof AnalysisEvent.ExecuteProgress) {
             stateCounts.incrementAndGet();

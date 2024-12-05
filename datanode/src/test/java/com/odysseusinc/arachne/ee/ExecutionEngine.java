@@ -1,6 +1,5 @@
 package com.odysseusinc.arachne.ee;
 
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -8,11 +7,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.CANCEL;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.FINISH;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.FINISH_CANCEL;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.RUN_ANALYSIS;
-import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.START;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.INITIATE_CANCEL;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.COMPLETE_ANALYSIS;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.COMPLETE_CANCEL;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.EXECUTE_ANALYSIS;
+import static com.odysseusinc.arachne.ee.ExecutionEngineProcessor.Command.INITIATE;
 
 
 @Slf4j
@@ -27,9 +26,9 @@ public class ExecutionEngine {
             Analysis analysis = processor.findAnalysisByTitle(title);
             analysis.setId(id);
             analysis.setPassword(password);
-            processor.process(START, analysis);
-            processor.process(RUN_ANALYSIS, analysis);
-            processor.process(FINISH, analysis);
+            processor.process(INITIATE, analysis);
+            processor.process(EXECUTE_ANALYSIS, analysis);
+            processor.process(COMPLETE_ANALYSIS, analysis);
         });
 
     }
@@ -37,8 +36,8 @@ public class ExecutionEngine {
     public void abort(Long id) {
         CompletableFuture.runAsync(() -> {
             Analysis analysis = processor.findAnalysisById(id);
-            processor.process(CANCEL, analysis);
-            processor.process(FINISH_CANCEL, analysis);
+            processor.process(INITIATE_CANCEL, analysis);
+            processor.process(COMPLETE_CANCEL, analysis);
         });
     }
 

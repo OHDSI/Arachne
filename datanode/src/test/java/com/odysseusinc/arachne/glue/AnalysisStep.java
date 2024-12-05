@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 public class AnalysisStep {
 
     @Autowired
-
     @PersistenceContext
     private EntityManager em;
 
@@ -61,6 +60,13 @@ public class AnalysisStep {
         });
         User user = UserSteps.find(em, userName);
         world.setCursor(() -> analysisService.run(user, request, upload.getName()));
+    }
+
+    @When("User {string} cancels {string} analysis")
+    public void cancel(String userName, String analysisName) {
+        User user = UserSteps.find(em, userName);
+        Analysis analysis = (Analysis) world.getCursor();
+        analysisService.cancel(analysis.getId(), user);
     }
 
     @When("Inspect {string} analysis")
