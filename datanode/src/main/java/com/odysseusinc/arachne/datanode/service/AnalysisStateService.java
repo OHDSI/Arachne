@@ -53,7 +53,7 @@ public class AnalysisStateService {
         AnalysisState state = toState(error, command, stage);
         Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
         Boolean hasChanged = currentState.map(s ->
-                s.getState() != state
+                s.getState() != state || !Objects.equals(s.getStage(), stage)
         ).orElse(true);
         if (hasChanged) {
             AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(
