@@ -213,7 +213,9 @@ public class AnalysisService {
             if (e != null) {
                 log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
                 String reason = String.format("Execution engine request failed: %s", e.getMessage());
-                stateService.updateState(analysis, AnalysisCommand.EXECUTION_FAILURE, reason);
+				// TODO: The analysis should be fetched again from the session. I did not investigate this case yet.(so we use updateState(id) instead of updatesState(analysis))
+				// This might be related to the transaction and the new thread handling. Need further investigation.
+				stateService.updateState(analysis.getId(), AnalysisCommand.EXECUTION_FAILURE, reason);
             } else {
                 afterSend(id, result);
             }

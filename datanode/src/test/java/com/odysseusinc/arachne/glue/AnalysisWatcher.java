@@ -1,7 +1,7 @@
 package com.odysseusinc.arachne.glue;
 
-import com.odysseusinc.arachne.AnalysisCallbackHandler;
-import com.odysseusinc.arachne.ee.AnalysisEvent;
+import com.odysseusinc.arachne.ee.AnalysisCallbackHandler;
+import com.odysseusinc.arachne.ee.TestAnalysisEvent;
 import lombok.Getter;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -19,11 +19,13 @@ public class AnalysisWatcher {
     @EventListener(AnalysisCallbackHandler.EventProcessed.class)
     public synchronized void updateSubmission(AnalysisCallbackHandler.EventProcessed event) {
         Object analysisEvent = event.getEvent();
-        if (analysisEvent instanceof AnalysisEvent.Initiated) {
+        if (analysisEvent instanceof TestAnalysisEvent.Initiated) {
             initialized = true;
-        } else if (analysisEvent instanceof AnalysisEvent.Completed || analysisEvent instanceof AnalysisEvent.ExecuteFailed|| analysisEvent instanceof AnalysisEvent.Canceled) {
+        } else if (analysisEvent instanceof TestAnalysisEvent.Completed
+                || analysisEvent instanceof TestAnalysisEvent.ExecuteFailed
+                || analysisEvent instanceof TestAnalysisEvent.Canceled) {
             terminated = true;
-        } else if (analysisEvent instanceof AnalysisEvent.ExecuteProgress) {
+        } else if (analysisEvent instanceof TestAnalysisEvent.ExecuteProgress) {
             stateCounts.incrementAndGet();
         }
     }
