@@ -2,7 +2,8 @@ package com.odysseusinc.arachne;
 
 
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
-import com.odysseusinc.arachne.ee.ExecutionEngine;
+import com.odysseusinc.arachne.ee.StubExecutionEngineClient;
+import com.odysseusinc.arachne.ee.TestExecutionEngine;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,7 @@ public class TestConfiguration {
 
     @Primary
     @Bean
-    public ExecutionEngineClient executionEngineClient(ExecutionEngine executionEngine) {
+    public ExecutionEngineClient executionEngineClient(TestExecutionEngine executionEngine) {
         return new StubExecutionEngineClient(executionEngine);
     }
 }

@@ -12,5 +12,5 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "test")
 public class TestAnalysisConfig {
-    private List<Analysis> analyses;
+    private List<TestAnalysis> analyses;
 }

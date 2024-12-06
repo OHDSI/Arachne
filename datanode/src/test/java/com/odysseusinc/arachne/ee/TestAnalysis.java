@@ -12,14 +12,16 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class Analysis {
+public class TestAnalysis {
     private String title;
     private Map<String, String> predefinedFailures = new HashMap<>();
-    private long executionDelay;
     private List<Progress> execution = new ArrayList<>();
+    private boolean exceptionRun;
+    private boolean exceptionAbort;
+    private boolean exceptionFind;
 
     private Long id;
-    private String stage;
+    private volatile String stage;
     private String error;
     private String password;
 

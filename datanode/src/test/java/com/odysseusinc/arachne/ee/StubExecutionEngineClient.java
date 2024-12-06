@@ -1,9 +1,7 @@
-package com.odysseusinc.arachne;
+package com.odysseusinc.arachne.ee;
 
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.Fn;
-import com.odysseusinc.arachne.ee.Analysis;
-import com.odysseusinc.arachne.ee.ExecutionEngine;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestTypeDTO;
@@ -23,9 +21,9 @@ import java.util.stream.Collectors;
 
 public class StubExecutionEngineClient implements ExecutionEngineClient {
 
-    private final ExecutionEngine executionEngine;
+    private final TestExecutionEngine executionEngine;
 
-    public StubExecutionEngineClient(ExecutionEngine eeProcessor) {
+    public StubExecutionEngineClient(TestExecutionEngine eeProcessor) {
         this.executionEngine = eeProcessor;
     }
 
@@ -56,11 +54,11 @@ public class StubExecutionEngineClient implements ExecutionEngineClient {
         });
     }
 
-    private EngineStatus getEngineStatus(List<Analysis> analyses) {
+    private EngineStatus getEngineStatus(List<TestAnalysis> analyses) {
         return Fn.create(EngineStatus::new, status -> {
             status.setStarted(Instant.now());
             status.setSubmissions(analyses.stream().collect(Collectors.toMap(
-                    Analysis::getId,
+                    TestAnalysis::getId,
                     analysis -> Fn.create(ExecutionOutcome::new, outcome -> {
                         outcome.setStage(analysis.getStage());
                         outcome.setError(analysis.getError());
@@ -87,10 +85,10 @@ public class StubExecutionEngineClient implements ExecutionEngineClient {
         });
     }
 
-    private AnalysisResultDTO getAnalysisResult(Analysis analysis) {
+    private AnalysisResultDTO getAnalysisResult(TestAnalysis testAnalysis) {
         return Fn.create(AnalysisResultDTO::new, result -> {
-            result.setId(analysis.getId());
-            result.setStage(analysis.getStage());
+            result.setId(testAnalysis.getId());
+            result.setStage(testAnalysis.getStage());
             result.setRequested(new Date());
         });
     }
