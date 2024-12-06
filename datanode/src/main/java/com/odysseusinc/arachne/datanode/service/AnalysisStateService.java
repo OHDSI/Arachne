@@ -18,6 +18,7 @@ import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
+import com.odysseusinc.arachne.datanode.repository.AnalysisRepository;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,8 @@ import java.util.Optional;
 public class AnalysisStateService {
     @Autowired
     private AnalysisStateJournalRepository analysisStateJournalRepository;
+    @Autowired
+    private AnalysisRepository analysisRepository;
 
     @Transactional
     public void handleStateFromEE(Analysis analysis, String stage, String error) {
@@ -44,16 +47,26 @@ public class AnalysisStateService {
     }
 
     @Transactional
+    public void updateState(Long analysisId, AnalysisCommand command, String reason) {
+        this.analysisRepository.findById(analysisId).ifPresent(analysis ->
+                updateState(analysis, command, null, null, reason)
+        );
+    }
+
+    @Transactional
     public void updateState(Analysis analysis, AnalysisCommand command, String reason) {
         updateState(analysis, command, null, null, reason);
     }
 
+    // TODO: Make this method sync and run in a new transaction.
+    // There’s a chance two threads/transactions could run this at the same time,
+    // which might mess up the currentState if they both try to set it.
     @Transactional
     public void updateState(Analysis analysis, AnalysisCommand command, String stage, String error, String reason) {
         AnalysisState state = toState(error, command, stage);
         Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
         Boolean hasChanged = currentState.map(s ->
-                s.getState() != state
+                s.getState() != state || !Objects.equals(s.getStage(), stage)
         ).orElse(true);
         if (hasChanged) {
             AnalysisStateEntry analysisStateEntry = new AnalysisStateEntry(
@@ -67,12 +80,12 @@ public class AnalysisStateService {
                 analysis.setInitialState(analysisStateEntry);
             }
             analysis.setCurrentState(analysisStateEntry);
-            log.info("Analysis [{}] state updated to {} ({}), determined from command: '{}', stage: '{}', error: '{}'",
-                    analysis.getId(), state.name(), reason, command, stage, error);
+            log.info("Analysis [{}] state updated to {} ({}), determined from command: '{}', stage: '{}', error: '{}'", analysis.getId(), analysis.getState(), reason, command, analysis.getStage(), error);
         } else if (Objects.equals(currentState.map(AnalysisStateEntry::getReason).orElse(null), reason)) {
             log.info("Analysis [{}] is already in state {} (new reason [{}])", analysis.getId(), command.name(), reason);
         }
     }
+
 
     private static AnalysisState toState(String error, AnalysisCommand command, String stage) {
         switch (command) {

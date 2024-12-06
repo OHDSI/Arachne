@@ -28,6 +28,7 @@ import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptorService;
 import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
+import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisAuthor;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
@@ -35,7 +36,6 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileStatus;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFileType;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisOrigin;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
@@ -44,7 +44,6 @@ import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.repository.AnalysisStateJournalRepository;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
-import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
@@ -63,8 +62,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-//import javax.persistence.criteria.Path;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -211,12 +208,14 @@ public class AnalysisService {
 		return CompletableFuture.runAsync(
 				() -> preprocess(analysis, path, id), delayedExecutor
 		).thenApplyAsync(__ ->
-				engine.sendAnalysisRequest(toDto(analysis), true, "request-" + id + ".zip", ZipUtils.zipDir(path)), delayedExecutor
+				engine.sendAnalysisRequest(toDto(analysis), analysis.getTitle(), true, "request-" + id + ".zip", ZipUtils.zipDir(path)), delayedExecutor
 		).handle((result, e) -> {
             if (e != null) {
                 log.info("Request [{}] failed with [{}]: {}", id, e.getClass(), e.getMessage(), e);
                 String reason = String.format("Execution engine request failed: %s", e.getMessage());
-                stateService.updateState(analysis, AnalysisCommand.EXECUTION_FAILURE, reason);
+				// TODO: The analysis should be fetched again from the session. I did not investigate this case yet.(so we use updateState(id) instead of updatesState(analysis))
+				// This might be related to the transaction and the new thread handling. Need further investigation.
+				stateService.updateState(analysis.getId(), AnalysisCommand.EXECUTION_FAILURE, reason);
             } else {
                 afterSend(id, result);
             }
