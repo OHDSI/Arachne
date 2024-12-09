@@ -30,6 +30,7 @@ public class CreateDataSourceCredentialsValidator extends BaseValidator implemen
     public boolean isValid(WriteDataSourceDTO writeDataSourceDTO, ConstraintValidatorContext context) {
         return isValid(context, CredentialsValidationContextBuilder.newContextOfType(DBMSType.valueOf(writeDataSourceDTO.getDbmsType()))
                 .withUsername("dbUsername", writeDataSourceDTO.getDbUsername())
+                .usingKeyFile(false)
                 .usingKerberos(writeDataSourceDTO.getUseKerberos())
                 .withKerberosAuthMechanism(writeDataSourceDTO.getKrbAuthMechanism())
                 .withKerberosUser("krbUser", writeDataSourceDTO.getKrbUser())

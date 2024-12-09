@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.odysseusinc.arachne.datanode.jpa;
 
 import java.util.function.BiFunction;
@@ -11,6 +26,8 @@ import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
+
+import static com.odysseusinc.arachne.datanode.jpa.JpaConditional.conjunction;
 
 /**
  * Syntactic sugar to get more expressive semantics on the JPA operations.
@@ -65,6 +82,19 @@ public interface JpaSugar {
         return em.createQuery(criteriaQuery);
     }
 
+    /**
+     * Creates a simple select query, with no ordering but straightforward, SQL-like semantics
+     *
+     * @param em entity manager to use
+     * @param clazz Root class to use in FROM query section
+     * @param <T> root entity type
+     */
+    static <T> Where<T, T, TypedQuery<T>> select(EntityManager em, Class<T> clazz) {
+        return conditions -> select(em, clazz, (cb, query) -> root -> query.where(
+                conjunction(conditions).apply(cb, root))
+        );
+    }
+
     static <E> Long count(EntityManager em, Class<E> clazz, EntityFilter<E> filter) {
         CriteriaQuery<Long> query = query(em, Long.class, (cb, cq) -> {
             Root<E> root = cq.from(clazz);
@@ -111,6 +141,16 @@ public interface JpaSugar {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<E> q = cb.createCriteriaUpdate(clazz);
         return em.createQuery(query.apply(cb, q).apply(q.from(clazz))).executeUpdate();
+    }
+
+    @FunctionalInterface
+    interface Where<T, R, Y> extends Function<JpaConditional<R>[], Y> {
+        @Override
+        default Y apply(JpaConditional<R>[] fn) {
+            return where(fn);
+        }
+
+        Y where(JpaConditional<R>... biFunctions);
     }
 
 }

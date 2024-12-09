@@ -49,7 +49,9 @@ public class ExecutionEngineSyncService {
     @Autowired
     private EnvironmentDescriptorService descriptorService;
 
-    @Scheduled(fixedDelayString = "${executionEngine.status.period}")
+    //The initial delay is primarily set for integration tests; using a large number disables the scheduling task
+    @Scheduled(initialDelayString = "${executionEngine.status.initial.period:0}",
+            fixedDelayString =   "${executionEngine.status.period}")
     public void checkStatus() {
         Instant now = Instant.now();
         List<Long> incomplete = analysisService.getIncompleteIds();
@@ -70,7 +72,6 @@ public class ExecutionEngineSyncService {
         incomplete.forEach(id -> {
             ExecutionOutcome status = submissions.get(id);
             analysisService.update(id, analysis -> {
-
                 if (status != null) {
                     String error = status.getError();
                     String stage = status.getStage();

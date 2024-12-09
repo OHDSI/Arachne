@@ -16,7 +16,7 @@
 package com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy;
 
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.context.CredentialsValidationContext;
-import com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy.CredentialsValidationStrategy;
+
 import java.util.Objects;
 import javax.validation.ConstraintValidatorContext;
 
@@ -33,7 +33,7 @@ public abstract class BaseCredentialsValidationStrategy implements CredentialsVa
 
     protected boolean validateKeyfile(ConstraintValidatorContext context, CredentialsValidationContext validationContext) {
 
-        if (Objects.isNull(validationContext.getKeyfile())) {
+        if (validationContext.isUseKeyFile() && Objects.isNull(validationContext.getKeyfile())) {
             buildFieldConstraint(context, validationContext.getKeyfileField());
             return false;
         }
