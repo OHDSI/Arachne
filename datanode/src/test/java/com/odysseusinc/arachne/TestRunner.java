@@ -1,14 +1,15 @@
 package com.odysseusinc.arachne;
 
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
-import org.junit.runner.RunWith;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Cucumber.class)
-@CucumberOptions(
-        plugin = {"pretty"},
-        features = {"src/test/resources/features"},
-        glue = {"com.odysseusinc.arachne.glue"}
-)
+import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
+import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
+
+@Suite
+@SelectClasspathResource("features")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.odysseusinc.arachne.glue")
+@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 public class TestRunner {
 }
