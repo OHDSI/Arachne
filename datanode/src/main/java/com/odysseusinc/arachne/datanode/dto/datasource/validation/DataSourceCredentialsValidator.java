@@ -37,6 +37,7 @@ public class DataSourceCredentialsValidator extends BaseValidator implements Con
 
         return isValid(context, CredentialsValidationContextBuilder.newContextOfType(datasource.getType())
                 .withUsername(USERNAME_FIELDNAME, datasource.getUsername())
+                .usingKeyFile(true)
                 .withKeyfile(KEYFILE_FIELDNAME, datasource.getKeyfile())
                 .usingKerberos(datasource.getUseKerberos())
                 .withKerberosAuthMechanism(datasource.getKrbAuthMechanism())

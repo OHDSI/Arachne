@@ -42,10 +42,17 @@ public class CredentialsValidationContextBuilder {
         return this;
     }
 
+
     public CredentialsValidationContextBuilder withKeyfile(String fieldName, Object value) {
 
         contextInstance.setKeyfileField(fieldName);
         contextInstance.setKeyfile(value);
+        return this;
+    }
+
+    public CredentialsValidationContextBuilder usingKeyFile(boolean useKeyFile) {
+
+        contextInstance.setUseKeyFile(useKeyFile);
         return this;
     }
 
