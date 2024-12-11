@@ -1,57 +1,95 @@
 Feature: Analysis Status Transitions and Callback Handling
 
   Background:
-    Given User Homer Simpson exists
-    When User "Homer Simpson" creates datasource "SpringfieldData"
-    And User "Homer Simpson" uploads the necessary files
+    Given EE is initialized with tarball environments:
+      | id  | bundleName | label |
+      | one | mould-1935 | Mould |
+    Given user Alex Fleming exists
+    And User "Alex Fleming" creates datasource "Historic Data"
+    And User "Alex Fleming" uploads the necessary files
 
-  Scenario: Analysis successfully executed
-    When User "Homer Simpson" runs "Maggie'sGrowth" analysis on datasource "SpringfieldData"
-    And Waiting for analysis to be initialized
-    Then Inspect "Maggie'sGrowth" analysis
-    And it has the following properties:
-      | type                | IR         |
-      | currentState->stage | null       |
-      | currentState->state | INITIALIZE |
-      | error               | null       |
+  Scenario: Analysis completes successfully
+    When user "Alex Fleming" runs "Staphylococcus" analysis on datasource "Historic Data"
+    And EE accepts analysis "Staphylococcus" with descriptor "one"
+    And EE sends update stage "INITIALIZE" stdout "Seed Staphylococcus"
+    And EE sends update stage "EXECUTE" stdout "Go for a holiday"
+    And EE sends update stage "EXECUTE" stdout "Observe mould preventing the bacteria around from growing"
+    And EE sends result stage "COMPLETED" stdout "Identifed chemical produced by the mould"
 
-    Then Waiting for analysis to receive update 1
-    And Inspect "Maggie'sGrowth" analysis
-    And it has the following properties:
-      | currentState->stage | EXECUTE |
-      | currentState->state | EXECUTE |
-    Then Waiting for analysis to receive update 2
-    And Inspect "Maggie'sGrowth" analysis
-    And it has the following properties:
-      | currentState->stage | EXECUTE |
-      | currentState->state | EXECUTE |
-    Then Waiting for analysis to completed
-    And Inspect "Maggie'sGrowth" analysis
-    And it has the following properties:
-      | type                | IR        |
-      | currentState->stage | COMPLETED |
-      | currentState->state | COMPLETED |
-      | error               | null      |
+    When analysis state history is inspected
+    Then it is a list of:
+      | command | stage      | error | state      |
+      |         |            |       | INITIALIZE |
+      |         | INITIALIZE |       | INITIALIZE |
+      |         | EXECUTE    |       | EXECUTE    |
+      |         | COMPLETED  |       | COMPLETED  |
 
-  Scenario: Analysis fails due to R execution issue
-    When User "Homer Simpson" runs "Bart'sPrank" analysis on datasource "SpringfieldData"
-    Then Waiting for analysis to be initialized
-    Then Inspect "Bart'sPrank" analysis
-    Then it has the following properties:
-      | type                | IR         |
-      | currentState->stage | null       |
-      | currentState->state | INITIALIZE |
-      | error               | null       |
 
-    Then Waiting for analysis to receive update 1
-    And Inspect "Bart'sPrank" analysis
-    And it has the following properties:
-      | currentState->stage | EXECUTE |
-      | currentState->state | EXECUTE |
-      | error               | null    |
-    Then Waiting for analysis to completed
-    And Inspect "Bart'sPrank" analysis
-    And it has the following properties:
-      | currentState->stage | EXECUTE                                                              |
-      | currentState->state | FAILED                                                               |
-      | error               | Bart's prank failed due to invalid prank data.                       |
+  Scenario: Analysis fails due to execution issue
+    Given user Howard Florey exists
+    When user "Howard Florey" runs "Sepsis Treatment" analysis on datasource "Historic Data"
+    And EE accepts analysis "Sepsis Treatment" with descriptor "one"
+    And EE sends update stage "INITIALIZE" stdout "Patient infected with streptococcus"
+    And EE sends update stage "EXECUTE" stdout "Injected penicillin, condition improved"
+    And EE sends result stage "EXECUTE" error "Ran out of penicillin" stdout "Patient died"
+
+    When analysis state history is inspected
+    Then it is a list of:
+      | command | stage      | error                 | state      |
+      |         |            |                       | INITIALIZE |
+      |         | INITIALIZE |                       | INITIALIZE |
+      |         | EXECUTE    |                       | EXECUTE    |
+      |         | EXECUTE    | Ran out of penicillin | FAILED     |
+
+  Scenario: Analysis aborted by user during execution
+    Given user Norman Heatley exists
+    When user "Norman Heatley" runs "Penicillium notatum" analysis on datasource "Historic Data"
+    And EE accepts with descriptor "one"
+    And EE sends update stage "INITIALIZE" stdout "Use every available container to grow the mold"
+    And EE sends update stage "EXECUTE" stdout "Mold grows too slowly"
+    Then user "Norman Heatley" cancels "Penicillium notatum" analysis
+    Then EE accepts cancel request
+    And EE sends update stage "ABORT" stdout ""
+    And EE sends analysis "Penicillium notatum" result stage "ABORTED" stdout "Aborted by request"
+
+    When analysis state history is inspected
+    Then it is a list of:
+      | command | stage      | error | state      |
+      |         |            |       | INITIALIZE |
+      |         | INITIALIZE |       | INITIALIZE |
+      |         | EXECUTE    |       | EXECUTE    |
+      | ABORT   | EXECUTE    |       | ABORT      |
+      |         | ABORT      |       | ABORT      |
+      |         | ABORTED    |       | ABORTED    |
+
+  Scenario: Analysis execution fails due to EE run method exception
+    Given user Mary Hunt exists
+    When user "Mary Hunt" runs "Buy vegetables" analysis on datasource "Historic Data"
+    And EE rejects with error "Pretty golden mould"
+    When analysis state history is inspected
+    Then it is a list of:
+      | command | stage | error               | state      |
+      |         |       |                     | INITIALIZE |
+      |         |       | Pretty golden mould | FAILED     |
+
+  Scenario: Analysis aborted but completes successfully due to error during abort process
+    Given user Norman Heatley exists
+    When user "Norman Heatley" runs "Penicillium chrysogeum" analysis on datasource "Historic Data"
+    And EE accepts with descriptor "one"
+    And EE sends update stage "INITIALIZE" stdout "Initial yield 200 times mor than Penicillium notatum"
+    And EE sends update stage "EXECUTE" stdout "X-Ray mutation"
+
+    When user "Alex Fleming" cancels "Penicillium chrysogeum" analysis
+    And EE rejects cancel request with error "Out of luck"
+    And EE sends update stage "EXECUTE" stdout "Mutation complete"
+    And EE sends result stage "COMPLETED" stdout "Penicillin yield increased 1000x"
+
+    When analysis state history is inspected
+    Then it is a list of:
+      | command | stage      | error                  | state        |
+      |         |            |                        | INITIALIZE   |
+      |         | INITIALIZE |                        | INITIALIZE   |
+      |         | EXECUTE    |                        | EXECUTE      |
+      | ABORT   | EXECUTE    |                        | ABORT        |
+      | ABORT   | EXECUTE    | Penicillium chrysogeum | ABORT_FAILED |
+      |         | COMPLETED  |                        | COMPLETED    |

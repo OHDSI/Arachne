@@ -1,5 +1,22 @@
+/*
+ * Copyright 2024 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.odysseusinc.arachne.glue;
 
+import com.google.gson.Gson;
+import com.odysseusinc.arachne.datanode.util.Fn;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import lombok.SneakyThrows;
@@ -22,12 +39,17 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class GenericSteps {
+    private static Gson GSON = new Gson();
+
     @Autowired
     private World world;
 
@@ -202,5 +224,52 @@ public class GenericSteps {
         throw new AssertionFailedError();
     }
 
+    static <T> T create(Supplier<T> constructor, DataTable dt) {
+        return create(constructor, dt.asMap());
+    }
+
+    static <T> List<T> createList(Supplier<T> constructor, DataTable dt) {
+        return dt.asMaps().stream().map(create(constructor)).collect(Collectors.toList());
+    }
+
+    static <T> T create(Supplier<T> constructor, Map<String, String> dtMap) {
+        return create(constructor).apply(dtMap);
+    }
+
+    static <T> Function<Map<String, String>, T> create(Supplier<T> constructor) {
+        return dtMap ->
+                Fn.create(constructor, dto ->
+                        dtMap.forEach((key, value) ->
+                                setProperty(dto, key, value)
+                        )
+                );
+    }
+
+    @SneakyThrows
+    public static void setProperty(Object item, String key, Object value) {
+        Class<?> type = PropertyUtils.getPropertyType(item, key);
+        Object convertedValue = convertTo(value, type);
+        PropertyUtils.setProperty(item, key, convertedValue);
+    }
+
+    private static Object convertTo(Object value, Class type) {
+        if (type.equals(List.class)) {
+            return Arrays.stream(String.valueOf(value).split(",")).collect(Collectors.toList());
+        } else if (type.isEnum()) {
+            return Enum.valueOf(type, String.valueOf(value));
+        } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+            return Boolean.valueOf(value.toString());
+        } else if (type.equals(int.class) || type.equals(Integer.class)) {
+            return Integer.valueOf(value.toString());
+        } else if (type.equals(long.class) || type.equals(Long.class)) {
+            return Long.valueOf(value.toString());
+        } else if (type.equals(UUID.class)) {
+            return value instanceof UUID ? value : UUID.fromString(String.valueOf(value));
+        } else if (!type.equals(String.class) && value instanceof String && ((String) value).startsWith("{")) {
+            return GSON.fromJson((String) value, type);
+        } else {
+            return value;
+        }
+    }
 
 }
