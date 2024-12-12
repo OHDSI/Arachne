@@ -14,7 +14,6 @@
  */
 package com.odysseusinc.arachne.datanode.model.analysis;
 
-import com.odysseusinc.arachne.datanode.converter.GsonConverter;
 import com.odysseusinc.arachne.datanode.converter.StringMapConverter;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
@@ -40,9 +39,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -76,6 +77,13 @@ public class Analysis {
     @NotNull
     @Column(name = "analysis_folder")
     private String analysisFolder;
+
+    @Column(name = "created")
+    private Instant created;
+    @ManyToOne
+    @JoinColumn(name = "current_state_id")
+    private AnalysisStateEntry currentState;
+
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
     private List<AnalysisStateEntry> stateHistory = new ArrayList<>();
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "analysis")
@@ -83,15 +91,22 @@ public class Analysis {
     @Column(name = "stdout")
     private String stdout;
     /**
-     * @deprecated Use stage and error instead
+     * @deprecated Use stage and error from currentState
      */
     @Column(name = "result_status")
     @Enumerated(value = EnumType.STRING)
     private AnalysisResultStatusDTO status;
+    /**
+     * @deprecated Use stage from currentState
+     */
     @Column(name = "stage")
     private String stage;
+    /**
+     * @deprecated Use error from  currentState
+     */
     @Column(name = "error")
     private String error;
+
     @Column(name = "title")
     private String title;
     @Column(name = "study_title")
@@ -121,9 +136,24 @@ public class Analysis {
     @JoinColumn(name = "actual_environment_id")
     private EnvironmentDescriptor actualEnvironment;
 
+    /**
+     * This field is just for display purposes. Use it only for showing on the UI, filtering, and sorting.
+     * Don't use it in the logic!!
+     */
+    @Column(name = "state")
+    @Enumerated(value = EnumType.STRING)
+    private AnalysisState state;
+
     @Column(name = "parameters")
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> parameters;
 
+    public String getStage() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getStage).orElse(null);
+    }
+
+    public String getError() {
+        return Optional.ofNullable(currentState).map(AnalysisStateEntry::getError).orElse(null);
+    }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Odysseus Data Services, Inc.
+ * Copyright 2018, 2024 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,25 +12,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.odysseusinc.arachne.datanode.util;
+
+package com.odysseusinc.arachne.datanode.jpa;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 
-import com.odysseusinc.arachne.datanode.util.jpa.EntityFilter;
-import org.springframework.data.domain.Pageable;
+import static com.odysseusinc.arachne.datanode.jpa.JpaConditional.conjunction;
 
 /**
  * Syntactic sugar to get more expressive semantics on the JPA operations.
  */
 public interface JpaSugar {
+
+    /**
+     * Constructs a function to navigate from one path to another by a single metamode attribute.
+     */
+    static <T, V> Function<Path<T>, Path<V>> path(SingularAttribute<? super T, V> attribute) {
+        return path -> path.get(attribute);
+    }
+
+    /**
+     * Constructs a function to navigate from one path to another throuhg a chain of 2 attributes.
+     */
+    static <T, V, U> Function<Path<T>, Path<U>> path(
+            SingularAttribute<? super T, V> attribute1, SingularAttribute<? super V, U> attribute2
+    ) {
+        return root -> root.get(attribute1).get(attribute2);
+    }
 
     /**
      * Creates e select query to fetch all the entities of a given type
@@ -64,6 +82,19 @@ public interface JpaSugar {
         return em.createQuery(criteriaQuery);
     }
 
+    /**
+     * Creates a simple select query, with no ordering but straightforward, SQL-like semantics
+     *
+     * @param em entity manager to use
+     * @param clazz Root class to use in FROM query section
+     * @param <T> root entity type
+     */
+    static <T> Where<T, T, TypedQuery<T>> select(EntityManager em, Class<T> clazz) {
+        return conditions -> select(em, clazz, (cb, query) -> root -> query.where(
+                conjunction(conditions).apply(cb, root))
+        );
+    }
+
     static <E> Long count(EntityManager em, Class<E> clazz, EntityFilter<E> filter) {
         CriteriaQuery<Long> query = query(em, Long.class, (cb, cq) -> {
             Root<E> root = cq.from(clazz);
@@ -72,6 +103,20 @@ public interface JpaSugar {
         return em.createQuery(query).getSingleResult();
     }
 
+   /**
+     * Creates a generic tupled query.
+     *
+     * @param em entity manager to use
+     * @param clazz Root class to use in FROM query section. Note that while nothing prevents caller from spawning
+     * a multi-root query using this method, however it is not advised to do so, as this is not something what the
+     * reader might expect
+     * @param query query building function. Takes criteria builder, criteria query, root path and produces complete query
+     * @param <T> root entity type
+     * @param <V> method return type.
+     */
+    static <T, V> V queryTuple(EntityManager em, Class<T> clazz, TypedJPAFunction<Tuple, T, V> query) {
+        return query(em, Tuple.class, (cb, cq) -> query.apply(cb, cq).apply(cq.from(clazz)));
+    }
 
     /**
      * The most basic syntactic sugar function that saves the caller the need to write
@@ -96,6 +141,16 @@ public interface JpaSugar {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<E> q = cb.createCriteriaUpdate(clazz);
         return em.createQuery(query.apply(cb, q).apply(q.from(clazz))).executeUpdate();
+    }
+
+    @FunctionalInterface
+    interface Where<T, R, Y> extends Function<JpaConditional<R>[], Y> {
+        @Override
+        default Y apply(JpaConditional<R>[] fn) {
+            return where(fn);
+        }
+
+        Y where(JpaConditional<R>... biFunctions);
     }
 
 }

@@ -25,9 +25,9 @@ import {
 } from "./LatestSubmissions.styles";
 import { useList } from "../../../libs/hooks";
 import { getSubmissions } from "../../../api/submissions";
-import { Status, SubmissionStatus } from "../../../libs/enums";
+import { Status, SubmissionState } from "../../../libs/enums";
 import { Spinner, SpinnerWidgetContainer, Grid, StatusTag, EmptyTableStub } from "../../../libs/components";
-import { getSubmissionStatusInfo, getItemFromConstantArray } from "../../../libs/utils";
+import { getSubmissionStateInfo, getItemFromConstantArray } from "../../../libs/utils";
 import { originSubmissions } from "../../../libs/constants";
 
 export const LatestSubmissions: React.FC<any> = props => {
@@ -70,18 +70,12 @@ export const LatestSubmissions: React.FC<any> = props => {
             rawData
               .slice(0, 5)
               .map(item => {
-                let status = null;
+                let stageInfo = null;
                 const origin = getItemFromConstantArray(
                   originSubmissions,
                   item.origin
                 );
-
-                if (item.error) {
-                  status = getSubmissionStatusInfo(SubmissionStatus.FAILED);
-                } else {
-                  status = getSubmissionStatusInfo(item.stage);
-                }
-
+                stageInfo = getSubmissionStateInfo(item.stage, item.error);
                 return (
                   <LatestSubmissionsListItem
                     key={item.id + "favorite"}
@@ -99,8 +93,8 @@ export const LatestSubmissions: React.FC<any> = props => {
                     </div>
 
                     <div className="list-item-section">
-                      {status && (
-                        <StatusTag text={status.name} color={status.color} />
+                      {stageInfo && (
+                        <StatusTag text={stageInfo.name} color={stageInfo.color} />
                       )}
                     </div>
                   </LatestSubmissionsListItem>

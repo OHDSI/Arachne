@@ -98,20 +98,21 @@ public class UploadService {
 	}
 
 	private UploadDTO upload(User user, String name, Function<Path, List<Path>> writeFiles) {
-		Path path = Paths.get(storageDir).resolve(timestamp() + "-" + name);
+		String uploadName = timestamp() + "-" + name;
+		Path path = Paths.get(storageDir).resolve(uploadName);
         try {
 			Files.createDirectories(path);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException("Error creating directory [" + path + "]: " + e.getMessage(), e );
 		}
-		Upload entity = new Upload(name, user, null);
+		Upload entity = new Upload(uploadName, user, null);
 		em.persist(entity);
 		List<Path> files = writeFiles.apply(path);
 		log.info("User {} [{}] uploaded {} files to [{}]", user.getId(), user.getTitle(), files.size(), path);
 		List<String> names = files.stream().map(toRelativePath(path)).collect(Collectors.toList());
 		JsonNode metadata = metadataService.detect(files);
-		return new UploadDTO(name, names, metadata);
+		return new UploadDTO(uploadName, names, metadata);
 	}
 
 	private String timestamp() {

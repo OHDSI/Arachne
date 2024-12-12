@@ -18,7 +18,7 @@ package com.odysseusinc.arachne.datanode.environment;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDescriptor.Type;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDto.Docker;
 import com.odysseusinc.arachne.datanode.environment.EnvironmentDto.Tarball;
-import com.odysseusinc.arachne.datanode.util.JpaSugar;
+import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus.Environments;
 import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.TarballEnvironmentDTO;
 import lombok.extern.slf4j.Slf4j;
