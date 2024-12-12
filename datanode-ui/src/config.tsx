@@ -27,7 +27,7 @@ import {
 import { originSubmissions } from "./libs/constants";
 import {
   getItemFromConstantArray,
-  getSubmissionStatusInfo,
+  getSubmissionStateInfo,
 } from "./libs/utils";
 import {
   ColumnInterface,
@@ -39,7 +39,7 @@ import {
   CreateSubmissionFormTabs,
   OriginSubmission,
   SubmissionResultTabs,
-  SubmissionStatus,
+  SubmissionState,
   Roles,
 } from "./libs/enums";
 import moment from "moment";
@@ -158,15 +158,10 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     Cell: (props: any) => {
 
       const id = props?.row?.original?.id;
-      const stage = props?.row?.original?.stage;
+      const state = props?.row?.original?.state;
       const error = props?.row?.original?.error;
-      if (error) {
-        const status = getSubmissionStatusInfo(SubmissionStatus.FAILED);
-        return <StatusTag text={status.name} color={status.color} />;
-      }
-
-      const status = getSubmissionStatusInfo(stage);
-      return <StatusTag text={status.name} color={status.color} />;
+      const stageInfo = getSubmissionStateInfo(state, error);
+      return <StatusTag text={stageInfo.name} color={stageInfo.color} />;
     },
   },
   {
@@ -178,11 +173,10 @@ export const colsTableSubmissions = (t: any): ColumnInterface<any>[] => [
     disableSortBy: true,
     Cell: ({ row }: { row: { original: SubmissionDTOInterface } }) => {
       const id = row?.original?.id;
-      const stage = row?.original?.stage;
+      const state = row?.original?.state;
       const error = row?.original?.error;
       return error ||
-        stage === SubmissionStatus.COMPLETED ||
-        stage === SubmissionStatus.FAILED ? (
+      state === SubmissionState.COMPLETED ? (
         <Tooltip text={t("common.tooltips.download_results")}>
           <IconButton
             color="info"

@@ -17,13 +17,19 @@ package com.odysseusinc.arachne.datanode.dto.datasource.validation.context;
 
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Getter
+@Setter
 public class CredentialsValidationContext {
 
     private DBMSType type;
     private String username;
     private String usernameField;
     private String keyfileField;
+    private boolean useKeyFile;
     private Object keyfile;
     private boolean useKerberos;
     private KerberosAuthMechanism kerberosAuthMechanism;
@@ -31,92 +37,7 @@ public class CredentialsValidationContext {
     private String kerberosUserField;
 
     public CredentialsValidationContext(DBMSType type) {
-
         this.type = type;
     }
 
-    public DBMSType getType() {
-
-        return type;
-    }
-
-    public String getUsername() {
-
-        return username;
-    }
-
-    public String getKeyfileField() {
-
-        return keyfileField;
-    }
-
-    void setKeyfileField(String keyfileField) {
-
-        this.keyfileField = keyfileField;
-    }
-
-    public Object getKeyfile() {
-
-        return keyfile;
-    }
-
-    void setKeyfile(Object keyfile) {
-
-        this.keyfile = keyfile;
-    }
-
-    public String getUsernameField() {
-
-        return usernameField;
-    }
-
-    void setUsername(String username) {
-
-        this.username = username;
-    }
-
-    void setUsernameField(String usernameField) {
-
-        this.usernameField = usernameField;
-    }
-
-    public boolean isUseKerberos() {
-
-        return useKerberos;
-    }
-
-    void setUseKerberos(boolean useKerberos) {
-
-        this.useKerberos = useKerberos;
-    }
-
-    public KerberosAuthMechanism getKerberosAuthMechanism() {
-
-        return kerberosAuthMechanism;
-    }
-
-    void setKerberosAuthMechanism(KerberosAuthMechanism kerberosAuthMechanism) {
-
-        this.kerberosAuthMechanism = kerberosAuthMechanism;
-    }
-
-    public String getKerberosUser() {
-
-        return kerberosUser;
-    }
-
-    void setKerberosUser(String kerberosUser) {
-
-        this.kerberosUser = kerberosUser;
-    }
-
-    public String getKerberosUserField() {
-
-        return kerberosUserField;
-    }
-
-    void setKerberosUserField(String kerberosUserField) {
-
-        this.kerberosUserField = kerberosUserField;
-    }
 }

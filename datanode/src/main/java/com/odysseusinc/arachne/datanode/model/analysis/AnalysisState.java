@@ -16,23 +16,35 @@ package com.odysseusinc.arachne.datanode.model.analysis;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * This status is generated based on the AnalysisCommand and EE Stage.
+ * It is used solely to simplify sorting and filtering. Please avoid using it in any logic.
+ */
 public enum AnalysisState {
-    CREATED(false),
-    EXECUTION_FAILURE(true),
-    EXECUTING(false),
-    EXECUTED(true),
-    ABORTING(false),
-    ABORT_FAILURE(true),
+
+    INITIALIZE,
+    EXECUTE,
+    COMPLETED(true),
+    ABORT,
     ABORTED(true),
-    DEAD(true),
-    UNKNOWN(false)
-    ;
+    ABORT_FAILED,
+    FAILED(true),
+    UNKNOWN;
+
+    public static final List<AnalysisState> TERMINAL_VALUES = Arrays.stream(AnalysisState.values()).filter(AnalysisState::isTerminal).collect(Collectors.toList());
 
     @Getter
     final boolean terminal;
 
+    AnalysisState() {
+        terminal = false;
+    }
+
     AnalysisState(boolean terminal) {
         this.terminal = terminal;
     }
-
 }
