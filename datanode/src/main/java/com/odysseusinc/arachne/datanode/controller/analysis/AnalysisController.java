@@ -28,8 +28,8 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisFile;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
-import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.analysis.AnalysisOrchestrator;
+import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import com.odysseusinc.arachne.datanode.util.AddToZipFileVisitor;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
@@ -78,7 +78,7 @@ public class AnalysisController {
     @Autowired
     private AnalysisResultsService analysisResultsService;
     @Autowired
-    private UserService userService;
+    private LegacyUserService userService;
 
     @PostMapping(path = "/upload/zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadDTO uploadZip(Principal principal, @RequestPart("file") List<MultipartFile> archive) {

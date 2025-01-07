@@ -21,8 +21,8 @@ import com.odysseusinc.arachne.datanode.engine.EngineStatusDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusService;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.datanode.service.analysis.AnalysisListService;
+import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class AdminController {
     public static final int DEFAULT_PAGE_SIZE = 10;
     private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
     @Autowired
-    protected UserService userService;
+    protected LegacyUserService userService;
     @Autowired
     private EngineStatusService engine;
     @Autowired
@@ -75,7 +75,7 @@ public class AdminController {
 
         List<User> users = userService.getAllAdmins(sortBy, sortAsc);
         List<UserDTO> dtos = users.stream()
-                .map(UserService::toDto)
+                .map(LegacyUserService::toDto)
                 .collect(Collectors.toList());
         return dtos;
     }
@@ -89,7 +89,7 @@ public class AdminController {
     ) {
         User user = userService.getUser(principal);
         List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
-        return Optional.of(users.stream().map(UserService::toDto).collect(Collectors.toList()));
+        return Optional.of(users.stream().map(LegacyUserService::toDto).collect(Collectors.toList()));
     }
 
     @ApiOperation("Remove admin")
@@ -131,21 +131,6 @@ public class AdminController {
     private boolean isCustomSort(final Pageable pageable) {
 
         return isSortOf(pageable, propertiesMap::containsKey);
-    }
-
-    private boolean isStatusSort(final Pageable pageable) {
-
-        return isSortOf(pageable, "status"::equals);
-    }
-
-    private boolean isSubmittedSort(final Pageable pageable) {
-
-        return isSortOf(pageable, "submitted"::equals);
-    }
-
-    private boolean isFinishedSort(final Pageable pageable) {
-
-        return isSortOf(pageable, "finished"::equals);
     }
 
     private boolean isSortOf(final Pageable pageable, Function<String, Boolean> predicate) {

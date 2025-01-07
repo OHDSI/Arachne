@@ -42,8 +42,10 @@ import java.util.stream.Stream;
 @Setter
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+public class User {
 
+
+    //TODO replace with UUID
     @Id
     @SequenceGenerator(name = "user_id_seq_generator", sequenceName = "user_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_generator")
@@ -58,11 +60,11 @@ public class User implements Serializable {
     private String username;
 
     @Size(max = 50)
-    @Column(name = "first_name", length = 50)
+    @Column(name = "first_name")
     private String firstName;
 
     @Size(max = 50)
-    @Column(name = "last_name", length = 50)
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "is_sync")
@@ -71,22 +73,14 @@ public class User implements Serializable {
     @Column
     private Boolean enabled;
 
-    @Column(name = "password")
-    private String password;
+    @Column
+    private Boolean emailVerified;
 
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new LinkedList<>();
-
-    public boolean getSync() {
-        return sync;
-    }
-
-    public Boolean getEnabled() {
-        return enabled;
-    }
 
     public String getTitle() {
         return Stream.of(getFirstName(), getLastName()).filter(Objects::nonNull).collect(Collectors.joining(" "));

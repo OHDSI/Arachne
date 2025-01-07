@@ -16,7 +16,6 @@
 package com.odysseusinc.arachne.datanode.datasource;
 
 import com.odysseusinc.arachne.datanode.Api;
-import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisExecutionStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping(Api.PREFIX)
 public class CheckDataSourceCallbackController {
-    @Autowired
-    protected UserService userService;
     @Autowired
     private CheckDataSourceService checkService;
 

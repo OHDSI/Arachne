@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2018, 2025 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,22 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.odysseusinc.arachne.datanode.auth;
 
-package com.odysseusinc.arachne.datanode.dto.user;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import lombok.Getter;
-import lombok.Setter;
+@RequiredArgsConstructor
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+public class ResourceNotFoundException extends RuntimeException {
 
-import java.util.List;
-
-@Getter
-@Setter
-public class UserDTO {
-    private String id;
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String username;
-    private List<String> roles;
-    private Boolean enabled;
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
 }

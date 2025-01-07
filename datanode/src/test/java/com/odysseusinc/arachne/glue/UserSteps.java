@@ -22,7 +22,7 @@ import com.odysseusinc.arachne.datanode.jpa.JpaConditional;
 import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.model.user.User_;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class UserSteps {
     private World world;
 
     @Autowired
-    private UserService userService;
+    private LegacyUserService userService;
 
     @Autowired
     private DataSourceService sourceService;

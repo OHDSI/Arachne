@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2018, 2025 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.odysseusinc.arachne.datanode.auth;
 
-package com.odysseusinc.arachne.datanode.service;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import org.springframework.security.core.Authentication;
+@RequiredArgsConstructor
+@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+public class AuthorizationException extends RuntimeException {
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.function.Function;
-
-public interface AuthenticationService {
-
-    Authentication authenticate(String authMethod, String authToken, HttpServletRequest httpRequest, HttpServletResponse response, Function<String, String> cookie);
-
+    public AuthorizationException(String message) {
+        super(message);
+    }
 }

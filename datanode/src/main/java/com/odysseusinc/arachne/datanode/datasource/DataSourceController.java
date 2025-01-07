@@ -24,7 +24,7 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 @RequestMapping("/api/v1/data-sources")
 public class DataSourceController {
     @Autowired
-    protected UserService userService;
+    protected LegacyUserService userService;
     @Autowired
     private DataSourceService dataSourceService;
     @Autowired

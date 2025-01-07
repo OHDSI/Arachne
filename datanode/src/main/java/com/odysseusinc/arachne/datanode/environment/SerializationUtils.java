@@ -19,13 +19,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.core.serializer.support.SerializationFailedException;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.function.Function;
-import org.springframework.core.serializer.support.SerializationFailedException;
 
 public class SerializationUtils {
-    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private final static ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public static String serialize(final Object object) {
         try {

@@ -15,9 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.config;
 
-import org.ohdsi.authenticator.config.AuthSchema;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +23,16 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.time.Clock;
+
 @Configuration
-@EnableConfigurationProperties(AuthSchema.class)
 public class WebConfig implements WebMvcConfigurer {
+
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemUTC();
+    }
 
     @Bean
     public BeanPostProcessor commonAnnotationBeanPostProcessor() {
@@ -56,5 +61,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/translations/en/");
 
     }
-
 }

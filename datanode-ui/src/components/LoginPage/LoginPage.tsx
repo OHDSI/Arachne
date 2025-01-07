@@ -158,6 +158,19 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
                       )}
                     </Button>
                   </Grid>
+                  <Grid item xs={12}>
+                    {/*<Divider />*/}
+                    <Button
+                        onClick={() => {
+                          location.href = '/oauth2/authorization/azure';
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                    >
+                      Sign in with Microsoft
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
             </Paper>

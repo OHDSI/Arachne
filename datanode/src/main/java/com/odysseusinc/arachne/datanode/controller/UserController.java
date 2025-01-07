@@ -17,7 +17,7 @@ package com.odysseusinc.arachne.datanode.controller;
 
 import com.odysseusinc.arachne.datanode.Constants;
 import com.odysseusinc.arachne.datanode.security.RolesConstants;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class UserController {
     private final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private UserService userService;
+    private LegacyUserService userService;
 
     @ApiOperation(value = "Delete given user by login.")
     @RequestMapping(value = "/{login:" + Constants.LOGIN_REGEX + "}",
