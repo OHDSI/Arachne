@@ -148,6 +148,10 @@ public class Analysis {
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> parameters;
 
+    public AnalysisState getState() {
+        return Optional.ofNullable(state).orElse(AnalysisState.UNKNOWN);
+    }
+
     public String getStage() {
         return Optional.ofNullable(currentState).map(AnalysisStateEntry::getStage).orElse(null);
     }

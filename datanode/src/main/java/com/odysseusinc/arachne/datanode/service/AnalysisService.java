@@ -220,6 +220,7 @@ public class AnalysisService {
 			Join<Analysis, AnalysisStateEntry> state = root.join(Analysis_.currentState, JoinType.LEFT);
 			javax.persistence.criteria.Path<String> stage = state.get(AnalysisStateEntry_.stage);
 			return q.where(
+					cb.isNull(root.get(Analysis_.error)),
 					cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))
 			);
 		}).getResultStream().map(Analysis::getId).collect(Collectors.toList());
