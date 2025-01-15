@@ -18,13 +18,14 @@ package com.odysseusinc.arachne.datanode.model.datasource;
 import com.google.common.base.MoreObjects;
 import com.odysseusinc.arachne.commons.types.DBMSType;
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.ValidCredentials;
+import com.odysseusinc.arachne.datanode.model.types.DataSourcePasswordEncryptedConverter;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -77,8 +78,8 @@ public class DataSource {
     private String username;
 
 
-    @Column(name = "dbms_password", nullable = true)
-    @Type(type = "encryptedString")
+    @Column(name = "dbms_password")
+    @Convert(converter = DataSourcePasswordEncryptedConverter.class)
     private String password;
 
     @Column
@@ -111,8 +112,8 @@ public class DataSource {
     @Column(name = "krb_keytab")
     private byte[] keyfile;
 
-    @Column(name = "krb_password", nullable = true)
-    @Type(type = "encryptedString")
+    @Column(name = "krb_password")
+    @Convert(converter = DataSourcePasswordEncryptedConverter.class)
     private String krbPassword;
 
     @Column(name = "krb_auth_method")
