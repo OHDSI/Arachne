@@ -331,11 +331,6 @@
             <artifactId>ojdbc6</artifactId>
             <version>12.1.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt-hibernate5</artifactId>
-            <version>1.9.3</version>
-        </dependency>
 
         <dependency>
             <groupId>org.ohdsi</groupId>

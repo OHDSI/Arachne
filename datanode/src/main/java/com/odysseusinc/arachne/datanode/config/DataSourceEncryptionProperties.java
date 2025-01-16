@@ -13,19 +13,16 @@
  * limitations under the License.
  */
 
-@TypeDefs({
-        @TypeDef(
-                name = "encryptedString",
-                typeClass = CheckedEncryptedStringType.class,
-                parameters = {
-                        @Parameter(name="encryptorRegisteredName", value="defaultStringEncryptor")
-                }
-        )
-})
-package com.odysseusinc.arachne.datanode.model.datasource;
+package com.odysseusinc.arachne.datanode.config;
 
-import com.odysseusinc.arachne.datanode.model.types.CheckedEncryptedStringType;
-import org.hibernate.annotations.Parameter;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@Setter
+@Getter
+@ConfigurationProperties(prefix = "jasypt.encryptor")
+public class DataSourceEncryptionProperties {
+    private String password;
+    private String algorithm;
+}
