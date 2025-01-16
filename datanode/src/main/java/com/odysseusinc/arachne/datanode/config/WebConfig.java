@@ -15,16 +15,19 @@
 
 package com.odysseusinc.arachne.datanode.config;
 
+import org.ohdsi.authenticator.config.AuthSchema;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+@EnableConfigurationProperties(AuthSchema.class)
+public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public BeanPostProcessor commonAnnotationBeanPostProcessor() {
@@ -46,6 +49,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        // Spring Boot 2 falls back from /translations/en-US/** (404) to /translations/en/** (200).
+        // Spring Boot 3 returns (500) on /translations/en-US/**, so I added this handler to point it to /translations/en/.
+        registry.addResourceHandler("/translations/en-US/**")
+                .addResourceLocations("classpath:/translations/en/");
 
     }
 

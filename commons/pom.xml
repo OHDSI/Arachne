@@ -20,11 +20,10 @@
         <commons.io.version>2.8.0</commons.io.version>
         <commons.lang.version>3.11</commons.lang.version>
         <guava.version>30.1-jre</guava.version>
-        <java.version>1.8</java.version>
-        <spring.boot.version>2.7.18</spring.boot.version>
+        <java.version>17</java.version>
+        <spring.boot.version>3.2.7</spring.boot.version>
         <spring.cloud.version>3.1.4</spring.cloud.version>
         <spring.jasypt.version>3.0.3</spring.jasypt.version>
-        <spring.version>5.3.31</spring.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -49,11 +48,6 @@
                 <type>pom</type>
                 <scope>import</scope>
                 <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webmvc</artifactId>
-                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>

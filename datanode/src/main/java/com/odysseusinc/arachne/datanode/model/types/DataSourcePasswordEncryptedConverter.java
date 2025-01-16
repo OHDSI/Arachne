@@ -17,12 +17,12 @@ package com.odysseusinc.arachne.datanode.model.types;
 
 import com.odysseusinc.arachne.datanode.config.DataSourceEncryptionProperties;
 import com.odysseusinc.arachne.datanode.util.Fn;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 @Converter
 public class DataSourcePasswordEncryptedConverter implements AttributeConverter<String, String> {

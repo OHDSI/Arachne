@@ -17,9 +17,9 @@ package com.odysseusinc.arachne.datanode.jpa;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 /**
  * A generic functional container that allows Criteria Query building blocks to be injected from outside

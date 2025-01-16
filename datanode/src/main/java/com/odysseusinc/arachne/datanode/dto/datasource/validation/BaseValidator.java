@@ -23,7 +23,7 @@ import com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy.Defau
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy.ImpalaCredentialsValidationStrategy;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 
 public abstract class BaseValidator {
 

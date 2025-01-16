@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Configuration;
 
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ValidatorFactory;
 import java.util.Map;
 
 @Configuration
@@ -29,6 +29,6 @@ public class HibernateValidatorConfig implements HibernatePropertiesCustomizer {
 
     @Override
     public void customize(Map<String, Object> hibernateProperties) {
-        hibernateProperties.put("javax.persistence.validation.factory", validatorFactory);
+        hibernateProperties.put("jakarta.persistence.validation.factory", validatorFactory);
     }
 }

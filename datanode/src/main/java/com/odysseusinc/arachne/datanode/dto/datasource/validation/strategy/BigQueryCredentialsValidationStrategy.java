@@ -16,7 +16,7 @@
 package com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy;
 
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.context.CredentialsValidationContext;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class BigQueryCredentialsValidationStrategy extends BaseCredentialsValidationStrategy {
     @Override

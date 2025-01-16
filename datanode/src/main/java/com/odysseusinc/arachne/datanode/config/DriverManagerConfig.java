@@ -17,7 +17,7 @@ package com.odysseusinc.arachne.datanode.config;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration

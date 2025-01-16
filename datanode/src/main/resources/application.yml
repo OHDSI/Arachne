@@ -29,7 +29,7 @@ spring:
     validate-on-migrate: false
   jpa:
     properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQL95Dialect
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.temp.use_jdbc_metadata_defaults: false
   datasource:
     connection-test-query: select 1

@@ -16,7 +16,7 @@
 package com.odysseusinc.arachne.datanode.model.analysis;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AnalysisAuthor {

@@ -17,10 +17,10 @@ package com.odysseusinc.arachne.datanode.jpa;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;

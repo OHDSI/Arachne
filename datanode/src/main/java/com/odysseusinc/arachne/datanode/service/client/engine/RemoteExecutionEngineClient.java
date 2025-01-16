@@ -37,7 +37,7 @@ import org.apache.commons.io.function.IOConsumer;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
@@ -172,7 +172,7 @@ public class RemoteExecutionEngineClient implements ExecutionEngineClient {
 
         @Override
         public okhttp3.MediaType contentType() {
-            return okhttp3.MediaType.parse(javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM);
+            return okhttp3.MediaType.parse(jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM);
         }
 
         @Override

@@ -18,7 +18,7 @@ package com.odysseusinc.arachne.datanode.dto.datasource.validation.strategy;
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.context.CredentialsValidationContext;
 
 import java.util.Objects;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 
 public abstract class BaseCredentialsValidationStrategy implements CredentialsValidationStrategy {
 

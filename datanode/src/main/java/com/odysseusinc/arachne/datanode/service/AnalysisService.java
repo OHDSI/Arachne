@@ -54,10 +54,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -218,7 +218,7 @@ public class AnalysisService {
 	public List<Long> getIncompleteIds() {
 		return JpaSugar.select(em, Analysis.class, (cb, q) -> root -> {
 			Join<Analysis, AnalysisStateEntry> state = root.join(Analysis_.currentState, JoinType.LEFT);
-			javax.persistence.criteria.Path<String> stage = state.get(AnalysisStateEntry_.stage);
+			jakarta.persistence.criteria.Path<String> stage = state.get(AnalysisStateEntry_.stage);
 			return q.where(
 					cb.isNull(state.get(AnalysisStateEntry_.error)),
 					cb.or(stage.isNull(), stage.in(Stage.EXECUTE, Stage.INITIALIZE, Stage.ABORT))

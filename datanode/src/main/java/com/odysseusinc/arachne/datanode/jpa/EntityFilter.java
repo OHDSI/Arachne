@@ -14,7 +14,7 @@
  */
 package com.odysseusinc.arachne.datanode.jpa;
 
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate;
 
 /**
  * Predicate-building function way to filter specific type of entities by an arbitrary criteria.
