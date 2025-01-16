@@ -27,8 +27,8 @@ import com.odysseusinc.arachne.datanode.util.Fn;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 public class UserSteps {
 

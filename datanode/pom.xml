@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>3.2.7</version>
         <relativePath/>
     </parent>
 
@@ -22,22 +22,19 @@
         <revision>2.x-SNAPSHOT</revision>
         <start-class>com.odysseusinc.arachne.datanode.WebApplicationStarter</start-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <jjwt.version>0.10.8</jjwt.version>
+        <java.version>17</java.version>
+        <jjwt.version>0.11.5</jjwt.version>
         <postgresql.version>42.7.4</postgresql.version>
         <javaDockerVersion>3.3.3</javaDockerVersion>
         <handlebars.version>4.2.0</handlebars.version>
         <springfox.swagger2.version>2.9.2</springfox.swagger2.version>
         <springRetryVersion>1.2.4.RELEASE</springRetryVersion>
         <build.number>qa</build.number>
-        <jackson.version>2.10.5.20201202</jackson.version>
         <!-- Overrides SpringBoot defaults to conform Hydra -->
         <json.version>20170516</json.version>
         <okhttp.version>4.11.0</okhttp.version>
-        <assertj.version>3.18.1</assertj.version>
         <bcprov-jdk15on.version>1.67</bcprov-jdk15on.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
     <dependencyManagement>
@@ -61,6 +58,12 @@
             <type>jar</type>
         </dependency>
 
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -71,8 +74,10 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>${hibernate.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>arachne-commons</artifactId>
@@ -93,6 +98,12 @@
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>execution-engine-commons</artifactId>
             <version>2.6.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>javax.validation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <artifactId>arachne-sys-settings</artifactId>
@@ -133,10 +144,6 @@
                     <artifactId>android-json</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.assertj</groupId>
-                    <artifactId>assertj-core</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.hamcrest</groupId>
                     <artifactId>hamcrest-core</artifactId>
                 </exclusion>
@@ -162,12 +169,6 @@
             <version>2.7</version>
         </dependency>
         <dependency>
-            <groupId>org.modelmapper.extensions</groupId>
-            <artifactId>modelmapper-spring</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bcprov-jdk15on.version}</version>
@@ -183,16 +184,10 @@
             <artifactId>docker-java-transport-httpclient5</artifactId>
             <version>${javaDockerVersion}</version>
         </dependency>
-
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.swagger2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.swagger2.version}</version>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.5.20</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
@@ -229,7 +224,6 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
-            <version>${springRetryVersion}</version>
         </dependency>
 
         <dependency>
@@ -285,30 +279,6 @@
             <version>1.4.0</version>
         </dependency>
         <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
-            <version>2.5.3</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.springtestdbunit</groupId>
-            <artifactId>spring-test-dbunit</artifactId>
-            <version>1.3.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testinfected.hamcrest-matchers</groupId>
-            <artifactId>validation-matchers</artifactId>
-            <version>1.8</version>
-        </dependency>
-        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <version>${jtds.version}</version>
@@ -337,20 +307,7 @@
             <artifactId>authenticator</artifactId>
             <version>0.0.3-QA</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <!--
-            Downgraded (from 5.3.31) to prevent "java.lang.IllegalArgumentException: 'expressionString' must not be null or blank"
-            	at org.springframework.expression.common.TemplateAwareExpressionParser.parseExpression(TemplateAwareExpressionParser.java:55) ~[spring-expression-5.3.31.jar:5.3.31]
-                at org.springframework.expression.common.TemplateAwareExpressionParser.parseExpression(TemplateAwareExpressionParser.java:45) ~[spring-expression-5.3.31.jar:5.3.31]
-                at org.ohdsi.authenticator.converter.AttributesToUserConverter$SpringExpresionConverter.getValue(AttributesToUserConverter.java:109) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
-                at org.ohdsi.authenticator.converter.AttributesToUserConverter$SpringExpresionConverter.getStringValue(AttributesToUserConverter.java:103) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
-                at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:51) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
-                at org.ohdsi.authenticator.converter.AttributesToUserConverter.convert(AttributesToUserConverter.java:34) ~[authenticator-0.0.3-QA.jar:0.0.3-QA]
-            -->
-            <version>5.3.26</version>
-        </dependency>
+
 
         <dependency>
             <groupId>com.google.auth</groupId>
@@ -371,21 +328,23 @@
         </dependency>
 
         <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.16.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.16.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.19.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>

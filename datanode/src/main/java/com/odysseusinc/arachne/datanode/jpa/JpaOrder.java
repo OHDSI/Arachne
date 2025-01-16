@@ -15,9 +15,9 @@
 
 package com.odysseusinc.arachne.datanode.jpa;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
 import java.util.function.BiFunction;
 
 @FunctionalInterface

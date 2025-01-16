@@ -17,8 +17,8 @@ package com.odysseusinc.arachne.datanode.dto.datasource.validation;
 
 import com.odysseusinc.arachne.datanode.dto.datasource.validation.context.CredentialsValidationContextBuilder;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;
 
 @Component

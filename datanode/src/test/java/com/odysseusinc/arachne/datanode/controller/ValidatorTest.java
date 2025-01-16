@@ -1,27 +1,8 @@
-/*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.odysseusinc.arachne.datanode.controller;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.testinfected.hamcrest.validation.ViolationMatchers.fails;
-import static org.testinfected.hamcrest.validation.ViolationMatchers.on;
-import static org.testinfected.hamcrest.validation.ViolationMatchers.succeeds;
-import static org.testinfected.hamcrest.validation.ViolationMatchers.violates;
-import static org.testinfected.hamcrest.validation.ViolationMatchers.violation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.odysseusinc.arachne.TestContainersInitializer;
 import com.odysseusinc.arachne.commons.types.DBMSType;
@@ -29,8 +10,8 @@ import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.KerberosAuthMechanism;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,111 +37,110 @@ public class ValidatorTest {
     @Test
     public void shouldValidateCreateDatasourceDTO() {
 
-        //Should pass with keyfile
+        // Should pass with keyfile
         WriteDataSourceDTO bqDataSourceDTO = prepareDataSourceDTO(DBMSType.BIGQUERY);
         Set<ConstraintViolation<WriteDataSourceDTO>> violations = validator.validate(bqDataSourceDTO);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without username
+        // Should fail without username
         WriteDataSourceDTO pgDataSourceDTO = prepareDataSourceDTO(DBMSType.POSTGRESQL);
         violations = validator.validate(pgDataSourceDTO);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("dbUsername"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("dbUsername")));
 
-        //Should pass
+        // Should pass
         pgDataSourceDTO.setDbUsername("postgresql");
         violations = validator.validate(pgDataSourceDTO);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without username not using kerberos
+        // Should fail without username not using kerberos
         WriteDataSourceDTO impalaDataSourceDTO = prepareDataSourceDTO(DBMSType.IMPALA);
         violations = validator.validate(impalaDataSourceDTO);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("dbUsername"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("dbUsername")));
 
-        //Should not fail with username not using kerberos
+        // Should not fail with username not using kerberos
         impalaDataSourceDTO.setDbUsername("user");
         violations = validator.validate(impalaDataSourceDTO);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should pass with keyfile
+        // Should pass with keyfile
         violations = validator.validate(impalaDataSourceDTO);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without kerberos user during kerberos password auth
+        // Should fail without kerberos user during kerberos password auth
         impalaDataSourceDTO.setUseKerberos(true);
         impalaDataSourceDTO.setKrbUser(null);
         impalaDataSourceDTO.setKrbAuthMechanism(KerberosAuthMechanism.PASSWORD);
         violations = validator.validate(impalaDataSourceDTO);
-        assertThat(violations, fails());
-        assertThat(violations, violates(violation(on("krbUser"))));
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("krbUser")));
     }
 
     @Test
     public void shouldValidateDataSource() {
 
-        //Should fail without keyfile
+        // Should fail without keyfile
         DataSource bqDataSource = prepareDataSource(DBMSType.BIGQUERY);
         Set<ConstraintViolation<DataSource>> violations = validator.validate(bqDataSource);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("keyfile"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("keyfile")));
 
-        //Should pass with keyfile
+        // Should pass with keyfile
         bqDataSource.setKeyfile(new byte[16]);
         violations = validator.validate(bqDataSource);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without username
+        // Should fail without username
         DataSource pgDataSource = prepareDataSource(DBMSType.POSTGRESQL);
         violations = validator.validate(pgDataSource);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("username"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("username")));
 
-        //Should pass
+        // Should pass
         pgDataSource.setUsername("postgresql");
         violations = validator.validate(pgDataSource);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without username not using kerberos
+        // Should fail without username not using kerberos
         DataSource impalaDataSource = prepareDataSource(DBMSType.IMPALA);
         violations = validator.validate(impalaDataSource);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("username"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("username")));
 
-        //Should not fail with username not using kerberos
+        // Should not fail with username not using kerberos
         impalaDataSource.setUsername("user");
         violations = validator.validate(impalaDataSource);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without keyfile using kerberos keytab auth
+        // Should fail without keyfile using kerberos keytab auth
         impalaDataSource.setUsername(null);
         impalaDataSource.setUseKerberos(true);
         impalaDataSource.setKrbAuthMechanism(KerberosAuthMechanism.KEYTAB);
         violations = validator.validate(impalaDataSource);
-        assertThat(violations, fails());
-        assertThat(violations, hasSize(1));
-        assertThat(violations, violates(violation(on("keyfile"))));
+        assertFalse(violations.isEmpty());
+        assertEquals(1, violations.size());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("keyfile")));
 
-        //Should pass with keyfile
+        // Should pass with keyfile
         impalaDataSource.setKeyfile(new byte[16]);
         violations = validator.validate(impalaDataSource);
-        assertThat(violations, succeeds());
+        assertTrue(violations.isEmpty());
 
-        //Should fail without kerberos user during kerberos password auth
+        // Should fail without kerberos user during kerberos password auth
         impalaDataSource.setKeyfile(null);
         impalaDataSource.setKrbAuthMechanism(KerberosAuthMechanism.PASSWORD);
         violations = validator.validate(impalaDataSource);
-        assertThat(violations, fails());
-        assertThat(violations, violates(violation(on("krbUser"))));
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("krbUser")));
     }
 
     private WriteDataSourceDTO prepareDataSourceDTO(DBMSType type) {
-
         WriteDataSourceDTO dataSourceDTO = new WriteDataSourceDTO();
         dataSourceDTO.setDbmsType(type.getValue());
         dataSourceDTO.setName("testDataSource");
@@ -170,7 +150,6 @@ public class ValidatorTest {
     }
 
     private DataSource prepareDataSource(DBMSType type) {
-
         DataSource dataSource = new DataSource();
         dataSource.setType(type);
         dataSource.setName("testDataSource");
@@ -179,5 +158,4 @@ public class ValidatorTest {
         dataSource.setUseKerberos(false);
         return dataSource;
     }
-
 }

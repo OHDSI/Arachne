@@ -19,8 +19,8 @@ import com.odysseusinc.arachne.datanode.filtering.FilterOption.Grouping;
 import com.odysseusinc.arachne.datanode.jpa.JpaFunction;
 import com.odysseusinc.arachne.datanode.jpa.JpaPath;
 
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.function.Function;
 

@@ -22,7 +22,7 @@ import org.apache.commons.io.input.ProxyInputStream;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableFunction;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
