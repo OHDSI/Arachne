@@ -15,14 +15,12 @@
 
 package com.odysseusinc.arachne.datanode.controller.admin;
 
+import com.odysseusinc.arachne.datanode.service.user.UserListService;
 import com.odysseusinc.arachne.datanode.dto.submission.SubmissionDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusDTO;
 import com.odysseusinc.arachne.datanode.engine.EngineStatusService;
-import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
-import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.analysis.AnalysisListService;
-import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,78 +30,47 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @RestController
 public class AdminController {
 
-    public static final int SUGGEST_LIMIT = 10;
-    public static final int DEFAULT_PAGE_SIZE = 10;
     private final Map<String, Consumer<List<String>>> propertiesMap = new HashMap<>();
-    @Autowired
-    protected LegacyUserService userService;
+
     @Autowired
     private EngineStatusService engine;
     @Autowired
     private AnalysisListService analysisListService;
+    @Autowired
+    private UserListService userListService;
 
     public AdminController() {
         initProps();
     }
 
+    // TODO: This method is not implemented properly. The following things should be done in the future:
+    // * The list returns a list of Users, not just admins, so it should be moved to the proper place.
+    // * Return a Page instead of a List.
     @ApiOperation(value = "Get all admins", hidden = true)
     @GetMapping("/api/v1/admin/admins")
-    public List<UserDTO> getAdmins(
-            @RequestParam(name = "sortBy", required = false) String sortBy,
-            @RequestParam(name = "sortAsc", required = false) Boolean sortAsc
-    ) throws PermissionDeniedException {
-
-        List<User> users = userService.getAllAdmins(sortBy, sortAsc);
-        List<UserDTO> dtos = users.stream()
-                .map(LegacyUserService::toDto)
-                .collect(Collectors.toList());
-        return dtos;
+    public List<UserDTO> userList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        PageRequest pageForList = PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort());
+        return userListService.list(Collections.emptyMap(), pageForList).getContent();
     }
 
-    @ApiOperation("Suggests user according to query to add admin")
-    @GetMapping("/api/v1/admin/admins/suggest")
-    public Optional<List<UserDTO>> suggestAdmins(
-            Principal principal,
-            @RequestParam("query") String query,
-            @RequestParam(value = "limit", required = false) Integer limit
-    ) {
-        User user = userService.getUser(principal);
-        List<User> users = userService.suggestNotAdmin(user, query, limit == null ? SUGGEST_LIMIT : limit);
-        return Optional.of(users.stream().map(LegacyUserService::toDto).collect(Collectors.toList()));
-    }
-
-    @ApiOperation("Remove admin")
-    @DeleteMapping("/api/v1/admin/admins/{username:.+}")
-    public void removeAdmin(@PathVariable String username) {
-        userService.findByUsername(username).ifPresent(user ->
-                userService.remove(user.getId())
-        );
-    }
 
     @ApiOperation(value = "list submissions")
     @GetMapping("/api/v1/admin/submissions")
-    public Page<SubmissionDTO> list(@PageableDefault(value = DEFAULT_PAGE_SIZE, sort = "id",
-            direction = Sort.Direction.DESC) Pageable pageable) {
+    public Page<SubmissionDTO> submissionList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Pageable p = isCustomSort(pageable) ? buildPageRequest(pageable) : pageable;
         Page<SubmissionDTO> list = analysisListService.list(Collections.emptyMap(), p);

@@ -3,7 +3,9 @@ package com.odysseusinc.arachne.datanode.analysis;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.odysseusinc.arachne.TestContainersInitializer;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,11 +42,17 @@ import java.util.stream.Stream;
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration(initializers = TestContainersInitializer.class)
 public class UploadServiceTest {
+
+
     @Autowired
-    private LegacyUserService userService;
+    private UserService userService;
 
     @Autowired
     private UploadService uploadService;
+
+    @PersistenceContext
+    private EntityManager em;
+
 
     @Test
     @Transactional
@@ -70,11 +78,10 @@ public class UploadServiceTest {
     }
 
     private User createUser() {
-        User user = new User();
-        user.setUsername("first");
-        user.setEmail("first@example.com");
-        userService.create(user);
-        return user;
+        return userService.createEntity(user -> {
+            user.setUsername("first");
+            user.setEmail("first@example.com");
+        });
     }
 
     private List<String> getResourceFiles(String path) throws IOException {

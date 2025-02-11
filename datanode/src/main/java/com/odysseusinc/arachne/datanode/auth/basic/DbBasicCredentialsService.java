@@ -19,7 +19,7 @@ import com.odysseusinc.arachne.datanode.auth.CredentialsEntity;
 import com.odysseusinc.arachne.datanode.auth.CredentialsEntity_;
 import com.odysseusinc.arachne.datanode.auth.CredentialsService;
 import com.odysseusinc.arachne.datanode.auth.JwtTokens;
-import com.odysseusinc.arachne.datanode.auth.UserService;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.jpa.JpaConditional;
 import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
@@ -126,6 +126,7 @@ public class DbBasicCredentialsService {
             entity.setFirstName(info.getFirstname());
             entity.setLastName(info.getLastname());
             entity.setUsername(info.getUsername());
+            entity.setRoles(userService.getRoles(info.getRoles()));
         });
         em.persist(user);
         return user;

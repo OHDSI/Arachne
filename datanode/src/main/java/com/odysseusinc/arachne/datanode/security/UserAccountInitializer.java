@@ -16,6 +16,7 @@ package com.odysseusinc.arachne.datanode.security;
 
 import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
+import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * At startup, ensures user accounts from configuration are created in the database.
@@ -56,6 +59,8 @@ public class UserAccountInitializer {
                     dto.setEmail(account.getEmail());
                     dto.setFirstname(account.getFirstName());
                     dto.setLastname(account.getLastName());
+                    dto.setRoles(Optional.ofNullable(account.getRoles()).orElse(List.of()));
+
                 });
                 log.info("Creating [{}]: {} {} {}", name, user.getFirstname(), user.getLastname(), user.getEmail());
                 credentialsService.ensureRegistered(name, account.getPassword(), user);
@@ -71,6 +76,7 @@ public class UserAccountInitializer {
         private String firstName;
         private String lastName;
         private String password;
+        private List<String> roles;
     }
 
 }

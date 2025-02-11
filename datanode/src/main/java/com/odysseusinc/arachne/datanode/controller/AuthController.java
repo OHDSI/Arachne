@@ -18,11 +18,11 @@ package com.odysseusinc.arachne.datanode.controller;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationModeDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.datanode.auth.CredentialsService;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
-import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -47,7 +46,7 @@ public class AuthController {
     protected Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
-    private LegacyUserService userService;
+    private UserService userService;
 
     @Autowired
     private CredentialsService credentialsService;
@@ -77,7 +76,7 @@ public class AuthController {
         Long userId = Long.valueOf(principal.getName());
 
         String name = principal.getName();
-        return Optional.ofNullable(userService.get(userId))
+        return userService.getById(userId)
                 .map(user -> {
                     UserInfoDTO userInfoDTO = new UserInfoDTO();
                     userInfoDTO.setUsername(user.getUsername());

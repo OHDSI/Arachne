@@ -22,13 +22,11 @@ import com.odysseusinc.arachne.datanode.jpa.JpaConditional;
 import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.model.user.User_;
-import com.odysseusinc.arachne.datanode.service.impl.LegacyUserService;
-import com.odysseusinc.arachne.datanode.util.Fn;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
 import io.cucumber.java.en.When;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserSteps {
 
@@ -36,7 +34,7 @@ public class UserSteps {
     private World world;
 
     @Autowired
-    private LegacyUserService userService;
+    private UserService userService;
 
     @Autowired
     private DataSourceService sourceService;
@@ -48,11 +46,11 @@ public class UserSteps {
     @When("user {word} {word} exists")
     public User createUser(String firstName, String lastName) {
 
-        User user = userService.create(Fn.create(User::new, u -> {
+        User user = userService.createEntity( u -> {
             u.setUsername(firstName);
             u.setLastName(lastName);
             u.setEmail(getEmail(firstName, lastName));
-        }));
+        });
         world.capture(firstName + " " + lastName, user.getId());
         return user;
     }

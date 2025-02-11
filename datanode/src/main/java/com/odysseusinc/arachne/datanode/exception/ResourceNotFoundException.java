@@ -12,17 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.odysseusinc.arachne.datanode.auth;
+package com.odysseusinc.arachne.datanode.exception;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@RequiredArgsConstructor
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class ResourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String message) {
-        super(message);
+    public ResourceNotFoundException() {
     }
 }

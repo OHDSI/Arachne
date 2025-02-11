@@ -121,7 +121,6 @@ public class OidcCredentialsService {
     private User createUser(OidcUser oidcUser, String login) {
         User user = Fn.create(User::new, u -> {
             u.setEmail(oidcUser.getEmail());
-            u.setEmailVerified(oidcUser.getEmailVerified());
             u.setFirstName(oidcUser.getGivenName());
             u.setLastName(oidcUser.getFamilyName());
             u.setUsername(login);

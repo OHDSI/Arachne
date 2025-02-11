@@ -15,10 +15,6 @@
 
 package com.odysseusinc.arachne.datanode.model.user;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.validator.constraints.Email;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,6 +27,10 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Email;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 @Setter
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
 
 
     //TODO replace with UUID
@@ -50,6 +50,7 @@ public class User {
     @SequenceGenerator(name = "user_id_seq_generator", sequenceName = "user_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_generator")
     private Long id;
+
 
     @Email
     @Size(max = 100)
@@ -72,9 +73,6 @@ public class User {
 
     @Column
     private Boolean enabled;
-
-    @Column
-    private Boolean emailVerified;
 
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
