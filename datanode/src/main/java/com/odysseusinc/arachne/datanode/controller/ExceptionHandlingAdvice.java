@@ -20,11 +20,10 @@ import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.ResourceConflictException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
-import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.nohandlerfoundexception.NoHandlerFoundExceptionUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.ohdsi.authenticator.exception.AuthenticationException;
-import org.ohdsi.authenticator.exception.BadCredentialsAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,8 +35,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,8 +44,6 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class ExceptionHandlingAdvice {
 
-    @Autowired
-    protected UserService userService;
     @Value("${datanode.app.errorsTokenEnabled}")
     private boolean errorsTokenEnabled;
 
@@ -84,16 +79,6 @@ public class ExceptionHandlingAdvice {
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<String> exceptionHandler(org.springframework.security.core.AuthenticationException ex) {
-        return unauthorized(ex);
-    }
-
-    @ExceptionHandler(BadCredentialsAuthenticationException.class)
-    public ResponseEntity<String> exceptionHandler(BadCredentialsAuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message(ex));
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<String> exceptionHandler(AuthenticationException ex) {
         return unauthorized(ex);
     }
 

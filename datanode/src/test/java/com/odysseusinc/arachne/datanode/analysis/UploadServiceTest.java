@@ -1,10 +1,11 @@
 package com.odysseusinc.arachne.datanode.analysis;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odysseusinc.arachne.TestContainersInitializer;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,12 +23,10 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +42,17 @@ import java.util.stream.Stream;
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration(initializers = TestContainersInitializer.class)
 public class UploadServiceTest {
+
+
     @Autowired
     private UserService userService;
 
     @Autowired
     private UploadService uploadService;
+
+    @PersistenceContext
+    private EntityManager em;
+
 
     @Test
     @Transactional
@@ -73,11 +78,10 @@ public class UploadServiceTest {
     }
 
     private User createUser() {
-        User user = new User();
-        user.setUsername("first");
-        user.setEmail("first@example.com");
-        userService.create(user);
-        return user;
+        return userService.createEntity(user -> {
+            user.setUsername("first");
+            user.setEmail("first@example.com");
+        });
     }
 
     private List<String> getResourceFiles(String path) throws IOException {

@@ -17,6 +17,7 @@ package com.odysseusinc.arachne.datanode.datasource;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
 import com.odysseusinc.arachne.commons.types.DBMSType;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.dto.datasource.DataSourceDTO;
 import com.odysseusinc.arachne.datanode.dto.datasource.WriteDataSourceDTO;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
@@ -24,9 +25,9 @@ import com.odysseusinc.arachne.datanode.exception.NotExistException;
 import com.odysseusinc.arachne.datanode.exception.PermissionDeniedException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.UserService;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
 import io.swagger.annotations.ApiOperation;
+import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -43,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -159,11 +159,10 @@ public class DataSourceController {
     }
 
     protected User getAdmin(Principal principal) throws PermissionDeniedException {
-        User user = userService.getUser(principal);
-        if (user.getRoles().stream().noneMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN"))) {
-            throw new PermissionDeniedException("Access denied");
-        }
-        return user;
+        return userService.get(principal).filter(user ->
+                user.getRoles().stream().anyMatch(role ->
+                        role.getName().equalsIgnoreCase("ROLE_ADMIN")
+                )).orElseThrow(() -> new PermissionDeniedException("Access denied"));
     }
 
 }

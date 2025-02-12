@@ -15,12 +15,15 @@
 
 package com.odysseusinc.arachne.datanode.jpa;
 
+import com.odysseusinc.arachne.datanode.auth.IdentifiableEntity;
+import com.odysseusinc.arachne.datanode.auth.IdentifiableEntity_;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.metamodel.SingularAttribute;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -53,6 +56,10 @@ public interface JpaConditional<E> extends BiFunction<CriteriaBuilder, Path<E>, 
 
     static <V, U, I, E> JpaConditional<E> has(SingularAttribute<? super E, V> attribute1, SingularAttribute<? super V, U> attribute2, SingularAttribute<? super U, I> attribute3, I value) {
         return JpaPath.<E, V, U, I>of(attribute1, attribute2, attribute3).equal(value);
+    }
+
+    static <T extends IdentifiableEntity> JpaConditional<T> hasId(UUID id) {
+        return JpaConditional.has(IdentifiableEntity_.id, id);
     }
 
     static <E> JpaConditional<E> in(Collection<E> values) {

@@ -15,12 +15,16 @@
 
 package com.odysseusinc.arachne.datanode.util;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Groups together functional utility methods with a very wide scope of usage
@@ -38,5 +42,22 @@ public final class Fn {
         return clazz.isInstance(object) ? Optional.of((V) object) : Optional.empty();
     }
 
+    public static <T, V extends T> Case<T, V> as(Class<V> clazz) {
+        return object -> clazz.isInstance(object) ? Optional.of((V) object) : Optional.empty();
+    }
+
+    public static <T, V extends T, U> Function<T, Optional<U>> as(Class<V> clazz, Function<V, U> mapper) {
+        return object -> clazz.isInstance(object) ? Optional.of((V) object).map(mapper) : Optional.empty();
+    }
+
+    public interface Case<T, V> extends Function<T, Optional<V>> {
+        default <U> Case<T, U> map(Function<V, U> mapper) {
+            return value -> apply(value).map(mapper);
+        }
+    }
+
+    public static <T> Stream<T> stream(Collection<T> values) {
+        return Stream.ofNullable(values).flatMap(Collection::stream);
+    }
 
 }

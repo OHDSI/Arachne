@@ -3,10 +3,12 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
-logging:
-  level:
-    root: INFO
-    org.springframework.web.servlet.PageNotFound: ERROR
+
+jwt:
+  expiry: P1D
+  key:
+    private: classpath:testkeys/app.key
+    public: classpath:testkeys/app.pub
 api:
   loginEnteryPoint: /api/v1/auth/login
   logoutEntryPoint: /api/v1/auth/logout
@@ -15,7 +17,6 @@ api:
 arachne:
   token:
     header: Arachne-Auth-Token
-spring:
   flyway:
     out-of-order: true
     table: "schema_version"
@@ -142,3 +143,8 @@ security:
   jwt.token:
     secretKey: ${datanode.jwt.secret}
     validityInSeconds: ${datanode.jwt.expiration}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web.servlet.PageNotFound: ERROR

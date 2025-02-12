@@ -14,8 +14,10 @@
  */
 package com.odysseusinc.arachne.datanode.security;
 
-import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.UserService;
+import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
+import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
+import com.odysseusinc.arachne.datanode.model.user.Role;
+import com.odysseusinc.arachne.datanode.util.Fn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,7 +42,7 @@ import java.util.Optional;
 @ConfigurationProperties(prefix = "datanode")
 public class UserAccountInitializer {
     @Autowired
-    private UserService userService;
+    private DbBasicCredentialsService credentialsService;
 
     @Getter
     @Setter
@@ -51,17 +54,16 @@ public class UserAccountInitializer {
         if (users != null) {
             log.info("Verifying {} service accounts", users.size());
             users.forEach((name, account) -> {
-                Optional<User> found = userService.findByUsername(name);
-                if (!found.isPresent()) {
-                    User user = new User();
-                    user.setUsername(name);
-                    user.setEmail(account.getEmail());
-                    user.setFirstName(account.getFirstName());
-                    user.setLastName(account.getLastName());
-                    user.setPassword(account.getPassword());
-                    log.info("Creating [{}]: {} {} {}", name, user.getFirstName(), user.getLastName(), user.getEmail());
-                    userService.create(user);
-                }
+                UserDTO user = Fn.create(UserDTO::new, dto -> {
+                    dto.setUsername(name);
+                    dto.setEmail(account.getEmail());
+                    dto.setFirstname(account.getFirstName());
+                    dto.setLastname(account.getLastName());
+                    dto.setRoles(Optional.ofNullable(account.getRoles()).orElse(List.of()));
+
+                });
+                log.info("Creating [{}]: {} {} {}", name, user.getFirstname(), user.getLastname(), user.getEmail());
+                credentialsService.ensureRegistered(name, account.getPassword(), user);
             });
         }
     }
@@ -74,6 +76,7 @@ public class UserAccountInitializer {
         private String firstName;
         private String lastName;
         private String password;
+        private List<String> roles;
     }
 
 }
