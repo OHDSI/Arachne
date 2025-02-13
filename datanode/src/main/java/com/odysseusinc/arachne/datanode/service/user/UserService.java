@@ -25,8 +25,11 @@ import com.odysseusinc.arachne.datanode.model.user.User_;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.ohdsi.authenticator.exception.AuthenticationException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +46,14 @@ public class UserService {
     @PersistenceContext
     private EntityManager em;
 
+
     @Transactional
-    public Optional<User> getById(Long id) {
+    public User getUser(Principal principal) {
+        return getUserMaybe(principal).orElseThrow(() -> new AuthenticationException("User is not authenticated"));
+    }
+
+    @Transactional
+    public Optional<User> getUserMaybe(Long id) {
         return JpaSugar.select(em, User.class).where(
                 JpaConditional.has(User_.id, id),
                 enabled()
@@ -52,16 +61,11 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> get(String login) {
-        return JpaSugar.select(em, User.class).where(
-                JpaConditional.has(User_.username, login),
-                enabled()
-        ).getResultStream().findFirst();
-    }
-
-    @Transactional
-    public Optional<User> get(Principal principal) throws PermissionDeniedException {
-        return get(principal.getName());
+    public Optional<User> getUserMaybe(Principal principal) throws PermissionDeniedException {
+        if (principal instanceof JwtAuthenticationToken token) {
+            return getUserMaybe(Long.valueOf(token.getToken().getSubject()));
+        }
+        return Optional.empty();
     }
 
     @Transactional

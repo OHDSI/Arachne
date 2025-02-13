@@ -19,7 +19,6 @@ import com.odysseusinc.arachne.commons.api.v1.dto.CommonAnalysisType;
 import com.odysseusinc.arachne.commons.api.v1.dto.OptionDTO;
 import com.odysseusinc.arachne.datanode.analysis.UploadDTO;
 import com.odysseusinc.arachne.datanode.analysis.UploadService;
-import com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException;
 import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.dto.analysis.AnalysisRequestDTO;
 import com.odysseusinc.arachne.datanode.exception.IllegalOperationException;
@@ -83,19 +82,19 @@ public class AnalysisController {
 
     @PostMapping(path = "/upload/zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadDTO uploadZip(Principal principal, @RequestPart("file") List<MultipartFile> archive) {
-        User user = user(principal);
+        User user = userService.getUser(principal);
         return uploadService.uploadZip(user, archive);
     }
 
     @PostMapping(path = "/upload/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadDTO uploadFiles(Principal principal, @RequestPart("file") List<MultipartFile> files) {
-        User user = user(principal);
+        User user = userService.getUser(principal);
         return uploadService.uploadFiles(user, files);
     }
 
     @PostMapping(path = "/execute/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
-        User user = user(principal);;
+        User user = userService.getUser(principal);;
         return orchestrator.run(user, request, id);
     }
 
@@ -105,7 +104,7 @@ public class AnalysisController {
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
     ) throws PermissionDeniedException {
-        User user = user(principal);
+        User user = userService.getUser(principal);
         UploadDTO upload = uploadService.uploadZip(user, archive);
         return orchestrator.run(user, dto, upload.getName());
     }
@@ -116,7 +115,7 @@ public class AnalysisController {
             @RequestPart("analysis") @Valid AnalysisRequestDTO dto,
             Principal principal
     ) {
-        User user = user(principal);
+        User user = userService.getUser(principal);
         return orchestrator.run(dto, user, files);
     }
 
@@ -132,7 +131,7 @@ public class AnalysisController {
 
     @PostMapping("{id}/rerun")
     public Long rerun(@PathVariable("id") Long id, @Valid @RequestBody AnalysisRequestDTO analysisRequestDTO, Principal principal) {
-        User user = user(principal);
+        User user = userService.getUser(principal);
         return orchestrator.rerun(id, analysisRequestDTO, user);
     }
 
@@ -176,7 +175,7 @@ public class AnalysisController {
 
     @PostMapping("{id}/cancel")
     public void cancel(@PathVariable("id") Long analysisId, Principal principal) {
-        orchestrator.cancel(analysisId, user(principal));
+        orchestrator.cancel(analysisId, userService.getUser(principal));
     }
 
     @GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -185,10 +184,6 @@ public class AnalysisController {
         return types()
                 .map(type -> new OptionDTO(type.name(), type.getTitle()))
                 .collect(Collectors.toList());
-    }
-
-    private User user(Principal principal) {
-        return userService.get(principal).orElseThrow(ResourceNotFoundException::new);
     }
 
     private Stream<CommonAnalysisType> types() {
