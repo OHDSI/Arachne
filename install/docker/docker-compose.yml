@@ -24,7 +24,7 @@ services:
 
   # Execution Engine
   arachne-execution-engine:
-    image: odysseusinc/execution_engine:2.5.0
+    image: odysseusinc/execution_engine:2.7.1
     pull_policy: always
     platform: linux/amd64
     container_name: arachne-execution-engine
