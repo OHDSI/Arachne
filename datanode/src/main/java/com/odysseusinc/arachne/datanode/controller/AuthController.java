@@ -15,18 +15,17 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
-import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationModeDTO;
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.datanode.auth.CredentialsService;
 import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
-import com.odysseusinc.arachne.datanode.exception.AuthException;
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.ohdsi.authenticator.exception.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,10 +72,7 @@ public class AuthController {
     @ApiOperation("Get current principal")
     @RequestMapping(value = "/api/v1/auth/me", method = GET)
     public UserInfoDTO principal(Principal principal) {
-        Long userId = Long.valueOf(principal.getName());
-
-        String name = principal.getName();
-        return userService.getById(userId)
+        return userService.getUserMaybe(principal)
                 .map(user -> {
                     UserInfoDTO userInfoDTO = new UserInfoDTO();
                     userInfoDTO.setUsername(user.getUsername());
@@ -86,7 +82,7 @@ public class AuthController {
                     userInfoDTO.setFirstname(user.getFirstName());
                     userInfoDTO.setLastname(user.getLastName());
                     return userInfoDTO;
-                }).orElseThrow(() -> new AuthException("User not found: [" + name + "]"));
+                }).orElseThrow(() -> new AuthenticationException("User is not authenticated"));
     }
 
     private static ResponseEntity<UserDTO> success(HttpServletResponse response, Map.Entry<UserDTO, Cookie> result) {

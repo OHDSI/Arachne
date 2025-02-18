@@ -159,7 +159,7 @@ public class DataSourceController {
     }
 
     protected User getAdmin(Principal principal) throws PermissionDeniedException {
-        return userService.get(principal).filter(user ->
+        return userService.getUserMaybe(principal).filter(user ->
                 user.getRoles().stream().anyMatch(role ->
                         role.getName().equalsIgnoreCase("ROLE_ADMIN")
                 )).orElseThrow(() -> new PermissionDeniedException("Access denied"));
