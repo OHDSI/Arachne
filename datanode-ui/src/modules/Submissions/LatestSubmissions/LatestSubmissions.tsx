@@ -70,12 +70,7 @@ export const LatestSubmissions: React.FC<any> = props => {
             rawData
               .slice(0, 5)
               .map(item => {
-                let stageInfo = null;
-                const origin = getItemFromConstantArray(
-                  originSubmissions,
-                  item.origin
-                );
-                stageInfo = getSubmissionStateInfo(item.stage, item.error);
+                const stateInfo = getSubmissionStateInfo(item.state, item.error);
                 return (
                   <LatestSubmissionsListItem
                     key={item.id + "favorite"}
@@ -93,8 +88,8 @@ export const LatestSubmissions: React.FC<any> = props => {
                     </div>
 
                     <div className="list-item-section">
-                      {stageInfo && (
-                        <StatusTag text={stageInfo.name} color={stageInfo.color} />
+                      {stateInfo && (
+                        <StatusTag text={stateInfo.name} color={stateInfo.color} />
                       )}
                     </div>
                   </LatestSubmissionsListItem>
