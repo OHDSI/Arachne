@@ -18,7 +18,6 @@ package com.odysseusinc.arachne.datanode.config;
 import com.odysseusinc.arachne.datanode.Api;
 import com.odysseusinc.arachne.datanode.auth.oidc.OidcSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,9 +40,6 @@ public class WebSecurityConfig {
 
     @Autowired
     private OidcSuccessHandler authenticationSuccessHandler;
-
-    @Value("${datanode.jwt.header}")
-    private String tokenHeader;
 
     @Autowired(required = false)
     private OAuth2ClientProperties oAuth2ClientProperties;
@@ -98,6 +94,7 @@ public class WebSecurityConfig {
 
             ).permitAll();
             auth.requestMatchers("/api/v1/admin/**").hasAuthority("SCOPE_ADMIN");
+            auth.requestMatchers("/api/v1/auth/providers").permitAll();
             auth.requestMatchers(Api.PREFIX + "/*/*" + Api.SUFFIX_STATUS, Api.PREFIX + "/*/*" + Api.SUFFIX_RESULT).permitAll();
             auth.requestMatchers("/api**").authenticated();
             auth.requestMatchers("/api/**").authenticated();

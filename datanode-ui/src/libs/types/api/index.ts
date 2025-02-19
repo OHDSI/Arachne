@@ -26,3 +26,4 @@ export * from "./UserDTOSearchInterface";
 export * from "./PageableDTOInterface";
 export * from "./SubmissionDTOInterface";
 export * from "./AuthorDTOInterface";
+export * from "./AuthProviders";

@@ -17,7 +17,7 @@ package com.odysseusinc.arachne.datanode;
 
 import com.odysseusinc.arachne.datanode.config.SchedulerConfig;
 import com.odysseusinc.arachne.datanode.config.WebSecurityConfig;
-import com.odysseusinc.arachne.datanode.controller.AuthController;
+import com.odysseusinc.arachne.datanode.controller.auth.AuthController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
