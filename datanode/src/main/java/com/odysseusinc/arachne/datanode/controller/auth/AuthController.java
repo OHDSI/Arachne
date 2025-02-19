@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.datanode.controller;
+package com.odysseusinc.arachne.datanode.controller.auth;
 
 import com.odysseusinc.arachne.commons.api.v1.dto.CommonAuthenticationRequest;
 import com.odysseusinc.arachne.datanode.auth.CredentialsService;

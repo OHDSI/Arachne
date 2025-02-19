@@ -17,6 +17,8 @@
 
 import { api } from "./";
 import { UserDTOInterface } from "../libs/types";
+import { AuthProviders } from "../libs/types";
+
 
 export const login = (username: string, password: string): Promise<{ token: string }> =>
   api.post("/auth/login", { username, password });
@@ -26,3 +28,6 @@ export const getUser = (): Promise<UserDTOInterface> =>
 
 export const logout = (): Promise<boolean> =>
   api.post("/auth/logout");
+
+export const getAuthOptions = (): Promise<AuthProviders> =>
+    api.get('/auth/providers');

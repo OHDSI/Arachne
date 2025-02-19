@@ -33,14 +33,17 @@ import {
   LogoContainer,
   WelcomeText,
   WrapperAlert,
+  Divider,
 } from "./LoginPage.styles";
 import { userSignIn } from "../../store/modules";
 import { Status } from "../../libs";
 import { LogoMediumArachne } from "../Logo";
+import { useLoginOptions } from './LoginPage.hook';
 
 export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+  const { loginOptions, status } = useLoginOptions();
   const [userName, setUserName] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
 
@@ -158,19 +161,26 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
                       )}
                     </Button>
                   </Grid>
-                  <Grid item xs={12}>
-                    {/*<Divider />*/}
-                    <Button
-                        onClick={() => {
-                          location.href = '/oauth2/authorization/azure';
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        size="small"
-                    >
-                      Sign in with Microsoft
-                    </Button>
-                  </Grid>
+
+                  {Object.keys(loginOptions).map((key, index) => (
+                      <Grid item xs={12} key={key + index}>
+                        {index === 0 && <Divider />}
+                        <Button
+                            onClick={() => {
+                              location.href = `/oauth2/authorization/${key}`;
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            startIcon={
+                              loginOptions[key].image ? (
+                                  <img src={loginOptions[key].image} height={16} />
+                              ) : undefined
+                            }
+                        >
+                          {loginOptions[key].text}
+                        </Button>
+                      </Grid>
+                  ))}
                 </Grid>
               </Grid>
             </Paper>
