@@ -75,7 +75,6 @@ public class JwtTokens {
         String expires = RFC_1123_DATE_TIME.format(OffsetDateTime.ofInstant(expiresAt, ZoneOffset.UTC));
         return Fn.create(() -> new Cookie(TokenType.BEARER.getValue(), tokenValue), cookie -> {
             cookie.setPath("/");
-            cookie.setSecure(true);
             cookie.setHttpOnly(true);
             cookie.setAttribute("SameSite", "Strict");
             cookie.setAttribute("Expires", expires);
