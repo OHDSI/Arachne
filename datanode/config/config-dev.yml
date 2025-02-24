@@ -25,13 +25,13 @@ datanode:
       email: admin@odysseusinc.com
       firstName: Datanode
       lastName: Admin
-      password: $2a$12$FLBjwwU2GOrCAASJg.E7N.uNiYd6rC4lLBN5hYmEiq49IPsMFnRxa
+      password: password
       roles: ADMIN
     user:
       email: user@odysseusinc.com
       firstName: Datanode
       lastName: User
-      password: $2a$12$FLBjwwU2GOrCAASJg.E7N.uNiYd6rC4lLBN5hYmEiq49IPsMFnRxa
+      password: password
   jwt:
     expiration: 604800
 executionEngine:

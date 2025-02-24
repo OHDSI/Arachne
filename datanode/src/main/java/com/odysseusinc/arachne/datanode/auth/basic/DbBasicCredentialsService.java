@@ -40,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -99,7 +98,7 @@ public class DbBasicCredentialsService {
     }
 
     private CredentialsEntity updateIfPassDiffers(String login, String password, CredentialsEntity credentials) {
-        if (!Objects.equals(password, credentials.getData())) {
+        if (!passwordEncoder.matches(password, credentials.getData())) {
             log.info("On service account [{}], force updated password due to mismatch", login);
             credentials.setTerminated(Instant.now(clock));
             return create(password, credentials.getUser());
