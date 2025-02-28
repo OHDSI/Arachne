@@ -365,4 +365,8 @@ export const tabsAdmin = (t: any): TabsInterface[] => [
     value: "system-settings",
     title: t("pages.administration.tabs.system_settings"),
   },
+  {
+    value: "application-log",
+    title: t("pages.administration.tabs.application_log"),
+  }
 ];
