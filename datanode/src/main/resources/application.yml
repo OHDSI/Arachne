@@ -145,6 +145,8 @@ security:
     validityInSeconds: ${datanode.jwt.expiration}
 
 logging:
+  file:
+    name: logs/arachne.log
   level:
     root: INFO
     org.springframework.web.servlet.PageNotFound: ERROR

@@ -9,7 +9,8 @@
     "users": "Users",
     "databases": "Databases",
     "envs": "Environments",
-    "system_settings": "System Settings"
+    "system_settings": "System Settings",
+    "application_log": "Application log"
   },
   "pages": {
     "login": {
@@ -28,7 +29,8 @@
         "databases": "Databases",
         "users": "Users",
         "envs": "Environments",
-        "system_settings": "System Settings"
+        "system_settings": "System Settings",
+        "application_log": "Application log"
       },
       "users": {
         "header": "Users",
