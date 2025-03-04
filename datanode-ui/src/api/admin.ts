@@ -34,4 +34,8 @@ export const systemSettings = (): Promise<any> => api.get("/admin/system-setting
 
 export const updateSystemSettings = (value): Promise<any> => api.post("/admin/system-settings", value);
 
-export const getApplicationLog = (): Promise<string> => api.get(`/application/logs/`);
+export const getApplicationLog = (range: string): Promise<string> => {
+    return api.get(`/application/logs/`, {
+        headers: { 'Range': range }
+    });
+};
