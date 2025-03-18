@@ -112,7 +112,7 @@ public class DbBasicCredentialsService {
             entity.setUser(user);
             entity.setTimestamp(clock.instant());
             entity.setType(CredentialsEntity.Type.BASIC);
-            entity.setData(password);
+            entity.setData(passwordEncoder.encode(password));
         });
         em.persist(credentials);
         return credentials;
