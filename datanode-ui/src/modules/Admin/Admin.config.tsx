@@ -31,6 +31,10 @@ export const tabsAdmin: TabsInterface[] = [
     title: "Enviroments",
   },
   {
+    value: 'application-log',
+    title: 'Application log',
+  },
+  {
     value: "system-settings",
     title: "System settings",
   },

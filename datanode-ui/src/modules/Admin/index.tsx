@@ -29,6 +29,7 @@ import { Databases } from "./Databases";
 import { Users } from "./Users";
 import { SystemSettings } from "./SystemSettings";
 import { EnviromentsList } from "./Enviroments";
+import { ApplicationLog } from "./ApplicationLog";
 import { tabsAdmin } from "../../config";
 
 export const IndexAdmin: React.FC = () => {
@@ -66,6 +67,7 @@ export const IndexAdmin: React.FC = () => {
         <Route path="users/*" element={<Users />} />
         <Route path="environments/*" element={<EnviromentsList />} />
         <Route path="system-settings/*" element={<SystemSettings />} />
+        <Route path="application-log/*" element={<ApplicationLog />} />
       </Routes>
     </Grid>
   );
