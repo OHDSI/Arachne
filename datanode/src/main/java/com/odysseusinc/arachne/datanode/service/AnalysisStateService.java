@@ -85,7 +85,7 @@ public class AnalysisStateService {
                     }
             );
             analysisStateJournalRepository.save(history);
-            if (!currentState.isPresent()) {
+            if (currentState.isEmpty()) {
                 analysis.setCreated(current);
             }
             analysis.setCurrentState(history);

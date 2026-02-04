@@ -16,9 +16,7 @@ CREATE TABLE study_packages
     updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     CONSTRAINT uq_study_package_name_version UNIQUE (name, version)
 );
-
-CREATE SEQUENCE study_packages_id_seq MINVALUE 1;
-ALTER SEQUENCE study_packages_id_seq OWNED BY study_packages.id;
+-- BIGSERIAL already creates study_packages_id_seq
 
 COMMENT ON TABLE study_packages IS 'Installed study packages from the catalog (Study Repository)';
 COMMENT ON COLUMN study_packages.script IS 'User-editable run script (e.g. codeToRun.R) saved with the study';
@@ -35,9 +33,7 @@ CREATE TABLE study_runs
     logs             TEXT,
     CONSTRAINT chk_study_run_status CHECK (status IN ('RUNNING', 'COMPLETED', 'FAILED', 'ABORTED'))
 );
-
-CREATE SEQUENCE study_runs_id_seq MINVALUE 1;
-ALTER SEQUENCE study_runs_id_seq OWNED BY study_runs.id;
+-- BIGSERIAL already creates study_runs_id_seq
 
 CREATE INDEX idx_study_runs_study_package_id ON study_runs (study_package_id);
 CREATE INDEX idx_study_runs_status ON study_runs (status);

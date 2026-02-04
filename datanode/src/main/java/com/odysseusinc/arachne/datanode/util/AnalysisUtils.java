@@ -39,6 +39,9 @@ public class AnalysisUtils {
         File multipartFilesDir = createUniqueDir(parentDir);
         for (MultipartFile multipartFile : files) {
             String name = multipartFile.getOriginalFilename();
+            if (name == null) {
+                name = "file";
+            }
             Path path = Paths.get(multipartFilesDir.getAbsolutePath(), name);
             File file = path.toFile();
             InputStream inputStream = multipartFile.getInputStream();

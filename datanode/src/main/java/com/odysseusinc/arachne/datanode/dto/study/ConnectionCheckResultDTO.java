@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
+ * Copyright 2018, 2025 Odysseus Data Services, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package com.odysseusinc.arachne.datanode.util;
+package com.odysseusinc.arachne.datanode.dto.study;
 
-import org.slf4j.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public class LogUtils {
-
-    private LogUtils(){}
-
-    public static void logError(Logger log, String message, Throwable error) {
-
-        if (log.isDebugEnabled()) {
-            log.debug(message, error);
-        } else {
-            log.error(message, error.getMessage());
-        }
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ConnectionCheckResultDTO {
+    private boolean success;
+    private String message;
+    /** Repository names from the registry catalog (e.g. ACR /acr/v1/_catalog), when connection test succeeds. */
+    private java.util.List<String> repositories;
 }

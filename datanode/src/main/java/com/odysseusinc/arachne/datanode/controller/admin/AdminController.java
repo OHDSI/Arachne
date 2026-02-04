@@ -84,6 +84,9 @@ public class AdminController {
         for (Sort.Order order : pageable.getSort()) {
             direction = order.getDirection();
             String property = order.getProperty();
+            if (property == null) {
+                continue;
+            }
             if (propertiesMap.containsKey(property)) {
                 propertiesMap.get(property).accept(properties);
             } else {
@@ -92,7 +95,7 @@ public class AdminController {
         }
 
         return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), direction,
-                properties.toArray(new String[properties.size()]));
+                properties.toArray(String[]::new));
     }
 
     private boolean isCustomSort(final Pageable pageable) {
@@ -101,12 +104,12 @@ public class AdminController {
     }
 
     private boolean isSortOf(final Pageable pageable, Function<String, Boolean> predicate) {
-
         if (pageable.getSort() == null) {
             return false;
         }
         for (Sort.Order order : pageable.getSort()) {
-            if (predicate.apply(order.getProperty())) {
+            String property = order.getProperty();
+            if (property != null && predicate.apply(property)) {
                 return true;
             }
         }

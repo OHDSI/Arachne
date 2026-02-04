@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,7 +65,11 @@ public abstract class JpaListService<E, D> implements FilteredService<D> {
     @Transactional
     @Override
     public Page<D> list(Map<String, List<String>> options, Pageable pageable) {
-        List<JpaOrder<E>> orders = pageable.getSort().stream().map(this::toOrder).collect(Collectors.toList());
+        Sort sort = Optional.ofNullable(pageable.getSort()).orElseGet(Sort::unsorted);
+        List<JpaOrder<E>> orders = sort.stream()
+                .filter(order -> order.getProperty() != null)
+                .map(this::toOrder)
+                .collect(Collectors.toList());
         Page<E> page = filterService.page(options, pageable, orders);
         return PPage.of(getActions(), page.map(toDto(page.getContent())));
     }

@@ -20,7 +20,6 @@ import com.google.common.cache.CacheBuilder;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
-import com.odysseusinc.arachne.datanode.util.SqlUtils;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
@@ -86,10 +85,7 @@ public class CheckDataSourceService {
 
         AnalysisRequestDTO request = request(id, dataSource, now, datanodeBaseURL, datanodePort);
 
-        String dbmsType = dataSource.getType().getOhdsiDB();
-        String resultSchema = dataSource.getResultSchema();
-        String sql = SqlUtils.translateSql(dbmsType, SqlUtils.generateSessionId(), resultSchema, "select 1;");
-        byte[] zip = ZipUtils.zipFile(SQL_FILENAME, sql.getBytes(StandardCharsets.UTF_8));
+        byte[] zip = ZipUtils.zipFile(SQL_FILENAME, "SELECT 1".getBytes(StandardCharsets.UTF_8));
 
         try {
             AnalysisRequestStatusDTO status = engineClient.sendAnalysisRequest(request, null, false, "datasource-check-" + id, sink -> sink.write(zip)).join();
@@ -134,7 +130,7 @@ public class CheckDataSourceService {
 
     private Optional<String> getCdmVersion(MultipartFile[] files) {
         return Arrays.stream(files).filter(file ->
-                file.getOriginalFilename().equalsIgnoreCase(CDM_VERSION_FILENAME)
+                CDM_VERSION_FILENAME.equalsIgnoreCase(file.getOriginalFilename())
         ).map(this::getVersionFromFile).filter(Objects::nonNull).findAny();
     }
 

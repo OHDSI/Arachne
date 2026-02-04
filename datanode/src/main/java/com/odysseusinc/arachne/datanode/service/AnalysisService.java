@@ -229,15 +229,20 @@ public class AnalysisService {
 	@Transactional
 	public AnalysisDTO get(Long id) {
 		Analysis analysis = find(id);
-        Path sourcedir = Paths.get(analysis.getSourceFolder());
 		AnalysisDTO dto = new AnalysisDTO();
 		dto.setType(analysis.getType());
-		dto.setDatasourceId(analysis.getDataSource().getId());
+		dto.setDatasourceId(Optional.ofNullable(analysis.getDataSource()).map(DataSource::getId).orElse(null));
 		dto.setTitle(analysis.getTitle());
 		dto.setStudy(analysis.getStudyTitle());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
 		dto.setParameters(analysis.getParameters());
-        dto.setFiles(UploadService.scan(sourcedir, UploadService.toRelativePath(sourcedir)));
+		String sourceFolder = analysis.getSourceFolder();
+		if (sourceFolder != null) {
+			Path sourcedir = Paths.get(sourceFolder);
+			dto.setFiles(UploadService.scan(sourcedir, UploadService.toRelativePath(sourcedir)));
+		} else {
+			dto.setFiles(List.of());
+		}
 		String environmentId = Optional.ofNullable(analysis.getActualEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElseGet(() ->
 				Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null)
 		);

@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Authentication used when login is disabled. Holds the default user id so that
@@ -44,7 +45,37 @@ public class LoginDisabledAuthentication extends AbstractAuthenticationToken {
         return this;
     }
 
+    /**
+     * Override to avoid StackOverflowError: the default AbstractAuthenticationToken.getName()
+     * calls getPrincipal().getName(), and when principal is this, that would recurse infinitely.
+     */
+    @Override
+    public String getName() {
+        return "login-disabled-" + userId;
+    }
+
     public Long getUserId() {
         return userId;
+    }
+
+    /**
+     * Override to avoid StackOverflowError: the default AbstractAuthenticationToken.equals()
+     * compares getPrincipal() with other.getPrincipal(); when principal is this, that recurses.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof LoginDisabledAuthentication other)) {
+            return false;
+        }
+        return Objects.equals(this.userId, other.userId)
+                && this.getAuthorities().equals(other.getAuthorities());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, getAuthorities());
     }
 }

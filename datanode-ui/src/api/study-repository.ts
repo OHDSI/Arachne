@@ -61,6 +61,39 @@ export function saveStudyRepositorySettings(
   });
 }
 
+export type ConnectionCheckResult = {
+  success: boolean;
+  message: string;
+  /** Repository names from the registry catalog when connection test succeeds. */
+  repositories?: string[];
+};
+
+export function checkStudyRepositoryConnection(
+  catalogAddress: string,
+  catalogToken: string
+): Promise<ConnectionCheckResult> {
+  return api.post("/study-repository/settings/check-connection", {
+    catalogAddress: catalogAddress || null,
+    catalogToken: catalogToken || null,
+  });
+}
+
 export function startStudyRun(packageId: number): Promise<{ id: number }> {
   return api.post(`/study-repository/packages/${packageId}/runs`);
+}
+
+export type RepositoryTagsDTO = {
+  repo: string;
+  tags: string[];
+};
+
+/**
+ * Get tags for a single study (Docker repo) from the configured registry.
+ * Used to populate study versions. Example repo: "myteam/myimage".
+ */
+export function getStudyRepositoryTags(
+  repo: string,
+  n: number = 100
+): Promise<RepositoryTagsDTO> {
+  return api.get("/study-repository/tags", { params: { repo, n } });
 }

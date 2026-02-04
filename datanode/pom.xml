@@ -37,6 +37,8 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <!-- Skip tests that require Docker (Testcontainers) unless -P integration is used -->
         <skipIntegrationTests>true</skipIntegrationTests>
+        <!-- Skip Docker image build when set (e.g. make run on Apple Silicon). Default: build image during install. -->
+        <skipDockerBuild>false</skipDockerBuild>
     </properties>
 
     <dependencyManagement>
@@ -74,7 +76,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>${hibernate.version}</version>
             <scope>provided</scope>
@@ -99,11 +101,6 @@
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>execution-engine-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>arachne-sys-settings</artifactId>
-            <groupId>com.odysseusinc.arachne</groupId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -340,6 +337,24 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
+                        </path>
+                        <path>
+                            <groupId>org.hibernate.orm</groupId>
+                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <version>${hibernate.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
@@ -436,7 +451,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <arguments>--spring.config.additional-location=file:config/config-dev.yml</arguments>
+                    <arguments>--spring.config.additional-location=file:config/config-dev.yml,optional:file:config/config-local.yml</arguments>
                     <mainClass>com.odysseusinc.arachne.datanode.WebApplicationStarter</mainClass>
                     <requiresUnpack>
                         <dependency>
@@ -489,6 +504,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>${skipDockerBuild}</skip>
                     <repository>hub.odysseusinc.com/${project.artifactId}</repository>
                     <tag>${revision}</tag>
                 </configuration>

@@ -1,0 +1,13 @@
+# Local overrides and secrets (git-ignored).
+# Copy to config-local.yml and set your values. config-local.yml is loaded after config-dev.yml if present.
+#
+# Minimal local profile: backend on 8880 so Next.js dev proxy works.
+# server:
+#   port: 8880
+#
+# Study Repository: default Docker registry URL and token (used when not set in UI).
+# Set these here or via environment variables ARACHNE_DOCKER_REGISTRY_URL and ARACHNE_DOCKER_REGISTRY_TOKEN.
+# datanode:
+#   studyRepository:
+#     defaultRegistryUrl: https://registry.example.com
+#     defaultRegistryToken: your-registry-token

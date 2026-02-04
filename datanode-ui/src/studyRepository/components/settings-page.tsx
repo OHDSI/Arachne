@@ -1,6 +1,7 @@
 
 import { useState } from "react"
-import { Save, CheckCircle2, Loader2, XCircle, Plug, Check, X, Wifi } from "lucide-react"
+import { Save, CheckCircle2, Loader2, XCircle, Plug, Check, X } from "lucide-react"
+import { checkStudyRepositoryConnection } from "../../api/study-repository"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -10,9 +11,11 @@ interface SettingsPageProps {
   catalogAddress: string
   catalogToken: string
   onSave: (address: string, token: string) => void
+  /** Called when connection check succeeds and registry returns a list of repository names. */
+  onConnectionSuccessWithRepos?: (repos: string[]) => void
 }
 
-export function SettingsPage({ catalogAddress, catalogToken, onSave }: SettingsPageProps) {
+export function SettingsPage({ catalogAddress, catalogToken, onSave, onConnectionSuccessWithRepos }: SettingsPageProps) {
   const [address, setAddress] = useState(catalogAddress)
   const [token, setToken] = useState(catalogToken)
   const [saved, setSaved] = useState(false)
@@ -25,7 +28,7 @@ export function SettingsPage({ catalogAddress, catalogToken, onSave }: SettingsP
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const handleTestAccess = async () => {
+  const handleCheckConnection = async () => {
     if (!address) {
       setTestStatus("error")
       setTestMessage("Please enter a catalog address first")
@@ -35,18 +38,24 @@ export function SettingsPage({ catalogAddress, catalogToken, onSave }: SettingsP
     setTestStatus("testing")
     setTestMessage("")
 
-    // Simulate testing the connection
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    // Mock result - in real app this would make an actual API call
-    const success = address.includes("registry") || address.includes("docker")
-    
-    if (success) {
-      setTestStatus("success")
-      setTestMessage("Successfully connected to catalog")
-    } else {
+    try {
+      const result = await checkStudyRepositoryConnection(address, token)
+      if (result.success) {
+        setTestStatus("success")
+        setTestMessage(result.message || "Successfully connected to catalog")
+        if (result.repositories && result.repositories.length > 0 && onConnectionSuccessWithRepos) {
+          onConnectionSuccessWithRepos(result.repositories)
+        }
+      } else {
+        setTestStatus("error")
+        setTestMessage(result.message || "Failed to connect. Check address and token.")
+      }
+    } catch (err: unknown) {
       setTestStatus("error")
-      setTestMessage("Failed to connect. Check address and token.")
+      const message = err && typeof err === "object" && "message" in err
+        ? String((err as { message: unknown }).message)
+        : "Failed to connect. Check address and token."
+      setTestMessage(message)
     }
 
     // Reset after 5 seconds
@@ -104,20 +113,20 @@ export function SettingsPage({ catalogAddress, catalogToken, onSave }: SettingsP
             </Button>
             <Button
               variant="outline"
-              onClick={handleTestAccess}
+              onClick={handleCheckConnection}
               disabled={testStatus === "testing"}
               className="border-border bg-transparent"
             >
               {testStatus === "testing" ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : testStatus === "success" ? (
-                <Check className="w-4 h-4 mr-2 text-success" />
+                <Check className="w-4 h-4 mr-2 text-green-600" />
               ) : testStatus === "error" ? (
-                <X className="w-4 h-4 mr-2 text-destructive" />
+                <X className="w-4 h-4 mr-2 text-red-600" />
               ) : (
                 <Plug className="w-4 h-4 mr-2" />
               )}
-              Test Access
+              Check connection
             </Button>
             {saved && (
               <span className="flex items-center gap-1 text-sm text-success">
@@ -131,14 +140,14 @@ export function SettingsPage({ catalogAddress, catalogToken, onSave }: SettingsP
             <div
               className={`flex items-center gap-2 p-3 rounded-md text-sm ${
                 testStatus === "success"
-                  ? "bg-success/10 text-success"
-                  : "bg-destructive/10 text-destructive"
+                  ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                  : "bg-red-500/10 text-red-700 dark:text-red-400"
               }`}
             >
               {testStatus === "success" ? (
-                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-green-600 dark:text-green-400" />
               ) : (
-                <XCircle className="w-4 h-4 flex-shrink-0" />
+                <XCircle className="w-4 h-4 flex-shrink-0 text-red-600 dark:text-red-400" />
               )}
               {testMessage}
             </div>

@@ -21,6 +21,7 @@ import com.odysseusinc.arachne.datanode.repository.StudyPackageRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyRunRepository;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.repository.SystemSettingRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,11 @@ public class StudyRepositoryPersistenceService {
     private final StudyPackageRepository studyPackageRepository;
     private final StudyRunRepository studyRunRepository;
     private final SystemSettingRepository systemSettingRepository;
+
+    @Value("${datanode.studyRepository.defaultRegistryUrl:}")
+    private String defaultRegistryUrl;
+    @Value("${datanode.studyRepository.defaultRegistryToken:}")
+    private String defaultRegistryToken;
 
     public StudyRepositoryPersistenceService(
             StudyPackageRepository studyPackageRepository,
@@ -178,14 +184,16 @@ public class StudyRepositoryPersistenceService {
     public String getCatalogAddress() {
         return systemSettingRepository.findByName(SETTING_CATALOG_ADDRESS)
                 .map(SystemSetting::getValue)
-                .orElse(null);
+                .filter(v -> v != null && !v.isBlank())
+                .orElseGet(() -> defaultRegistryUrl != null && !defaultRegistryUrl.isBlank() ? defaultRegistryUrl : null);
     }
 
     @Transactional(readOnly = true)
     public String getCatalogToken() {
         return systemSettingRepository.findByName(SETTING_CATALOG_TOKEN)
                 .map(SystemSetting::getValue)
-                .orElse(null);
+                .filter(v -> v != null && !v.isBlank())
+                .orElseGet(() -> defaultRegistryToken != null && !defaultRegistryToken.isBlank() ? defaultRegistryToken : null);
     }
 
     @Transactional

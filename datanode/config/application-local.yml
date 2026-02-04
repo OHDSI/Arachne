@@ -1,0 +1,6 @@
+# Profile "local": backend on 8880 (HTTP) for Next.js dev proxy.
+# DB: override with SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode for Docker Postgres.
+server:
+  port: 8880
+  ssl:
+    enabled: false

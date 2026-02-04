@@ -15,9 +15,11 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
+import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
 import com.odysseusinc.arachne.datanode.exception.ResourceConflictException;
+import com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException;
 import com.odysseusinc.arachne.datanode.exception.ServiceNotAvailableException;
 import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.nohandlerfoundexception.NoHandlerFoundExceptionUtils;
@@ -66,9 +68,8 @@ public class ExceptionHandlingAdvice {
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<?> exceptionHandler(BindException ex) {
-        Map<String, Object> errors = ex.getBindingResult().getFieldErrors().stream().collect(
-                Collectors.toMap(FieldError::getField, ExceptionHandlingAdvice::fieldMessage)
-        );
+        Map<String, Object> errors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, ExceptionHandlingAdvice::fieldMessage, (a, b) -> a + "; " + b));
         return validationError(ex.getMessage(), errors);
     }
 
@@ -101,8 +102,18 @@ public class ExceptionHandlingAdvice {
         return ResponseEntity.badRequest().body(message(e));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> notFoundHandler(ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message(e));
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<?> conflictHandler(AlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(message(e));
+    }
+
     @ExceptionHandler(ServiceNotAvailableException.class)
-    public ResponseEntity<?> serviceNotAvailableHanlder() {
+    public ResponseEntity<?> serviceNotAvailableHandler() {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
@@ -112,15 +123,13 @@ public class ExceptionHandlingAdvice {
     }
 
     private String message(Exception e) {
-        String message = e.getMessage();
         if (errorsTokenEnabled) {
             String token = token();
-            log.error("[{}]. error-token: {}", token, message, e);
+            log.error("[{}]. error-token: {}", token, e.getMessage(), e);
             return "Error code [" + token + "]. Please provide this code to contact system administrator";
-        } else {
-            log.error(message, e);
-            return message;
         }
+        log.error(e.getMessage(), e);
+        return e.getMessage();
     }
 
     private static ResponseEntity<ValidationErrors> validationError(String message, Map<String, Object> errors) {

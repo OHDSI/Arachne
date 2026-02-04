@@ -77,6 +77,10 @@ datanode:
   checkDataSourceTimeout: 45000
   app:
     errorsTokenEnabled: false
+  # Study Repository: default Docker registry URL and token (token from env ARACHNE_DOCKER_REGISTRY_TOKEN when not set in config)
+  studyRepository:
+    defaultRegistryUrl: ${ARACHNE_DOCKER_REGISTRY_URL:}
+    defaultRegistryToken: ${ARACHNE_DOCKER_REGISTRY_TOKEN:}
 
   jwt:
     header: Arachne-Auth-Token

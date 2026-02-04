@@ -16,22 +16,19 @@
 package com.odysseusinc.arachne.datanode.exception;
 
 public class ArachneSystemRuntimeException extends RuntimeException {
-    public ArachneSystemRuntimeException() {
 
+    public ArachneSystemRuntimeException() {
     }
 
     public ArachneSystemRuntimeException(String message) {
-
         super(message);
     }
 
     public ArachneSystemRuntimeException(String message, Throwable cause) {
-
         super(message, cause);
     }
 
     public ArachneSystemRuntimeException(Throwable cause) {
-
         super(cause);
     }
 }

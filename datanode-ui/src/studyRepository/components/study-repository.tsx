@@ -42,6 +42,8 @@ import type { Study } from "../types"
 
 interface StudyRepositoryProps {
   studies: Study[]
+  /** Repository names from the catalog (populated when connection test succeeds in Settings). */
+  catalogRepos?: string[]
   onInstall: (name: string) => void | Promise<void>
   onUpdate: (id: string) => void | Promise<void>
   onRun: (id: string) => void
@@ -54,6 +56,7 @@ interface StudyRepositoryProps {
 
 export function StudyRepository({
   studies,
+  catalogRepos = [],
   onInstall,
   onUpdate,
   onRun,
@@ -101,13 +104,23 @@ export function StudyRepository({
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
-            <Input
-              placeholder="Study name (as it appears in the catalog)"
-              value={studyName}
-              onChange={(e) => setStudyName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleInstall()}
-              className="flex-1"
-            />
+            <div className="flex-1 relative">
+              <Input
+                placeholder="Study name (as it appears in the catalog)"
+                value={studyName}
+                onChange={(e) => setStudyName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleInstall()}
+                list={catalogRepos.length > 0 ? "install-study-repos" : undefined}
+                className="w-full"
+              />
+              {catalogRepos.length > 0 && (
+                <datalist id="install-study-repos">
+                  {catalogRepos.map((repo) => (
+                    <option key={repo} value={repo} />
+                  ))}
+                </datalist>
+              )}
+            </div>
             <Button
               onClick={handleInstall}
               disabled={!studyName.trim() || isInstalling}

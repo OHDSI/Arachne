@@ -71,6 +71,7 @@ export function StudyRepositoryApp() {
   const [error, setError] = useState<string | null>(null);
   const [activeStudyId, setActiveStudyId] = useState<string | null>(null);
   const [browseStudyId, setBrowseStudyId] = useState<string | null>(null);
+  const [catalogRepos, setCatalogRepos] = useState<string[]>([]);
 
   const studies = useMemo(
     () => packagesToStudies(packages, selectedVersionByName),
@@ -239,6 +240,7 @@ export function StudyRepositoryApp() {
           {currentView === "repository" && (
             <StudyRepository
               studies={studies}
+              catalogRepos={catalogRepos}
               onInstall={handleInstallStudy}
               onUpdate={handleUpdateStudy}
               onRun={handleRunStudy}
@@ -254,6 +256,7 @@ export function StudyRepositoryApp() {
               catalogAddress={catalogAddress}
               catalogToken={catalogToken}
               onSave={handleSaveSettings}
+              onConnectionSuccessWithRepos={setCatalogRepos}
             />
           )}
           {currentView === "run" && activeStudy && (

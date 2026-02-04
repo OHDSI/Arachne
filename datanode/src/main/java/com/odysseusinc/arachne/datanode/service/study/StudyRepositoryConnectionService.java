@@ -1,0 +1,306 @@
+/*
+ * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.odysseusinc.arachne.datanode.service.study;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odysseusinc.arachne.datanode.dto.study.ConnectionCheckResultDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Checks connectivity to a Docker registry by calling the Registry V2 API (GET /v2/).
+ * This verifies that the server is reachable and, if auth is supplied, that credentials are valid.
+ */
+@Service
+public class StudyRepositoryConnectionService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StudyRepositoryConnectionService.class);
+    private static final int CONNECT_TIMEOUT_SECONDS = 10;
+    private static final int READ_TIMEOUT_SECONDS = 10;
+    private static final int CATALOG_PAGE_SIZE = 100;
+    private static final ObjectMapper JSON = new ObjectMapper();
+
+    /**
+     * Ping the Docker registry at the given catalog address with optional token.
+     * Uses the Docker Registry HTTP API V2: GET /v2/ returns 200 when the registry is reachable.
+     *
+     * @param catalogAddress registry base URL (e.g. https://registry.example.com or registry.example.com)
+     * @param catalogToken   optional auth token or password (sent as Basic auth with username "oauth2" if present)
+     * @return result with success true and a message on success, or success false and error message on failure
+     */
+    public ConnectionCheckResultDTO checkConnection(String catalogAddress, String catalogToken) {
+        if (catalogAddress == null || catalogAddress.isBlank()) {
+            return new ConnectionCheckResultDTO(false, "Catalog address is required", null);
+        }
+
+        String registryBase = normalizeRegistryBase(catalogAddress.trim());
+        if (registryBase == null) {
+            return new ConnectionCheckResultDTO(false, "Invalid catalog address: " + catalogAddress, null);
+        }
+
+        String v2Url = registryBase + "/v2/";
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS))
+                .build();
+
+        try {
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(v2Url))
+                    .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+                    .GET();
+
+            if (catalogToken != null && !catalogToken.isBlank()) {
+                String auth = "oauth2:" + catalogToken;
+                String encoded = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+                requestBuilder.header("Authorization", "Basic " + encoded);
+            }
+
+            HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int status = response.statusCode();
+
+            if (status == 200) {
+                List<String> repositories = listRegistryRepositories(registryBase, catalogToken, client);
+                return new ConnectionCheckResultDTO(true, "Successfully connected to catalog", repositories);
+            }
+            if (status == 401) {
+                return new ConnectionCheckResultDTO(false, "Authentication failed. Check catalog token.", null);
+            }
+            if (status == 404) {
+                return new ConnectionCheckResultDTO(false, "Registry does not support V2 API or path not found.", null);
+            }
+            return new ConnectionCheckResultDTO(false, "Registry returned unexpected status: " + status, null);
+
+        } catch (Exception e) {
+            LOG.debug("Registry connection check failed for {}: {}", v2Url, e.getMessage());
+            String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return new ConnectionCheckResultDTO(false, "Failed to connect: " + message, null);
+        }
+    }
+
+    /**
+     * List repository names from the registry catalog.
+     * Tries Azure ACR API ({@code GET /acr/v1/_catalog?n=100}) with Bearer token first;
+     * if that fails with 404, tries standard Docker Registry V2 ({@code GET /v2/_catalog}).
+     *
+     * @param registryBase base URL of the registry (e.g. https://myregistry.azurecr.io)
+     * @param catalogToken optional token; for ACR use {@code az acr login --expose-token} access token
+     * @param client       HTTP client to use
+     * @return list of repository names, or empty list on failure or unsupported registry
+     */
+    public List<String> listRegistryRepositories(String registryBase, String catalogToken, HttpClient client) {
+        if (registryBase == null || registryBase.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // Prefer Azure ACR catalog when token is present (Bearer auth)
+        if (catalogToken != null && !catalogToken.isBlank()) {
+            List<String> repos = fetchCatalog(registryBase + "/acr/v1/_catalog?n=" + CATALOG_PAGE_SIZE,
+                    "Bearer " + catalogToken, client);
+            if (!repos.isEmpty()) {
+                return repos;
+            }
+        }
+        // Fallback: standard Docker Registry V2 catalog (Basic auth if token was provided)
+        List<String> repos = fetchCatalogV2(registryBase, catalogToken, client);
+        return repos != null ? repos : Collections.emptyList();
+    }
+
+    /**
+     * Fetch catalog from a URL using Bearer or Basic auth and parse JSON {"repositories": ["a","b"]}.
+     */
+    private List<String> fetchCatalog(String catalogUrl, String authHeaderValue, HttpClient client) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(catalogUrl))
+                    .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+                    .GET();
+            if (authHeaderValue != null && !authHeaderValue.isBlank()) {
+                builder.header("Authorization", authHeaderValue);
+            }
+            HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                return Collections.emptyList();
+            }
+            return parseRepositoriesFromCatalog(response.body());
+        } catch (Exception e) {
+            LOG.debug("Catalog fetch failed for {}: {}", catalogUrl, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> fetchCatalogV2(String registryBase, String catalogToken, HttpClient client) {
+        String v2CatalogUrl = registryBase + "/v2/_catalog?n=" + CATALOG_PAGE_SIZE;
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(v2CatalogUrl))
+                .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+                .GET();
+        if (catalogToken != null && !catalogToken.isBlank()) {
+            String auth = "oauth2:" + catalogToken;
+            String encoded = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+            builder.header("Authorization", "Basic " + encoded);
+        }
+        try {
+            HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                return null;
+            }
+            return parseRepositoriesFromCatalog(response.body());
+        } catch (Exception e) {
+            LOG.debug("V2 catalog fetch failed for {}: {}", v2CatalogUrl, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * List tags for a single repository (Docker image) using Azure ACR API.
+     * Uses {@code GET /acr/v1/{repo}/_tags?n=limit} with Bearer token.
+     * Intended for populating study versions for a given repo (e.g. myteam/myimage).
+     *
+     * @param catalogAddress registry base URL (e.g. https://myregistry.azurecr.io)
+     * @param catalogToken   ACR access token (Bearer auth)
+     * @param repo           repository name, e.g. "myteam/myimage"
+     * @param limit          max number of tags to return (e.g. 100)
+     * @return list of tag names, or empty list on failure or unsupported registry
+     */
+    public List<String> listRepositoryTags(String catalogAddress, String catalogToken, String repo, int limit) {
+        if (repo == null || repo.isBlank()) {
+            return Collections.emptyList();
+        }
+        String registryBase = normalizeRegistryBase(catalogAddress != null ? catalogAddress.trim() : "");
+        if (registryBase == null) {
+            return Collections.emptyList();
+        }
+        String tagsUrl = registryBase + "/acr/v1/" + repo + "/_tags?n=" + Math.max(1, Math.min(limit, 1000));
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS))
+                .build();
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(tagsUrl))
+                    .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+                    .GET();
+            if (catalogToken != null && !catalogToken.isBlank()) {
+                builder.header("Authorization", "Bearer " + catalogToken.trim());
+            }
+            HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                LOG.debug("Tags fetch returned {} for {}", response.statusCode(), tagsUrl);
+                return Collections.emptyList();
+            }
+            return parseTagNamesFromTagsResponse(response.body());
+        } catch (Exception e) {
+            LOG.debug("Tags fetch failed for {}: {}", tagsUrl, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Parse ACR tags response: {"tags": [{"name": "1.0.0"}, ...]}.
+     */
+    private static List<String> parseTagNamesFromTagsResponse(String jsonBody) {
+        if (jsonBody == null || jsonBody.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            JsonNode root = JSON.readTree(jsonBody);
+            JsonNode tags = root != null ? root.get("tags") : null;
+            if (tags == null || !tags.isArray()) {
+                return Collections.emptyList();
+            }
+            List<String> list = new ArrayList<>(tags.size());
+            for (JsonNode node : tags) {
+                if (node != null && node.isObject()) {
+                    JsonNode name = node.get("name");
+                    if (name != null && name.isTextual()) {
+                        list.add(name.asText());
+                    }
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static List<String> parseRepositoriesFromCatalog(String jsonBody) {
+        if (jsonBody == null || jsonBody.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            JsonNode root = JSON.readTree(jsonBody);
+            JsonNode repos = root != null ? root.get("repositories") : null;
+            if (repos == null || !repos.isArray()) {
+                return Collections.emptyList();
+            }
+            List<String> list = new ArrayList<>(repos.size());
+            for (JsonNode node : repos) {
+                if (node != null && node.isTextual()) {
+                    list.add(node.asText());
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Normalize user input to a registry base URL (scheme + host, no path).
+     * Examples:
+     * - "registry.example.com" -> "https://registry.example.com"
+     * - "https://registry.example.com/studies" -> "https://registry.example.com"
+     * - "http://localhost:5000" -> "http://localhost:5000"
+     */
+    private static String normalizeRegistryBase(String input) {
+        String s = input.trim();
+        if (s.isEmpty()) {
+            return null;
+        }
+        if (!s.contains("://")) {
+            s = "https://" + s;
+        }
+        try {
+            URI uri = URI.create(s);
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (host == null) {
+                host = uri.getAuthority();
+            }
+            if (host == null || host.isEmpty()) {
+                return null;
+            }
+            int port = uri.getPort();
+            if (port > 0 && port != 80 && port != 443) {
+                return scheme + "://" + host + ":" + port;
+            }
+            return scheme + "://" + host;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}

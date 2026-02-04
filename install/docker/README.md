@@ -2,6 +2,33 @@
 
 This folder contains ARACHNE DataNode deployment scripts for released versions.
 
+## Local development (frontend + backend + database)
+
+To run the full stack locally with the UI talking to the backend and the backend using this database:
+
+1. **Start Postgres only** (from repo root):
+   ```bash
+   make run-docker-db
+   ```
+   Or from this directory: `docker compose up -d arachne-datanode-postgres`
+
+2. **Start the backend** (from repo root), pointing at Docker Postgres:
+   ```bash
+   export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode
+   export SPRING_DATASOURCE_USERNAME=ohdsi-user
+   export SPRING_DATASOURCE_PASSWORD=ohdsi-password
+   make run-backend
+   ```
+   Backend will listen on **8880** (so the frontend proxy can reach it).
+
+3. **Start the frontend** (from repo root):
+   ```bash
+   make run-datanode-ui
+   ```
+   Open http://localhost:3000. The Next.js dev server proxies `/api/*` to `http://localhost:8880`.
+
+Flyway runs on backend startup and creates/updates tables (including `study_packages`, `study_runs`, and Study Repository settings).
+
 ## Prerequisites 
 * Installed Docker 
   * Windows - https://docs.docker.com/desktop/install/windows-install/
