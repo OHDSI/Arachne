@@ -13,10 +13,10 @@ ARACHNE DataNode is an open source web application for executing containerized [
 Runs PostgreSQL in Docker, then the backend and frontend locally. One command:
 
 ```bash
-make run
+make start
 ```
 
-Then open **http://localhost:3000**. The UI proxies `/api` to the backend on port 8880. Use **Ctrl+C** to stop.
+Then open **http://localhost:3000**. The UI proxies `/api` to the backend on port 8880. Use **Ctrl+C** to stop, or `make stop` to shut down and free ports 3000 and 8880.
 
 **Prerequisites:**
 
@@ -27,7 +27,7 @@ Then open **http://localhost:3000**. The UI proxies `/api` to the backend on por
 | **Node.js**| 18 (use `nvm use` in `datanode-ui/`; see `.nvmrc`) |
 | **Docker** | Running (for Postgres) |
 
-**What `make run` does:**
+**What `make start` does:**
 
 1. Starts Postgres in Docker (port 5434).
 2. Builds the backend (Maven) and runs the Spring Boot datanode on **8880**.
@@ -66,7 +66,7 @@ Useful if you already have Postgres or want to run only one part.
 
 1. **Start Postgres** (if needed):
    ```bash
-   make run-docker-db
+   make start-docker-db
    ```
    Then point the backend at it (see step 2).
 
@@ -75,13 +75,13 @@ Useful if you already have Postgres or want to run only one part.
    export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode
    export SPRING_DATASOURCE_USERNAME=ohdsi-user
    export SPRING_DATASOURCE_PASSWORD=ohdsi-password
-   make run-backend
+   make start-backend
    ```
    Listens on **8880**.
 
 3. **Frontend** (in another terminal):
    ```bash
-   make run-datanode-ui
+   make start-datanode-ui
    ```
    Open **http://localhost:3000** (proxies API to 8880).
 
@@ -101,7 +101,20 @@ Useful if you already have Postgres or want to run only one part.
 
 ## Configuration
 
-- **Local backend:** Optional env file `datanode/config/datanode.env` (git-ignored). Copy from `datanode/config/datanode.env.example`. Used for things like Study Repository registry token; can be sourced before `make run-backend`.
+- **Local backend:** Optional env file `datanode/config/datanode.env` (git-ignored). Copy from `datanode/config/datanode.env.example`. Used for things like Study Repository registry token; source before `make start-backend`: `source datanode/config/datanode.env`.
+
+  Example `datanode/config/datanode.env.example`:
+
+  ```bash
+  # DataNode local environment variables (git-ignored).
+  # Copy to datanode.env in this directory. Source before running: source config/datanode.env
+  # Or use config-local.yml (copy from config-local.example.yml) to set the same values in YAML.
+  #
+  # Study Repository default token (picked up by application.yml when set)
+  # ARACHNE_DOCKER_REGISTRY_TOKEN=your-registry-token
+  # ARACHNE_DOCKER_REGISTRY_URL=https://registry.example.com
+  ```
+
 - **Docker Compose:** `install/docker/datanode.env` (from `datanode.env.example`) for DB URL, admin user, execution engine, etc.
 
 Schema is managed by **Flyway**; migrations run on backend startup (`datanode/src/main/resources/db/migration/`).

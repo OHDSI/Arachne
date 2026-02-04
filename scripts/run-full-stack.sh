@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build and run the full stack: Postgres (Docker), backend (Spring Boot), frontend (Next.js).
-# From repo root: ./scripts/run-full-stack.sh  (or: make run)
+# From repo root: ./scripts/run-full-stack.sh  (or: make start)
 # Stop with Ctrl+C; backend is killed on exit.
 
 set -e
@@ -30,7 +30,7 @@ done
 docker exec arachne-datanode-postgres pg_isready -U ohdsi-user -d arachne_datanode
 
 echo "==> Building backend (skip Docker image build and checkstyle for local run)..."
-mvn -q install -DskipTests -DskipDockerBuild=true -Dcheckstyle.skip=true -pl datanode -am
+mvn -q install -DskipTests -DskipDockerBuild=true -Ddockerfile.skip=true -Dcheckstyle.skip=true -pl datanode -am
 
 echo "==> Starting backend on 8880..."
 lsof -ti:8880 | xargs kill -9 2>/dev/null || true

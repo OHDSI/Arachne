@@ -37,7 +37,7 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <!-- Skip tests that require Docker (Testcontainers) unless -P integration is used -->
         <skipIntegrationTests>true</skipIntegrationTests>
-        <!-- Skip Docker image build when set (e.g. make run on Apple Silicon). Default: build image during install. -->
+        <!-- Skip Docker image build when set (e.g. make start on Apple Silicon). Default: build image during install. -->
         <skipDockerBuild>false</skipDockerBuild>
     </properties>
 
@@ -490,6 +490,7 @@
                         </goals>
                         <configuration>
                             <dockerfile>Dockerfile</dockerfile>
+                            <skip>${skipDockerBuild}</skip>
                         </configuration>
                     </execution>
                     <execution>

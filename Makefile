@@ -2,7 +2,7 @@
 # Backend: Maven (datanode + commons + executionengine). Frontend: datanode-ui (React, includes Study Repository).
 
 .PHONY: build build-backend build-datanode-ui \
-	run run-backend run-datanode-ui run-docker run-docker-db \
+	start run-backend run-datanode-ui run-docker run-docker-db stop \
 	test test-backend test-backend-integration test-datanode-ui \
 	buildtest full-stack-build-test clean help
 
@@ -11,7 +11,8 @@ help:
 	@echo "Arachne full stack"
 	@echo ""
 	@echo "  make build          Build backend (Maven; includes datanode-ui)"
-	@echo "  make run            Build and run full stack: Postgres (Docker) + backend (8880) + frontend (3000)"
+	@echo "  make start          Build and run full stack: Postgres (Docker) + backend (8880) + frontend (3000)"
+	@echo "  make stop           Shut down app and free ports 3000 (frontend) and 8880 (backend)"
 	@echo "  make test           Run backend + datanode-ui tests"
 	@echo ""
 	@echo "  make build-backend  Build Java modules and packaged datanode (includes datanode-ui build)"
@@ -42,8 +43,13 @@ build-datanode-ui:
 
 # --- Run ---
 # Full stack: Postgres (Docker) + backend + frontend. Ctrl+C stops frontend and backend.
-run:
+start:
 	./scripts/run-full-stack.sh
+
+# Shut down processes on frontend (3000) and backend (8880) to free ports.
+stop:
+	-lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+	-lsof -ti:8880 | xargs kill -9 2>/dev/null || true
 
 # Backend on 8880 so Next.js dev proxy (PROXY_HOST default) can reach it.
 # DB: application.yml defaults (localhost:5432/arachne_datanode). For Docker Postgres: SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode
