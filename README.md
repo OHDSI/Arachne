@@ -2,7 +2,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/OHDSI/Arachne.svg?style=flat-square)](https://github.com/OHDSI/Arachne/releases/latest)
 
-ARACHNE DataNode is an open source web application for executing [OHDSI studies](https://github.com/OHDSI-studies) ([Hades](https://github.com/OHDSI/Hades) and [Strategus](https://github.com/OHDSI/Strategus)) with a simplified UI. It works with [ARACHNE Execution Engine](https://github.com/OHDSI/ArachneExecutionEngine).
+ARACHNE DataNode is an open source web application for executing containerized [OHDSI studies](https://github.com/OHDSI-studies) with a simplified UI. 
 
 ---
 
