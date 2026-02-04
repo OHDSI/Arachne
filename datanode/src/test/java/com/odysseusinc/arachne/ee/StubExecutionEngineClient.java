@@ -22,7 +22,6 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResult
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.EngineStatus.Environments;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.ExecutionOutcome;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,7 +29,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class StubExecutionEngineClient implements ExecutionEngineClient {
                 Optional.ofNullable(map.get(id)).map(TestAnalysis::getOutcome).map(outcome ->
                         Stream.of(Pair.of(id, outcome))
                 ).orElseGet(Stream::of)
-        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
         return new EngineStatus(started, statuses, envs);
     }
 
@@ -93,10 +94,13 @@ public class StubExecutionEngineClient implements ExecutionEngineClient {
         return Objects.requireNonNull(analyses, "Not initialized");
     }
 
-    @SneakyThrows
     private byte[] toBytes(IOConsumer<OutputStream> bodyWriter) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bodyWriter.accept(bos);
+        try {
+            bodyWriter.accept(bos);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         return bos.toByteArray();
     }
 

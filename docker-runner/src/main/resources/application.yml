@@ -1,0 +1,25 @@
+server:
+  port: 8888
+
+# Directory where analysis archives are extracted (must be writable and mountable by Docker)
+analysis:
+  dir: /tmp/docker-runner-executions
+  # Subdir under analysis.dir used as container mount source (host path)
+  mount: /tmp/docker-runner-executions
+
+# Docker
+docker:
+  host: unix:///var/run/docker.sock
+  image:
+    default: r-base
+  # Pull policy: NEVER, MISSING, ALWAYS, FORCE
+  image.pull: MISSING
+
+# Runtime
+runtime:
+  timeOutSec: 259200
+  killTimeoutSec: 30
+
+# Status update interval (ms) for callback
+submission:
+  updateInterval: 5000

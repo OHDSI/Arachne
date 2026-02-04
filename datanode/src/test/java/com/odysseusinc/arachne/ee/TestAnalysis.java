@@ -19,23 +19,31 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisReques
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResultDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.ExecutionOutcome;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.concurrent.CompletableFuture;
 
-@Getter
-@RequiredArgsConstructor
 public class TestAnalysis {
     private final String title;
     private final String password;
     private final byte[] bytes;
     private final CompletableFuture<AnalysisRequestStatusDTO> response;
 
-    @Setter
     private volatile ExecutionOutcome outcome = new ExecutionOutcome(Stage.INITIALIZE, null, "Accepted in test Execution Engine");
-
-    @Setter
     private volatile CompletableFuture<AnalysisResultDTO> cancelResponse;
+
+    public TestAnalysis(String title, String password, byte[] bytes, CompletableFuture<AnalysisRequestStatusDTO> response) {
+        this.title = title;
+        this.password = password;
+        this.bytes = bytes;
+        this.response = response;
+    }
+
+    public String getTitle() { return title; }
+    public String getPassword() { return password; }
+    public byte[] getBytes() { return bytes; }
+    public CompletableFuture<AnalysisRequestStatusDTO> getResponse() { return response; }
+    public ExecutionOutcome getOutcome() { return outcome; }
+    public void setOutcome(ExecutionOutcome outcome) { this.outcome = outcome; }
+    public CompletableFuture<AnalysisResultDTO> getCancelResponse() { return cancelResponse; }
+    public void setCancelResponse(CompletableFuture<AnalysisResultDTO> cancelResponse) { this.cancelResponse = cancelResponse; }
 }

@@ -15,27 +15,18 @@
  *
  */
 
-import { api } from ".";
-import {UserDTOInterface, UserDTOSearchInterface} from "../libs/types";
+import { api } from "./";
 
-export const getUsers = (): Promise<UserDTOSearchInterface[]> =>
-  api.get("/admin/admins");
-
-export const searchUsers = (query: string): Promise<UserDTOSearchInterface[]> =>
-  api.get(`/admin/admins/suggest?query=${query}`);
-
-export const addUser = (id: string): Promise<UserDTOSearchInterface> =>
-  api.post(`/admin/admins/${id}`);
-
-export const removeUser = (id: string): Promise<null> =>
-  api.delete(`/admin/admins/${id}`);
-
-export const systemSettings = (): Promise<any> => api.get("/admin/system-settings");
-
-export const updateSystemSettings = (value): Promise<any> => api.post("/admin/system-settings", value);
-
-export const getApplicationLog = (range: string): Promise<string> => {
-    return api.get(`/application/logs/`, {
-        headers: { 'Range': range }
-    });
+export const getApplicationLog = (range?: string): Promise<string> => {
+  const headers = range ? { Range: range } : {};
+  return api
+    .get("/application/logs/", { headers, responseType: "text" })
+    .then((res) => (typeof res === "string" ? res : (res as any)?.data ?? ""));
 };
+
+export const systemSettings = (): Promise<{ list: any[]; applied?: boolean }> =>
+  api.get("/admin/system-settings");
+
+export const updateSystemSettings = (body: {
+  values: Record<string, unknown>;
+}): Promise<void> => api.post("/admin/system-settings", body);

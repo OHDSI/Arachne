@@ -1,6 +1,9 @@
 /node_modules
 /build
 /target
+.next
+/out
 /node
 .env
 .env.development
+.env*.local

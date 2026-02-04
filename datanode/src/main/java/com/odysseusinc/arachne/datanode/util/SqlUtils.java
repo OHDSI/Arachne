@@ -26,8 +26,6 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ohdsi.sql.SqlRender;
-import org.ohdsi.sql.SqlTranslate;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -59,7 +57,7 @@ public class SqlUtils {
                 0
         );
         final String nativeStatement
-                = translateSQL(sql, null, target, SqlTranslate.generateSessionId(), resultSchema, options);
+                = translateSQL(sql, null, target, generateSessionId(), resultSchema, options);
         return nativeStatement;
     }
 
@@ -86,7 +84,7 @@ public class SqlUtils {
             String[] parameterKeys = getMapKeys(parameters);
             String[] parameterValues = getMapValues(parameters, parameterKeys);
 
-            String renderedSQL = SqlRender.renderSql(sourceStatement, parameterKeys, parameterValues);
+            String renderedSQL = renderSql(sourceStatement, parameterKeys, parameterValues);
 
             if (dbmsType == null
                     || DBMSType.MS_SQL_SERVER == dbmsType
@@ -101,15 +99,30 @@ public class SqlUtils {
         return processPlaceHolders(translated, options);
     }
 
+    /**
+     * Placeholder for OHDSI SqlTranslate. Returns SQL with trailing semicolon trimmed.
+     * Dialect-specific translation is not performed (OHDSI SqlRender/SqlTranslate removed).
+     */
     public static synchronized String translateSql(String dbmsType, String sessionId, String tempSchema, String renderedSQL) {
+        return renderedSQL.replaceAll(";\\s*$", "");
+    }
 
-        // Oracle fails with a single query ending with semicolon. That's why we remove the semicolon after translation
-        return SqlTranslate.translateSql(
-                renderedSQL,
-                dbmsType,
-                sessionId,
-                tempSchema
-        ).replaceAll(";\\s*$", "");
+    public static String generateSessionId() {
+        return java.util.UUID.randomUUID().toString();
+    }
+
+    /** Simple placeholder replacement: @key with value. Replaces OHDSI SqlRender.renderSql. */
+    private static String renderSql(String sql, String[] parameterKeys, String[] parameterValues) {
+        if (parameterKeys == null || parameterValues == null || parameterKeys.length != parameterValues.length) {
+            return sql;
+        }
+        String result = sql;
+        for (int i = 0; i < parameterKeys.length; i++) {
+            String key = parameterKeys[i];
+            String value = parameterValues[i] != null ? parameterValues[i] : "";
+            result = result.replace("@" + key, value);
+        }
+        return result;
     }
 
     private static String processPlaceHolders(String expression, TranslateOptions options) {

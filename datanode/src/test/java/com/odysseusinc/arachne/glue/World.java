@@ -16,9 +16,9 @@
 package com.odysseusinc.arachne.glue;
 
 import com.odysseusinc.arachne.datanode.util.Fn;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -38,12 +38,15 @@ import java.util.regex.Pattern;
  * still nice to have it named very differently from "context", which are already way too many around.
  */
 @Component
-@Slf4j
 public class World {
 
+    private static final Logger log = LoggerFactory.getLogger(World.class);
     private static final Pattern IN_QUOTES = Pattern.compile("^\"(.+)\"$");
-    @Getter
     private transient Object cursor;
+
+    public Object getCursor() {
+        return cursor;
+    }
 
     private transient Map<String, String> refs = new HashMap<>();
 

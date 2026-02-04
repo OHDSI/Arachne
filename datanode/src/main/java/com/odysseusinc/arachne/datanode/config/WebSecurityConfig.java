@@ -16,8 +16,10 @@
 package com.odysseusinc.arachne.datanode.config;
 
 import com.odysseusinc.arachne.datanode.Api;
+import com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter;
 import com.odysseusinc.arachne.datanode.auth.oidc.OidcSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -43,6 +46,12 @@ public class WebSecurityConfig {
 
     @Autowired(required = false)
     private OAuth2ClientProperties oAuth2ClientProperties;
+
+    @Autowired
+    private LoginDisabledAuthenticationFilter loginDisabledAuthenticationFilter;
+
+    @Value("${security.loginDisabled:true}")
+    private boolean loginDisabled;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -60,7 +69,8 @@ public class WebSecurityConfig {
                 this::bearerExceptionHandler
         ).oauth2ResourceServer(
                 OAuth2ResourceServerConfigurer::jwt
-        ).authorizeHttpRequests(auth -> {
+        ).addFilterAfter(loginDisabledAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+        .authorizeHttpRequests(auth -> {
             auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             auth.requestMatchers(
                     "/index.html", "/css/**",
@@ -96,8 +106,13 @@ public class WebSecurityConfig {
             auth.requestMatchers("/api/v1/admin/**").hasAuthority("SCOPE_ADMIN");
             auth.requestMatchers("/api/v1/auth/providers").permitAll();
             auth.requestMatchers(Api.PREFIX + "/*/*" + Api.SUFFIX_STATUS, Api.PREFIX + "/*/*" + Api.SUFFIX_RESULT).permitAll();
-            auth.requestMatchers("/api**").authenticated();
-            auth.requestMatchers("/api/**").authenticated();
+            if (loginDisabled) {
+                auth.requestMatchers("/api**").permitAll();
+                auth.requestMatchers("/api/**").permitAll();
+            } else {
+                auth.requestMatchers("/api**").authenticated();
+                auth.requestMatchers("/api/**").authenticated();
+            }
             auth.anyRequest().permitAll();
         });
         return http.build();

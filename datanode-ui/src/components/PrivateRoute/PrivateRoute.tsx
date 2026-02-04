@@ -21,11 +21,16 @@ import { Outlet } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { LoginPage } from "../LoginPage";
-import { LayoutSpinner } from "../AppLayout/AppLayout.styles";
+import { LayoutSpinner } from "../../App.styled";
 import { Status } from "../../libs/enums";
 import { SpinnerWidgetContainer } from "../../libs/components";
 import { getUser } from "../../store/modules";
 import { ModalContext, UseModalContext } from "../../libs/hooks";
+
+// In development and test, skip login by default so the UI loads without a backend (set NEXT_PUBLIC_DISABLE_LOGIN=false to require login in dev).
+const isLoginDisabled =
+  (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") &&
+  process.env.NEXT_PUBLIC_DISABLE_LOGIN !== "false";
 
 export const PrivateRoute: React.FC<any> = (props) => {
   const { ...passProps } = props;
@@ -34,7 +39,9 @@ export const PrivateRoute: React.FC<any> = (props) => {
   const { closeModal } = useContext<UseModalContext>(ModalContext);
 
   useEffect(() => {
-    getCurrentUser();
+    if (!isLoginDisabled) {
+      getCurrentUser();
+    }
   }, []);
 
   const status = useSelector<any, Status>(
@@ -49,6 +56,10 @@ export const PrivateRoute: React.FC<any> = (props) => {
       closeModal();
     }
   }, [status]);
+
+  if (isLoginDisabled) {
+    return <Outlet {...passProps} />;
+  }
 
   if (status === Status.IN_PROGRESS || status === Status.INITIAL) {
     return (

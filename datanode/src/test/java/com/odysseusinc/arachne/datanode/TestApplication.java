@@ -37,7 +37,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.odysseusinc.arachne.*"
 })
 @EntityScan(basePackages = {"com.odysseusinc.arachne.*"})
-@ComponentScan(basePackages = {"com.odysseusinc.arachne.*", "org.ohdsi.authenticator.*"},
+@ComponentScan(basePackages = {"com.odysseusinc.arachne.*"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthController.class),
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebApplicationStarter.class),

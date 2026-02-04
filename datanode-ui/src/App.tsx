@@ -20,8 +20,8 @@ import { Routes, Route } from "react-router-dom";
 
 import { SpinnerWidgetContainer } from "./libs/components";
 
-import { IndexModuleSubmissions, IndexAdmin } from "./modules";
-import { AppLayout, PrivateRoute, Welcome } from "./components";
+import { PrivateRoute } from "./components";
+import { StudyRepositoryApp } from "./studyRepository/StudyRepositoryApp";
 
 import { LayoutSpinner } from "./App.styled";
 
@@ -44,28 +44,7 @@ export const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/*" element={<PrivateRoute />}>
-        <Route
-          element={<AppLayout />}
-        >
-          <Route
-            index
-            element={
-              <Welcome />
-            }
-          />
-          <Route
-            path="administration/*"
-            element={
-              <IndexAdmin />
-            }
-          />
-          <Route
-            path="submissions/*"
-            element={
-              <IndexModuleSubmissions root={{ name: "Submissions", path: "/submissions" }} />
-            }
-          />
-        </Route>
+        <Route path="*" element={<StudyRepositoryApp />} />
       </Route>
     </Routes>
   );

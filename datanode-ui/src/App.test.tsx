@@ -17,10 +17,41 @@
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { MemoryRouter } from "react-router-dom";
+import { ThemeProvider } from "@emotion/react";
+import { store } from "./store";
+import { theme } from "./utils";
+import { DialogProvider, ModalProvider } from "./libs/hooks";
+import { NotificationsProvider } from "./libs/components";
 import App from "./App";
 
-test("renders learn react link", () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <Provider store={store}>
+      <MemoryRouter>
+        <ThemeProvider theme={theme}>
+          <NotificationsProvider
+            maxSnack={3}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          >
+            <DialogProvider>
+              <ModalProvider>{children}</ModalProvider>
+            </DialogProvider>
+          </NotificationsProvider>
+        </ThemeProvider>
+      </MemoryRouter>
+    </Provider>
+  );
+}
+
+test("renders study repository after loading", async () => {
+  render(
+    <TestWrapper>
+      <App />
+    </TestWrapper>
+  );
+  // App shows a spinner then Study Repository UI (login is disabled in test env)
+  const studyRepoHeading = await screen.findByText(/study repository/i, {}, { timeout: 2000 });
+  expect(studyRepoHeading).toBeInTheDocument();
 });

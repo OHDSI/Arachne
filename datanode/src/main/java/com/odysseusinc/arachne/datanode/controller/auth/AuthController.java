@@ -21,11 +21,11 @@ import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
 import com.odysseusinc.arachne.datanode.dto.user.UserInfoDTO;
+import com.odysseusinc.arachne.datanode.exception.AuthException;
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.ohdsi.authenticator.exception.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class AuthController {
                     userInfoDTO.setFirstname(user.getFirstName());
                     userInfoDTO.setLastname(user.getLastName());
                     return userInfoDTO;
-                }).orElseThrow(() -> new AuthenticationException("User is not authenticated"));
+                }).orElseThrow(() -> new AuthException("User is not authenticated"));
     }
 
     private static ResponseEntity<UserDTO> success(HttpServletResponse response, Map.Entry<UserDTO, Cookie> result) {

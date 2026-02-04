@@ -15,42 +15,7 @@
  *
  */
 
-import { api } from ".";
-import { getSortDirection } from "../libs/utils";
-import {
-  EnvironmentInterface,
-  IdNameInterface,
-  PageableDTOInterface,
-  SubmissionDTOInterface
-} from "../libs/types";
-import {
-  AnalysisTypes,
-  CreateSubmissionFormTabs
-} from "../libs/enums";
+import { api } from "./";
 
-export const getEnvironments = (): Promise<EnvironmentInterface> =>
-  api.get("/environments");
-
-export const getAnalysisTypes = (): Promise<IdNameInterface<AnalysisTypes>[]> =>
-  api.get("analysis/types");
-
-export const getSubmissions = (pageNumber = 0, pageSize = 15, sortBy = { id: "id", desc: true }): Promise<PageableDTOInterface<SubmissionDTOInterface>> => {
-  const sort = getSortDirection(sortBy);
-  return api.get(`/admin/submissions?${pageNumber ? "page=" + pageNumber + "&" : ""}` + `sort=${sort}`);
-};
-
-export const createSubmission = (type: CreateSubmissionFormTabs, data): Promise<any> =>
-  api.post(`/analysis/${type === CreateSubmissionFormTabs.FILES_IN_ARCHIVE ? "zip" : "files"}`, data);
-
-export const getSubmission = (id): Promise<SubmissionDTOInterface> =>
-  api.get(`/analysis/${id}`);
-
-export const updateSubmission = (id, data): Promise<SubmissionDTOInterface> =>
-  api.post(`/analysis/${id}/rerun`, data);
-
-
-export const cancelSubmission = (id): Promise<any> =>
-  api.post(`/analysis/${id}/cancel`);
-
-export const getSubmissionLog = (id: string) =>
-  api.get(`/analysis/${id}/log`);
+export const getSubmissionLog = (id: number | string): Promise<string> =>
+  api.get(`/analysis/${id}/log`, { responseType: "text" }).then((res) => (typeof res === "string" ? res : (res as any)?.data ?? ""));

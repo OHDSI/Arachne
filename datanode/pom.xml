@@ -35,6 +35,8 @@
         <okhttp.version>4.11.0</okhttp.version>
         <bcprov-jdk15on.version>1.67</bcprov-jdk15on.version>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- Skip tests that require Docker (Testcontainers) unless -P integration is used -->
+        <skipIntegrationTests>true</skipIntegrationTests>
     </properties>
 
     <dependencyManagement>
@@ -97,13 +99,7 @@
         <dependency>
             <groupId>com.odysseusinc.arachne</groupId>
             <artifactId>execution-engine-commons</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.validation</groupId>
-                    <artifactId>javax.validation-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <artifactId>arachne-sys-settings</artifactId>
@@ -166,6 +162,7 @@
             </exclusions>
         </dependency>
 
+        <!-- PostgreSQL driver for backend state database only -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -174,6 +171,11 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -260,68 +262,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.ohdsi.sql</groupId>
-            <artifactId>SqlRender</artifactId>
-            <version>1.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ohdsi</groupId>
-            <artifactId>circe</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ohdsi</groupId>
-            <artifactId>hydra</artifactId>
-            <version>0.2.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ohdsi</groupId>
-                    <artifactId>circe</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.ohdsi</groupId>
-            <artifactId>standardized-analysis-specs</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ohdsi</groupId>
-            <artifactId>standardized-analysis-utils</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>${jtds.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/sqljdbc4 -->
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>sqljdbc4</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.oracle/ojdbc6 -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>12.1.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ohdsi</groupId>
-            <artifactId>authenticator</artifactId>
-            <version>0.0.3-QA</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>0.20.0</version>
@@ -398,6 +338,17 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/TestRunner.java</exclude>
+                        <exclude>**/UploadServiceTest.java</exclude>
+                        <exclude>**/ValidatorTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -583,27 +534,6 @@
             <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
         </repository>
         <repository>
-            <id>ohdsi</id>
-            <name>repo.ohdsi.org</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>ohdsi.thirdparty</id>
-            <name>repo.ohdsi.org</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/thirdparty</url>
-        </repository>
-        <repository>
-            <id>ohdsi.snapshots</id>
-            <name>repo.ohdsi.org-snapshots</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>springsource.releases</id>
             <name>SpringSource GA Repository</name>
             <url>http://repo.springsource.org/release</url>
@@ -636,5 +566,26 @@
             <url>https://nexus.odysseusinc.com/repository/community-libs-release-local</url>
         </repository>
     </distributionManagement>
+
+    <profiles>
+        <!-- Run all tests including integration (Docker/Testcontainers required). Use: mvn test -P integration -->
+        <profile>
+            <id>integration</id>
+            <properties>
+                <skipIntegrationTests>false</skipIntegrationTests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

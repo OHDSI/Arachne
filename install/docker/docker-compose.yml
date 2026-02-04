@@ -1,7 +1,8 @@
 version: '3'
 services:
 
-  # Application Postgres Database
+  # External PostgreSQL database for Arachne Datanode (auth, analyses, study repository, etc.).
+  # Flyway runs on app startup and applies migrations from db/migration.
   arachne-datanode-postgres:
     image: postgres:15.5-alpine
     pull_policy: always
@@ -14,38 +15,21 @@ services:
     networks:
       - arachne-network
     ports:
-      - "127.0.0.1:5434:5432" # Port mapping (host:container)
+      - "127.0.0.1:5434:5432" # host:container (connect from host: localhost:5434)
     volumes:
-      - arachne-pg-data:/var/lib/postgresql/data # Volume mount for Arachne PG data
+      - arachne-pg-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ohdsi-user
       POSTGRES_PASSWORD: ohdsi-password
       POSTGRES_DB: arachne_datanode
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ohdsi-user -d arachne_datanode"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Execution Engine
-  arachne-execution-engine:
-    image: odysseusinc/execution_engine:2.7.1
-    pull_policy: always
-    platform: linux/amd64
-    container_name: arachne-execution-engine
-    restart: always
-    networks:
-      - arachne-network
-    ports:
-      - "127.0.0.1:8888:8888"  # Port mapping (host:container)
-    volumes:
-      - /tmp:/tmp
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp/executions:/etc/executions
-    environment:
-      - applyRuntimeDependenciesComparisonLogic=true
-      - libraries.location.strategus=strategus
-      - DOCKER_IMAGE_DEFAULT=odysseusinc/r-hades:latest
-      - DOCKER_IMAGE_FILTER=odysseusinc/r-hades(.+)
-      - ANALYSIS_MOUNT=/tmp/executions
-      - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
-      - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/runtimes/
-      - RUNTIMESERVICE_DIST_DEFAULTDESCRIPTORFILE=descriptor_base.json
+  # For analysis execution, run the in-repo docker-runner (see docker-runner/README.md)
+  # and point the datanode execution engine URL at it (e.g. http://host:8888).
 
   # Arachne Datanode Service
   arachne-datanode:
@@ -63,8 +47,8 @@ services:
     env_file:
       - datanode.env  # Environment variables file
     depends_on:
-      - arachne-datanode-postgres
-      - arachne-execution-engine
+      arachne-datanode-postgres:
+        condition: service_healthy
 
 # Volumes for the services
 volumes:

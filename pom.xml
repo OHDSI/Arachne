@@ -14,6 +14,7 @@
 
     <modules>
         <module>commons</module>
+        <module>docker-runner</module>
         <module>datanode</module>
         <module>datanode-ui</module>
     </modules>

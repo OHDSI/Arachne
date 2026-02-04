@@ -39,7 +39,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @EnableAspectJAutoProxy
 @EnableEncryptableProperties
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.odysseusinc.arachne.*", "org.ohdsi.authenticator.*"})
+@ComponentScan(basePackages = {"com.odysseusinc.arachne.*"})
 public class WebApplicationStarter {
 
     private static volatile ConfigurableApplicationContext context;

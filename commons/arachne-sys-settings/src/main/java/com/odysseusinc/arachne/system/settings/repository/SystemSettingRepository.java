@@ -18,5 +18,9 @@ package com.odysseusinc.arachne.system.settings.repository;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
+
 public interface SystemSettingRepository extends CrudRepository<SystemSetting, Long> {
+
+    Optional<SystemSetting> findByName(String name);
 }

@@ -13,6 +13,7 @@
         <module>arachne-commons</module>
         <module>arachne-sys-settings</module>
         <module>arachne-common-types</module>
+        <module>execution-engine-commons</module>
     </modules>
 
     <properties>

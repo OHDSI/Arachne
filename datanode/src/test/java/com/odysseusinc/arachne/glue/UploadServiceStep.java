@@ -3,7 +3,6 @@ package com.odysseusinc.arachne.glue;
 import com.odysseusinc.arachne.datanode.analysis.UploadService;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import io.cucumber.java.en.When;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -15,6 +14,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -42,10 +42,13 @@ public class UploadServiceStep {
         world.setCursor(uploadService.uploadFiles(user, files));
     }
 
-    @SneakyThrows
     private MockMultipartFile toMultipartFile(Resource resource, Path parent) {
-        File file = resource.getFile();
-        String name = parent.relativize(file.toPath()).toString();
-        return file.isFile() ? new MockMultipartFile(name, name, null, FileCopyUtils.copyToByteArray(resource.getInputStream())) : null;
+        try {
+            File file = resource.getFile();
+            String name = parent.relativize(file.toPath()).toString();
+            return file.isFile() ? new MockMultipartFile(name, name, null, FileCopyUtils.copyToByteArray(resource.getInputStream())) : null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

@@ -1,4 +1,17 @@
 # suppress inspection "SpringBootApplicationProperties" for whole file
+# ---------------------------------------------------------------------------
+# Backend database (PostgreSQL). Override via env (e.g. spring.datasource.url)
+# or a profile-specific config (e.g. config-dev.yml, datanode.env).
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${spring.datasource.url:jdbc:postgresql://localhost:5432/arachne_datanode}
+    username: ${spring.datasource.username:ohdsi-user}
+    password: ${spring.datasource.password:ohdsi-password}
+    driver-class-name: ${spring.datasource.driver-class-name:org.postgresql.Driver}
+    platform: ${spring.datasource.platform:postgresql}
+    connection-test-query: ${spring.datasource.connection-test-query:select 1}
+
 server:
   compression:
     enabled: true
@@ -140,6 +153,10 @@ management:
     ldap:
       enabled: false
 security:
+  # When true, no login is required; all requests use the anonymous user (see anonymousUsername).
+  loginDisabled: true
+  # Username of the user to use as principal when login is disabled (must exist and be enabled).
+  anonymousUsername: admin
   jwt.token:
     secretKey: ${datanode.jwt.secret}
     validityInSeconds: ${datanode.jwt.expiration}

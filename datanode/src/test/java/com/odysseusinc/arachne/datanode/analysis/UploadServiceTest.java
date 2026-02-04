@@ -6,7 +6,6 @@ import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.service.user.UserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +70,14 @@ public class UploadServiceTest {
         Assertions.assertEquals("Simvastatin", metadata.get("analysisName").asText());
     }
 
-    @SneakyThrows
     private MockMultipartFile toMultipartFile(Resource resource, Path parent) {
-        File file = resource.getFile();
-        String name = parent.relativize(file.toPath()).toString();
-        return file.isFile() ? new MockMultipartFile(name, name, null, FileCopyUtils.copyToByteArray(resource.getInputStream())) : null;
+        try {
+            File file = resource.getFile();
+            String name = parent.relativize(file.toPath()).toString();
+            return file.isFile() ? new MockMultipartFile(name, name, null, FileCopyUtils.copyToByteArray(resource.getInputStream())) : null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private User createUser() {

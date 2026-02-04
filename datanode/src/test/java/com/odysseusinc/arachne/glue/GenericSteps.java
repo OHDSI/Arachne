@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
-import lombok.SneakyThrows;
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -147,7 +146,6 @@ public class GenericSteps {
             return matchWithCaptureOrAlias(value, actual);
         };
     }
-    @SneakyThrows
     public static <T> Object getProperty(T item, String key) {
         String[] split = key.split("->", 2);
         try {
@@ -170,6 +168,8 @@ public class GenericSteps {
             }
         } catch (NoSuchMethodException | NestedNullException e) {
             return null;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -245,11 +245,14 @@ public class GenericSteps {
                 );
     }
 
-    @SneakyThrows
     public static void setProperty(Object item, String key, Object value) {
-        Class<?> type = PropertyUtils.getPropertyType(item, key);
-        Object convertedValue = convertTo(value, type);
-        PropertyUtils.setProperty(item, key, convertedValue);
+        try {
+            Class<?> type = PropertyUtils.getPropertyType(item, key);
+            Object convertedValue = convertTo(value, type);
+            PropertyUtils.setProperty(item, key, convertedValue);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Object convertTo(Object value, Class type) {

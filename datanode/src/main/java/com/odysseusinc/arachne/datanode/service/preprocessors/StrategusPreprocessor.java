@@ -19,7 +19,6 @@ import com.odysseusinc.arachne.commons.utils.strategus.StrategusMatcher;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.ohdsi.sql.SqlRender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -52,7 +51,7 @@ public class StrategusPreprocessor implements Preprocessor<Analysis> {
     private void preprocess0(Analysis analysis, File file) {
         try {
             writeFile(analysis, RENV_LOCK, readResource(RENV_RESOURCE));
-            String runnerCode = SqlRender.renderSql(readResource(RUNNER), new String[]{"studyJson"}, new String[]{file.getName()});
+            String runnerCode = readResource(RUNNER).replace("@studyJson", file.getName());
             writeFile(analysis, EXECUTABLE, runnerCode);
             analysis.setExecutableFileName(EXECUTABLE);
         } catch (IOException e) {

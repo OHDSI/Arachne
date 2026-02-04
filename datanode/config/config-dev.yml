@@ -72,7 +72,7 @@ authenticator:
 #        url: https://localhost:8443/api/v1/auth/login
 #        infoUrl: https://localhost:8443/api/v1/auth/me
     db:
-      service: org.ohdsi.authenticator.service.jdbc.JdbcAuthService
+      # DB auth uses datanode DbBasicCredentialsService (no OHDSI authenticator)
       config:
         jdbcUrl: jdbc:postgresql://localhost:6432/arachne
         username: ohdsi
@@ -87,5 +87,8 @@ authenticator:
 
 security:
   method: db
+  # Set to true to disable login completely (all API access as anonymous user).
+  # loginDisabled: true
+  # anonymousUsername: admin
 
 jasypt.encryptor.password: arachne

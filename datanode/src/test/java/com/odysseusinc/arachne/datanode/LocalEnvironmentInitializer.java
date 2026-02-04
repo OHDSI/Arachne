@@ -15,7 +15,8 @@
 
 package com.odysseusinc.arachne.datanode;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -32,8 +33,9 @@ import java.util.UUID;
 import static org.testcontainers.containers.PostgreSQLContainer.IMAGE;
 
 
-@Slf4j
 public class LocalEnvironmentInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    private static final Logger log = LoggerFactory.getLogger(LocalEnvironmentInitializer.class);
 
     private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse(IMAGE).withTag("16.2");
     private static final Map<String, PostgreSQLContainer<?>> containers = ImmutableMap.of(

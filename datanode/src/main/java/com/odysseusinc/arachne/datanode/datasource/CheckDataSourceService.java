@@ -29,7 +29,6 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisResult
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.DataSourceUnsecuredDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.ohdsi.sql.SqlTranslate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -89,7 +88,7 @@ public class CheckDataSourceService {
 
         String dbmsType = dataSource.getType().getOhdsiDB();
         String resultSchema = dataSource.getResultSchema();
-        String sql = SqlUtils.translateSql(dbmsType, SqlTranslate.generateSessionId(), resultSchema, "select 1;");
+        String sql = SqlUtils.translateSql(dbmsType, SqlUtils.generateSessionId(), resultSchema, "select 1;");
         byte[] zip = ZipUtils.zipFile(SQL_FILENAME, sql.getBytes(StandardCharsets.UTF_8));
 
         try {

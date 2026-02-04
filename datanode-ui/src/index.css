@@ -1,3 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Study Repository design tokens (used after login) */
+@layer base {
+  :root {
+    --background: 252 33% 97%;
+    --foreground: 230 5% 30%;
+    --card: 0 0% 100%;
+    --card-foreground: 230 5% 30%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 5% 30%;
+    --primary: 186 98% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 186 100% 23%;
+    --secondary: 248 21% 92%;
+    --secondary-foreground: 230 5% 30%;
+    --muted: 248 21% 92%;
+    --muted-foreground: 217 15% 53%;
+    --accent: 186 98% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 333 89% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 127 46% 65%;
+    --success-foreground: 0 0% 100%;
+    --info: 186 83% 42%;
+    --info-foreground: 0 0% 100%;
+    --border: 262 16% 80%;
+    --input: 262 16% 80%;
+    --ring: 186 98% 35%;
+    --header: 184 18% 19%;
+    --header-foreground: 0 0% 100%;
+    --chip: 237 24% 75%;
+    --radius: 4px;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 230 5% 30%;
+    --sidebar-primary: 186 98% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 248 21% 92%;
+    --sidebar-accent-foreground: 230 5% 30%;
+    --sidebar-border: 262 16% 80%;
+    --sidebar-ring: 186 98% 35%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -16,5 +67,4 @@ code {
   text-decoration: none;
   color: #019cb3;
   cursor: pointer;
-
 }
