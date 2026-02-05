@@ -1,8 +1,8 @@
-# MkDocs config for Study Repository docs (docs/website)
+# MkDocs config for Arachne docs (docs/website)
 # Build: mkdocs build
 # Serve locally: mkdocs serve
 
-site_name: Study Repository
+site_name: Arachne
 site_description: Install, run, and manage study packages from a Docker catalog.
 # Optional: set to your GitHub Pages URL (e.g. https://owner.github.io/Arachne/)
 # site_url: https://owner.github.io/Arachne/
@@ -13,6 +13,9 @@ site_description: Install, run, and manage study packages from a Docker catalog.
 
 docs_dir: docs/website
 site_dir: site
+
+extra_css:
+  - stylesheets/extra.css
 
 theme:
   name: material
@@ -34,8 +37,10 @@ nav:
   - Home: README.md
   - Use case & user story: use-case.md
   - Docker registry integration: docker-registry.md
+  - Building a signed & secure study repository: secure-study-repository.md
   - Installation: installation.md
   - How to run studies: how-to-run-studies.md
+  - Security: security.md
 
 plugins:
   - search

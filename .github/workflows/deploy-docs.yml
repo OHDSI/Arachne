@@ -1,10 +1,13 @@
 # Build the docs/website with MkDocs and deploy to GitHub Pages.
 #
 # Setup:
-# 1. In the repo: Settings → Pages → Source = "GitHub Actions".
-# 2. Push to the branch that triggers this workflow (e.g. main).
+# 1. Settings → Pages → Build and deployment → Source = "GitHub Actions".
+# 2. If you see "Branch main is not allowed to deploy": go to Settings →
+#    Environments → github-pages → Deployment protection rules, and either
+#    allow the "main" branch for deployment or add it to the allowed list.
+# 3. Push to the branch that triggers this workflow (see on.push.branches below).
 #
-# The site will be available at: https://<owner>.github.io/<repo>/
+# The site will be at: https://<owner>.github.io/<repo>/
 
 name: Deploy docs to GitHub Pages
 

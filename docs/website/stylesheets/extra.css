@@ -1,0 +1,62 @@
+/* Arachne UI color theme – matches datanode-ui design system */
+
+:root {
+  /* Primary / links / accents – teal #019cb3 */
+  --md-primary-fg-color: #019cb3;
+  --md-primary-fg-color--light: #019cb394;
+  --md-primary-fg-color--dark: #006c75;
+  --md-primary-bg-color: #fff;
+  --md-primary-bg-color--light: rgba(255, 255, 255, 0.7);
+  /* Accent (links, highlights) */
+  --md-accent-fg-color: #019cb3;
+  --md-accent-fg-color--transparent: #019cb31f;
+  /* Typography – body #474850, secondary #798395 */
+  --md-default-fg-color: #474850;
+  --md-default-fg-color--light: #798395;
+  --md-typeset-color: #474850;
+  --md-typeset-a-color: #019cb3;
+}
+
+/* Header bar – dark teal-gray #28393a, white text */
+.md-header {
+  background-color: #28393a;
+}
+.md-header__title,
+.md-header__button {
+  color: #fff;
+}
+
+/* Sidebar / nav – primary for active */
+.md-nav__link--active {
+  color: #006c75;
+}
+.md-nav__link:focus,
+.md-nav__link:hover {
+  color: #019cb3;
+}
+
+/* Page background – light lavender-gray #f5f3fa */
+body {
+  background-color: #f5f3fa;
+}
+.md-main {
+  background-color: #f5f3fa;
+}
+.md-content__inner {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 3px 13px 0 rgba(0, 0, 0, 0.16);
+}
+
+/* Headings – darker teal #006c75 */
+.md-typeset h1,
+.md-typeset h2 {
+  color: #006c75;
+}
+
+/* Dark scheme (optional) – keep teal accent */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #11b7c6;
+  --md-primary-fg-color--dark: #019cb3;
+  --md-typeset-a-color: #11b7c6;
+}

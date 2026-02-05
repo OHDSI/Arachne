@@ -1,12 +1,12 @@
 # Installation
 
-This page covers **technical details** for installing and configuring the Arachne datanode (and related components) so you can use the Study Repository.
+This page covers **technical details** for installing and configuring Arachne (datanode and related components) so you can use the Study Repository.
 
 ---
 
 ## Prerequisites
 
-- **Docker** installed and running on the machine where studies will run. The app uses Docker to pull study images and run study containers.
+- **Docker** installed and running on the machine where studies will run. Arachne uses Docker to pull study images and run study containers.
 - **Java** (version required by the datanode; see project `pom.xml` or README).
 - **Node.js/npm** (or equivalent) if you build the datanode UI from source.
 
@@ -43,7 +43,7 @@ See `install/docker/README.md` for exact commands and port mapping.
 ## Configuration relevant to Study Repository
 
 - **Study catalog (registry) URL**  
-  Set in the app under **Settings** (or via system setting `study.repo.registryUrl` / equivalent). This is the Docker registry used as the study catalog.
+  Set in Arachne under **Settings** (or via system setting `study.repo.registryUrl` / equivalent). This is the Docker registry used as the study catalog.
 
 - **Docker access**  
   The backend (datanode or a dedicated study runner) must be able to run `docker pull` and `docker run` against the configured registry. If the registry is private, configure registry credentials (e.g. in system settings or environment).
@@ -57,6 +57,6 @@ See `install/docker/README.md` for exact commands and port mapping.
 
 1. Start the datanode (and UI).
 2. Log in and open **Settings**; set the **Study catalog address** to your Docker registry URL and save.
-3. Open **Study Repository**; you should see the list of installed studies (initially empty). Use **Install** with a study name from the catalog to pull your first study.
+3. In Arachne, open **Study Repository**; you should see the list of installed studies (initially empty). Use **Install** with a study name from the catalog to pull your first study.
 
 If pulls or runs fail, check Docker daemon access, registry URL, and credentials.

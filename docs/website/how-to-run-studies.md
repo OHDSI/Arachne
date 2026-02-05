@@ -1,6 +1,6 @@
 # How to run studies
 
-This page walks through **using the app** to run studies with the Study Repository: from configuring the catalog to running a study, viewing results, and cleaning up.
+This page walks through **using Arachne** to run studies with the Study Repository: from configuring the catalog to running a study, viewing results, and cleaning up.
 
 ---
 
@@ -11,13 +11,13 @@ This page walks through **using the app** to run studies with the Study Reposito
 3. Enter the registry URL (e.g. `https://ghcr.io` or your organization’s registry).
 4. Click **Save**.
 
-That’s the only place you configure the study “repo.” The app will use this registry to install and update studies.
+That’s the only place you configure the study “repo.” Arachne will use this registry to install and update studies.
 
 ---
 
 ## 2. See what’s on your machine
 
-1. Open **Study Repository** from the main navigation.
+1. In Arachne, open **Study Repository** from the main navigation.
 2. You’ll see a **list of study packages** already on this machine.
 3. Each row shows: study name, version (if available), and that it’s linked to the catalog.
 
@@ -30,7 +30,7 @@ Use this list to see what’s installed at a glance.
 1. On the Study Repository page, find the **Install** area.
 2. Type the **study name** (as it appears in the catalog) in the text box.
 3. Click **Install**.
-4. The app downloads the study image; when done, it appears in the list. No file picker or upload is needed.
+4. Arachne downloads the study image; when done, it appears in the list. No file picker or upload is needed.
 
 ---
 
@@ -38,7 +38,7 @@ Use this list to see what’s installed at a glance.
 
 1. In the list of installed studies, find the study you want to update.
 2. Click **Update** for that study.
-3. The app fetches the latest version from the catalog. After a short loading state, the list refreshes.
+3. Arachne fetches the latest version from the catalog. After a short loading state, the list refreshes.
 
 You don’t need to re-download or re-install manually.
 
@@ -47,7 +47,7 @@ You don’t need to re-download or re-install manually.
 ## 5. Run a study
 
 1. In the Study Repository list, choose **Run this study** for the study you want to run.
-2. You’ll see a short **“Starting…”** state while the study environment starts.
+2. You’ll see a short **“Starting…”** state while Arachne starts the study environment.
 3. When ready, an **editor** opens with a **single script** (e.g. `codeToRun.R`) where you enter:
    - Database connection details  
    - Study run parameters  
@@ -72,7 +72,7 @@ After a run:
 ## 7. View results in an interactive app
 
 1. For a study that has produced results, click **View results**.
-2. The app starts the interactive results viewer (e.g. a Shiny app) for that study.
+2. Arachne starts the interactive results viewer (e.g. a Shiny app) for that study.
 3. A **link (URL)** is shown in the UI—open it in a new browser tab or copy it.
 4. Use the link to explore results; you can copy or open it again from the UI.
 
