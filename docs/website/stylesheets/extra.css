@@ -42,10 +42,60 @@ body {
 .md-main {
   background-color: #f5f3fa;
 }
+
+/* Content area – more horizontal space, clean layout */
+.md-grid {
+  max-width: 1280px;
+}
 .md-content__inner {
   background-color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   box-shadow: 0 3px 13px 0 rgba(0, 0, 0, 0.16);
+  padding: 2rem 3rem 3rem;
+  margin: 1rem 0 2rem;
+}
+@media (min-width: 76.25em) {
+  .md-content__inner {
+    padding: 2.5rem 4rem 4rem;
+  }
+}
+
+/* Typography – readable line length and spacing */
+.md-typeset {
+  line-height: 1.65;
+}
+.md-typeset p {
+  margin-bottom: 1em;
+}
+.md-typeset h1 {
+  margin-top: 0;
+  margin-bottom: 0.75em;
+  padding-bottom: 0.4em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.md-typeset h2 {
+  margin-top: 1.75em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.25em;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 108, 117, 0.12);
+}
+.md-typeset h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+}
+.md-typeset ul,
+.md-typeset ol {
+  margin-bottom: 1em;
+}
+.md-typeset li {
+  margin-bottom: 0.35em;
+}
+.md-typeset hr {
+  margin: 2em 0;
+  border-bottom-color: rgba(0, 108, 117, 0.15);
 }
 
 /* Headings – darker teal #006c75 */
@@ -54,9 +104,52 @@ body {
   color: #006c75;
 }
 
+/* Code and pre – subtle background, rounded */
+.md-typeset code {
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background-color: #f5f3fa;
+}
+.md-typeset pre > code {
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  background-color: #28393a;
+}
+
+/* Tables – clean borders and spacing */
+.md-typeset table {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.md-typeset table th {
+  background-color: rgba(1, 156, 179, 0.08);
+  color: #006c75;
+  font-weight: 600;
+}
+.md-typeset table td,
+.md-typeset table th {
+  padding: 0.6em 1em;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Blockquotes – subtle left border */
+.md-typeset blockquote {
+  border-left-color: #019cb3;
+  padding-left: 1.25rem;
+  color: #474850;
+  font-style: normal;
+}
+
 /* Dark scheme (optional) – keep teal accent */
 [data-md-color-scheme="slate"] {
   --md-primary-fg-color: #11b7c6;
   --md-primary-fg-color--dark: #019cb3;
   --md-typeset-a-color: #11b7c6;
+}
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+[data-md-color-scheme="slate"] .md-typeset h2 {
+  border-bottom-color: rgba(1, 156, 179, 0.3);
 }
