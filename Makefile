@@ -3,6 +3,7 @@
 
 .PHONY: build build-backend build-datanode-ui \
 	start run-backend run-datanode-ui run-docker run-docker-db stop \
+	docs \
 	test test-backend test-backend-integration test-datanode-ui \
 	buildtest full-stack-build-test clean help
 
@@ -29,6 +30,8 @@ help:
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
 	@echo "  make full-stack-build-test  Same as buildtest"
+	@echo ""
+	@echo "  make docs            Serve package docs (MkDocs) and open in browser (http://127.0.0.1:8000); Ctrl+C to stop"
 	@echo ""
 	@echo "  make clean          Remove Maven target/ and frontend build artifacts"
 
@@ -78,6 +81,15 @@ run-datanode-ui:
 
 run-docker:
 	cd install/docker && docker compose up --build
+
+# --- Docs (package website) ---
+# Serve MkDocs and open browser; Ctrl+C stops the server.
+docs:
+	@echo "Starting docs at http://127.0.0.1:8000 ..."
+	mkdocs serve & \
+	sleep 2 && \
+	(command -v open >/dev/null 2>&1 && open http://127.0.0.1:8000 || command -v xdg-open >/dev/null 2>&1 && xdg-open http://127.0.0.1:8000 || echo "Open http://127.0.0.1:8000 in your browser") && \
+	wait
 
 # --- Test ---
 test: test-backend test-datanode-ui
