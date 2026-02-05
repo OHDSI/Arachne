@@ -2,9 +2,9 @@
 # Backend: Maven (datanode + commons + executionengine). Frontend: datanode-ui (React, includes Study Repository).
 
 .PHONY: build build-backend build-datanode-ui \
-	start run-backend run-datanode-ui run-docker run-docker-db stop \
+	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui \
 	docs \
-	test test-backend test-backend-integration test-datanode-ui \
+	test test-backend test-backend-integration test-datanode-ui env-test \
 	buildtest full-stack-build-test clean help
 
 # Default: show help
@@ -14,6 +14,8 @@ help:
 	@echo "  make build          Build backend (Maven; includes datanode-ui)"
 	@echo "  make start          Build and run full stack: Postgres (Docker) + backend (8880) + frontend (3000)"
 	@echo "  make stop           Shut down app and free ports 3000 (frontend) and 8880 (backend)"
+	@echo "  make restart        Stop then start full stack (stop + start)"
+	@echo "  make unlock-ui      Stop frontend (3000/3001), remove Next.js dev lock (fix 'Unable to acquire lock')"
 	@echo "  make test           Run backend + datanode-ui tests"
 	@echo ""
 	@echo "  make build-backend  Build Java modules and packaged datanode (includes datanode-ui build)"
@@ -27,6 +29,7 @@ help:
 	@echo "  make test-backend   Maven test, unit only (skips Docker/Testcontainers integration tests)"
 	@echo "  make test-backend-integration   Maven test including integration tests (requires Docker)"
 	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 18; .nvmrc provided)"
+	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
 	@echo "  make full-stack-build-test  Same as buildtest"
@@ -49,6 +52,9 @@ build-datanode-ui:
 start:
 	./scripts/run-full-stack.sh
 
+# Stop then start full stack.
+restart: stop start
+
 # Shut down processes on frontend (3000) and backend (8880) gracefully (SIGTERM), then force if needed.
 stop:
 	@echo "Stopping frontend (3000) and backend (8880)..."
@@ -61,13 +67,24 @@ stop:
 	-lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 	-lsof -ti:8880 | xargs kill -9 2>/dev/null || true
 	@echo "Stopped."
+	@echo "(Backend may show Maven [ERROR] exit 143 in the terminal where it was started; that is expected when stopping.)"
+
+# Stop frontend (ports 3000/3001 and any next dev), remove Next.js dev lock so 'npm run dev' can start again.
+flush:
+	@echo "Stopping frontend and removing Next.js dev lock..."
+	-lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+	-lsof -ti:3001 | xargs kill -9 2>/dev/null || true
+	-pkill -f "next dev" 2>/dev/null || true
+	-rm -f datanode-ui/.next/dev/lock
+	@echo "Done. You can run 'make run-datanode-ui' or 'make start' again."
 
 # Backend on 8880 so Next.js dev proxy (PROXY_HOST default) can reach it.
 # DB: application.yml defaults (localhost:5432/arachne_datanode). For Docker Postgres: SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode
 # Optional: put ARACHNE_DOCKER_REGISTRY_TOKEN (and ARACHNE_DOCKER_REGISTRY_URL) in datanode/config/datanode.env (git-ignored); they are sourced here if the file exists.
 run-backend: build-backend
-	@if [ -f datanode/config/datanode.env ]; then set -a && . datanode/config/datanode.env && set +a; fi && \
-	mvn -q spring-boot:run -pl datanode -am -Dspring-boot.run.profiles=local
+	@if [ -f datanode/config/datanode.env ]; then set -a && . datanode/config/datanode.env && set +a; fi; \
+	export DOCKER_HOST="unix:///var/run/docker.sock"; \
+	mvn -q spring-boot:run -pl datanode -am -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xmx1024m"
 
 # Use Docker Postgres (install/docker): start postgres only then run backend with DB on 5434.
 # Example: make run-docker-db && SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode make run-backend
@@ -106,6 +123,10 @@ test-backend-integration:
 # Use Node from .nvmrc when nvm is available (canvas native module fails on Node 21+).
 test-datanode-ui:
 	cd datanode-ui && ( [ -s "$${NVM_DIR:-$$HOME/.nvm}/nvm.sh" ] && . "$${NVM_DIR:-$$HOME/.nvm}/nvm.sh" && nvm use; true ) && npm run test -- --watchAll=false
+
+# Run Study Repository connection check (same logic as UI "Check connection" button) with ARACHNE_DOCKER_REGISTRY_* from datanode.env.
+env-test:
+	./scripts/env-test.sh
 
 # --- Full stack build test (CI / verification) ---
 buildtest full-stack-build-test:

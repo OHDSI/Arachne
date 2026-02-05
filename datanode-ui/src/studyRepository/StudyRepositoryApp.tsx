@@ -261,7 +261,6 @@ export function StudyRepositoryApp() {
               catalogUsername={catalogUsername}
               catalogToken={catalogToken}
               onSave={handleSaveSettings}
-              onConnectionSuccessWithRepos={setCatalogRepos}
             />
           )}
           {currentView === "run" && activeStudy && (

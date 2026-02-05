@@ -19,12 +19,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.AuthConfig;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.Image;
 import com.odysseusinc.arachne.datanode.dto.study.ConnectionCheckResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -35,15 +34,12 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * Checks connectivity to a Docker registry by calling the Registry V2 API (GET /v2/) and,
- * when a Docker client is available, tests Docker login and returns containers and local images.
+ * Checks connectivity to a Docker registry by running Docker login only (using
+ * ARACHNE_DOCKER_REGISTRY_* env vars when set, else form credentials). No catalog or repo listing.
  */
 @Service
 public class StudyRepositoryConnectionService {
@@ -51,6 +47,13 @@ public class StudyRepositoryConnectionService {
     private static final Logger LOG = LoggerFactory.getLogger(StudyRepositoryConnectionService.class);
 
     private final DockerClient dockerClient;
+
+    @Value("${datanode.studyRepository.defaultRegistryUrl:}")
+    private String envRegistryUrl;
+    @Value("${datanode.studyRepository.defaultRegistryUser:}")
+    private String envRegistryUser;
+    @Value("${datanode.studyRepository.defaultRegistryToken:}")
+    private String envRegistryToken;
 
     public StudyRepositoryConnectionService(@Autowired(required = false) DockerClient dockerClient) {
         this.dockerClient = dockerClient;
@@ -61,17 +64,28 @@ public class StudyRepositoryConnectionService {
     private static final ObjectMapper JSON = new ObjectMapper();
 
     /**
-     * Ping the Docker registry at the given catalog address with optional token, then when Docker is
-     * available test Docker login and return containers and local images from that registry.
+     * Check connection by running Docker login only. If login succeeds, the check succeeds.
+     * No catalog or repository listing; no repo count in the result.
      *
      * @param catalogAddress registry base URL (e.g. https://registry.example.com or registry.example.com)
-     * @param catalogToken   optional auth token or password (sent as Basic auth with username "oauth2" if present)
-     * @param catalogUsername optional username for Docker registry login (e.g. ACR registry name)
-     * @return result with success true, message, repositories, and when Docker available: containers and localImages
+     * @param catalogToken   auth token or password (required for login)
+     * @param catalogUsername username for Docker registry login (e.g. ACR registry name)
+     * @return result with success true and message "Connected to study registry." on success; no repositories
      */
     public ConnectionCheckResultDTO checkConnection(String catalogAddress, String catalogToken, String catalogUsername) {
+        LOG.info("Check connection: catalogAddress={}, tokenPresent={}, usernamePresent={}",
+                catalogAddress != null ? catalogAddress.trim() : null,
+                catalogToken != null && !catalogToken.isBlank(),
+                catalogUsername != null && !catalogUsername.isBlank());
+
         if (catalogAddress == null || catalogAddress.isBlank()) {
             return new ConnectionCheckResultDTO(false, "Catalog address is required", null, null, null);
+        }
+        if (catalogToken == null || catalogToken.isBlank()) {
+            return new ConnectionCheckResultDTO(false, "Catalog token is required", null, null, null);
+        }
+        if (catalogUsername == null || catalogUsername.isBlank()) {
+            return new ConnectionCheckResultDTO(false, "Catalog username is required", null, null, null);
         }
 
         String registryBase = normalizeRegistryBase(catalogAddress.trim());
@@ -79,62 +93,49 @@ public class StudyRepositoryConnectionService {
             return new ConnectionCheckResultDTO(false, "Invalid catalog address: " + catalogAddress, null, null, null);
         }
 
-        String v2Url = registryBase + "/v2/";
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS))
-                .build();
+        if (dockerClient == null) {
+            return new ConnectionCheckResultDTO(false, "Docker is not available. Connection check requires Docker.", null, null, null);
+        }
+
+        String dockerRegistryBase = registryBase;
+        String dockerUser = catalogUsername.trim();
+        String dockerToken = catalogToken;
+        boolean useEnvCreds = envRegistryUrl != null && !envRegistryUrl.isBlank()
+                && envRegistryToken != null && !envRegistryToken.isBlank();
+        if (useEnvCreds) {
+            String envBase = normalizeRegistryBase(envRegistryUrl.trim());
+            if (envBase != null && envBase.equals(registryBase)) {
+                dockerRegistryBase = envBase;
+                dockerUser = (envRegistryUser != null && !envRegistryUser.isBlank())
+                        ? envRegistryUser.trim() : deriveUsernameFromRegistry(envBase);
+                dockerToken = envRegistryToken;
+                LOG.info("Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to {}", dockerRegistryBase);
+            }
+        }
 
         try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(v2Url))
-                    .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
-                    .GET();
-
-            if (catalogToken != null && !catalogToken.isBlank()) {
-                String auth = "oauth2:" + catalogToken;
-                String encoded = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-                requestBuilder.header("Authorization", "Basic " + encoded);
-            }
-
-            HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            int status = response.statusCode();
-
-            if (status == 200) {
-                List<String> repositories = listRegistryRepositories(registryBase, catalogToken, client);
-                List<ConnectionCheckResultDTO.ContainerSummaryDTO> containers = null;
-                List<String> localImages = null;
-                if (dockerClient != null && catalogToken != null && !catalogToken.isBlank()) {
-                    AuthConfig authConfig = buildAuthConfig(registryBase, catalogToken, catalogUsername);
-                    try {
-                        dockerClient.authCmd().withAuthConfig(authConfig).exec();
-                    } catch (Exception e) {
-                        LOG.debug("Docker auth check failed for {}: {}", registryBase, e.getMessage());
-                        return new ConnectionCheckResultDTO(false,
-                                "Registry API OK but Docker login failed: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
-                                repositories, null, null);
-                    }
-                    try {
-                        containers = listContainers();
-                        localImages = listLocalImagesFromRegistry(registryBase);
-                    } catch (Exception e) {
-                        LOG.debug("Docker list containers/images failed: {}", e.getMessage());
-                    }
-                }
-                return new ConnectionCheckResultDTO(true, "Successfully connected to catalog", repositories, containers, localImages);
-            }
-            if (status == 401) {
-                return new ConnectionCheckResultDTO(false, "Authentication failed. Check catalog token.", null, null, null);
-            }
-            if (status == 404) {
-                return new ConnectionCheckResultDTO(false, "Registry does not support V2 API or path not found.", null, null, null);
-            }
-            return new ConnectionCheckResultDTO(false, "Registry returned unexpected status: " + status, null, null, null);
-
+            AuthConfig authConfig = buildAuthConfig(dockerRegistryBase, dockerToken, dockerUser);
+            dockerClient.authCmd().withAuthConfig(authConfig).exec();
+            LOG.info("Check connection: Docker login succeeded for {}", dockerRegistryBase);
+            return new ConnectionCheckResultDTO(true, "Connected to study registry.", null, null, null);
         } catch (Exception e) {
-            LOG.debug("Registry connection check failed for {}: {}", v2Url, e.getMessage());
             String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-            return new ConnectionCheckResultDTO(false, "Failed to connect: " + message, null, null, null);
+            LOG.warn("Check connection failed: Docker login to {} failed: {}", dockerRegistryBase, message);
+            return new ConnectionCheckResultDTO(false, "Docker login failed: " + message, null, null, null);
         }
+    }
+
+    /**
+     * Build Basic auth for Registry V2 / ACR: when username is provided (e.g. ACR admin user),
+     * use username:token; otherwise use oauth2:token for OAuth2/Docker identity tokens.
+     */
+    private static String buildRegistryBasicAuth(String registryBase, String catalogToken, String catalogUsername) {
+        String user = (catalogUsername != null && !catalogUsername.isBlank())
+                ? catalogUsername.trim()
+                : "oauth2";
+        String auth = user + ":" + catalogToken;
+        String encoded = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+        return "Basic " + encoded;
     }
 
     private AuthConfig buildAuthConfig(String registryBase, String catalogToken, String catalogUsername) {
@@ -159,53 +160,44 @@ public class StudyRepositoryConnectionService {
         return "oauth2";
     }
 
-    private List<ConnectionCheckResultDTO.ContainerSummaryDTO> listContainers() {
-        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
-        List<ConnectionCheckResultDTO.ContainerSummaryDTO> result = new ArrayList<>(containers.size());
-        for (Container c : containers) {
-            String id = c.getId();
-            String image = c.getImage();
-            String status = c.getStatus();
-            result.add(new ConnectionCheckResultDTO.ContainerSummaryDTO(id != null ? id : "", image != null ? image : "", status != null ? status : ""));
-        }
-        return result;
-    }
-
-    private List<String> listLocalImagesFromRegistry(String registryBase) {
-        String hostPart = registryBase.replaceFirst("^https?://", "").split("/", 2)[0];
-        List<Image> images = dockerClient.listImagesCmd().exec();
-        return images.stream()
-                .flatMap(img -> img.getRepoTags() != null ? Arrays.stream(img.getRepoTags()) : Stream.<String>empty())
-                .filter(tag -> tag != null && tag.startsWith(hostPart + "/"))
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
     /**
      * List repository names from the registry catalog.
-     * Tries Azure ACR API ({@code GET /acr/v1/_catalog?n=100}) with Bearer token first;
-     * if that fails with 404, tries standard Docker Registry V2 ({@code GET /v2/_catalog}).
+     * When catalogUsername is present (e.g. ACR admin), uses Basic auth for both ACR and V2 APIs.
+     * Otherwise tries Azure ACR with Bearer token first, then V2 catalog with Basic(oauth2:token).
      *
-     * @param registryBase base URL of the registry (e.g. https://myregistry.azurecr.io)
-     * @param catalogToken optional token; for ACR use {@code az acr login --expose-token} access token
-     * @param client       HTTP client to use
+     * @param registryBase    base URL of the registry (e.g. https://myregistry.azurecr.io)
+     * @param catalogToken    token or password (admin password for ACR when username present)
+     * @param catalogUsername optional username (e.g. ACR admin username / registry name)
+     * @param client          HTTP client to use
      * @return list of repository names, or empty list on failure or unsupported registry
      */
-    public List<String> listRegistryRepositories(String registryBase, String catalogToken, HttpClient client) {
+    public List<String> listRegistryRepositories(String registryBase, String catalogToken, String catalogUsername, HttpClient client) {
         if (registryBase == null || registryBase.isEmpty()) {
             return Collections.emptyList();
         }
-        // Prefer Azure ACR catalog when token is present (Bearer auth)
-        if (catalogToken != null && !catalogToken.isBlank()) {
-            List<String> repos = fetchCatalog(registryBase + "/acr/v1/_catalog?n=" + CATALOG_PAGE_SIZE,
-                    "Bearer " + catalogToken, client);
+        if (catalogToken == null || catalogToken.isBlank()) {
+            List<String> v2Repos = fetchCatalogV2(registryBase, null, null, client);
+            return v2Repos != null ? v2Repos : Collections.emptyList();
+        }
+        // When username present (e.g. ACR admin): use Basic auth for both ACR and V2
+        boolean useBasic = catalogUsername != null && !catalogUsername.isBlank();
+        if (useBasic) {
+            String basicAuth = buildRegistryBasicAuth(registryBase, catalogToken, catalogUsername);
+            List<String> repos = fetchCatalog(registryBase + "/acr/v1/_catalog?n=" + CATALOG_PAGE_SIZE, basicAuth, client);
             if (!repos.isEmpty()) {
                 return repos;
             }
+            List<String> v2Repos = fetchCatalogV2(registryBase, catalogToken, catalogUsername, client);
+            return v2Repos != null ? v2Repos : Collections.emptyList();
         }
-        // Fallback: standard Docker Registry V2 catalog (Basic auth if token was provided)
-        List<String> repos = fetchCatalogV2(registryBase, catalogToken, client);
-        return repos != null ? repos : Collections.emptyList();
+        // No username: try ACR with Bearer (ACR access token), then V2 with Basic(oauth2:token)
+        List<String> repos = fetchCatalog(registryBase + "/acr/v1/_catalog?n=" + CATALOG_PAGE_SIZE,
+                "Bearer " + catalogToken, client);
+        if (!repos.isEmpty()) {
+            return repos;
+        }
+        List<String> v2Repos = fetchCatalogV2(registryBase, catalogToken, catalogUsername, client);
+        return v2Repos != null ? v2Repos : Collections.emptyList();
     }
 
     /**
@@ -231,16 +223,14 @@ public class StudyRepositoryConnectionService {
         }
     }
 
-    private List<String> fetchCatalogV2(String registryBase, String catalogToken, HttpClient client) {
+    private List<String> fetchCatalogV2(String registryBase, String catalogToken, String catalogUsername, HttpClient client) {
         String v2CatalogUrl = registryBase + "/v2/_catalog?n=" + CATALOG_PAGE_SIZE;
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(v2CatalogUrl))
                 .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
                 .GET();
         if (catalogToken != null && !catalogToken.isBlank()) {
-            String auth = "oauth2:" + catalogToken;
-            String encoded = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-            builder.header("Authorization", "Basic " + encoded);
+            builder.header("Authorization", buildRegistryBasicAuth(registryBase, catalogToken, catalogUsername));
         }
         try {
             HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));

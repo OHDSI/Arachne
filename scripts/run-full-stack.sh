@@ -41,7 +41,11 @@ export SPRING_DATASOURCE_PASSWORD="ohdsi-password"
 if [[ -f datanode/config/datanode.env ]]; then
   set -a && . datanode/config/datanode.env && set +a
 fi
-(cd datanode && mvn -q spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dserver.ssl.enabled=false" -Dcheckstyle.skip=true) &
+# Force Unix socket for Docker so local stack works (overrides shell DOCKER_HOST that may point to tcp://localhost:2375)
+export DOCKER_HOST="unix:///var/run/docker.sock"
+# Limit JVM heap to reduce chance of OOM kill (exit code 137). Override with JAVA_OPTS e.g. -Xmx512m if needed.
+HEAP="${JAVA_OPTS:--Xmx768m}"
+(cd datanode && mvn -q spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dserver.ssl.enabled=false $HEAP" -Dcheckstyle.skip=true) &
 echo $! > "$BACKEND_PID_FILE"
 
 echo "==> Waiting for backend to listen on 8880..."
@@ -53,6 +57,7 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
 done
 if ! nc -z localhost 8880 2>/dev/null; then
   echo "Backend did not become ready (port 8880 not listening)."
+  echo "If the backend exited with code 137, it was likely killed (e.g. out-of-memory). Try closing other apps or set JAVA_OPTS=-Xmx768m and re-run."
   exit 1
 fi
 

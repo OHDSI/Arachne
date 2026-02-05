@@ -7,23 +7,34 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 
+function getConnectionErrorMessage(err: unknown): string {
+  if (err && typeof err === "object") {
+    const e = err as Record<string, unknown>
+    if (e.response && typeof e.response === "object") {
+      const res = e.response as Record<string, unknown>
+      const data = res?.data as Record<string, unknown> | undefined
+      if (data?.message && typeof data.message === "string") return data.message
+      if (data?.errorMessage && typeof data.errorMessage === "string") return data.errorMessage
+    }
+    if (e.message && typeof e.message === "string") return e.message
+  }
+  return "Failed to connect. Check address, username, and token."
+}
+
 interface SettingsPageProps {
   catalogAddress: string
   catalogUsername: string
   catalogToken: string
   onSave: (address: string, username: string, token: string) => void
-  /** Called when connection check succeeds and registry returns a list of repository names. */
-  onConnectionSuccessWithRepos?: (repos: string[]) => void
 }
 
-export function SettingsPage({ catalogAddress, catalogUsername: initialUsername, catalogToken, onSave, onConnectionSuccessWithRepos }: SettingsPageProps) {
+export function SettingsPage({ catalogAddress, catalogUsername: initialUsername, catalogToken, onSave }: SettingsPageProps) {
   const [address, setAddress] = useState(catalogAddress)
   const [username, setUsername] = useState(initialUsername ?? "")
   const [token, setToken] = useState(catalogToken)
   const [saved, setSaved] = useState(false)
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [testMessage, setTestMessage] = useState("")
-  const [connectionMeta, setConnectionMeta] = useState<{ containers?: { id: string; image: string; status: string }[]; localImages?: string[] } | null>(null)
 
   const handleSave = () => {
     if (!username.trim()) {
@@ -50,39 +61,25 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
 
     setTestStatus("testing")
     setTestMessage("")
-    setConnectionMeta(null)
 
     try {
       const result = await checkStudyRepositoryConnection(address, token, username || undefined)
       if (result.success) {
         setTestStatus("success")
         setTestMessage(result.message || "Successfully connected to catalog")
-        if (result.repositories && result.repositories.length > 0 && onConnectionSuccessWithRepos) {
-          onConnectionSuccessWithRepos(result.repositories)
-        }
-        if ((result.containers && result.containers.length > 0) || (result.localImages && result.localImages.length > 0)) {
-          setConnectionMeta({
-            containers: result.containers,
-            localImages: result.localImages,
-          })
-        }
       } else {
         setTestStatus("error")
         setTestMessage(result.message || "Failed to connect. Check address and token.")
       }
     } catch (err: unknown) {
       setTestStatus("error")
-      const message = err && typeof err === "object" && "message" in err
-        ? String((err as { message: unknown }).message)
-        : "Failed to connect. Check address and token."
+      const message = getConnectionErrorMessage(err)
       setTestMessage(message)
     }
 
-    // Reset after 8 seconds so user can read containers/images
     setTimeout(() => {
       setTestStatus("idle")
       setTestMessage("")
-      setConnectionMeta(null)
     }, 8000)
   }
 
@@ -187,32 +184,6 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
                 )}
                 {testMessage}
               </div>
-              {testStatus === "success" && connectionMeta && (connectionMeta.containers?.length || connectionMeta.localImages?.length) ? (
-                <div className="p-3 rounded-md text-sm bg-muted/50 space-y-2">
-                  {connectionMeta.containers && connectionMeta.containers.length > 0 && (
-                    <div>
-                      <p className="font-medium text-foreground mb-1">Containers ({connectionMeta.containers.length})</p>
-                      <ul className="list-disc list-inside text-muted-foreground space-y-0.5 max-h-32 overflow-y-auto">
-                        {connectionMeta.containers.slice(0, 20).map((c) => (
-                          <li key={c.id}>{c.image} — {c.status}</li>
-                        ))}
-                        {connectionMeta.containers.length > 20 && <li>… and {connectionMeta.containers.length - 20} more</li>}
-                      </ul>
-                    </div>
-                  )}
-                  {connectionMeta.localImages && connectionMeta.localImages.length > 0 && (
-                    <div>
-                      <p className="font-medium text-foreground mb-1">Local images from this registry ({connectionMeta.localImages.length})</p>
-                      <ul className="list-disc list-inside text-muted-foreground space-y-0.5 max-h-32 overflow-y-auto">
-                        {connectionMeta.localImages.slice(0, 20).map((img) => (
-                          <li key={img}>{img}</li>
-                        ))}
-                        {connectionMeta.localImages.length > 20 && <li>… and {connectionMeta.localImages.length - 20} more</li>}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ) : null}
             </div>
           )}
         </CardContent>

@@ -195,6 +195,12 @@
             <artifactId>docker-java-transport-httpclient5</artifactId>
             <version>${javaDockerVersion}</version>
         </dependency>
+        <!-- Required at runtime by httpclient5 TlsConfig (HttpVersionPolicy); not always pulled transitively -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5-h2</artifactId>
+            <version>5.2.2</version>
+        </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
@@ -363,6 +369,10 @@
                         <exclude>**/UploadServiceTest.java</exclude>
                         <exclude>**/ValidatorTest.java</exclude>
                     </excludes>
+                    <!-- So docker-java uses Unix socket in tests (env-test and UI match) -->
+                    <environmentVariables>
+                        <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
+                    </environmentVariables>
                 </configuration>
             </plugin>
             <plugin>

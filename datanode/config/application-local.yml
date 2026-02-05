@@ -4,3 +4,7 @@ server:
   port: 8880
   ssl:
     enabled: false
+# Force Unix socket for Docker so local dev works even when DOCKER_HOST is set to tcp://localhost:2375 elsewhere
+arachne:
+  docker:
+    host: unix:///var/run/docker.sock

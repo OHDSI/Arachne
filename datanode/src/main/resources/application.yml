@@ -67,6 +67,9 @@ arachne:
   activemq:
     packages:
       trust-all: true
+  # Docker daemon URL. Default Unix socket so connection test works on macOS/Linux even when DOCKER_HOST is set to tcp://localhost:2375.
+  docker:
+    host: ${ARACHNE_DOCKER_HOST:unix:///var/run/docker.sock}
 #ms
 files:
   store:
