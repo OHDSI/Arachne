@@ -20,7 +20,7 @@ This page covers **technical details** for installing and configuring the Arachn
    ```bash
    mvn clean install
    ```
-   From the project root, this builds `arachne-commons`, `execution-engine-commons`, `datanode-ui`, and the datanode. See [REPOSITORY-ARTIFACTS.md](../REPOSITORY-ARTIFACTS.md) if external repos (OHDSI, Redshift) are required.
+   From the project root, this builds `arachne-commons`, `execution-engine-commons`, `datanode-ui`, and the datanode. If external repos (OHDSI, Redshift) are required, see `docs/REPOSITORY-ARTIFACTS.md` in the repository.
 
 3. **Run the datanode:**
    - From `datanode/`: run the Spring Boot application (e.g. via your IDE or `mvn spring-boot:run`).
@@ -49,7 +49,7 @@ See `install/docker/README.md` for exact commands and port mapping.
   The backend (datanode or a dedicated study runner) must be able to run `docker pull` and `docker run` against the configured registry. If the registry is private, configure registry credentials (e.g. in system settings or environment).
 
 - **Execution**  
-  Study execution may be handled by the datanode (with Docker client access) or by a separate minimal runner process; see [MINIMAL_DOCKER_EXECUTION_DESIGN.md](../MINIMAL_DOCKER_EXECUTION_DESIGN.md) for design options.
+  Study execution may be handled by the datanode (with Docker client access) or by a separate minimal runner process; see `docs/MINIMAL_DOCKER_EXECUTION_DESIGN.md` in the repository for design options.
 
 ---
 

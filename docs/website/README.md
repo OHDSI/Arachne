@@ -30,7 +30,7 @@ Start with [Use case & user story](use-case.md) for the full picture, then [Inst
 This site is built with [MkDocs](https://www.mkdocs.org/) and the [Material theme](https://squidfunk.github.io/mkdocs-material/). To publish via GitHub Actions:
 
 1. In the repo: **Settings → Pages → Build and deployment → Source** = **GitHub Actions**.
-2. Push to `main` (or `master`); the workflow [`.github/workflows/deploy-docs.yml`](../../.github/workflows/deploy-docs.yml) builds the site and deploys it.
+2. Push to `main` (or `master`); the workflow in `.github/workflows/deploy-docs.yml` builds the site and deploys it.
 3. The site will be at `https://<owner>.github.io/<repo>/`.
 
 To build and preview locally: from the repo root run `pip install mkdocs-material` then `mkdocs serve`, and open http://127.0.0.1:8000.
