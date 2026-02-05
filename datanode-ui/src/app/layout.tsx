@@ -6,11 +6,9 @@
  */
 
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import "../index.css";
 import "../App.css";
-
-const ClientRoot = dynamic(() => import("./ClientRoot"), { ssr: false });
+import ClientRootDynamic from "./ClientRootDynamic";
 
 export const metadata: Metadata = {
   title: "Arachne Data Node",
@@ -25,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClientRoot>{children}</ClientRoot>
+        <ClientRootDynamic>{children}</ClientRootDynamic>
       </body>
     </html>
   );

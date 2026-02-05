@@ -11,7 +11,6 @@ const isStaticExport = process.env.BUILD_STATIC === "true";
 const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: false },
   // Static export for Maven/JAR packaging (no rewrites supported)
   ...(isStaticExport && { output: "export" }),
   // Proxy /api in dev only (rewrites not allowed with output: 'export')

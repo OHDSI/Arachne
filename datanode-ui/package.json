@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9"
   },
   "overrides": {
     "postcss": "^8.4.31",
@@ -72,13 +72,13 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.544.0",
     "moment": "^2.29.4",
-    "next": "14.2.35",
+    "next": "16.1.6",
     "notistack": "3.0.1",
     "papaparse": "5.3.0",
     "polished": "^4.2.2",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-day-picker": "8.10.1",
-    "react-dom": "18.2.0",
+    "react-dom": "^18.2.0",
     "react-dropzone": "11.3.2",
     "react-hook-form": "^7.54.1",
     "react-i18next": "13.5.0",
@@ -99,7 +99,7 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^4.9.5",
+    "typescript": "^5.1.0",
     "use-debounce": "8.0.1",
     "vaul": "^1.1.2",
     "web-vitals": "^2.1.4",
@@ -118,7 +118,7 @@
     "@typescript-eslint/parser": "^6.14.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.56.0",
-    "eslint-config-next": "14.2.35",
+    "eslint-config-next": "16.1.6",
     "eslint-plugin-license-header": "^0.6.0",
     "eslint-plugin-react": "^7.33.2",
     "http-proxy-middleware": "^2.0.6",
@@ -126,10 +126,10 @@
     "tailwindcss": "^3.4.17"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "pretest": "node -e \"var p=require('path');var f=p.join(__dirname,'node_modules/canvas/index.js');try{require('fs').writeFileSync(f,'module.exports=require(\\\"./browser.js\\\");\\n');}catch(e){}\"",
     "test": "react-scripts test",
     "clean": "rimraf .next && rimraf ./build && rimraf ./target"
