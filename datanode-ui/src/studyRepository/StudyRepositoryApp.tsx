@@ -64,6 +64,7 @@ function packagesToStudies(
 export function StudyRepositoryApp() {
   const [currentView, setCurrentView] = useState<"repository" | "settings" | "run">("repository");
   const [catalogAddress, setCatalogAddress] = useState("");
+  const [catalogUsername, setCatalogUsername] = useState("");
   const [catalogToken, setCatalogToken] = useState("");
   const [packages, setPackages] = useState<StudyPackageDTO[]>([]);
   const [selectedVersionByName, setSelectedVersionByName] = useState<Record<string, string>>({});
@@ -97,9 +98,11 @@ export function StudyRepositoryApp() {
     try {
       const data = await getStudyRepositorySettings();
       setCatalogAddress(data?.catalogAddress ?? "");
+      setCatalogUsername(data?.catalogUsername ?? "");
       setCatalogToken(data?.catalogToken ?? "");
     } catch {
       setCatalogAddress("");
+      setCatalogUsername("");
       setCatalogToken("");
     }
   }, []);
@@ -192,10 +195,11 @@ export function StudyRepositoryApp() {
     setCurrentView("repository");
   };
 
-  const handleSaveSettings = async (address: string, token: string) => {
+  const handleSaveSettings = async (address: string, username: string, token: string) => {
     try {
-      await saveStudyRepositorySettings(address, token);
+      await saveStudyRepositorySettings(address, username, token);
       setCatalogAddress(address);
+      setCatalogUsername(username);
       setCatalogToken(token);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to save settings");
@@ -254,6 +258,7 @@ export function StudyRepositoryApp() {
           {currentView === "settings" && (
             <SettingsPage
               catalogAddress={catalogAddress}
+              catalogUsername={catalogUsername}
               catalogToken={catalogToken}
               onSave={handleSaveSettings}
               onConnectionSuccessWithRepos={setCatalogRepos}

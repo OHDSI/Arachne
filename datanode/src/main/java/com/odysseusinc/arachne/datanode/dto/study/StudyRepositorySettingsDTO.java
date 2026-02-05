@@ -23,4 +23,6 @@ import lombok.Setter;
 public class StudyRepositorySettingsDTO {
     private String catalogAddress;
     private String catalogToken;
+    /** Optional username for Docker registry login (e.g. ACR registry name). Used when testing connection with Docker. */
+    private String catalogUsername;
 }

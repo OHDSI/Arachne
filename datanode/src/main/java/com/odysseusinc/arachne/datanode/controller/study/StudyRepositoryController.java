@@ -109,14 +109,20 @@ public class StudyRepositoryController {
     public StudyRepositorySettingsDTO getSettings() {
         StudyRepositorySettingsDTO dto = new StudyRepositorySettingsDTO();
         dto.setCatalogAddress(studyService.getCatalogAddress());
+        dto.setCatalogUsername(studyService.getCatalogUsername());
         dto.setCatalogToken(studyService.getCatalogToken());
         return dto;
     }
 
     @PostMapping("/settings")
     public void saveSettings(@RequestBody StudyRepositorySettingsDTO dto) {
+        String username = dto != null ? dto.getCatalogUsername() : null;
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Catalog username is required");
+        }
         studyService.setCatalogSettings(
                 dto != null ? dto.getCatalogAddress() : null,
+                username,
                 dto != null ? dto.getCatalogToken() : null);
     }
 
@@ -124,7 +130,11 @@ public class StudyRepositoryController {
     public ConnectionCheckResultDTO checkConnection(@RequestBody StudyRepositorySettingsDTO dto) {
         String address = dto != null ? dto.getCatalogAddress() : null;
         String token = dto != null ? dto.getCatalogToken() : null;
-        return connectionService.checkConnection(address, token);
+        String username = dto != null ? dto.getCatalogUsername() : null;
+        if (username == null || username.isBlank()) {
+            return new ConnectionCheckResultDTO(false, "Catalog username is required", null, null, null);
+        }
+        return connectionService.checkConnection(address, token, username);
     }
 
     /**

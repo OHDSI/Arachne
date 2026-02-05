@@ -17,11 +17,13 @@ package com.odysseusinc.arachne.dockerrunner.execution;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Frame;
 import com.odysseusinc.arachne.dockerrunner.callback.CallbackClient;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
@@ -34,6 +36,7 @@ import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.Stage;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,7 +50,6 @@ import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -63,10 +65,13 @@ public class DockerExecutionService {
 
     private final DockerClient dockerClient;
     private final CallbackClient callbackClient;
+    private final AuthConfig registryAuthConfig;
 
-    public DockerExecutionService(DockerClient dockerClient, CallbackClient callbackClient) {
+    public DockerExecutionService(DockerClient dockerClient, CallbackClient callbackClient,
+                                  @Autowired(required = false) AuthConfig registryAuthConfig) {
         this.dockerClient = dockerClient;
         this.callbackClient = callbackClient;
+        this.registryAuthConfig = registryAuthConfig;
     }
 
     @Value("${analysis.dir:/tmp/docker-runner-executions}")
@@ -181,7 +186,11 @@ public class DockerExecutionService {
             log.info("Execution [{}] pulling image [{}]", request.getId(), image);
             callbackClient.sendStatus(request, Stage.INITIALIZE, "Pulling image [" + image + "]\r\n");
             try {
-                dockerClient.pullImageCmd(image).exec(new com.github.dockerjava.api.command.PullImageResultCallback()).awaitCompletion();
+                PullImageCmd pullCmd = dockerClient.pullImageCmd(image);
+                if (registryAuthConfig != null) {
+                    pullCmd = pullCmd.withAuthConfig(registryAuthConfig);
+                }
+                pullCmd.exec(new com.github.dockerjava.api.command.PullImageResultCallback()).awaitCompletion();
                 callbackClient.sendStatus(request, Stage.INITIALIZE, "Pull complete\r\n");
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();

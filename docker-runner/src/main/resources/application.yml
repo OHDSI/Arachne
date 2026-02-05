@@ -14,6 +14,11 @@ docker:
     default: r-base
   # Pull policy: NEVER, MISSING, ALWAYS, FORCE
   image.pull: MISSING
+  # Registry login for pull (use ARACHNE_DOCKER_REGISTRY_* env vars when set)
+  registry:
+    url: ${ARACHNE_DOCKER_REGISTRY_URL:}
+    username: ${ARACHNE_DOCKER_REGISTRY_USER:}
+    password: ${ARACHNE_DOCKER_REGISTRY_TOKEN:}
 
 # Runtime
 runtime:

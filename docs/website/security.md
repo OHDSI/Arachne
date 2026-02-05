@@ -1,127 +1,90 @@
 # Security
 
-This page describes how Arachne handles security. It is intended for security-conscious customers, enterprise reviewers, and technical evaluators. The content is structured for both engineers and procurement/security review.
+How Arachne handles security: authentication, data protection, and **secure Docker study images** (signing and verification). For a full CI workflow that builds, scans, and signs study images, see [Building a signed & secure study repository](secure-study-repository.md).
 
 ---
 
 ## 1. Overview
 
-### Security philosophy and principles
-
-- **Defense in depth**: Authentication, authorization, transport security, and data protection are layered so that a failure in one area does not automatically compromise the whole system.
-- **Least privilege**: Users and services are granted only the access needed for their role. Administrative actions are restricted to users with the appropriate role.
-- **Explicit over implicit**: Security-sensitive behavior (e.g. authentication mode, TLS) is configurable so deployers can match their environment and policies.
-
-### Shared responsibility model
-
-| We secure | You configure / operate |
-|-----------|--------------------------|
-| Application authentication and authorization (login, JWT, OIDC integration) | Deployment environment (network, firewall, reverse proxy) |
-| Password hashing and token handling in the app | TLS termination (if done at proxy) and certificate management |
-| Secure defaults for cookies and session handling | Database credentials, registry tokens, and other secrets |
-| Access control within the datanode (roles, API protection) | Who has access to the host, Docker daemon, and registry |
-| Study execution isolation via Docker | Patching the OS, container runtime, and base images |
-
-Arachne is typically self-hosted. You are responsible for the hosting environment, network security, and operational practices (backups, updates, access reviews).
+- **Defense in depth**: Auth, transport security, and data protection are layered.
+- **Least privilege**: Roles (e.g. `ROLE_ADMIN`) restrict administrative actions.
+- **Shared responsibility**: We secure the app (auth, JWTs, access control, study execution isolation). You operate the environment: TLS, secrets, network, Docker daemon, and registry access.
 
 ---
 
 ## 2. Authentication & Access Control
 
-### Supported auth methods
-
-- **Username/password (basic)**: Stored credentials are verified with a password encoder (e.g. BCrypt). On success, the application issues a JWT and sets it in an HTTP-only cookie.
-- **OIDC / OAuth2**: Optional. When configured, users can sign in via an OpenID Connect provider (e.g. Azure AD, Keycloak). The application creates or updates a local user and issues a JWT in the same cookie format.
-- **Login-disabled mode**: For locked-down or single-user deployments, login can be disabled. A configurable “anonymous” user (e.g. `admin`) is injected as the principal for all requests. Use only in trusted environments.
-
-There is no built-in API-key auth for machine-to-machine calls in the default distribution; such flows would typically use the same JWT (e.g. obtained via a service account login) or a reverse proxy that adds authentication.
-
-### Role-based access control and least privilege
-
-- **Roles**: The application uses roles such as `ROLE_ADMIN` and `ROLE_USER`. Admin-only actions (e.g. system settings, restart) are protected with role checks (e.g. `@Secured("ROLE_ADMIN")`).
-- **Principle**: Non-admin users cannot change system settings or perform administrative operations. Data source and study operations are gated by authentication and, where applicable, role.
-
-### Secrets handling and credential storage
-
-- **Passwords**: User passwords are not stored in plain text. They are hashed with a strong password encoder (e.g. BCrypt) before persistence.
-- **Catalog token**: The study catalog (Docker registry) token can be stored in system settings. It is used only for registry API calls (e.g. pull, list tags). Consider supplying it via environment (e.g. `ARACHNE_DOCKER_REGISTRY_TOKEN`) instead of storing in the database if your policy requires it.
-- **Optional encryption of config**: Some deployments use Jasypt or similar to encrypt sensitive values in configuration files. Example env references `jasypt.encryptor.password` for decrypting stored secrets. Key management is the deployer’s responsibility.
-
-### Token lifetimes and rotation
-
-- **JWT expiry**: Configurable. Default in the application is `P1D` (one day); datanode config may override with a value in seconds (e.g. `datanode.jwt.expiration=3600`). Tokens are validated on each request; after expiry, the user must sign in again.
-- **Refresh**: The current design does not describe a separate refresh-token flow; session extension is effectively “re-login” or re-authentication via OIDC.
-- **Rotation**: JWT signing keys (e.g. `jwt.key.private` / `jwt.key.public`) should be rotated according to your policy. Key rotation may require coordinated deployment and may invalidate existing sessions until users re-authenticate.
-
-### Multi-factor authentication
-
-- MFA is not implemented inside the application. When OIDC is used, MFA can be enforced at the identity provider (e.g. Azure AD, Okta).
+- **Auth methods:** Username/password (BCrypt, JWT in HTTP-only cookie), optional OIDC; or login-disabled with a single injected user (trusted envs only).
+- **Roles:** `ROLE_ADMIN` and `ROLE_USER`; admin-only actions (e.g. system settings) are role-protected.
+- **Secrets:** Passwords hashed; catalog (registry) token in system settings or env (`ARACHNE_DOCKER_REGISTRY_TOKEN`); optional Jasypt for encrypted config.
+- **JWT:** Configurable expiry; validate on each request. Rotate JWT signing keys per policy. No built-in refresh; re-login or OIDC.
+- **MFA:** Not in-app; enforce at IdP when using OIDC.
 
 ---
 
 ## 3. Data Protection
 
-### Encryption in transit
-
-- **TLS**: The datanode can be run with TLS (HTTPS). Configuration is via Spring Boot server SSL settings (e.g. `server.ssl.enabled`, keystore/truststore). In production, use TLS 1.2 or 1.3 and disable weak ciphers.
-- **HSTS**: If the application is served behind a reverse proxy, HSTS can be enforced at the proxy. Application-level HSTS headers can be added if not provided by the proxy.
-- **Internal traffic**: Communication with the database, Docker daemon, and execution engine should use encrypted channels where possible (e.g. TLS to PostgreSQL, TLS to registry). This is deployment-dependent.
-
-### Encryption at rest
-
-- **Database**: Data at rest depends on your database and storage. Use your provider’s or OS-level encryption for database files and backups (e.g. encrypted volumes, managed DB encryption).
-- **File storage**: Uploaded or generated files (e.g. under `files.store.path`) are stored on the server filesystem. Encryption at rest is the responsibility of the host or storage layer.
-- **Backups**: Backup encryption and retention are your responsibility.
-
-### Key management
-
-- JWT signing keys and any encryption keys used for configuration (e.g. Jasypt) should be stored and rotated according to your key management policy. The application does not prescribe a specific KMS; use your environment’s standard (e.g. cloud KMS, HSM, or secure secret store).
-
-### Handling of sensitive data
-
-- Passwords are hashed, not stored in plain text. JWTs are short-lived and stored in HTTP-only, SameSite cookies where the UI is used.
-- Catalog tokens and database connection details are sensitive; restrict access to configuration and environment and avoid logging them.
-
-### Data retention and deletion
-
-- Retention and deletion policies are not defined inside the application. Define retention for database data, logs, and file storage according to your compliance and operational needs. User and study data deletion would be implemented via your procedures or future product features.
+- **Transit:** TLS via Spring Boot SSL or reverse proxy; use TLS 1.2+ in production. Encrypt DB and registry traffic where possible.
+- **At rest:** DB and file storage encryption are your responsibility (provider/OS/volume encryption).
+- **Secrets:** JWT and config encryption keys: store and rotate per policy (KMS/HSM as appropriate). Do not log credentials or catalog tokens.
+- **Retention:** Not defined in-app; define retention and deletion for DB, logs, and files per your compliance.
 
 ---
 
-## 4. Infrastructure & Container Security
+## 4. Secure Docker study images: signing and verification
 
-### Hosting environment
+Study packages in Arachne are Docker images pulled from a configurable registry. Our strategy is to **sign** images and attestations in CI and **verify** them before use so only trusted, unmodified images run.
 
-- Arachne does not mandate a specific cloud or region. Document where you host the datanode, database, and any execution/runner components (e.g. cloud provider, region, network) for your own and auditors’ reference.
+### Strategy
 
-### Container registry and image security
+- **Sign in CI, not in the Dockerfile.** The Dockerfile only defines how the image is built (base image, layers, entrypoint). Signing happens **after** the image is built and pushed, in the CI workflow.
+- **Keyless signing** with [cosign](https://docs.sigstore.dev/cosign/overview/) and GitHub OIDC: no long-lived private keys; the signature is bound to your repository and workflow (e.g. `build-study-image.yaml`).
+- **Verify after download.** Before running a study image, Arachne (or the operator) can verify that the image digest is signed by a trusted identity (e.g. your GitHub repo and workflow). Unsigned or failed verification can block execution.
 
-- Studies are distributed as Docker images from a configurable registry. Use a private registry with access control where possible. Registry credentials (or token) are configured in Arachne (system settings or environment).
-- Prefer registries that support image signing and verification if your policy requires it.
+### What we do when building images (CI, not Dockerfile)
 
-### Image scanning and vulnerability management
+The project’s **`build-study-image.yaml`** (and the workflow in [secure-study-repository.md](secure-study-repository.md)) does the following:
 
-- The application does not perform image scanning itself. Integrate scanning into your CI/CD (e.g. when building study images) and optionally in the registry or runtime. Act on critical/high vulnerabilities before promoting images.
+1. **Build** the study image with Docker (from the study’s Dockerfile) and push it to the registry (e.g. GHCR).
+2. **Attest** — Enable **provenance** and **SBOM** on the push step (`provenance: true`, `sbom: true`) so the registry stores how and from what the image was built.
+3. **Sign the image digest** — Run `cosign sign --yes "${IMAGE}@${DIGEST}"` so the image digest is signed with the workflow’s OIDC identity.
+4. **Sign attestations** — Run `cosign sign-attestation --yes "${IMAGE}@${DIGEST}"` so the provenance and SBOM attestations are also signed.
 
-### Patch and update strategy
+Nothing in the **Dockerfile** itself performs signing; the Dockerfile only produces the image. All signing is done in the CI pipeline after a successful build, test, and optional vulnerability scan (e.g. Trivy).
 
-- Keep the application stack updated: JVM, OS, Docker, dependencies. Use a regular patch cycle and track security advisories for Spring Boot, PostgreSQL driver, and other libraries.
+### How Arachne verifies after download
 
-### Network isolation and firewalling
+- **Manual verification (today):** Operators or researchers can verify an image before or after pull using cosign, e.g.:
+  ```bash
+  cosign verify <registry>/<image>@<digest> \
+    --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+    --certificate-identity="https://github.com/<org>/<repo>/.github/workflows/build-study-image.yaml@refs/heads/main"
+  ```
+  Success means the image is the one that workflow signed and has not been tampered with.
 
-- Restrict network access to the datanode, database, and execution engine. Expose only necessary ports. Use firewall rules or security groups so that only trusted clients and services can reach the application and Docker daemon.
+- **In-app verification (optional):** The Arachne backend can verify signatures before running a study: after resolving the image digest (e.g. at install or at run), call cosign (or a cosign library) with the expected OIDC issuer and identity; if verification fails, do not start the container. This is the intended model for “only run signed studies”; implementation is optional and can be added where the runner or datanode triggers the pull/run.
 
-### Secrets management for containers
+### Summary
 
-- Avoid baking secrets into images. Supply credentials via environment variables, secret mounts, or a secrets manager when running the datanode and any runner components. Use the same approach for study runtimes if they need credentials.
-
-### CI/CD pipeline security
-
-- If you build study images via CI (e.g. GitHub Actions), secure the pipeline: restrict who can change workflows, use short-lived tokens for registry push, and avoid logging secrets. The repository’s `build-study-image.yaml` (or equivalent) should follow your pipeline security standards.
+| Where | What |
+|-------|------|
+| **Dockerfile** | Builds the image only (no signing). |
+| **CI (e.g. build-study-image.yaml)** | Build → push with provenance/SBOM → sign image digest → sign attestations (cosign keyless). |
+| **After download** | Verify with cosign (manually or in Arachne) using expected OIDC issuer/identity; only run if verification succeeds. |
 
 ---
 
-## 5. API & Application Security
+## 5. Infrastructure & operations (short)
+
+- **Registry:** Use a private registry with access control; configure catalog URL and token in Arachne (Settings or env). Prefer registries that support OCI artifacts (for signatures and attestations).
+- **Scanning:** The app does not scan images. Run Trivy (or similar) in CI when building study images; fail on HIGH/CRITICAL if your policy requires it.
+- **Network:** Restrict access to the datanode, DB, and execution engine; expose only needed ports.
+- **Secrets:** Do not bake secrets into images. Use env, secret mounts, or a secret manager for datanode and runner.
+- **Updates:** Keep JVM, OS, Docker, and dependencies patched; rotate registry tokens and JWT keys.
+
+---
+
+## 6. API & Application Security
 
 ### API authentication and authorization
 
@@ -158,7 +121,7 @@ Other OWASP items (e.g. insecure deserialization, known vulnerabilities in compo
 
 ---
 
-## 6. Monitoring & Incident Response
+## 7. Monitoring & Incident Response
 
 ### Security monitoring and alerting
 
@@ -182,7 +145,7 @@ Other OWASP items (e.g. insecure deserialization, known vulnerabilities in compo
 
 ---
 
-## 7. Compliance & Governance
+## 8. Compliance & Governance
 
 ### Compliance frameworks
 
@@ -202,7 +165,7 @@ Other OWASP items (e.g. insecure deserialization, known vulnerabilities in compo
 
 ---
 
-## 8. Customer Responsibilities
+## 9. Customer Responsibilities
 
 ### What you should configure securely
 
@@ -220,7 +183,7 @@ Other OWASP items (e.g. insecure deserialization, known vulnerabilities in compo
 
 ---
 
-## 9. Contact & Reporting
+## 10. Contact & Reporting
 
 ### Reporting vulnerabilities
 

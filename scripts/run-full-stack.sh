@@ -38,6 +38,9 @@ sleep 1
 export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5434/arachne_datanode"
 export SPRING_DATASOURCE_USERNAME="ohdsi-user"
 export SPRING_DATASOURCE_PASSWORD="ohdsi-password"
+if [[ -f datanode/config/datanode.env ]]; then
+  set -a && . datanode/config/datanode.env && set +a
+fi
 (cd datanode && mvn -q spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dserver.ssl.enabled=false" -Dcheckstyle.skip=true) &
 echo $! > "$BACKEND_PID_FILE"
 

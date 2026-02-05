@@ -77,6 +77,7 @@ public class UserSteps {
         return firstName.toLowerCase() + "." + lastName.toLowerCase() + "@arachne.com";
     }
 
+    @SuppressWarnings("unchecked")
     public static User find(EntityManager em, String name) {
         String[] names = name.split(" ");
         String email = getEmail(names[0], names[1]);

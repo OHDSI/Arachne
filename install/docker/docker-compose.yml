@@ -1,4 +1,3 @@
-version: '3'
 services:
 
   # External PostgreSQL database for Arachne Datanode (auth, analyses, study repository, etc.).

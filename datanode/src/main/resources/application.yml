@@ -77,9 +77,10 @@ datanode:
   checkDataSourceTimeout: 45000
   app:
     errorsTokenEnabled: false
-  # Study Repository: default Docker registry URL and token (token from env ARACHNE_DOCKER_REGISTRY_TOKEN when not set in config)
+  # Study Repository: default catalog from env (ARACHNE_DOCKER_REGISTRY_* in datanode.env); UI auto-populates and allows editing.
   studyRepository:
     defaultRegistryUrl: ${ARACHNE_DOCKER_REGISTRY_URL:}
+    defaultRegistryUser: ${ARACHNE_DOCKER_REGISTRY_USER:}
     defaultRegistryToken: ${ARACHNE_DOCKER_REGISTRY_TOKEN:}
 
   jwt:
@@ -114,10 +115,11 @@ executionEngine:
 docker:
 #  host: tcp://localhost:2375
   tls-verify: false
+  # Registry login: use ARACHNE_DOCKER_REGISTRY_* env vars (e.g. from datanode.env) when set
   registry:
-    host: hub.odysseusinc.com
-    username: user
-    password:
+    host: ${ARACHNE_DOCKER_REGISTRY_URL:hub.odysseusinc.com}
+    username: ${ARACHNE_DOCKER_REGISTRY_USER:user}
+    password: ${ARACHNE_DOCKER_REGISTRY_TOKEN:}
 entities:
   scheduler:
     checkListRequestsInterval: 10000

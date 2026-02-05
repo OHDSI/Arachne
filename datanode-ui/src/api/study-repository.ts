@@ -18,6 +18,7 @@ export type StudyPackageDTO = {
 
 export type StudyRepositorySettingsDTO = {
   catalogAddress: string | null;
+  catalogUsername: string | null;
   catalogToken: string | null;
 };
 
@@ -53,28 +54,42 @@ export function getStudyRepositorySettings(): Promise<StudyRepositorySettingsDTO
 
 export function saveStudyRepositorySettings(
   catalogAddress: string,
+  catalogUsername: string,
   catalogToken: string
 ): Promise<void> {
   return api.post("/study-repository/settings", {
     catalogAddress: catalogAddress || null,
+    catalogUsername: catalogUsername || null,
     catalogToken: catalogToken || null,
   });
 }
+
+export type ContainerSummary = {
+  id: string;
+  image: string;
+  status: string;
+};
 
 export type ConnectionCheckResult = {
   success: boolean;
   message: string;
   /** Repository names from the registry catalog when connection test succeeds. */
   repositories?: string[];
+  /** Containers from the Docker host (when Docker login succeeded). */
+  containers?: ContainerSummary[];
+  /** Local image names (repo:tag) from the Docker host for this registry. */
+  localImages?: string[];
 };
 
 export function checkStudyRepositoryConnection(
   catalogAddress: string,
-  catalogToken: string
+  catalogToken: string,
+  catalogUsername?: string
 ): Promise<ConnectionCheckResult> {
   return api.post("/study-repository/settings/check-connection", {
     catalogAddress: catalogAddress || null,
     catalogToken: catalogToken || null,
+    catalogUsername: catalogUsername || null,
   });
 }
 

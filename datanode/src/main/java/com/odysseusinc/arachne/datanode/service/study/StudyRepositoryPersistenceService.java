@@ -37,6 +37,7 @@ import java.util.Optional;
 public class StudyRepositoryPersistenceService {
 
     private static final String SETTING_CATALOG_ADDRESS = "study.catalog.address";
+    private static final String SETTING_CATALOG_USERNAME = "study.catalog.username";
     private static final String SETTING_CATALOG_TOKEN = "study.catalog.token";
 
     private final StudyPackageRepository studyPackageRepository;
@@ -45,6 +46,8 @@ public class StudyRepositoryPersistenceService {
 
     @Value("${datanode.studyRepository.defaultRegistryUrl:}")
     private String defaultRegistryUrl;
+    @Value("${datanode.studyRepository.defaultRegistryUser:}")
+    private String defaultRegistryUser;
     @Value("${datanode.studyRepository.defaultRegistryToken:}")
     private String defaultRegistryToken;
 
@@ -189,6 +192,14 @@ public class StudyRepositoryPersistenceService {
     }
 
     @Transactional(readOnly = true)
+    public String getCatalogUsername() {
+        return systemSettingRepository.findByName(SETTING_CATALOG_USERNAME)
+                .map(SystemSetting::getValue)
+                .filter(v -> v != null && !v.isBlank())
+                .orElseGet(() -> defaultRegistryUser != null && !defaultRegistryUser.isBlank() ? defaultRegistryUser : null);
+    }
+
+    @Transactional(readOnly = true)
     public String getCatalogToken() {
         return systemSettingRepository.findByName(SETTING_CATALOG_TOKEN)
                 .map(SystemSetting::getValue)
@@ -202,13 +213,19 @@ public class StudyRepositoryPersistenceService {
     }
 
     @Transactional
+    public void setCatalogUsername(String username) {
+        setSettingValue(SETTING_CATALOG_USERNAME, username);
+    }
+
+    @Transactional
     public void setCatalogToken(String token) {
         setSettingValue(SETTING_CATALOG_TOKEN, token);
     }
 
     @Transactional
-    public void setCatalogSettings(String address, String token) {
+    public void setCatalogSettings(String address, String username, String token) {
         setCatalogAddress(address);
+        setCatalogUsername(username);
         setCatalogToken(token);
     }
 

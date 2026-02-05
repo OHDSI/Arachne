@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 /**
  * @deprecated Rewrite this test using Cucumber.
  */
+@Deprecated
 @SpringBootTest
 @ActiveProfiles("test")
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})

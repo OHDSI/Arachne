@@ -29,4 +29,18 @@ public class ConnectionCheckResultDTO {
     private String message;
     /** Repository names from the registry catalog (e.g. ACR /acr/v1/_catalog), when connection test succeeds. */
     private java.util.List<String> repositories;
+    /** Containers from the Docker host (id, image, status) when Docker is available and connection test runs. */
+    private java.util.List<ContainerSummaryDTO> containers;
+    /** Local image names (repo:tag) from the Docker host that belong to this registry. */
+    private java.util.List<String> localImages;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ContainerSummaryDTO {
+        private String id;
+        private String image;
+        private String status;
+    }
 }

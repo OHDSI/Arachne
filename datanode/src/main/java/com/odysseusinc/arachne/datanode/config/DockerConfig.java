@@ -14,19 +14,25 @@
  */
 package com.odysseusinc.arachne.datanode.config;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
 import com.odysseusinc.arachne.datanode.config.properties.DockerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
+
 @Configuration
 @EnableConfigurationProperties(DockerProperties.class)
 public class DockerConfig {
-    @Bean
-    public DockerClientConfig dockerClient(DockerProperties properties) {
 
+    @Bean
+    public DockerClientConfig dockerClientConfig(DockerProperties properties) {
         return DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(properties.getHost())
                 .withDockerTlsVerify(properties.isTlsVerify())
@@ -35,5 +41,18 @@ public class DockerConfig {
                 .withRegistryUsername(properties.getRegistry().getUsername())
                 .withRegistryPassword(properties.getRegistry().getPassword())
                 .build();
+    }
+
+    /** Docker client for registry connection tests and listing containers/images. */
+    @Bean
+    public DockerClient dockerClient(DockerClientConfig dockerClientConfig) {
+        DefaultDockerClientConfig config = (DefaultDockerClientConfig) dockerClientConfig;
+        URI host = config.getDockerHost();
+        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(host)
+                .sslConfig(config.getSSLConfig())
+                .maxConnections(50)
+                .build();
+        return DockerClientImpl.getInstance(config, httpClient);
     }
 }

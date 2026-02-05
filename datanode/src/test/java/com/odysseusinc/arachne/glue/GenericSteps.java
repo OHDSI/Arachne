@@ -100,6 +100,7 @@ public class GenericSteps {
         );
     }
 
+    @SuppressWarnings("unchecked")
     public static List<?> toList(Object cursor) {
         if (cursor instanceof Page) {
             return ((Page<?>) cursor).getContent();
@@ -146,6 +147,7 @@ public class GenericSteps {
             return matchWithCaptureOrAlias(value, actual);
         };
     }
+    @SuppressWarnings("unchecked")
     public static <T> Object getProperty(T item, String key) {
         String[] split = key.split("->", 2);
         try {
@@ -255,11 +257,12 @@ public class GenericSteps {
         }
     }
 
-    private static Object convertTo(Object value, Class type) {
+    @SuppressWarnings("unchecked")
+    private static Object convertTo(Object value, Class<?> type) {
         if (type.equals(List.class)) {
             return Arrays.stream(String.valueOf(value).split(",")).collect(Collectors.toList());
         } else if (type.isEnum()) {
-            return Enum.valueOf(type, String.valueOf(value));
+            return Enum.valueOf((Class<? extends Enum>) type, String.valueOf(value));
         } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
             return Boolean.valueOf(value.toString());
         } else if (type.equals(int.class) || type.equals(Integer.class)) {

@@ -16,6 +16,7 @@
 package com.odysseusinc.arachne.dockerrunner.config;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
@@ -32,6 +33,13 @@ public class DockerClientConfig {
     @Value("${docker.host:unix:///var/run/docker.sock}")
     private String dockerHost;
 
+    @Value("${docker.registry.url:}")
+    private String registryUrl;
+    @Value("${docker.registry.username:}")
+    private String registryUsername;
+    @Value("${docker.registry.password:}")
+    private String registryPassword;
+
     @Bean
     public DockerClient dockerClient() {
         DefaultDockerClientConfig.Builder builder = DefaultDockerClientConfig.createDefaultConfigBuilder();
@@ -46,5 +54,24 @@ public class DockerClientConfig {
                 .maxConnections(50)
                 .build();
         return DockerClientImpl.getInstance(config, httpClient);
+    }
+
+    /**
+     * Registry auth used when pulling images. Populated from ARACHNE_DOCKER_REGISTRY_* env vars when set.
+     * If not set, pulls use no auth (public images or host-level docker login).
+     */
+    @Bean
+    public AuthConfig registryAuthConfig() {
+        if (registryUrl == null || registryUrl.isBlank() || registryPassword == null || registryPassword.isBlank()) {
+            return null;
+        }
+        String url = registryUrl.trim();
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
+        return new AuthConfig()
+                .withRegistryAddress(url)
+                .withUsername(registryUsername != null && !registryUsername.isBlank() ? registryUsername.trim() : "")
+                .withPassword(registryPassword);
     }
 }

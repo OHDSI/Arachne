@@ -17,9 +17,14 @@ package com.odysseusinc.arachne.datanode.service.study;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.AuthConfig;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.Image;
 import com.odysseusinc.arachne.datanode.dto.study.ConnectionCheckResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -30,38 +35,48 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Checks connectivity to a Docker registry by calling the Registry V2 API (GET /v2/).
- * This verifies that the server is reachable and, if auth is supplied, that credentials are valid.
+ * Checks connectivity to a Docker registry by calling the Registry V2 API (GET /v2/) and,
+ * when a Docker client is available, tests Docker login and returns containers and local images.
  */
 @Service
 public class StudyRepositoryConnectionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StudyRepositoryConnectionService.class);
+
+    private final DockerClient dockerClient;
+
+    public StudyRepositoryConnectionService(@Autowired(required = false) DockerClient dockerClient) {
+        this.dockerClient = dockerClient;
+    }
     private static final int CONNECT_TIMEOUT_SECONDS = 10;
     private static final int READ_TIMEOUT_SECONDS = 10;
     private static final int CATALOG_PAGE_SIZE = 100;
     private static final ObjectMapper JSON = new ObjectMapper();
 
     /**
-     * Ping the Docker registry at the given catalog address with optional token.
-     * Uses the Docker Registry HTTP API V2: GET /v2/ returns 200 when the registry is reachable.
+     * Ping the Docker registry at the given catalog address with optional token, then when Docker is
+     * available test Docker login and return containers and local images from that registry.
      *
      * @param catalogAddress registry base URL (e.g. https://registry.example.com or registry.example.com)
      * @param catalogToken   optional auth token or password (sent as Basic auth with username "oauth2" if present)
-     * @return result with success true and a message on success, or success false and error message on failure
+     * @param catalogUsername optional username for Docker registry login (e.g. ACR registry name)
+     * @return result with success true, message, repositories, and when Docker available: containers and localImages
      */
-    public ConnectionCheckResultDTO checkConnection(String catalogAddress, String catalogToken) {
+    public ConnectionCheckResultDTO checkConnection(String catalogAddress, String catalogToken, String catalogUsername) {
         if (catalogAddress == null || catalogAddress.isBlank()) {
-            return new ConnectionCheckResultDTO(false, "Catalog address is required", null);
+            return new ConnectionCheckResultDTO(false, "Catalog address is required", null, null, null);
         }
 
         String registryBase = normalizeRegistryBase(catalogAddress.trim());
         if (registryBase == null) {
-            return new ConnectionCheckResultDTO(false, "Invalid catalog address: " + catalogAddress, null);
+            return new ConnectionCheckResultDTO(false, "Invalid catalog address: " + catalogAddress, null, null, null);
         }
 
         String v2Url = registryBase + "/v2/";
@@ -86,21 +101,84 @@ public class StudyRepositoryConnectionService {
 
             if (status == 200) {
                 List<String> repositories = listRegistryRepositories(registryBase, catalogToken, client);
-                return new ConnectionCheckResultDTO(true, "Successfully connected to catalog", repositories);
+                List<ConnectionCheckResultDTO.ContainerSummaryDTO> containers = null;
+                List<String> localImages = null;
+                if (dockerClient != null && catalogToken != null && !catalogToken.isBlank()) {
+                    AuthConfig authConfig = buildAuthConfig(registryBase, catalogToken, catalogUsername);
+                    try {
+                        dockerClient.authCmd().withAuthConfig(authConfig).exec();
+                    } catch (Exception e) {
+                        LOG.debug("Docker auth check failed for {}: {}", registryBase, e.getMessage());
+                        return new ConnectionCheckResultDTO(false,
+                                "Registry API OK but Docker login failed: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+                                repositories, null, null);
+                    }
+                    try {
+                        containers = listContainers();
+                        localImages = listLocalImagesFromRegistry(registryBase);
+                    } catch (Exception e) {
+                        LOG.debug("Docker list containers/images failed: {}", e.getMessage());
+                    }
+                }
+                return new ConnectionCheckResultDTO(true, "Successfully connected to catalog", repositories, containers, localImages);
             }
             if (status == 401) {
-                return new ConnectionCheckResultDTO(false, "Authentication failed. Check catalog token.", null);
+                return new ConnectionCheckResultDTO(false, "Authentication failed. Check catalog token.", null, null, null);
             }
             if (status == 404) {
-                return new ConnectionCheckResultDTO(false, "Registry does not support V2 API or path not found.", null);
+                return new ConnectionCheckResultDTO(false, "Registry does not support V2 API or path not found.", null, null, null);
             }
-            return new ConnectionCheckResultDTO(false, "Registry returned unexpected status: " + status, null);
+            return new ConnectionCheckResultDTO(false, "Registry returned unexpected status: " + status, null, null, null);
 
         } catch (Exception e) {
             LOG.debug("Registry connection check failed for {}: {}", v2Url, e.getMessage());
             String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-            return new ConnectionCheckResultDTO(false, "Failed to connect: " + message, null);
+            return new ConnectionCheckResultDTO(false, "Failed to connect: " + message, null, null, null);
         }
+    }
+
+    private AuthConfig buildAuthConfig(String registryBase, String catalogToken, String catalogUsername) {
+        String username = catalogUsername != null && !catalogUsername.isBlank()
+                ? catalogUsername.trim()
+                : deriveUsernameFromRegistry(registryBase);
+        return new AuthConfig()
+                .withRegistryAddress(registryBase)
+                .withUsername(username)
+                .withPassword(catalogToken);
+    }
+
+    private static String deriveUsernameFromRegistry(String registryBase) {
+        try {
+            URI uri = URI.create(registryBase);
+            String host = uri.getHost();
+            if (host != null && !host.isEmpty()) {
+                return host.split("\\.", 2)[0];
+            }
+        } catch (Exception ignored) {
+        }
+        return "oauth2";
+    }
+
+    private List<ConnectionCheckResultDTO.ContainerSummaryDTO> listContainers() {
+        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+        List<ConnectionCheckResultDTO.ContainerSummaryDTO> result = new ArrayList<>(containers.size());
+        for (Container c : containers) {
+            String id = c.getId();
+            String image = c.getImage();
+            String status = c.getStatus();
+            result.add(new ConnectionCheckResultDTO.ContainerSummaryDTO(id != null ? id : "", image != null ? image : "", status != null ? status : ""));
+        }
+        return result;
+    }
+
+    private List<String> listLocalImagesFromRegistry(String registryBase) {
+        String hostPart = registryBase.replaceFirst("^https?://", "").split("/", 2)[0];
+        List<Image> images = dockerClient.listImagesCmd().exec();
+        return images.stream()
+                .flatMap(img -> img.getRepoTags() != null ? Arrays.stream(img.getRepoTags()) : Stream.<String>empty())
+                .filter(tag -> tag != null && tag.startsWith(hostPart + "/"))
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
