@@ -46,10 +46,18 @@ build-datanode-ui:
 start:
 	./scripts/run-full-stack.sh
 
-# Shut down processes on frontend (3000) and backend (8880) to free ports.
+# Shut down processes on frontend (3000) and backend (8880) gracefully (SIGTERM), then force if needed.
 stop:
+	@echo "Stopping frontend (3000) and backend (8880)..."
+	-lsof -ti:3000 | xargs kill -TERM 2>/dev/null || true
+	-lsof -ti:8880 | xargs kill -TERM 2>/dev/null || true
+	@for i in 1 2 3 4 5 6 7 8 9 10; do \
+	  if ! (lsof -ti:3000 2>/dev/null || lsof -ti:8880 2>/dev/null) | grep -q .; then break; fi; \
+	  sleep 1; \
+	done
 	-lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 	-lsof -ti:8880 | xargs kill -9 2>/dev/null || true
+	@echo "Stopped."
 
 # Backend on 8880 so Next.js dev proxy (PROXY_HOST default) can reach it.
 # DB: application.yml defaults (localhost:5432/arachne_datanode). For Docker Postgres: SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode
