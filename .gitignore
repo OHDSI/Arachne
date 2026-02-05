@@ -6,3 +6,6 @@
 # Local config and secrets (copy from config-local.example.yml or datanode.env.example)
 datanode/config/config-local.yml
 datanode/config/datanode.env
+
+# MkDocs build output
+site/

@@ -1,0 +1,41 @@
+# MkDocs config for Study Repository docs (docs/website)
+# Build: mkdocs build
+# Serve locally: mkdocs serve
+
+site_name: Study Repository
+site_description: Install, run, and manage study packages from a Docker catalog.
+# Optional: set to your GitHub Pages URL (e.g. https://owner.github.io/Arachne/)
+# site_url: https://owner.github.io/Arachne/
+
+# Optional: uncomment and set for "Edit on GitHub" links
+# repo_url: https://github.com/owner/Arachne
+# edit_uri: edit/main/docs/website/
+
+docs_dir: docs/website
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: README.md
+  - Use case & user story: use-case.md
+  - Docker registry integration: docker-registry.md
+  - Installation: installation.md
+  - How to run studies: how-to-run-studies.md
+
+plugins:
+  - search
