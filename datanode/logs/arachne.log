@@ -161,3 +161,555 @@
 2026-02-06T00:41:12.286+01:00  INFO 5012 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
 2026-02-06T00:41:12.286+01:00  INFO 5012 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
 2026-02-06T00:41:12.326+01:00  WARN 5012 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection failed: Docker login to https://executionengine.azurecr.io failed: org.apache.hc.client5.http.HttpHostConnectException: Connect to unix://localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+2026-02-06T00:44:48.803+01:00  INFO 10583 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Starting StudyRepositoryConnectionServiceIT using Java 23.0.1 with PID 10583 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:44:48.804+01:00  INFO 10583 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T00:44:49.026+01:00  INFO 10583 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Started StudyRepositoryConnectionServiceIT in 0.354 seconds (process running for 0.752)
+2026-02-06T00:44:49.424+01:00  INFO 10583 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
+2026-02-06T00:44:49.425+01:00  INFO 10583 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
+2026-02-06T00:44:49.465+01:00  WARN 10583 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection failed: Docker login to https://executionengine.azurecr.io failed: org.apache.hc.client5.http.HttpHostConnectException: Connect to unix://localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+2026-02-06T00:45:10.047+01:00  INFO 11094 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Starting StudyRepositoryConnectionServiceIT using Java 23.0.1 with PID 11094 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:45:10.048+01:00  INFO 11094 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T00:45:10.277+01:00  INFO 11094 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Started StudyRepositoryConnectionServiceIT in 0.376 seconds (process running for 0.787)
+2026-02-06T00:45:10.677+01:00  INFO 11094 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
+2026-02-06T00:45:10.677+01:00  INFO 11094 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
+2026-02-06T00:45:10.713+01:00  WARN 11094 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection failed: Docker login to https://executionengine.azurecr.io failed: org.apache.hc.client5.http.HttpHostConnectException: Connect to unix://localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+2026-02-06T00:45:56.776+01:00  INFO 11923 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Starting StudyRepositoryConnectionServiceIT using Java 23.0.1 with PID 11923 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:45:56.777+01:00  INFO 11923 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T00:45:56.942+01:00  INFO 11923 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T00:45:56.993+01:00  INFO 11923 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Started StudyRepositoryConnectionServiceIT in 0.368 seconds (process running for 0.783)
+2026-02-06T00:45:57.379+01:00  INFO 11923 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
+2026-02-06T00:45:57.379+01:00  INFO 11923 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
+2026-02-06T00:45:57.422+01:00  WARN 11923 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection failed: Docker login to https://executionengine.azurecr.io failed: org.apache.hc.client5.http.HttpHostConnectException: Connect to unix://localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+2026-02-06T00:48:01.734+01:00  INFO 14200 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Starting StudyRepositoryConnectionServiceIT using Java 23.0.1 with PID 14200 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:48:01.735+01:00  INFO 14200 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T00:48:01.906+01:00  INFO 14200 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T00:48:02.009+01:00  INFO 14200 --- [main] d.s.s.StudyRepositoryConnectionServiceIT : Started StudyRepositoryConnectionServiceIT in 0.419 seconds (process running for 0.861)
+2026-02-06T00:48:02.448+01:00  INFO 14200 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
+2026-02-06T00:48:02.449+01:00  INFO 14200 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
+2026-02-06T00:48:04.112+01:00  INFO 14200 --- [main] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login succeeded for https://executionengine.azurecr.io
+2026-02-06T00:48:40.625+01:00  INFO 15091 --- [main] c.o.a.datanode.WebApplicationStarter     : Starting WebApplicationStarter using Java 23.0.1 with PID 15091 (/Users/ablack/darwin/Arachne/datanode/target/classes started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:48:40.630+01:00  INFO 15091 --- [main] c.o.a.datanode.WebApplicationStarter     : The following 1 profile is active: "local"
+2026-02-06T00:48:40.894+01:00  INFO 15091 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-06T00:48:40.927+01:00  INFO 15091 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 8 JPA repository interfaces.
+2026-02-06T00:48:41.109+01:00  INFO 15091 --- [main] o.s.c.a.ConfigurationClassEnhancer       : @Bean method SpringPropertiesConfig.propertySourcesPlaceholderConfigurer is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface. This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
+2026-02-06T00:48:41.110+01:00  INFO 15091 --- [main] c.u.j.r.DefaultLazyPropertyResolver      : Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2026-02-06T00:48:41.111+01:00  INFO 15091 --- [main] c.u.j.d.DefaultLazyPropertyDetector      : Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2026-02-06T00:48:41.233+01:00  INFO 15091 --- [main] ptablePropertiesBeanFactoryPostProcessor : Post-processing PropertySource instances
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource configurationProperties [org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource] to AOP Proxy
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource commandLineArgs [org.springframework.core.env.SimpleCommandLinePropertySource] to EncryptableEnumerablePropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletConfigInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletContextInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/config-dev.yml]' via location 'file:config/config-dev.yml' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/application-local.yml]' via location 'optional:file:./config/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:48:41.237+01:00  INFO 15091 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:48:41.255+01:00  INFO 15091 --- [main] c.u.j.filter.DefaultLazyPropertyFilter   : Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2026-02-06T00:48:41.325+01:00  WARN 15091 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'webConfig' of type [com.odysseusinc.arachne.datanode.config.WebConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [commonAnnotationBeanPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-02-06T00:48:41.456+01:00  INFO 15091 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8880 (http)
+2026-02-06T00:48:41.461+01:00  INFO 15091 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-06T00:48:41.461+01:00  INFO 15091 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2026-02-06T00:48:41.483+01:00  INFO 15091 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-06T00:48:41.483+01:00  INFO 15091 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 832 ms
+2026-02-06T00:48:41.571+01:00  INFO 15091 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-06T00:48:41.591+01:00  INFO 15091 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@92fd091
+2026-02-06T00:48:41.592+01:00  INFO 15091 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-06T00:48:41.623+01:00  INFO 15091 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2026-02-06T00:48:41.623+01:00  INFO 15091 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2026-02-06T00:48:41.623+01:00  INFO 15091 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2026-02-06T00:48:41.632+01:00  INFO 15091 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5434/arachne_datanode (PostgreSQL 15.5)
+2026-02-06T00:48:41.680+01:00  INFO 15091 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 58 migrations (execution time 00:00.034s)
+2026-02-06T00:48:41.707+01:00  INFO 15091 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 20250206000004
+2026-02-06T00:48:41.709+01:00  INFO 15091 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-02-06T00:48:41.758+01:00  INFO 15091 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-06T00:48:41.774+01:00  INFO 15091 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.9.Final
+2026-02-06T00:48:41.784+01:00  INFO 15091 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-06T00:48:41.848+01:00  INFO 15091 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-06T00:48:42.420+01:00  INFO 15091 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-06T00:48:42.421+01:00  INFO 15091 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-06T00:48:42.589+01:00  INFO 15091 --- [main] c.o.a.d.c.BuildNumberController          : Version [2.x-SNAPSHOT], build [qa] @ [2026-02-05T23:48:38Z]
+2026-02-06T00:48:42.620+01:00  INFO 15091 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-06T00:48:42.790+01:00  INFO 15091 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T00:48:42.901+01:00  WARN 15091 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-06T00:48:42.942+01:00  INFO 15091 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [public/index.html]
+2026-02-06T00:48:43.048+01:00  INFO 15091 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-02-06T00:48:43.084+01:00  INFO 15091 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7aaf260f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@739e76e6, org.springframework.security.web.context.SecurityContextHolderFilter@12387c79, org.springframework.security.web.header.HeaderWriterFilter@4fa9533f, org.springframework.web.filter.CorsFilter@789a9354, org.springframework.security.web.authentication.logout.LogoutFilter@1a60b0c4, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter@156d47c5, com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter@74be992a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6ad11552, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5dea9867, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@27153ba2, org.springframework.security.web.session.SessionManagementFilter@64bf60c7, org.springframework.security.web.access.ExceptionTranslationFilter@bea7f47, org.springframework.security.web.access.intercept.AuthorizationFilter@1cdb4bd3]
+2026-02-06T00:48:43.240+01:00  INFO 15091 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8880 (http) with context path ''
+2026-02-06T00:48:43.251+01:00  INFO 15091 --- [main] c.o.a.datanode.WebApplicationStarter     : Started WebApplicationStarter in 2.784 seconds (process running for 2.931)
+2026-02-06T00:48:43.290+01:00  INFO 15091 --- [main] c.o.a.d.security.UserAccountInitializer  : Verifying 2 service accounts
+2026-02-06T00:48:43.290+01:00  INFO 15091 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [admin]: Datanode Admin admin@odysseusinc.com
+2026-02-06T00:48:43.398+01:00  INFO 15091 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [user]: Datanode User user@odysseusinc.com
+2026-02-06T00:49:12.502+01:00  INFO 15091 --- [http-nio-8880-exec-4] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-06T00:49:12.502+01:00  INFO 15091 --- [http-nio-8880-exec-4] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-06T00:49:12.505+01:00  INFO 15091 --- [http-nio-8880-exec-4] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-02-06T00:49:15.329+01:00  INFO 15091 --- [http-nio-8880-exec-7] a.d.s.s.StudyRepositoryConnectionService : Check connection: catalogAddress=executionengine.azurecr.io, tokenPresent=true, usernamePresent=true
+2026-02-06T00:49:15.330+01:00  INFO 15091 --- [http-nio-8880-exec-7] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login using ARACHNE_DOCKER_REGISTRY_* to https://executionengine.azurecr.io
+2026-02-06T00:49:16.589+01:00  INFO 15091 --- [http-nio-8880-exec-7] a.d.s.s.StudyRepositoryConnectionService : Check connection: Docker login succeeded for https://executionengine.azurecr.io
+2026-02-06T00:50:42.090+01:00  INFO 17460 --- [main] c.o.a.datanode.WebApplicationStarter     : Starting WebApplicationStarter using Java 23.0.1 with PID 17460 (/Users/ablack/darwin/Arachne/datanode/target/classes started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:50:42.093+01:00  INFO 17460 --- [main] c.o.a.datanode.WebApplicationStarter     : The following 1 profile is active: "local"
+2026-02-06T00:50:42.351+01:00  INFO 17460 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-06T00:50:42.389+01:00  INFO 17460 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 35 ms. Found 8 JPA repository interfaces.
+2026-02-06T00:50:42.579+01:00  INFO 17460 --- [main] o.s.c.a.ConfigurationClassEnhancer       : @Bean method SpringPropertiesConfig.propertySourcesPlaceholderConfigurer is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface. This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
+2026-02-06T00:50:42.579+01:00  INFO 17460 --- [main] c.u.j.r.DefaultLazyPropertyResolver      : Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2026-02-06T00:50:42.580+01:00  INFO 17460 --- [main] c.u.j.d.DefaultLazyPropertyDetector      : Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2026-02-06T00:50:42.701+01:00  INFO 17460 --- [main] ptablePropertiesBeanFactoryPostProcessor : Post-processing PropertySource instances
+2026-02-06T00:50:42.704+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource configurationProperties [org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource] to AOP Proxy
+2026-02-06T00:50:42.704+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource commandLineArgs [org.springframework.core.env.SimpleCommandLinePropertySource] to EncryptableEnumerablePropertySourceWrapper
+2026-02-06T00:50:42.704+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletConfigInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:50:42.704+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletContextInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/config-dev.yml]' via location 'file:config/config-dev.yml' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/application-local.yml]' via location 'optional:file:./config/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:50:42.705+01:00  INFO 17460 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:50:42.723+01:00  INFO 17460 --- [main] c.u.j.filter.DefaultLazyPropertyFilter   : Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2026-02-06T00:50:42.785+01:00  WARN 17460 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'webConfig' of type [com.odysseusinc.arachne.datanode.config.WebConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [commonAnnotationBeanPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-02-06T00:50:42.914+01:00  INFO 17460 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8880 (http)
+2026-02-06T00:50:42.918+01:00  INFO 17460 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-06T00:50:42.918+01:00  INFO 17460 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2026-02-06T00:50:42.940+01:00  INFO 17460 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-06T00:50:42.940+01:00  INFO 17460 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 825 ms
+2026-02-06T00:50:43.028+01:00  INFO 17460 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-06T00:50:43.048+01:00  INFO 17460 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@92fd091
+2026-02-06T00:50:43.048+01:00  INFO 17460 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-06T00:50:43.080+01:00  INFO 17460 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2026-02-06T00:50:43.081+01:00  INFO 17460 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2026-02-06T00:50:43.081+01:00  INFO 17460 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2026-02-06T00:50:43.088+01:00  INFO 17460 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5434/arachne_datanode (PostgreSQL 15.5)
+2026-02-06T00:50:43.140+01:00  INFO 17460 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 58 migrations (execution time 00:00.033s)
+2026-02-06T00:50:43.165+01:00  INFO 17460 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 20250206000004
+2026-02-06T00:50:43.167+01:00  INFO 17460 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-02-06T00:50:43.216+01:00  INFO 17460 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-06T00:50:43.232+01:00  INFO 17460 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.9.Final
+2026-02-06T00:50:43.242+01:00  INFO 17460 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-06T00:50:43.306+01:00  INFO 17460 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-06T00:50:43.866+01:00  INFO 17460 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-06T00:50:43.867+01:00  INFO 17460 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-06T00:50:44.027+01:00  INFO 17460 --- [main] c.o.a.d.c.BuildNumberController          : Version [2.x-SNAPSHOT], build [qa] @ [2026-02-05T23:50:40Z]
+2026-02-06T00:50:44.058+01:00  INFO 17460 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-06T00:50:44.229+01:00  INFO 17460 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T00:50:44.346+01:00  WARN 17460 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-06T00:50:44.383+01:00  INFO 17460 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [public/index.html]
+2026-02-06T00:50:44.485+01:00  INFO 17460 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-02-06T00:50:44.523+01:00  INFO 17460 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@156d47c5, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6d5934f6, org.springframework.security.web.context.SecurityContextHolderFilter@1f1d3207, org.springframework.security.web.header.HeaderWriterFilter@47d0c2e0, org.springframework.web.filter.CorsFilter@13acb4, org.springframework.security.web.authentication.logout.LogoutFilter@33dc36d5, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter@58f5db3b, com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter@74be992a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@60a0e576, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6fd458ec, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@69f90fc4, org.springframework.security.web.session.SessionManagementFilter@1b5496fd, org.springframework.security.web.access.ExceptionTranslationFilter@4667fd40, org.springframework.security.web.access.intercept.AuthorizationFilter@2aeffa55]
+2026-02-06T00:50:44.677+01:00  INFO 17460 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8880 (http) with context path ''
+2026-02-06T00:50:44.685+01:00  INFO 17460 --- [main] c.o.a.datanode.WebApplicationStarter     : Started WebApplicationStarter in 2.753 seconds (process running for 2.893)
+2026-02-06T00:50:44.724+01:00  INFO 17460 --- [main] c.o.a.d.security.UserAccountInitializer  : Verifying 2 service accounts
+2026-02-06T00:50:44.724+01:00  INFO 17460 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [admin]: Datanode Admin admin@odysseusinc.com
+2026-02-06T00:50:44.827+01:00  INFO 17460 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [user]: Datanode User user@odysseusinc.com
+2026-02-06T00:51:01.335+01:00  INFO 17460 --- [http-nio-8880-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-06T00:51:01.335+01:00  INFO 17460 --- [http-nio-8880-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-06T00:51:01.339+01:00  INFO 17460 --- [http-nio-8880-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2026-02-06T00:54:46.824+01:00  INFO 17460 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-06T00:54:46.827+01:00  INFO 17460 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-06T00:54:46.832+01:00  INFO 17460 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-06T00:55:06.342+01:00  INFO 22912 --- [main] c.o.a.datanode.WebApplicationStarter     : Starting WebApplicationStarter using Java 23.0.1 with PID 22912 (/Users/ablack/darwin/Arachne/datanode/target/classes started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T00:55:06.343+01:00  INFO 22912 --- [main] c.o.a.datanode.WebApplicationStarter     : The following 1 profile is active: "local"
+2026-02-06T00:55:06.612+01:00  INFO 22912 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-06T00:55:06.645+01:00  INFO 22912 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 30 ms. Found 8 JPA repository interfaces.
+2026-02-06T00:55:06.821+01:00  INFO 22912 --- [main] o.s.c.a.ConfigurationClassEnhancer       : @Bean method SpringPropertiesConfig.propertySourcesPlaceholderConfigurer is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface. This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
+2026-02-06T00:55:06.822+01:00  INFO 22912 --- [main] c.u.j.r.DefaultLazyPropertyResolver      : Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2026-02-06T00:55:06.823+01:00  INFO 22912 --- [main] c.u.j.d.DefaultLazyPropertyDetector      : Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2026-02-06T00:55:06.969+01:00  INFO 22912 --- [main] ptablePropertiesBeanFactoryPostProcessor : Post-processing PropertySource instances
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource configurationProperties [org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource] to AOP Proxy
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource commandLineArgs [org.springframework.core.env.SimpleCommandLinePropertySource] to EncryptableEnumerablePropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletConfigInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletContextInitParams [org.springframework.core.env.PropertySource$StubPropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2026-02-06T00:55:06.973+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/config-dev.yml]' via location 'file:config/config-dev.yml' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:55:06.974+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'file [config/application-local.yml]' via location 'optional:file:./config/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:55:06.974+01:00  INFO 22912 --- [main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-02-06T00:55:06.991+01:00  INFO 22912 --- [main] c.u.j.filter.DefaultLazyPropertyFilter   : Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2026-02-06T00:55:07.052+01:00  WARN 22912 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'webConfig' of type [com.odysseusinc.arachne.datanode.config.WebConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [commonAnnotationBeanPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-02-06T00:55:07.177+01:00  INFO 22912 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8880 (http)
+2026-02-06T00:55:07.181+01:00  INFO 22912 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-06T00:55:07.181+01:00  INFO 22912 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2026-02-06T00:55:07.201+01:00  INFO 22912 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-06T00:55:07.201+01:00  INFO 22912 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 835 ms
+2026-02-06T00:55:07.286+01:00  INFO 22912 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-06T00:55:07.308+01:00  INFO 22912 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@92fd091
+2026-02-06T00:55:07.308+01:00  INFO 22912 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-06T00:55:07.338+01:00  INFO 22912 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2026-02-06T00:55:07.338+01:00  INFO 22912 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2026-02-06T00:55:07.338+01:00  INFO 22912 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2026-02-06T00:55:07.347+01:00  INFO 22912 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5434/arachne_datanode (PostgreSQL 15.5)
+2026-02-06T00:55:07.392+01:00  INFO 22912 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 58 migrations (execution time 00:00.030s)
+2026-02-06T00:55:07.416+01:00  INFO 22912 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 20250206000004
+2026-02-06T00:55:07.417+01:00  INFO 22912 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-02-06T00:55:07.466+01:00  INFO 22912 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-06T00:55:07.481+01:00  INFO 22912 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.9.Final
+2026-02-06T00:55:07.490+01:00  INFO 22912 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-06T00:55:07.551+01:00  INFO 22912 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-06T00:55:08.115+01:00  INFO 22912 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-06T00:55:08.116+01:00  INFO 22912 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-06T00:55:08.274+01:00  INFO 22912 --- [main] c.o.a.d.c.BuildNumberController          : Version [2.x-SNAPSHOT], build [qa] @ [2026-02-05T23:55:04Z]
+2026-02-06T00:55:08.304+01:00  INFO 22912 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-06T00:55:08.475+01:00  INFO 22912 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T00:55:08.588+01:00  WARN 22912 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-06T00:55:08.624+01:00  INFO 22912 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [public/index.html]
+2026-02-06T00:55:08.725+01:00  INFO 22912 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-02-06T00:55:08.758+01:00  INFO 22912 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1cdb4bd3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3cc6bfdb, org.springframework.security.web.context.SecurityContextHolderFilter@367628c8, org.springframework.security.web.header.HeaderWriterFilter@67b7b892, org.springframework.web.filter.CorsFilter@59ea4ca5, org.springframework.security.web.authentication.logout.LogoutFilter@6f535d77, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter@2aeffa55, com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter@74be992a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@12387c79, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@285cf30a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3c6c7782, org.springframework.security.web.session.SessionManagementFilter@4a501cab, org.springframework.security.web.access.ExceptionTranslationFilter@6965f207, org.springframework.security.web.access.intercept.AuthorizationFilter@6066a3f]
+2026-02-06T00:55:08.914+01:00  INFO 22912 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8880 (http) with context path ''
+2026-02-06T00:55:08.924+01:00  INFO 22912 --- [main] c.o.a.datanode.WebApplicationStarter     : Started WebApplicationStarter in 2.732 seconds (process running for 2.872)
+2026-02-06T00:55:08.961+01:00  INFO 22912 --- [main] c.o.a.d.security.UserAccountInitializer  : Verifying 2 service accounts
+2026-02-06T00:55:08.962+01:00  INFO 22912 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [admin]: Datanode Admin admin@odysseusinc.com
+2026-02-06T00:55:09.067+01:00  INFO 22912 --- [main] c.o.a.d.security.UserAccountInitializer  : Creating [user]: Datanode User user@odysseusinc.com
+2026-02-06T00:55:13.179+01:00  INFO 22912 --- [http-nio-8880-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-06T00:55:13.179+01:00  INFO 22912 --- [http-nio-8880-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-06T00:55:13.182+01:00  INFO 22912 --- [http-nio-8880-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-02-06T00:55:13.280+01:00 ERROR 22912 --- [http-nio-8880-exec-3] c.o.a.d.c.ExceptionHandlingAdvice        : Study package already installed: darwin-eu-dev/examplestudy 1.0.0
+
+com.odysseusinc.arachne.datanode.exception.AlreadyExistsException: Study package already installed: darwin-eu-dev/examplestudy 1.0.0
+	at com.odysseusinc.arachne.datanode.controller.study.StudyRepositoryController.installPackage(StudyRepositoryController.java:86) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.25.jar:6.0]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.25.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter.doFilterInternal(LoginDisabledAuthenticationFilter.java:81) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:128) ~[spring-security-oauth2-resource-server-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:107) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:904) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at java.base/java.lang.Thread.run(Thread.java:1575) ~[na:na]
+
+2026-02-06T00:55:20.928+01:00 ERROR 22912 --- [http-nio-8880-exec-8] c.o.a.d.c.ExceptionHandlingAdvice        : Study package already installed: darwin-eu-dev/examplestudy 1.0.0
+
+com.odysseusinc.arachne.datanode.exception.AlreadyExistsException: Study package already installed: darwin-eu-dev/examplestudy 1.0.0
+	at com.odysseusinc.arachne.datanode.controller.study.StudyRepositoryController.installPackage(StudyRepositoryController.java:86) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.25.jar:6.0]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.25.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter.doFilterInternal(LoginDisabledAuthenticationFilter.java:81) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:128) ~[spring-security-oauth2-resource-server-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.2.5.jar:6.2.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:107) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.10.jar:6.1.10]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:904) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.25.jar:10.1.25]
+	at java.base/java.lang.Thread.run(Thread.java:1575) ~[na:na]
+
+2026-02-06T01:03:31.289+01:00  INFO 31938 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 31938 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T01:03:31.289+01:00  INFO 31938 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T01:03:31.495+01:00  INFO 31938 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T01:03:31.605+01:00  INFO 31938 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.466 seconds (process running for 0.891)
+2026-02-06T01:03:32.058+01:00  INFO 31938 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:1.0.0 from registry
+2026-02-06T01:03:32.058+01:00  INFO 31938 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:1.0.0
+2026-02-06T01:03:34.046+01:00 ERROR 31938 --- [docker-java-stream--1481105146] c.g.d.api.async.ResultCallbackTemplate   : Error during callback
+
+com.github.dockerjava.api.exception.NotFoundException: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:1.0.0 not found: manifest unknown: manifest tagged by \"1.0.0\" is not found"}
+
+	at com.github.dockerjava.core.DefaultInvocationBuilder.execute(DefaultInvocationBuilder.java:241) ~[docker-java-core-3.3.3.jar:na]
+	at com.github.dockerjava.core.DefaultInvocationBuilder.lambda$executeAndStream$1(DefaultInvocationBuilder.java:269) ~[docker-java-core-3.3.3.jar:na]
+	at java.base/java.lang.Thread.run(Thread.java:1575) ~[na:na]
+
+2026-02-06T01:03:34.050+01:00  WARN 31938 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pull failed for executionengine.azurecr.io/darwin-eu-dev/examplestudy:1.0.0: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:1.0.0 not found: manifest unknown: manifest tagged by \"1.0.0\" is not found"}
+
+2026-02-06T01:04:52.365+01:00  INFO 33394 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 33394 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T01:04:52.366+01:00  INFO 33394 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T01:04:52.533+01:00  INFO 33394 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T01:04:52.636+01:00  INFO 33394 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.415 seconds (process running for 0.823)
+2026-02-06T01:04:53.033+01:00  INFO 33394 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:latest from registry
+2026-02-06T01:04:53.033+01:00  INFO 33394 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest
+2026-02-06T01:04:55.482+01:00 ERROR 33394 --- [docker-java-stream-1657175578] c.g.d.api.async.ResultCallbackTemplate   : Error during callback
+
+com.github.dockerjava.api.exception.NotFoundException: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest not found: manifest unknown: manifest tagged by \"latest\" is not found"}
+
+	at com.github.dockerjava.core.DefaultInvocationBuilder.execute(DefaultInvocationBuilder.java:241) ~[docker-java-core-3.3.3.jar:na]
+	at com.github.dockerjava.core.DefaultInvocationBuilder.lambda$executeAndStream$1(DefaultInvocationBuilder.java:269) ~[docker-java-core-3.3.3.jar:na]
+	at java.base/java.lang.Thread.run(Thread.java:1575) ~[na:na]
+
+2026-02-06T01:04:55.484+01:00  WARN 33394 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pull failed for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest not found: manifest unknown: manifest tagged by \"latest\" is not found"}
+
+2026-02-06T01:05:35.541+01:00  INFO 34202 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 34202 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T01:05:35.542+01:00  INFO 34202 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T01:05:35.743+01:00  INFO 34202 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T01:05:35.843+01:00  INFO 34202 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.446 seconds (process running for 0.849)
+2026-02-06T01:05:36.252+01:00  INFO 34202 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:latest from registry
+2026-02-06T01:05:36.252+01:00  INFO 34202 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest
+2026-02-06T01:05:38.027+01:00 ERROR 34202 --- [docker-java-stream-1657175578] c.g.d.api.async.ResultCallbackTemplate   : Error during callback
+
+com.github.dockerjava.api.exception.NotFoundException: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest not found: manifest unknown: manifest tagged by \"latest\" is not found"}
+
+	at com.github.dockerjava.core.DefaultInvocationBuilder.execute(DefaultInvocationBuilder.java:241) ~[docker-java-core-3.3.3.jar:na]
+	at com.github.dockerjava.core.DefaultInvocationBuilder.lambda$executeAndStream$1(DefaultInvocationBuilder.java:269) ~[docker-java-core-3.3.3.jar:na]
+	at java.base/java.lang.Thread.run(Thread.java:1575) ~[na:na]
+
+2026-02-06T01:05:38.030+01:00  WARN 34202 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pull failed for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest: Status 404: {"message":"manifest for executionengine.azurecr.io/darwin-eu-dev/examplestudy:latest not found: manifest unknown: manifest tagged by \"latest\" is not found"}
+
+2026-02-06T01:07:24.563+01:00  INFO 36190 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 36190 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T01:07:24.564+01:00  INFO 36190 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T01:07:24.744+01:00  INFO 36190 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T01:07:24.842+01:00  INFO 36190 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.425 seconds (process running for 0.854)
+2026-02-06T01:07:25.266+01:00  INFO 36190 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:main from registry
+2026-02-06T01:07:25.267+01:00  INFO 36190 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:main
+2026-02-06T01:09:32.852+01:00  INFO 38439 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 38439 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-06T01:09:32.853+01:00  INFO 38439 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-06T01:09:33.029+01:00  INFO 38439 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-06T01:09:33.133+01:00  INFO 38439 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.418 seconds (process running for 0.835)
+2026-02-06T01:09:33.527+01:00  INFO 38439 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:main from registry
+2026-02-06T01:09:33.527+01:00  INFO 38439 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:main
+2026-02-06T01:12:10.713+01:00  INFO 38439 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulled study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:main
+2026-02-06T01:12:10.715+01:00  INFO 38439 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulled study image darwin-eu-dev/examplestudy:main successfully

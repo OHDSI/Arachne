@@ -77,11 +77,23 @@ public class StudyRepositoryController {
         }
         String version = request.getVersion() != null && !request.getVersion().isBlank()
                 ? request.getVersion()
-                : "1.0.0";
+                : "latest";
         String catalogAddress = studyService.getCatalogAddress();
-        if (studyService.studyPackageExists(request.getName(), version)) {
-            throw new AlreadyExistsException(
-                    "Study package already installed: " + request.getName() + " " + version);
+        if (catalogAddress == null || catalogAddress.isBlank()) {
+            throw new IllegalStateException("Study catalog address is not configured. Set it in Settings.");
+        }
+        boolean alreadyInstalled = studyService.studyPackageExists(request.getName(), version);
+        // Pull the Docker image from the registry (or refresh if already installed)
+        connectionService.pullStudyImage(
+                request.getName(),
+                version,
+                catalogAddress,
+                studyService.getCatalogToken(),
+                studyService.getCatalogUsername());
+        if (alreadyInstalled) {
+            StudyPackage pkg = studyService.findStudyPackageByNameAndVersion(request.getName(), version)
+                    .orElseThrow(() -> new IllegalStateException("Study package disappeared"));
+            return toDTO(pkg);
         }
         StudyPackage pkg = studyService.createStudyPackage(request.getName(), version, catalogAddress);
         return toDTO(pkg);

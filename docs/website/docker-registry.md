@@ -8,7 +8,7 @@ Arachne’s Study Repository uses a **Docker registry** as the central catalog. 
 
 - **One study** is represented by **one Docker image** in the registry.
 - The same study can have **multiple tags** for different versions (e.g. `my-study:1.0`, `my-study:latest`).
-- Researchers install and update studies by **image name** (and optionally tag); Arachne runs `docker pull` against the configured registry.
+- Researchers install studies by entering the **repo name** (e.g. `darwin-eu-dev/examplestudy`). Arachne runs **docker pull** against the configured registry; the image is stored on the user’s computer. Installed studies are thus local Docker images.
 
 ---
 

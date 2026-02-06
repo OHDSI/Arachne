@@ -11,6 +11,14 @@ const isStaticExport = process.env.BUILD_STATIC === "true";
 const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
+  // Allow dev access from other devices on the network to avoid "Cross origin request detected" warning
+  allowedDevOrigins: ["http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.136:3000"],
+  // Allow dev access from other devices on the LAN (e.g. tablet at 192.168.1.136) to avoid cross-origin warning
+  allowedDevOrigins: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.1.136:3000",
+  ],
   // Static export for Maven/JAR packaging (no rewrites supported)
   ...(isStaticExport && { output: "export" }),
   // Proxy /api in dev only (rewrites not allowed with output: 'export')

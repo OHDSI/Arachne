@@ -106,7 +106,7 @@ export function StudyRepository({
           <div className="flex gap-3">
             <div className="flex-1 relative">
               <Input
-                placeholder="Study name (as it appears in the catalog)"
+                placeholder="Repo name (e.g. darwin-eu-dev/examplestudy)"
                 value={studyName}
                 onChange={(e) => setStudyName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleInstall()}
@@ -140,7 +140,7 @@ export function StudyRepository({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Enter the exact study name from your configured catalog to install it locally.
+            Enter the repo name from your catalog; the app will pull the Docker image to your computer.
           </p>
         </CardContent>
       </Card>

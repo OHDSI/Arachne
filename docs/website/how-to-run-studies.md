@@ -28,9 +28,9 @@ Use this list to see what’s installed at a glance.
 ## 3. Install a new study
 
 1. On the Study Repository page, find the **Install** area.
-2. Type the **study name** (as it appears in the catalog) in the text box.
+2. Type the **repo name** (e.g. `darwin-eu-dev/examplestudy`) as it appears in the catalog.
 3. Click **Install**.
-4. Arachne downloads the study image; when done, it appears in the list. No file picker or upload is needed.
+4. Arachne runs **docker pull** to download the study image from the registry to your computer. When the pull completes, the study appears in the list. Installed studies are Docker images stored locally on your machine.
 
 ---
 

@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Debug env-test (StudyRepositoryConnectionServiceIT)",
+      "projectName": "datanode",
+      "env": {
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      },
+      "envFile": "${workspaceFolder}/datanode/config/datanode.env"
+    }
+  ]
+}

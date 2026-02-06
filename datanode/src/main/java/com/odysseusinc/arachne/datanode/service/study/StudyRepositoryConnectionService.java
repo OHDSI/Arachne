@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.AuthConfig;
+import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.odysseusinc.arachne.datanode.dto.study.ConnectionCheckResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,75 @@ public class StudyRepositoryConnectionService {
             String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             LOG.warn("Check connection failed: Docker login to {} failed: {}", dockerRegistryBase, message);
             return new ConnectionCheckResultDTO(false, "Docker login failed: " + message, null, null, null);
+        }
+    }
+
+    /**
+     * Pull a study image from the registry so it is available locally. Used when the user installs a study
+     * (repo name e.g. darwin-eu-dev/examplestudy). Installed studies are Docker images on the user's machine.
+     *
+     * @param repoName        repository name (e.g. darwin-eu-dev/examplestudy), as entered by the user
+     * @param version        tag/version (e.g. 1.0.0 or latest)
+     * @param catalogAddress registry base URL (e.g. https://executionengine.azurecr.io)
+     * @param catalogToken   registry token or password
+     * @param catalogUsername registry username (e.g. ACR admin)
+     * @throws IllegalStateException if Docker is not available
+     * @throws RuntimeException      if pull fails (e.g. image not found, auth failed)
+     */
+    public void pullStudyImage(String repoName, String version, String catalogAddress,
+                               String catalogToken, String catalogUsername) {
+        if (dockerClient == null) {
+            throw new IllegalStateException("Docker is not available. Install requires Docker.");
+        }
+        String registryBase = normalizeRegistryBase(catalogAddress != null ? catalogAddress.trim() : "");
+        if (registryBase == null) {
+            throw new IllegalArgumentException("Invalid catalog address: " + catalogAddress);
+        }
+        String registryHost = registryHostFrom(registryBase);
+        if (registryHost == null) {
+            throw new IllegalArgumentException("Could not determine registry host from: " + catalogAddress);
+        }
+        String imageName = registryHost + "/" + repoName.trim() + ":" + (version != null && !version.isBlank() ? version.trim() : "latest");
+        String dockerUser = catalogUsername != null && !catalogUsername.isBlank() ? catalogUsername.trim() : deriveUsernameFromRegistry(registryBase);
+        String dockerToken = catalogToken;
+        if (envRegistryUrl != null && !envRegistryUrl.isBlank() && envRegistryToken != null && !envRegistryToken.isBlank()) {
+            String envBase = normalizeRegistryBase(envRegistryUrl.trim());
+            if (envBase != null && envBase.equals(registryBase)) {
+                dockerUser = (envRegistryUser != null && !envRegistryUser.isBlank()) ? envRegistryUser.trim() : deriveUsernameFromRegistry(envBase);
+                dockerToken = envRegistryToken;
+            }
+        }
+        LOG.info("Pulling study image: {}", imageName);
+        try {
+            var pullCmd = dockerClient.pullImageCmd(imageName);
+            if (dockerToken != null && !dockerToken.isBlank()) {
+                pullCmd = pullCmd.withAuthConfig(buildAuthConfig(registryBase, dockerToken, dockerUser));
+            }
+            pullCmd.exec(new PullImageResultCallback()).awaitCompletion();
+            LOG.info("Pulled study image: {}", imageName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Pull interrupted", e);
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            LOG.warn("Pull failed for {}: {}", imageName, msg);
+            throw new RuntimeException("Docker pull failed: " + msg, e);
+        }
+    }
+
+    private static String registryHostFrom(String registryBase) {
+        try {
+            URI uri = URI.create(registryBase);
+            String host = uri.getHost();
+            if (host == null) host = uri.getAuthority();
+            if (host == null || host.isEmpty()) return null;
+            int port = uri.getPort();
+            if (port > 0 && port != 80 && port != 443) {
+                return host + ":" + port;
+            }
+            return host;
+        } catch (Exception e) {
+            return null;
         }
     }
 

@@ -4,7 +4,7 @@
 .PHONY: build build-backend build-datanode-ui \
 	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui \
 	docs \
-	test test-backend test-backend-integration test-datanode-ui env-test \
+	test test-backend test-backend-integration test-datanode-ui env-test install-test \
 	buildtest full-stack-build-test clean help
 
 # Default: show help
@@ -30,6 +30,7 @@ help:
 	@echo "  make test-backend-integration   Maven test including integration tests (requires Docker)"
 	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 18; .nvmrc provided)"
 	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
+	@echo "  make install-test  Run Study Repository install test (pulls darwin-eu-dev/examplestudy from registry)"
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
 	@echo "  make full-stack-build-test  Same as buildtest"
@@ -127,6 +128,10 @@ test-datanode-ui:
 # Run Study Repository connection check (same logic as UI "Check connection" button) with ARACHNE_DOCKER_REGISTRY_* from datanode.env.
 env-test:
 	./scripts/env-test.sh
+
+# Run Study Repository install test: pulls darwin-eu-dev/examplestudy from registry (requires ARACHNE_DOCKER_REGISTRY_* in datanode.env).
+install-test:
+	./scripts/install-test.sh
 
 # --- Full stack build test (CI / verification) ---
 buildtest full-stack-build-test:

@@ -7,9 +7,8 @@ set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# Unset DOCKER_HOST so the test JVM uses arachne.docker.host (Unix socket) from @TestPropertySource.
-# If left set (e.g. tcp://localhost:2375), docker-java can still use it and connection fails.
-unset DOCKER_HOST
+# Force Unix socket so test JVM and docker-java use the same daemon as the UI (overrides shell DOCKER_HOST e.g. tcp://localhost:2375).
+export DOCKER_HOST="unix:///var/run/docker.sock"
 
 if [[ -f datanode/config/datanode.env ]]; then
   while IFS= read -r line; do

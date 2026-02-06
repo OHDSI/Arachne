@@ -23,12 +23,13 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.SSLConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.okhttp.OkDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.odysseusinc.arachne.datanode.config.properties.DockerProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -105,13 +106,26 @@ public class DockerConfig {
         String hostStr = effectiveDockerHost(properties);
         URI hostUri = URI.create(hostStr);
         LOG.info("Docker client using host: {} (docker.host={}, arachne.docker.host={})",
-                hostStr, properties.getHost(), dockerHostOverride);
+                hostStr, properties.getHost(), dockerHostOverride != null ? dockerHostOverride : "");
         DockerClientConfig config = configWithEffectiveHost(dockerClientConfig, hostUri);
-        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
+        DockerHttpClient httpClient = buildHttpClient(hostUri, dockerClientConfig.getSSLConfig());
+        return DockerClientImpl.getInstance(config, httpClient);
+    }
+
+    /** Use OkHttp for unix sockets (Apache client maps unix to localhost:2375 and fails with connection refused). */
+    private DockerHttpClient buildHttpClient(URI hostUri, SSLConfig sslConfig) {
+        if ("unix".equalsIgnoreCase(hostUri.getScheme())) {
+            return new OkDockerHttpClient.Builder()
+                    .dockerHost(hostUri)
+                    .sslConfig(sslConfig)
+                    .connectTimeout(10 * 1000)
+                    .readTimeout(60 * 1000)
+                    .build();
+        }
+        return new ApacheDockerHttpClient.Builder()
                 .dockerHost(hostUri)
-                .sslConfig(dockerClientConfig.getSSLConfig())
+                .sslConfig(sslConfig)
                 .maxConnections(50)
                 .build();
-        return DockerClientImpl.getInstance(config, httpClient);
     }
 }
