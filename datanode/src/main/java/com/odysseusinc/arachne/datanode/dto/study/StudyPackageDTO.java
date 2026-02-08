@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,4 +30,6 @@ public class StudyPackageDTO {
     private String script;
     private boolean running;
     private boolean hasResults;
+    /** True if the study's Docker image is present locally (docker image list). False when image was removed or not yet pulled. */
+    private boolean imageInstalled;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link StudyRepositoryConnectionService#checkConnection} (validation and mock-based behavior).

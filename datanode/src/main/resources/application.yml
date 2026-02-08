@@ -176,3 +176,11 @@ logging:
   level:
     root: INFO
     org.springframework.web.servlet.PageNotFound: ERROR
+    # Less noise in console: only log actual app messages and errors, not full stack traces from framework
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.apache.catalina: WARN
+    org.apache.coyote: WARN
+    com.zaxxer.hikari: WARN
+    org.flywaydb: WARN
+    org.hibernate: WARN

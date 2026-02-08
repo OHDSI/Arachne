@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,7 +100,6 @@ public class GenericSteps {
         );
     }
 
-    @SuppressWarnings("unchecked")
     public static List<?> toList(Object cursor) {
         if (cursor instanceof Page) {
             return ((Page<?>) cursor).getContent();
@@ -257,7 +256,7 @@ public class GenericSteps {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static Object convertTo(Object value, Class<?> type) {
         if (type.equals(List.class)) {
             return Arrays.stream(String.valueOf(value).split(",")).collect(Collectors.toList());

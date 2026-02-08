@@ -19,10 +19,13 @@ import {
   getStudyPackages,
   getStudyRepositorySettings,
   installStudyPackage,
+  refreshStudyPackage,
   updateStudyPackageScript,
   deleteStudyPackage,
   saveStudyRepositorySettings,
-  startStudyRun,
+  startStudyContainer,
+  stopStudyContainer,
+  executeStudyScript,
   type StudyPackageDTO,
 } from "../api/study-repository";
 
@@ -56,6 +59,7 @@ function packagesToStudies(
       isRunning: current.running,
       hasResults: current.hasResults,
       script: current.script ?? "",
+      imageInstalled: current.imageInstalled,
     });
   }
   return studies.sort((a, b) => a.name.localeCompare(b.name));
@@ -132,8 +136,12 @@ export function StudyRepositoryApp() {
   };
 
   const handleUpdateStudy = async (id: string) => {
-    // No-op for "update from catalog" until catalog integration exists; could refetch packages
-    await fetchPackages();
+    try {
+      await refreshStudyPackage(Number(id));
+      await fetchPackages();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to pull study image");
+    }
   };
 
   const handleDeleteStudy = async (id: string) => {
@@ -173,21 +181,20 @@ export function StudyRepositoryApp() {
     }
   };
 
-  const handleRunStudyExecute = async () => {
-    if (!activeStudyId) return;
-    try {
-      await startStudyRun(Number(activeStudyId));
-      await fetchPackages();
-      setActiveStudyId(null);
-      setCurrentView("repository");
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to start run");
-    }
+  const handleExecuteStudy = async (script: string): Promise<{ logs: string; status: string }> => {
+    if (!activeStudyId) return { logs: "", status: "FAILED" };
+    const res = await executeStudyScript(Number(activeStudyId), script);
+    await fetchPackages();
+    return { logs: res.logs ?? "", status: res.status ?? "COMPLETED" };
   };
 
   const handleShutdownStudy = async (id: string) => {
-    // Backend could add stop endpoint; for now just refetch
-    await fetchPackages();
+    try {
+      await stopStudyContainer(Number(id));
+      await fetchPackages();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to stop study");
+    }
   };
 
   const handleBackToRepository = () => {
@@ -268,7 +275,7 @@ export function StudyRepositoryApp() {
               study={activeStudy}
               onBack={handleBackToRepository}
               onSaveScript={handleSaveScript}
-              onRunStudy={handleRunStudyExecute}
+              onExecuteStudy={handleExecuteStudy}
             />
           )}
         </main>

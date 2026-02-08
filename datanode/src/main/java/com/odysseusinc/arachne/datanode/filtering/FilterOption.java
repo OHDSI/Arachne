@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,12 +81,12 @@ public class FilterOption<E> {
                         Expression<V> attribute = path.apply(root);
                         Expression<Long> count = cb.count(root);
                         CriteriaQuery<Tuple> select = query.multiselect(attribute, count);
-                        // TODO Change to .getResultStream(), list is only for debugging
                         Predicate[] otherFilters = predicates.apply(cb, select).apply(root);
-                        List<Tuple> results = em.createQuery(
+                        try (Stream<Tuple> resultStream = em.createQuery(
                                 select.where(otherFilters).groupBy(attribute)
-                        ).getResultList();
-                        return resultParser.apply(results.stream()).apply(attribute, count).collect(Collectors.toList());
+                        ).getResultStream()) {
+                            return resultParser.apply(resultStream).apply(attribute, count).collect(Collectors.toList());
+                        }
                     });
         }
     }

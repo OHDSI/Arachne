@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,6 @@ package com.odysseusinc.arachne.datanode.security;
 
 import com.odysseusinc.arachne.datanode.auth.basic.DbBasicCredentialsService;
 import com.odysseusinc.arachne.datanode.dto.user.UserDTO;
-import com.odysseusinc.arachne.datanode.model.user.Role;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import lombok.Getter;
 import lombok.Setter;

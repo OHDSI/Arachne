@@ -333,6 +333,48 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-checkstyle-plugin</artifactId>
+                                        <versionRange>[3.0.0,)</versionRange>
+                                        <goals><goal>check</goal></goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore/></action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>ru.yaal.maven</groupId>
+                                        <artifactId>write-text-files-maven-plugin</artifactId>
+                                        <versionRange>[1.0,)</versionRange>
+                                        <goals><goal>write-text-files</goal></goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore/></action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-dependency-plugin</artifactId>
+                                        <versionRange>[3.0.0,)</versionRange>
+                                        <goals><goal>unpack</goal></goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore/></action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <finalName>datanode</finalName>
         <resources>
             <resource>
@@ -375,10 +417,7 @@
                         <exclude>**/UploadServiceTest.java</exclude>
                         <exclude>**/ValidatorTest.java</exclude>
                     </excludes>
-                    <!-- So docker-java uses Unix socket in tests (env-test and UI match) -->
-                    <environmentVariables>
-                        <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
-                    </environmentVariables>
+                    <!-- DOCKER_HOST inherited from env (set by env-test.sh / install-test.sh so Unix socket works on Linux and macOS) -->
                 </configuration>
             </plugin>
             <plugin>

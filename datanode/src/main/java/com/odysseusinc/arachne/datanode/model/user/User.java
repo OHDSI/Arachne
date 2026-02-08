@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,10 +26,10 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Email;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -52,7 +52,7 @@ public class User implements Serializable {
     private Long id;
 
 
-    @Email
+    @Email(message = "Must be a valid email")
     @Size(max = 100)
     @Column(length = 100, unique = true)
     private String email;

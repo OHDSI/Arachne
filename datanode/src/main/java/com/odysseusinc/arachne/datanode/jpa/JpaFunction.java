@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,6 +55,7 @@ public interface JpaFunction<R, V> extends BiFunction<CriteriaBuilder, AbstractQ
         };
     }
 
+    @SafeVarargs
     static <R> JpaFunction<R, Predicate> or(JpaFunction<R, Predicate>... fns) {
         return or(Arrays.asList(fns));
     }
@@ -65,6 +66,7 @@ public interface JpaFunction<R, V> extends BiFunction<CriteriaBuilder, AbstractQ
         );
     }
 
+    @SafeVarargs
     static <R> JpaFunction<R, Predicate> and(JpaFunction<R, Predicate>... fns) {
         return and(Arrays.asList(fns));
     }

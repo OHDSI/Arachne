@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +53,7 @@ public class UserService {
     }
 
     @Transactional
+    @SuppressWarnings("unchecked")
     public Optional<User> getUserMaybe(Long id) {
         return JpaSugar.select(em, User.class).where(
                 JpaConditional.has(User_.id, id),
@@ -73,6 +73,7 @@ public class UserService {
     }
 
     @Transactional
+    @SuppressWarnings("unchecked")
     public List<Role> getRoles(List<String> list) {
         return JpaSugar.select(em, Role.class).where(
                 JpaConditional.in(Role_.name, list)

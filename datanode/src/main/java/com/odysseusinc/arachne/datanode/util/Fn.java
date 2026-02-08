@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package com.odysseusinc.arachne.datanode.util;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -38,14 +37,17 @@ public final class Fn {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T, V extends T> Optional<V> castAs(T object, Class<V> clazz) {
         return clazz.isInstance(object) ? Optional.of((V) object) : Optional.empty();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T, V extends T> Case<T, V> as(Class<V> clazz) {
         return object -> clazz.isInstance(object) ? Optional.of((V) object) : Optional.empty();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T, V extends T, U> Function<T, Optional<U>> as(Class<V> clazz, Function<V, U> mapper) {
         return object -> clazz.isInstance(object) ? Optional.of((V) object).map(mapper) : Optional.empty();
     }

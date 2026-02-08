@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,7 +37,22 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class AnalysisStateService {
+
+    private static final int LOCK_STRIPES = 256;
+    private final Object[] lockStripes = new Object[LOCK_STRIPES];
+
+    {
+        for (int i = 0; i < LOCK_STRIPES; i++) {
+            lockStripes[i] = new Object();
+        }
+    }
+
+    private Object lockFor(Long analysisId) {
+        return lockStripes[Math.abs(analysisId.hashCode() % LOCK_STRIPES)];
+    }
+
     @Autowired
+    @SuppressWarnings("deprecation")
     private AnalysisStateJournalRepository analysisStateJournalRepository;
     @Autowired
     private AnalysisRepository analysisRepository;
@@ -65,10 +80,14 @@ public class AnalysisStateService {
         );
     }
 
-    //TODO There’s a chance two threads/transactions could run this at the same time,
-    // which might mess up the currentState if they both try to set it.
     @Transactional
     public void updateState(Analysis analysis, AnalysisCommand command, String stage, String error, String reason) {
+        synchronized (lockFor(analysis.getId())) {
+            doUpdateState(analysis, command, stage, error, reason);
+        }
+    }
+
+    private void doUpdateState(Analysis analysis, AnalysisCommand command, String stage, String error, String reason) {
         Optional<AnalysisStateEntry> currentState = Optional.ofNullable(analysis.getCurrentState());
         Boolean hasChanged = currentState.map(s ->
                 s.getCommand() != command || !Objects.equals(s.getStage(), stage) || !Objects.equals(s.getError(), error)

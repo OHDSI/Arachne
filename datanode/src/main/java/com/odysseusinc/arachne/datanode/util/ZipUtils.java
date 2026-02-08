@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.apache.commons.lang3.function.FailableBiFunction;
-import org.apache.commons.lang3.function.FailableFunction;
 
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
@@ -32,10 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -68,7 +64,6 @@ public class ZipUtils {
     public static <T> List<T> processZip(InputStream source, FailableBiFunction<String, InputStream, T, IOException> converter) {
         ImmutableList.Builder<T> builder = ImmutableList.builder();
         try (ZipArchiveInputStream zip = new ZipArchiveInputStream(source, UTF_8.name(), true, false, true)) {
-            Map<Function<String, FailableFunction<InputStream, Object, IOException>>, Map<String, Object>> results = new HashMap<>();
             ArchiveEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package com.odysseusinc.arachne.datanode.controller.analysis;
 
-import com.odysseusinc.arachne.datanode.Api;
 import com.odysseusinc.arachne.datanode.Api.Part;
 import com.odysseusinc.arachne.datanode.service.AnalysisResultsService;
 import com.odysseusinc.arachne.datanode.service.AnalysisService;
@@ -46,7 +45,7 @@ public class AnalysisCallbackController {
     @Value("${files.store.path}")
     private String filesStorePath;
 
-    @PostMapping(value = UPDATE_URI, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = UPDATE_URI, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateSubmission(@PathVariable Long id,
                                  @PathVariable String password,
                                  @RequestBody AnalysisExecutionStatusDTO status

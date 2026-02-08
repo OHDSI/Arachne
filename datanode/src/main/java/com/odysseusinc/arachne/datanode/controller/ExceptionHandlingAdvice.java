@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
 import com.odysseusinc.arachne.datanode.exception.BadRequestException;
@@ -59,10 +60,18 @@ public class ExceptionHandlingAdvice {
         return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).build();
     }
 
+    /** Docker image or container not found (e.g. image not pulled). Return 404 with clear message, log without stack trace. */
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> dockerNotFoundHandler(NotFoundException ex) {
+        log.warn("Docker not found: {}", ex.getMessage());
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Image or container not found";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception ex) {
         String token = token();
-        log.error("[{}]: {}", token, ex.getMessage(), ex);
+        log.error("[{}]: {}", token, ex.getMessage());
         return ResponseEntity.internalServerError().body("Error code [" + token + "]. Please provide this code to contact system administrator");
     }
 
@@ -102,6 +111,11 @@ public class ExceptionHandlingAdvice {
         return ResponseEntity.badRequest().body(message(e));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> illegalArgumentHandler(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage() != null ? e.getMessage() : "Bad request");
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> notFoundHandler(ResourceNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message(e));
@@ -125,10 +139,10 @@ public class ExceptionHandlingAdvice {
     private String message(Exception e) {
         if (errorsTokenEnabled) {
             String token = token();
-            log.error("[{}]. error-token: {}", token, e.getMessage(), e);
+            log.error("[{}]: {}", token, e.getMessage());
             return "Error code [" + token + "]. Please provide this code to contact system administrator";
         }
-        log.error(e.getMessage(), e);
+        log.error("{}", e.getMessage());
         return e.getMessage();
     }
 

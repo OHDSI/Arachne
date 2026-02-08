@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import com.odysseusinc.arachne.datanode.exception.ValidationException;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.ZipUtils;
+import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisExecutionStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestTypeDTO;
@@ -109,6 +110,17 @@ public class CheckDataSourceService {
         request.setResultCallback(datanodeBaseURL + ":" + datanodePort + PREFIX + CHECK_RESULT);
         request.setUpdateStatusCallback(datanodeBaseURL + ":" + datanodePort + PREFIX + CHECK_STATUS);
         return request;
+    }
+
+    /**
+     * Handles status callback from the execution engine. Completes the check future exceptionally
+     * when the execution is aborted so the client does not wait until timeout.
+     */
+    public void updateStatus(Long id, AnalysisExecutionStatusDTO status) {
+        if (Stage.ABORTED.equals(status.getStage())) {
+            Optional.ofNullable(results.getIfPresent(id)).ifPresent(future ->
+                    future.completeExceptionally(new ValidationException("Datasource check aborted")));
+        }
     }
 
     public CompletableFuture<CheckResult> saveResult(Long id, AnalysisResultDTO result, MultipartFile[] files) {

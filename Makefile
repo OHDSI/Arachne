@@ -30,7 +30,7 @@ help:
 	@echo "  make test-backend-integration   Maven test including integration tests (requires Docker)"
 	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 18; .nvmrc provided)"
 	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
-	@echo "  make install-test  Run Study Repository install test (pulls darwin-eu-dev/examplestudy from registry)"
+	@echo "  make install-test  Run Study Repository install test (pulls image; may take several minutes)"
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
 	@echo "  make full-stack-build-test  Same as buildtest"
@@ -130,6 +130,7 @@ env-test:
 	./scripts/env-test.sh
 
 # Run Study Repository install test: pulls darwin-eu-dev/examplestudy from registry (requires ARACHNE_DOCKER_REGISTRY_* in datanode.env).
+# May take several minutes while the Docker image is pulled from the registry.
 install-test:
 	./scripts/install-test.sh
 

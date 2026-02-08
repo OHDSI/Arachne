@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -67,9 +67,7 @@ public class WebSecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ).exceptionHandling(
                 this::bearerExceptionHandler
-        ).oauth2ResourceServer(
-                OAuth2ResourceServerConfigurer::jwt
-        ).addFilterAfter(loginDisabledAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+        ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).addFilterAfter(loginDisabledAuthenticationFilter, BearerTokenAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> {
             auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             auth.requestMatchers(

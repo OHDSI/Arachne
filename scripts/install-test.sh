@@ -7,7 +7,21 @@ set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-export DOCKER_HOST="unix:///var/run/docker.sock"
+# Use Unix socket that exists (Linux vs macOS Docker Desktop)
+if [[ -S /var/run/docker.sock ]]; then
+  export DOCKER_HOST="unix:///var/run/docker.sock"
+elif [[ "$(uname -s)" == "Darwin" && -S "$HOME/.docker/run/docker.sock" ]]; then
+  export DOCKER_HOST="unix://${HOME}/.docker/run/docker.sock"
+else
+  export DOCKER_HOST="unix:///var/run/docker.sock"
+fi
+
+SOCKET_PATH="${DOCKER_HOST#unix://}"
+if [[ ! -S "$SOCKET_PATH" ]]; then
+  echo "" >&2
+  echo "*** WARNING: Docker host is not available ($SOCKET_PATH not found). Start Docker (e.g. Docker Desktop) or set DOCKER_HOST. Install test will be skipped. ***" >&2
+  echo "" >&2
+fi
 
 if [[ -f datanode/config/datanode.env ]]; then
   while IFS= read -r line; do

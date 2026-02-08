@@ -14,6 +14,8 @@ export type StudyPackageDTO = {
   script: string;
   running: boolean;
   hasResults: boolean;
+  /** True when the study's Docker image is present locally. */
+  imageInstalled?: boolean;
 };
 
 export type StudyRepositorySettingsDTO = {
@@ -46,6 +48,11 @@ export function updateStudyPackageScript(
 
 export function deleteStudyPackage(id: number): Promise<void> {
   return api.delete(`/study-repository/packages/${id}`);
+}
+
+/** Pull the study image from the registry (docker pull). Use when image is not installed locally. */
+export function refreshStudyPackage(id: number): Promise<StudyPackageDTO> {
+  return api.post(`/study-repository/packages/${id}/refresh`);
 }
 
 export function getStudyRepositorySettings(): Promise<StudyRepositorySettingsDTO> {
@@ -95,6 +102,52 @@ export function checkStudyRepositoryConnection(
 
 export function startStudyRun(packageId: number): Promise<{ id: number }> {
   return api.post(`/study-repository/packages/${packageId}/runs`);
+}
+
+/** Start study container and return codeToRun.R content + version for the editor. */
+export function startStudyContainer(
+  packageId: number
+): Promise<{ script: string; version: number }> {
+  return api.post(`/study-repository/packages/${packageId}/start`);
+}
+
+/** Get DB-backed codeToRun.R (content + version). Seeds from image if needed. */
+export function getCodeToRun(packageId: number): Promise<{ content: string; version: number }> {
+  return api.get(`/study-repository/packages/${packageId}/codeToRun`);
+}
+
+/** Update codeToRun.R with optimistic concurrency. Returns { content, version } or 409 on conflict. */
+export function putCodeToRun(
+  packageId: number,
+  body: { content: string; version: number }
+): Promise<{ content: string; version: number }> {
+  return api.put(`/study-repository/packages/${packageId}/codeToRun`, body);
+}
+
+/** Stop study container. */
+export function stopStudyContainer(packageId: number): Promise<void> {
+  return api.post(`/study-repository/packages/${packageId}/stop`);
+}
+
+/** Execute the R script in the study container; returns run id, status, and logs. */
+export function executeStudyScript(
+  packageId: number,
+  script: string
+): Promise<{ runId: number; status: string; logs: string }> {
+  return api.post(`/study-repository/packages/${packageId}/execute`, { script });
+}
+
+/** One directory entry from inside the running study container. */
+export type ContainerFileEntry = { name: string; type: "DIR" | "FILE" }
+
+/** List directory contents inside the running study container (path under /code). */
+export function listContainerFiles(
+  packageId: number,
+  path: string = "/code"
+): Promise<ContainerFileEntry[]> {
+  return api.get(`/study-repository/packages/${packageId}/container-files`, {
+    params: { path },
+  });
 }
 
 export type RepositoryTagsDTO = {

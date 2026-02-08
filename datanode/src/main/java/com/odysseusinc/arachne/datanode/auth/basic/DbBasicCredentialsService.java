@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -137,6 +137,7 @@ public class DbBasicCredentialsService {
         ).toList();
     }
 
+    @SuppressWarnings("unchecked")
     private Optional<User> findUser(String login) {
         return JpaSugar.select(em, User.class).where(
                 JpaConditional.has(User_.username, login)

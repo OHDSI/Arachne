@@ -175,6 +175,11 @@ export function StudyRepository({
                   <div>
                     <span className="font-medium text-foreground">{study.name}</span>
                     <span className="text-xs text-muted-foreground ml-2">linked to catalog</span>
+                    {study.imageInstalled === false && (
+                      <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                        Image not found locally. Click Refresh to pull.
+                      </p>
+                    )}
                   </div>
                   <div className="text-sm">
                     {study.installedVersions.length > 1 ? (
@@ -239,7 +244,9 @@ export function StudyRepository({
                             />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Update</TooltipContent>
+                        <TooltipContent>
+                          {study.imageInstalled === false ? "Pull image" : "Refresh (pull image)"}
+                        </TooltipContent>
                       </Tooltip>
 
                       <Tooltip>

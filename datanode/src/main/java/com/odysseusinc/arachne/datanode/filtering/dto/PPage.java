@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,10 @@ import java.util.List;
 
 public class PPage<T> extends PageImpl<T> {
     private final List<String> actions;
+
+    public List<String> getActions() {
+        return actions;
+    }
 
     public static<T> PPage<T> of(List<String> actions, Page<T> page) {
         return of(actions, page.getContent(), page.getPageable(), page.getTotalElements());

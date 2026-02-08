@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,9 +19,9 @@ import java.util.List;
 public class ResultSetContainer<R> {
 
     R values;
-    List defaultValue;
+    List<?> defaultValue;
 
-    public ResultSetContainer(R values, List defaultValue) {
+    public ResultSetContainer(R values, List<?> defaultValue) {
 
         this.values = values;
         this.defaultValue = defaultValue;
@@ -32,7 +32,7 @@ public class ResultSetContainer<R> {
         return values;
     }
 
-    public List getDefaultValue() {
+    public List<?> getDefaultValue() {
 
         return defaultValue;
     }

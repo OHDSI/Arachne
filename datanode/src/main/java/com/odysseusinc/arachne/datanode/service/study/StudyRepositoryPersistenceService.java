@@ -17,8 +17,10 @@ package com.odysseusinc.arachne.datanode.service.study;
 
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import com.odysseusinc.arachne.datanode.model.study.StudyRun;
+import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
 import com.odysseusinc.arachne.datanode.repository.StudyPackageRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyRunRepository;
+import com.odysseusinc.arachne.datanode.repository.StudyRunResultFileRepository;
 import com.odysseusinc.arachne.system.settings.model.SystemSetting;
 import com.odysseusinc.arachne.system.settings.repository.SystemSettingRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -42,6 +45,7 @@ public class StudyRepositoryPersistenceService {
 
     private final StudyPackageRepository studyPackageRepository;
     private final StudyRunRepository studyRunRepository;
+    private final StudyRunResultFileRepository studyRunResultFileRepository;
     private final SystemSettingRepository systemSettingRepository;
 
     @Value("${datanode.studyRepository.defaultRegistryUrl:}")
@@ -54,9 +58,11 @@ public class StudyRepositoryPersistenceService {
     public StudyRepositoryPersistenceService(
             StudyPackageRepository studyPackageRepository,
             StudyRunRepository studyRunRepository,
+            StudyRunResultFileRepository studyRunResultFileRepository,
             SystemSettingRepository systemSettingRepository) {
         this.studyPackageRepository = studyPackageRepository;
         this.studyRunRepository = studyRunRepository;
+        this.studyRunResultFileRepository = studyRunResultFileRepository;
         this.systemSettingRepository = systemSettingRepository;
     }
 
@@ -112,6 +118,16 @@ public class StudyRepositoryPersistenceService {
     public void saveStudyPackageScript(Long studyPackageId, String script) {
         studyPackageRepository.findById(studyPackageId).ifPresent(pkg -> {
             pkg.setScript(script);
+            pkg.setUpdatedAt(Instant.now());
+            studyPackageRepository.save(pkg);
+        });
+    }
+
+    /** Set or clear the Docker container id for a study package (when study is opened or stopped). */
+    @Transactional
+    public void setStudyPackageContainerId(Long studyPackageId, String containerId) {
+        studyPackageRepository.findById(studyPackageId).ifPresent(pkg -> {
+            pkg.setContainerId(containerId);
             pkg.setUpdatedAt(Instant.now());
             studyPackageRepository.save(pkg);
         });
@@ -179,6 +195,35 @@ public class StudyRepositoryPersistenceService {
             }
             studyRunRepository.save(run);
         });
+    }
+
+    /** Set the Docker image (registry/name:tag) used for this run. */
+    @Transactional
+    public void updateStudyRunDockerImage(Long runId, String dockerImage) {
+        studyRunRepository.findById(runId).ifPresent(run -> {
+            run.setDockerImage(dockerImage);
+            studyRunRepository.save(run);
+        });
+    }
+
+    /** Save result files for a run (from the study output folder). Replaces any existing result files for this run. */
+    @Transactional
+    public void saveStudyRunResultFiles(Long runId, List<Map.Entry<String, byte[]>> files) {
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+        StudyRun run = studyRunRepository.findById(runId)
+                .orElseThrow(() -> new IllegalArgumentException("Study run not found: " + runId));
+        studyRunResultFileRepository.deleteByStudyRunId(runId);
+        for (Map.Entry<String, byte[]> e : files) {
+            String filePath = e.getKey();
+            if (filePath == null || filePath.length() > 2048) continue;
+            StudyRunResultFile rf = new StudyRunResultFile();
+            rf.setStudyRun(run);
+            rf.setFilePath(filePath);
+            rf.setContent(e.getValue());
+            studyRunResultFileRepository.save(rf);
+        }
     }
 
     // --- Catalog settings (study.catalog.address, study.catalog.token) ---

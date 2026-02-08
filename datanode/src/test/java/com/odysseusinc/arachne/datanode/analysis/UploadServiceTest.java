@@ -21,14 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -86,33 +82,5 @@ public class UploadServiceTest {
             user.setUsername("first");
             user.setEmail("first@example.com");
         });
-    }
-
-    private List<String> getResourceFiles(String path) throws IOException {
-        List<String> filenames = new ArrayList<>();
-
-        try (
-                InputStream in = getResourceAsStream(path);
-                BufferedReader br = new BufferedReader(new InputStreamReader(in))
-        ) {
-            String resource;
-
-            while ((resource = br.readLine()) != null) {
-                filenames.add(resource);
-            }
-        }
-
-        return filenames;
-    }
-
-    private InputStream getResourceAsStream(String resource) {
-        final InputStream in
-                = getContextClassLoader().getResourceAsStream(resource);
-
-        return in == null ? getClass().getResourceAsStream(resource) : in;
-    }
-
-    private ClassLoader getContextClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
     }
 }

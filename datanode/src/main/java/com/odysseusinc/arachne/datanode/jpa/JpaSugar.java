@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -150,6 +150,7 @@ public interface JpaSugar {
             return where(fn);
         }
 
+        @SuppressWarnings({"unchecked", "varargs"})
         Y where(JpaConditional<R>... biFunctions);
     }
 

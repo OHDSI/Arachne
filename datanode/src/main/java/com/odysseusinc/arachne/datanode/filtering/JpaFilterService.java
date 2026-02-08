@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -223,7 +223,7 @@ public class JpaFilterService<E> {
 
     private JpaFunction<E, Predicate[]> matchingPredicates(Map<String, List<String>> options, Stream<FilterOption<E>> filters) {
         Map<String, List<String>> safeOptions = Optional.ofNullable(options).orElseGet(Collections::emptyMap);
-        // TODO This ignores incorrect filter names for now, because doing so was easier. Dicscuss if we want fail fast in that case
+        // This ignores incorrect filter names for now; discuss if we want fail-fast for unknown filter names.
         return JpaFunction.combine(
                 filters.flatMap(filter ->
                         ofNullable(

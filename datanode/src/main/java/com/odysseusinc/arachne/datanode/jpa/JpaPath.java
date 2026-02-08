@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -60,6 +60,7 @@ public interface JpaPath<E, T> extends Function<Path<E>, Path<T>>, JpaQueryExpre
     }
 
 
+    @SuppressWarnings("unchecked")
     default <E1> JpaPath<E1, T> left(SingularAttribute<? super E1, E> attribute) {
         return path -> apply(((From<E,E1>) path).join(attribute, JoinType.LEFT));
     }

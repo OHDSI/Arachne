@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,10 @@
 package com.odysseusinc.arachne.datanode.service.study;
 
 import com.odysseusinc.arachne.datanode.config.DockerConfig;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,6 @@ import org.springframework.test.context.TestPropertySource;
  */
 @SpringBootTest(classes = {DockerConfig.class, StudyRepositoryConnectionService.class})
 @TestPropertySource(properties = {
-    "arachne.docker.host=unix:///var/run/docker.sock",
     "docker.registry.host=hub.docker.com",
     "docker.registry.username=",
     "docker.registry.password="
@@ -61,8 +62,10 @@ class StudyRepositoryInstallIT {
         }
         String dockerHost = System.getenv("DOCKER_HOST");
         if (dockerHost == null || dockerHost.isBlank() || dockerHost.contains("2375")) {
-            System.setProperty("DOCKER_HOST", "unix:///var/run/docker.sock");
+            dockerHost = "unix:///var/run/docker.sock";
+            System.setProperty("DOCKER_HOST", dockerHost);
         }
+        System.setProperty("arachne.docker.host", dockerHost);
     }
 
     @Autowired
@@ -71,8 +74,10 @@ class StudyRepositoryInstallIT {
     /**
      * Pulls darwin-eu-dev/examplestudy from the registry (same as UI Install). Requires
      * ARACHNE_DOCKER_REGISTRY_* in environment (e.g. from make install-test / datanode.env).
+     * Allow up to 5 minutes for the Docker pull.
      */
     @Test
+    @Timeout(value = 5, unit = TimeUnit.MINUTES)
     void pullStudyImage_darwinEuDevExampleStudy() {
         String url = System.getenv(ENV_REGISTRY_URL);
         String user = System.getenv(ENV_REGISTRY_USER);
@@ -87,9 +92,19 @@ class StudyRepositoryInstallIT {
             service.pullStudyImage(INSTALL_REPO, INSTALL_VERSION, url.trim(), token, user.trim());
         } catch (RuntimeException e) {
             String msg = e.getMessage() != null ? e.getMessage() : "";
-            boolean notFound = msg.contains("404") || msg.contains("not found")
-                    || (e.getCause() != null && e.getCause().getMessage() != null
-                    && (e.getCause().getMessage().contains("404") || e.getCause().getMessage().contains("not found")));
+            Throwable cause = e.getCause();
+            String causeMsg = cause != null && cause.getMessage() != null ? cause.getMessage() : "";
+            boolean notFound = msg.contains("404") || msg.contains("not found") || causeMsg.contains("404") || causeMsg.contains("not found");
+            boolean noSocket = msg.contains("No such file or directory") || msg.contains("LastErrorException")
+                    || causeMsg.contains("No such file or directory") || causeMsg.contains("LastErrorException");
+            if (noSocket) {
+                String warning = "WARNING: Docker host is not available. Start Docker (e.g. Docker Desktop) or set DOCKER_HOST. Skipping install-test.";
+                LOG.warn(warning);
+                System.err.println();
+                System.err.println("*** " + warning + " ***");
+                System.err.println();
+            }
+            Assumptions.assumeTrue(!noSocket, "Docker socket not available (start Docker or set DOCKER_HOST): " + msg);
             Assumptions.assumeTrue(!notFound,
                     "Image " + INSTALL_REPO + ":" + INSTALL_VERSION + " not in registry (push it or ignore): " + msg);
             throw e;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -87,6 +87,7 @@ public class AnalysisService {
 	);
 	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
 
+	@SuppressWarnings("unused")
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
 
 	@Autowired
@@ -96,6 +97,7 @@ public class AnalysisService {
 	@Autowired
 	private AnalysisStateService stateService;
 	@Autowired
+	@SuppressWarnings("unused")
 	private ExecutionEngineClient engine;
 	@Value("${analysis.scheduler.invalidateExecutingInterval}")
 	protected Long invalidateExecutingInterval;

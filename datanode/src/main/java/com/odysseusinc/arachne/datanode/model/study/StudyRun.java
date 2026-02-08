@@ -66,6 +66,10 @@ public class StudyRun {
     @Column(name = "logs", columnDefinition = "TEXT")
     private String logs;
 
+    /** Full Docker image (registry/name:tag) used for this run. */
+    @Column(name = "docker_image", length = 1024)
+    private String dockerImage;
+
     public enum StudyRunStatus {
         RUNNING,
         COMPLETED,

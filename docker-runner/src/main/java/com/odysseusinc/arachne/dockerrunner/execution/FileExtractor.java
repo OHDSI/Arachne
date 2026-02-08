@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,8 +44,8 @@ public final class FileExtractor {
             MultipartFile file = files.get(0);
             File zipTemp = File.createTempFile("upload", ".zip", temporaryDir);
             file.transferTo(zipTemp);
-            try {
-                new ZipFile(zipTemp).extractAll(temporaryDir.getAbsolutePath());
+            try (ZipFile zipFile = new ZipFile(zipTemp)) {
+                zipFile.extractAll(temporaryDir.getAbsolutePath());
             } catch (ZipException e) {
                 throw new IOException("Failed to extract zip", e);
             }

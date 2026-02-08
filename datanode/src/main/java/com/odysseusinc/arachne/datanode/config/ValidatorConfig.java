@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,7 @@
 package com.odysseusinc.arachne.datanode.config;
 
 import org.hibernate.validator.HibernateValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
@@ -26,7 +24,6 @@ import org.springframework.validation.beanvalidation.SpringConstraintValidatorFa
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.util.Map;
 
 @Configuration
 public class ValidatorConfig {

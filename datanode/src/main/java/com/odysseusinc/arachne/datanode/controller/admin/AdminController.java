@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,7 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @RestController
 public class AdminController {
@@ -78,7 +77,7 @@ public class AdminController {
         return new PageWithStatus(list, engineStatus);
     }
 
-    protected Pageable buildPageRequest(Pageable pageable) {
+    private Pageable buildPageRequest(Pageable pageable) {
         List<String> properties = new LinkedList<>();
         Sort.Direction direction = Sort.Direction.ASC;
         for (Sort.Order order : pageable.getSort()) {
@@ -99,24 +98,19 @@ public class AdminController {
     }
 
     private boolean isCustomSort(final Pageable pageable) {
-
-        return isSortOf(pageable, propertiesMap::containsKey);
-    }
-
-    private boolean isSortOf(final Pageable pageable, Function<String, Boolean> predicate) {
         if (pageable.getSort() == null) {
             return false;
         }
         for (Sort.Order order : pageable.getSort()) {
             String property = order.getProperty();
-            if (property != null && predicate.apply(property)) {
+            if (property != null && propertiesMap.containsKey(property)) {
                 return true;
             }
         }
         return false;
     }
 
-    protected void initProps() {
+    private void initProps() {
 
         propertiesMap.put("author.fullName", p -> {
             p.add("author.firstName");

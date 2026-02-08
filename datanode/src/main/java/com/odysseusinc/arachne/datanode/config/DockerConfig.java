@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -96,6 +96,7 @@ public class DockerConfig {
             @Override
             public AuthConfigurations getAuthConfigurations() { return delegate.getAuthConfigurations(); }
             @Override
+            @SuppressWarnings("deprecation")
             public SSLConfig getSSLConfig() { return delegate.getSSLConfig(); }
         };
     }
@@ -113,6 +114,7 @@ public class DockerConfig {
     }
 
     /** Use OkHttp for unix sockets (Apache client maps unix to localhost:2375 and fails with connection refused). */
+    @SuppressWarnings("deprecation")
     private DockerHttpClient buildHttpClient(URI hostUri, SSLConfig sslConfig) {
         if ("unix".equalsIgnoreCase(hostUri.getScheme())) {
             return new OkDockerHttpClient.Builder()

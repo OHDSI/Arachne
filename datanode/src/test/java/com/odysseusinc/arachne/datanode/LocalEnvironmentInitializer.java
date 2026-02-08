@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,10 +63,13 @@ public class LocalEnvironmentInitializer implements ApplicationContextInitialize
         context.addApplicationListener(onClose);
     }
 
+    @SuppressWarnings("resource")
     private static PostgreSQLContainer<?> createPostgreSQLContainer(String databaseName) {
         return new PostgreSQLContainer<>(POSTGRES_IMAGE)
                 .withDatabaseName(databaseName)
                 .withUsername("ohdsi").withPassword("ohdsi")
-                .withCreateContainerCmdModifier(cmd -> cmd.withName(databaseName + "_" + UUID.randomUUID()));
+                .withCreateContainerCmdModifier(cmd -> {
+                    cmd.withName(databaseName + "_" + UUID.randomUUID());
+                });
     }
 }

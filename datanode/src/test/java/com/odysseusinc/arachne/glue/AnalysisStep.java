@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,6 @@ import com.odysseusinc.arachne.datanode.engine.ExecutionEngineSyncService;
 import com.odysseusinc.arachne.datanode.jpa.JpaConditional;
 import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis;
-import com.odysseusinc.arachne.datanode.model.analysis.AnalysisCommand;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisState;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry;
 import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
@@ -44,24 +43,17 @@ import com.odysseusinc.arachne.execution_engine_common.descriptor.dto.TarballEnv
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class AnalysisStep {
@@ -123,6 +115,7 @@ public class AnalysisStep {
     }
 
     @When("analysis {string} state history is inspected")
+    @SuppressWarnings("unchecked")
     public void inspect(String title) {
         List<AnalysisStateEntry> analysisStates = JpaSugar.select(em, AnalysisStateEntry.class).where(
                 JpaConditional.has(AnalysisStateEntry_.analysis, Analysis_.title, title)
@@ -148,7 +141,7 @@ public class AnalysisStep {
     @When("EE rejects analysis {string} cancel request with error {string}")
     public void eeRejectCancel(String title, String error) {
         Long id = world.id(title);
-        AnalysisResultDTO result = Fn.create(AnalysisResultDTO::new, status -> {
+        Fn.create(AnalysisResultDTO::new, status -> {
             status.setId(id);
             status.setStage(Stage.ABORT);
         });
@@ -276,6 +269,7 @@ public class AnalysisStep {
         engineSyncService.checkStatus();
     }
 
+    @SuppressWarnings("unchecked")
     private Analysis find(String title) {
         return JpaSugar.select(em, Analysis.class).where(
                 JpaConditional.has(Analysis_.title, title)

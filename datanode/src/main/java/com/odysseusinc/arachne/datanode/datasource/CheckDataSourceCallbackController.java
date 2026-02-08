@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,8 +44,8 @@ public class CheckDataSourceCallbackController {
             @PathVariable String password,
             @RequestPart(Api.Part.ANALYSIS_RESULT) AnalysisExecutionStatusDTO status
     ) {
-        // TODO
         log.debug("Update status received for [{}]: {}", id, status.getStage());
+        checkService.updateStatus(id, status);
     }
 
     @Async

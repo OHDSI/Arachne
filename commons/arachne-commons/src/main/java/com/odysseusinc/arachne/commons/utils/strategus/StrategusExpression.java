@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,7 @@ public class StrategusExpression extends CommonObjectJson {
     private List<SharedResource> sharedResources;
     @OptionalField
     private List<ModuleSpecification> moduleSpecifications;
+    @SuppressWarnings("unused") // set by JSON deserialization
     private String attr_class;
 
     public Metadata getMetadata() {

@@ -57,6 +57,10 @@ public class StudyPackage {
     @Column(name = "script", columnDefinition = "TEXT")
     private String script;
 
+    /** Docker container id when study is opened for run (working dir /code in image). Null when not running. */
+    @Column(name = "container_id", length = 128)
+    private String containerId;
+
     @Column(name = "installed_at", nullable = false)
     private Instant installedAt;
 

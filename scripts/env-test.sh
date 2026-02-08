@@ -7,8 +7,14 @@ set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# Force Unix socket so test JVM and docker-java use the same daemon as the UI (overrides shell DOCKER_HOST e.g. tcp://localhost:2375).
-export DOCKER_HOST="unix:///var/run/docker.sock"
+# Use Unix socket that exists (Linux vs macOS Docker Desktop)
+if [[ -S /var/run/docker.sock ]]; then
+  export DOCKER_HOST="unix:///var/run/docker.sock"
+elif [[ "$(uname -s)" == "Darwin" && -S "$HOME/.docker/run/docker.sock" ]]; then
+  export DOCKER_HOST="unix://${HOME}/.docker/run/docker.sock"
+else
+  export DOCKER_HOST="unix:///var/run/docker.sock"
+fi
 
 if [[ -f datanode/config/datanode.env ]]; then
   while IFS= read -r line; do

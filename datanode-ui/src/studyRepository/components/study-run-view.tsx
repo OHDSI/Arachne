@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
@@ -22,14 +21,29 @@ import {
   Download,
   Folder,
   FolderOpen,
+  FolderTree,
   FileText,
   FileImage,
   FileSpreadsheet,
   File,
   ChevronRight,
   ChevronDown,
+  Circle,
 } from "lucide-react"
 import type { Study } from "../types"
+import {
+  startStudyContainer,
+  getCodeToRun,
+  putCodeToRun,
+  listContainerFiles,
+  type ContainerFileEntry,
+} from "../../api/study-repository"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "./ui/sheet"
 
 interface OutputFile {
   name: string
@@ -49,7 +63,8 @@ interface StudyRunViewProps {
   study: Study
   onBack: () => void
   onSaveScript: (script: string) => void
-  onRunStudy: () => void
+  /** Execute the current script in the study container; returns logs and status. */
+  onExecuteStudy: (script: string) => Promise<{ logs: string; status: string }>
 }
 
 type RunPhase = "editing" | "starting" | "running" | "completed"
@@ -81,27 +96,6 @@ execute(
   outputFolder = "output"
 )
 `
-
-const MOCK_LOGS = [
-  "Initializing study environment...",
-  "Loading configuration from codeToRun.R",
-  "Connecting to database...",
-  "Connection established successfully",
-  "Loading CDM schema: cdm",
-  "Validating cohort definitions...",
-  "Running analysis 1 of 3: Cohort characterization",
-  "  - Processing 10,000 patients",
-  "  - Generating baseline characteristics",
-  "Running analysis 2 of 3: Incidence rate calculation",
-  "  - Computing person-years at risk",
-  "  - Calculating incidence rates",
-  "Running analysis 3 of 3: Outcome analysis",
-  "  - Applying statistical models",
-  "  - Generating confidence intervals",
-  "Writing results to output folder...",
-  "Generating visualizations...",
-  "Study completed successfully!",
-]
 
 const MOCK_OUTPUT_VERSIONS: OutputVersion[] = [
   {
@@ -212,6 +206,89 @@ const MOCK_OUTPUT_VERSIONS: OutputVersion[] = [
   },
 ]
 
+/** Single node in the container file tree (Docker image filesystem). */
+function ContainerFileTree({
+  path,
+  pathLabel,
+  entriesByPath,
+  loadingPath,
+  expandedPaths,
+  onToggleExpand,
+}: {
+  path: string
+  pathLabel: string
+  entriesByPath: Record<string, ContainerFileEntry[]>
+  loadingPath: string | null
+  expandedPaths: Set<string>
+  onToggleExpand: (path: string) => void
+}) {
+  const isExpanded = expandedPaths.has(path)
+  const entries = entriesByPath[path]
+  const isLoading = loadingPath === path
+
+  return (
+    <div className="py-0.5">
+      <div
+        className="flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 transition-colors hover:bg-secondary/70"
+        style={{ paddingLeft: "8px" }}
+        onClick={() => onToggleExpand(path)}
+      >
+        <span className="flex h-4 w-4 items-center justify-center">
+          {isExpanded ? (
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          )}
+        </span>
+        {isExpanded ? (
+          <FolderOpen className="h-4 w-4 text-[#dcb67a]" />
+        ) : (
+          <Folder className="h-4 w-4 text-[#dcb67a]" />
+        )}
+        <span className="flex-1 truncate text-sm font-medium">{pathLabel}</span>
+      </div>
+      {isExpanded && (
+        <div style={{ paddingLeft: "16px" }}>
+          {isLoading && (
+            <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Loading...
+            </div>
+          )}
+          {!isLoading && entries != null && entries.length === 0 && (
+            <div className="px-2 py-1.5 text-sm text-muted-foreground">Empty</div>
+          )}
+          {!isLoading &&
+            entries != null &&
+            entries.map((entry) =>
+              entry.type === "DIR" ? (
+                <ContainerFileTree
+                  key={entry.name}
+                  path={path + "/" + entry.name}
+                  pathLabel={entry.name}
+                  entriesByPath={entriesByPath}
+                  loadingPath={loadingPath}
+                  expandedPaths={expandedPaths}
+                  onToggleExpand={onToggleExpand}
+                />
+              ) : (
+                <div
+                  key={entry.name}
+                  className="flex cursor-default items-center gap-1 rounded px-2 py-1.5 text-sm hover:bg-secondary/50"
+                  style={{ paddingLeft: "24px" }}
+                >
+                  <span className="h-4 w-4" />
+                  <File className="h-4 w-4 text-muted-foreground" />
+                  <span className="truncate">{entry.name}</span>
+                </div>
+              )
+            )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FileIcon({ type, isOpen }: { type: OutputFile["type"]; isOpen?: boolean }) {
   switch (type) {
     case "folder":
@@ -313,19 +390,87 @@ function FileTreeNode({
   )
 }
 
-export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyRunViewProps) {
+const AUTOSAVE_DELAY_MS = 1500
+
+export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: StudyRunViewProps) {
   const [script, setScript] = useState(study.script || DEFAULT_SCRIPT)
+  const [version, setVersion] = useState(0)
+  const [scriptLoading, setScriptLoading] = useState(true)
+  const [scriptError, setScriptError] = useState<string | null>(null)
+  const [conflictMessage, setConflictMessage] = useState<string | null>(null)
   const [phase, setPhase] = useState<RunPhase>("editing")
   const [logs, setLogs] = useState<string[]>([])
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
+  const autosaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const versionRef = useRef(version)
+  versionRef.current = version
   const [selectedVersion, setSelectedVersion] = useState(MOCK_OUTPUT_VERSIONS[0].id)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["output"]))
   const logEndRef = useRef<HTMLDivElement>(null)
 
+  const [fileExplorerOpen, setFileExplorerOpen] = useState(false)
+  const [containerEntriesByPath, setContainerEntriesByPath] = useState<Record<string, ContainerFileEntry[]>>({})
+  const [containerLoadingPath, setContainerLoadingPath] = useState<string | null>(null)
+  const [expandedContainerPaths, setExpandedContainerPaths] = useState<Set<string>>(new Set(["/code"]))
+
   const resultsUrl = `http://localhost:3838/results/${study.id}`
   const currentVersion = MOCK_OUTPUT_VERSIONS.find((v) => v.id === selectedVersion)
+
+  // When opening the study, start the container and load DB-backed codeToRun.R (content + version)
+  useEffect(() => {
+    let cancelled = false
+    setScriptLoading(true)
+    setScriptError(null)
+    setConflictMessage(null)
+    startStudyContainer(Number(study.id))
+      .then((res) => {
+        if (!cancelled) {
+          setScript(res.script != null ? res.script : "")
+          setVersion(typeof (res as { version?: number }).version === "number" ? (res as { version: number }).version : 0)
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setScriptError(e instanceof Error ? e.message : "Failed to open study")
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setScriptLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [study.id])
+
+  // Debounced autosave: persist to backend and sync to container; handle 409 by refreshing
+  useEffect(() => {
+    if (scriptLoading) return
+    if (autosaveRef.current) clearTimeout(autosaveRef.current)
+    autosaveRef.current = setTimeout(() => {
+      autosaveRef.current = null
+      const v = versionRef.current
+      putCodeToRun(Number(study.id), { content: script, version: v })
+        .then((res) => {
+          setVersion(res.version)
+          setConflictMessage(null)
+        })
+        .catch((err: { response?: { status: number; data?: { message?: string; version?: number } } }) => {
+          if (err?.response?.status === 409) {
+            setConflictMessage("Another change was saved. Refreshing...")
+            getCodeToRun(Number(study.id)).then((fresh) => {
+              setScript(fresh.content)
+              setVersion(fresh.version)
+              setConflictMessage(null)
+            })
+          }
+        })
+    }, AUTOSAVE_DELAY_MS)
+    return () => {
+      if (autosaveRef.current) clearTimeout(autosaveRef.current)
+    }
+  }, [script, scriptLoading, study.id])
 
   useEffect(() => {
     if (logEndRef.current) {
@@ -333,31 +478,59 @@ export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyR
     }
   }, [logs])
 
+  // Load container directory when file explorer opens or user expands a folder
+  useEffect(() => {
+    if (!fileExplorerOpen || scriptLoading || scriptError) return
+    const pathsToLoad = Array.from(expandedContainerPaths).filter(
+      (p) => !(p in containerEntriesByPath) && p !== containerLoadingPath
+    )
+    if (pathsToLoad.length === 0) return
+    const path = pathsToLoad[0]
+    setContainerLoadingPath(path)
+    listContainerFiles(Number(study.id), path)
+      .then((entries) => {
+        setContainerEntriesByPath((prev) => ({ ...prev, [path]: entries }))
+      })
+      .catch(() => {
+        setContainerEntriesByPath((prev) => ({ ...prev, [path]: [] }))
+      })
+      .finally(() => setContainerLoadingPath(null))
+  }, [fileExplorerOpen, expandedContainerPaths, containerEntriesByPath, containerLoadingPath, study.id, scriptLoading, scriptError])
+
   const handleSave = () => {
-    onSaveScript(script)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    putCodeToRun(Number(study.id), { content: script, version })
+      .then((res) => {
+        setVersion(res.version)
+        onSaveScript(script)
+        setSaved(true)
+        setConflictMessage(null)
+        setTimeout(() => setSaved(false), 2000)
+      })
+      .catch((err: { response?: { status: number; data?: { version?: number } } }) => {
+        if (err?.response?.status === 409) {
+          setConflictMessage("Another change was saved. Refreshing...")
+          getCodeToRun(Number(study.id)).then((fresh) => {
+            setScript(fresh.content)
+            setVersion(fresh.version)
+            setConflictMessage(null)
+          })
+        }
+      })
   }
 
-  const handleRun = () => {
+  const handleRun = async () => {
     setPhase("starting")
     setLogs([])
-
-    setTimeout(() => {
-      setPhase("running")
-      let logIndex = 0
-
-      const interval = setInterval(() => {
-        if (logIndex < MOCK_LOGS.length) {
-          setLogs((prev) => [...prev, MOCK_LOGS[logIndex]])
-          logIndex++
-        } else {
-          clearInterval(interval)
-          setPhase("completed")
-          onRunStudy()
-        }
-      }, 500)
-    }, 1500)
+    try {
+      const result = await onExecuteStudy(script)
+      const raw = result.logs ?? ""
+      const lines = raw.split("\n")
+      setLogs(lines.length > 0 ? lines : [raw || "(no output)"])
+      setPhase("completed")
+    } catch (e) {
+      setLogs([e instanceof Error ? e.message : "Execution failed"])
+      setPhase("completed")
+    }
   }
 
   const handleCopyUrl = () => {
@@ -378,10 +551,24 @@ export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyR
     })
   }
 
+  const handleToggleContainerPath = (path: string) => {
+    setExpandedContainerPaths((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) {
+        next.delete(path)
+      } else {
+        next.add(path)
+      }
+      return next
+    })
+  }
+
+  const containerReady = !scriptLoading && !scriptError
+
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex flex-wrap items-center gap-4">
         <Button
           variant="ghost"
           onClick={onBack}
@@ -396,7 +583,75 @@ export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyR
             v{study.version}
           </Badge>
         </div>
+        {/* Study status: green = container running, amber = starting, red = error */}
+        <div
+          className="flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1.5 text-sm"
+          title={
+            scriptLoading
+              ? "Study Docker image is starting..."
+              : scriptError
+                ? "Study container failed to start"
+                : "Study Docker image is running and ready"
+          }
+        >
+          {scriptLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-500" />
+              <span className="text-muted-foreground">Starting study environment...</span>
+            </>
+          ) : scriptError ? (
+            <>
+              <Circle className="h-3 w-3 shrink-0 fill-destructive text-destructive" />
+              <span className="text-destructive">Study environment unavailable</span>
+            </>
+          ) : (
+            <>
+              <Circle className="h-3 w-3 shrink-0 fill-green-500 text-green-500" />
+              <span className="text-green-700 dark:text-green-400">Study environment ready</span>
+            </>
+          )}
+        </div>
+        {containerReady && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFileExplorerOpen(true)}
+            className="border-border text-foreground hover:bg-secondary bg-transparent"
+            title="View file tree inside the running Docker container"
+          >
+            <FolderTree className="mr-2 h-4 w-4" />
+            File explorer
+          </Button>
+        )}
       </div>
+
+      <Sheet open={fileExplorerOpen} onOpenChange={setFileExplorerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
+          <SheetHeader>
+            <SheetTitle>Container files</SheetTitle>
+          </SheetHeader>
+          <p className="text-sm text-muted-foreground mt-1">
+            Files and folders inside the running study image (workdir /code).
+          </p>
+          <div className="flex-1 overflow-auto mt-4 rounded-md border border-border bg-secondary/30 min-h-0">
+            {containerLoadingPath === "/code" ? (
+              <div className="flex items-center gap-2 p-4 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading /code...
+              </div>
+            ) : (
+              <ContainerFileTree
+                path="/code"
+                pathLabel="code"
+                entriesByPath={containerEntriesByPath}
+                loadingPath={containerLoadingPath}
+                expandedPaths={expandedContainerPaths}
+                onToggleExpand={handleToggleContainerPath}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Script Editor */}
@@ -424,7 +679,7 @@ export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyR
               </Button>
               <Button
                 onClick={handleRun}
-                disabled={phase === "starting" || phase === "running"}
+                disabled={scriptLoading || phase === "starting" || phase === "running"}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {phase === "starting" ? (
@@ -447,14 +702,31 @@ export function StudyRunView({ study, onBack, onSaveScript, onRunStudy }: StudyR
             </div>
           </CardHeader>
           <CardContent>
+            {scriptLoading && (
+              <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Starting study container and loading codeToRun.R...
+              </div>
+            )}
+            {scriptError && (
+              <div className="mb-3 rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">
+                {scriptError}
+              </div>
+            )}
+            {conflictMessage && (
+              <div className="mb-3 rounded-md bg-amber-500/15 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+                {conflictMessage}
+              </div>
+            )}
             <div className="rounded-md border border-border bg-secondary/30">
               <div className="border-b border-border bg-secondary/50 px-3 py-2 text-sm font-medium text-muted-foreground">
-                codeToRun.R
+                codeToRun.R (saved in DB, synced to /workspace in container)
               </div>
               <textarea
                 value={script}
                 onChange={(e) => setScript(e.target.value)}
-                className="h-[400px] w-full resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
+                disabled={scriptLoading}
+                className="h-[400px] w-full resize-none bg-transparent p-3 font-mono text-sm focus:outline-none disabled:opacity-70"
                 spellCheck={false}
               />
             </div>

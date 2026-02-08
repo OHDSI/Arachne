@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2025 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,7 +35,6 @@ import org.springframework.test.context.TestPropertySource;
  */
 @SpringBootTest(classes = {DockerConfig.class, StudyRepositoryConnectionService.class})
 @TestPropertySource(properties = {
-    "arachne.docker.host=unix:///var/run/docker.sock",
     "docker.registry.host=hub.docker.com",
     "docker.registry.username=",
     "docker.registry.password="
@@ -60,11 +59,12 @@ class StudyRepositoryConnectionServiceIT {
         if (token != null && !token.isBlank()) {
             System.setProperty("datanode.studyRepository.defaultRegistryToken", token);
         }
-        // Force Unix socket so test matches UI (docker-java may read DOCKER_HOST from env at runtime)
         String dockerHost = System.getenv("DOCKER_HOST");
         if (dockerHost == null || dockerHost.isBlank() || dockerHost.contains("2375")) {
-            System.setProperty("DOCKER_HOST", "unix:///var/run/docker.sock");
+            dockerHost = "unix:///var/run/docker.sock";
+            System.setProperty("DOCKER_HOST", dockerHost);
         }
+        System.setProperty("arachne.docker.host", dockerHost);
     }
 
     @BeforeAll

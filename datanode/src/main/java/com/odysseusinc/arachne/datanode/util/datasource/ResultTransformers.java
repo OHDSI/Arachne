@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2023 Odysseus Data Services, Inc.
+ * Copyright 2026 Odysseus Data Services/EPAM, Darwin EU, OHDSI
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@ public class ResultTransformers {
         return result -> new Gson().toJson(result);
     }
 
-    public static <T extends Map> ResultTransformer<T, Map<Integer, String>> toJsonMap(List<Integer> identities) {
+    public static <T extends Map<?, ?>> ResultTransformer<T, Map<Integer, String>> toJsonMap(List<Integer> identities) {
 
         return result -> {
             Gson gson = new Gson();
