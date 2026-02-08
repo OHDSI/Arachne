@@ -13,6 +13,8 @@ export type StudyPackageDTO = {
   version: string;
   script: string;
   running: boolean;
+  /** True when the study Docker container is running (image loaded and container up). */
+  loaded: boolean;
   hasResults: boolean;
   /** True when the study's Docker image is present locally. */
   imageInstalled?: boolean;
@@ -164,4 +166,42 @@ export function getStudyRepositoryTags(
   n: number = 100
 ): Promise<RepositoryTagsDTO> {
   return api.get("/study-repository/tags", { params: { repo, n } });
+}
+
+/** Study run summary for Browse Outputs. */
+export type StudyRunDTO = {
+  id: number;
+  status: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  resultPath: string | null;
+  fileCount: number;
+};
+
+/** List runs for a study package (newest first). */
+export function getStudyRuns(packageId: number): Promise<StudyRunDTO[]> {
+  return api.get(`/study-repository/packages/${packageId}/runs`);
+}
+
+/** Result file entry (export folder contents saved after run). */
+export type StudyRunResultFileDTO = { filePath: string; size: number };
+
+/** List result files for a run (paths relative to export folder). */
+export function getStudyRunResultFiles(
+  packageId: number,
+  runId: number
+): Promise<StudyRunResultFileDTO[]> {
+  return api.get(`/study-repository/packages/${packageId}/runs/${runId}/result-files`);
+}
+
+/** Download a single result file. Returns blob for save/open. */
+export function downloadResultFile(
+  packageId: number,
+  runId: number,
+  filePath: string
+): Promise<Blob> {
+  return api.get(
+    `/study-repository/packages/${packageId}/runs/${runId}/result-files/download`,
+    { params: { path: filePath }, responseType: "blob" }
+  );
 }

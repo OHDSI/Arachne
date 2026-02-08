@@ -36,7 +36,12 @@ import {
   getCodeToRun,
   putCodeToRun,
   listContainerFiles,
+  getStudyRuns,
+  getStudyRunResultFiles,
+  downloadResultFile,
   type ContainerFileEntry,
+  type StudyRunDTO,
+  type StudyRunResultFileDTO,
 } from "../../api/study-repository"
 import {
   Sheet,
@@ -47,16 +52,72 @@ import {
 
 interface OutputFile {
   name: string
+  path?: string
+  /** For file nodes: path to send to download API (may include "output/" prefix). */
+  downloadPath?: string
   type: "folder" | "table" | "plot" | "html" | "file"
   size?: string
   children?: OutputFile[]
 }
 
-interface OutputVersion {
-  id: string
-  label: string
-  timestamp: string
-  files: OutputFile[]
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function fileTypeFromPath(path: string): "folder" | "table" | "plot" | "html" | "file" {
+  const lower = path.toLowerCase()
+  if (lower.endsWith(".csv") || lower.endsWith(".xlsx") || lower.endsWith(".xls")) return "table"
+  if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".svg")) return "plot"
+  if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html"
+  return "file"
+}
+
+/** Build a tree from flat result file entries (paths relative to export folder, may start with "output/"). */
+function buildFileTree(entries: StudyRunResultFileDTO[]): OutputFile[] {
+  const root: OutputFile = { name: "output", path: "output", type: "folder", children: [] }
+  const pathToNode = new Map<string, OutputFile>()
+  pathToNode.set("output", root)
+
+  for (const { filePath: rawPath, size } of entries) {
+    const filePath = rawPath.startsWith("output/") ? rawPath.slice(7) : rawPath
+    const parts = filePath.split("/").filter(Boolean)
+    if (parts.length === 0) continue
+    let currentPath = "output"
+    for (let i = 0; i < parts.length; i++) {
+      const isFile = i === parts.length - 1
+      const name = parts[i]
+      const fullPath = currentPath + (currentPath ? "/" : "") + name
+      if (pathToNode.has(fullPath)) {
+        currentPath = fullPath
+        continue
+      }
+      const parent = pathToNode.get(currentPath) ?? root
+      if (!parent.children) parent.children = []
+      const node: OutputFile = isFile
+        ? {
+            name,
+            path: fullPath,
+            downloadPath: rawPath,
+            type: fileTypeFromPath(name),
+            size: formatSize(size),
+            children: undefined,
+          }
+        : { name, path: fullPath, type: "folder", children: [] }
+      if (!isFile) pathToNode.set(fullPath, node)
+      parent.children.push(node)
+      currentPath = fullPath
+    }
+  }
+  const sortChildren = (node: OutputFile) => {
+    if (node.children) {
+      node.children.sort((a, b) => (a.type === "folder" ? 0 : 1) - (b.type === "folder" ? 0 : 1))
+      node.children.forEach(sortChildren)
+    }
+  }
+  sortChildren(root)
+  return [root]
 }
 
 interface StudyRunViewProps {
@@ -65,9 +126,11 @@ interface StudyRunViewProps {
   onSaveScript: (script: string) => void
   /** Execute the current script in the study container; returns logs and status. */
   onExecuteStudy: (script: string) => Promise<{ logs: string; status: string }>
+  /** Called when execution phase changes so the list can show "Running" only while codeToRun.R is executing. */
+  onExecutionPhaseChange?: (phase: RunPhase) => void
 }
 
-type RunPhase = "editing" | "starting" | "running" | "completed"
+export type RunPhase = "editing" | "starting" | "running" | "completed"
 
 const DEFAULT_SCRIPT = `# codeToRun.R
 # Configure your database connection and study parameters
@@ -97,114 +160,15 @@ execute(
 )
 `
 
-const MOCK_OUTPUT_VERSIONS: OutputVersion[] = [
-  {
-    id: "run-003",
-    label: "Run #3",
-    timestamp: "2024-01-15 14:32:01",
-    files: [
-      {
-        name: "output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", type: "table", size: "245 KB" },
-              { name: "cohort_counts.csv", type: "table", size: "12 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", type: "table", size: "128 KB" },
-              { name: "baseline_characteristics.xlsx", type: "table", size: "512 KB" },
-              { name: "outcome_model.rds", type: "file", size: "2.1 MB" },
-            ],
-          },
-          {
-            name: "figures",
-            type: "folder",
-            children: [
-              { name: "kaplan_meier_plot.png", type: "plot", size: "89 KB" },
-              { name: "forest_plot.png", type: "plot", size: "156 KB" },
-              { name: "hazard_ratio_plot.png", type: "plot", size: "134 KB" },
-            ],
-          },
-          { name: "analysis_report.html", type: "html", size: "1.2 MB" },
-          { name: "log.txt", type: "file", size: "45 KB" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "run-002",
-    label: "Run #2",
-    timestamp: "2024-01-14 09:15:43",
-    files: [
-      {
-        name: "output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", type: "table", size: "198 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", type: "table", size: "95 KB" },
-              { name: "baseline_characteristics.xlsx", type: "table", size: "384 KB" },
-            ],
-          },
-          {
-            name: "figures",
-            type: "folder",
-            children: [
-              { name: "kaplan_meier_plot.png", type: "plot", size: "78 KB" },
-              { name: "forest_plot.png", type: "plot", size: "142 KB" },
-            ],
-          },
-          { name: "analysis_report.html", type: "html", size: "980 KB" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "run-001",
-    label: "Run #1",
-    timestamp: "2024-01-12 16:45:22",
-    files: [
-      {
-        name: "output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", type: "table", size: "156 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", type: "table", size: "72 KB" },
-            ],
-          },
-          { name: "analysis_report.html", type: "html", size: "720 KB" },
-        ],
-      },
-    ],
-  },
-]
+const formatRunTime = (iso: string | null) => {
+  if (!iso) return "—"
+  try {
+    const d = new Date(iso)
+    return d.toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })
+  } catch {
+    return iso
+  }
+}
 
 /** Single node in the container file tree (Docker image filesystem). */
 function ContainerFileTree({
@@ -313,32 +277,35 @@ function FileTreeNode({
   depth = 0,
   selectedFile,
   onSelectFile,
+  onDownloadFile,
   expandedFolders,
   onToggleFolder,
 }: {
   file: OutputFile
   depth?: number
   selectedFile: string | null
-  onSelectFile: (name: string) => void
+  onSelectFile: (path: string) => void
+  onDownloadFile?: (path: string) => void
   expandedFolders: Set<string>
-  onToggleFolder: (name: string) => void
+  onToggleFolder: (path: string) => void
 }) {
+  const pathKey = file.path ?? file.name
   const isFolder = file.type === "folder"
-  const isExpanded = expandedFolders.has(file.name)
-  const isSelected = selectedFile === file.name
+  const isExpanded = expandedFolders.has(pathKey)
+  const isSelected = selectedFile === pathKey
 
   return (
     <div>
       <div
-        className={`flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 transition-colors hover:bg-secondary/70 ${
+        className={`group flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 transition-colors hover:bg-secondary/70 ${
           isSelected ? "bg-primary/10" : ""
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => {
           if (isFolder) {
-            onToggleFolder(file.name)
+            onToggleFolder(pathKey)
           } else {
-            onSelectFile(file.name)
+            onSelectFile(pathKey)
           }
         }}
       >
@@ -358,13 +325,14 @@ function FileTreeNode({
         {file.size && (
           <span className="text-xs text-muted-foreground">{file.size}</span>
         )}
-        {!isFolder && (
+        {!isFolder && onDownloadFile && (file.downloadPath ?? file.path) && (
           <Button
             variant="ghost"
             size="icon"
             className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-primary/10"
             onClick={(e) => {
               e.stopPropagation()
+              onDownloadFile(file.downloadPath ?? file.path!)
             }}
           >
             <Download className="h-3 w-3 text-primary" />
@@ -375,11 +343,12 @@ function FileTreeNode({
         <div>
           {file.children.map((child) => (
             <FileTreeNode
-              key={child.name}
+              key={child.path ?? child.name}
               file={child}
               depth={depth + 1}
               selectedFile={selectedFile}
               onSelectFile={onSelectFile}
+              onDownloadFile={onDownloadFile}
               expandedFolders={expandedFolders}
               onToggleFolder={onToggleFolder}
             />
@@ -392,7 +361,7 @@ function FileTreeNode({
 
 const AUTOSAVE_DELAY_MS = 1500
 
-export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: StudyRunViewProps) {
+export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange }: StudyRunViewProps) {
   const [script, setScript] = useState(study.script || DEFAULT_SCRIPT)
   const [version, setVersion] = useState(0)
   const [scriptLoading, setScriptLoading] = useState(true)
@@ -405,9 +374,14 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
   const autosaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const versionRef = useRef(version)
   versionRef.current = version
-  const [selectedVersion, setSelectedVersion] = useState(MOCK_OUTPUT_VERSIONS[0].id)
+  const [runs, setRuns] = useState<StudyRunDTO[]>([])
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
+  const [resultFiles, setResultFiles] = useState<StudyRunResultFileDTO[]>([])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["output"]))
+  const [loadingRuns, setLoadingRuns] = useState(false)
+  const [loadingFiles, setLoadingFiles] = useState(false)
+  const [downloading, setDownloading] = useState(false)
   const logEndRef = useRef<HTMLDivElement>(null)
 
   const [fileExplorerOpen, setFileExplorerOpen] = useState(false)
@@ -416,7 +390,9 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
   const [expandedContainerPaths, setExpandedContainerPaths] = useState<Set<string>>(new Set(["/code"]))
 
   const resultsUrl = `http://localhost:3838/results/${study.id}`
-  const currentVersion = MOCK_OUTPUT_VERSIONS.find((v) => v.id === selectedVersion)
+  const packageId = Number(study.id)
+  const currentRun = runs.find((r) => String(r.id) === selectedRunId)
+  const fileTree = resultFiles.length > 0 ? buildFileTree(resultFiles) : []
 
   // When opening the study, start the container and load DB-backed codeToRun.R (content + version)
   useEffect(() => {
@@ -478,6 +454,34 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
     }
   }, [logs])
 
+  // Load runs for Browse Outputs when study is open
+  useEffect(() => {
+    setLoadingRuns(true)
+    getStudyRuns(packageId)
+      .then((data) => {
+        const list = Array.isArray(data) ? data : []
+        setRuns(list)
+        setResultFiles([])
+        const withFiles = list.filter((r: StudyRunDTO) => (r.fileCount ?? 0) > 0)
+        setSelectedRunId(withFiles.length > 0 ? String(withFiles[0].id) : list.length > 0 ? String(list[0].id) : null)
+      })
+      .catch(() => setRuns([]))
+      .finally(() => setLoadingRuns(false))
+  }, [packageId])
+
+  // Load result files when selected run changes
+  useEffect(() => {
+    if (!selectedRunId) {
+      setResultFiles([])
+      return
+    }
+    setLoadingFiles(true)
+    getStudyRunResultFiles(packageId, Number(selectedRunId))
+      .then((data) => setResultFiles(Array.isArray(data) ? data : []))
+      .catch(() => setResultFiles([]))
+      .finally(() => setLoadingFiles(false))
+  }, [packageId, selectedRunId])
+
   // Load container directory when file explorer opens or user expands a folder
   useEffect(() => {
     if (!fileExplorerOpen || scriptLoading || scriptError) return
@@ -522,14 +526,18 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
     setPhase("starting")
     setLogs([])
     try {
+      setPhase("running")
+      onExecutionPhaseChange?.("running")
       const result = await onExecuteStudy(script)
       const raw = result.logs ?? ""
       const lines = raw.split("\n")
       setLogs(lines.length > 0 ? lines : [raw || "(no output)"])
       setPhase("completed")
+      onExecutionPhaseChange?.("completed")
     } catch (e) {
       setLogs([e instanceof Error ? e.message : "Execution failed"])
       setPhase("completed")
+      onExecutionPhaseChange?.("completed")
     }
   }
 
@@ -537,6 +545,46 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
     navigator.clipboard.writeText(resultsUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDownloadOutputFile = async (filePath: string) => {
+    if (!selectedRunId) return
+    setDownloading(true)
+    try {
+      const blob = await downloadResultFile(packageId, Number(selectedRunId), filePath)
+      const name = filePath.includes("/") ? filePath.slice(filePath.lastIndexOf("/") + 1) : filePath
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = name
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const handleDownloadAllOutputs = async () => {
+    if (!selectedRunId || resultFiles.length === 0) return
+    setDownloading(true)
+    try {
+      for (const f of resultFiles) {
+        try {
+          const blob = await downloadResultFile(packageId, Number(selectedRunId), f.filePath)
+          const name = f.filePath.includes("/") ? f.filePath.slice(f.filePath.lastIndexOf("/") + 1) : f.filePath
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = name
+          a.click()
+          URL.revokeObjectURL(url)
+        } catch {
+          /* skip failed file */
+        }
+      }
+    } finally {
+      setDownloading(false)
+    }
   }
 
   const handleToggleFolder = (name: string) => {
@@ -809,21 +857,37 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
             </CardContent>
           </Card>
 
-          {/* Browse Outputs - File Explorer */}
+          {/* Browse Outputs - File Explorer (real run data from API) */}
           <Card className="shadow-[0_3px_13px_0_rgba(0,0,0,0.16)]">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-lg text-primary-dark">Browse Outputs</CardTitle>
               <div className="flex items-center gap-2">
-                <Select value={selectedVersion} onValueChange={setSelectedVersion}>
+                <Select
+                  value={selectedRunId ?? ""}
+                  onValueChange={setSelectedRunId}
+                  disabled={loadingRuns || runs.length === 0}
+                >
                   <SelectTrigger className="h-8 w-[180px] border-border text-sm">
-                    <SelectValue placeholder="Select version" />
+                    <SelectValue
+                      placeholder={
+                        loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {MOCK_OUTPUT_VERSIONS.map((version) => (
-                      <SelectItem key={version.id} value={version.id}>
+                    {runs.map((run) => (
+                      <SelectItem key={run.id} value={String(run.id)}>
                         <div className="flex flex-col">
-                          <span>{version.label}</span>
-                          <span className="text-xs text-muted-foreground">{version.timestamp}</span>
+                          <span>Run #{run.id}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatRunTime(run.finishedAt ?? run.startedAt)}
+                          </span>
+                          {(run.fileCount ?? 0) > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {" "}
+                              ({run.fileCount} files)
+                            </span>
+                          )}
                         </div>
                       </SelectItem>
                     ))}
@@ -833,28 +897,54 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy }: St
                   variant="outline"
                   size="sm"
                   className="border-border text-foreground hover:bg-secondary bg-transparent"
+                  disabled={downloading || !selectedRunId || resultFiles.length === 0}
+                  onClick={handleDownloadAllOutputs}
                 >
-                  <Download className="mr-2 h-4 w-4" />
+                  {downloading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="mr-2 h-4 w-4" />
+                  )}
                   Download All
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="h-[300px] overflow-auto rounded-md border border-border bg-background">
-                {currentVersion?.files.map((file) => (
-                  <FileTreeNode
-                    key={file.name}
-                    file={file}
-                    selectedFile={selectedFile}
-                    onSelectFile={setSelectedFile}
-                    expandedFolders={expandedFolders}
-                    onToggleFolder={handleToggleFolder}
-                  />
-                ))}
+                {loadingFiles && (
+                  <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading outputs…
+                  </div>
+                )}
+                {!loadingFiles && fileTree.length === 0 && selectedRunId && (
+                  <div className="p-4 text-sm text-muted-foreground">
+                    No output files for this run yet.
+                  </div>
+                )}
+                {!loadingFiles && !selectedRunId && runs.length === 0 && (
+                  <div className="p-4 text-sm text-muted-foreground">
+                    No runs yet. Run the study to see outputs here.
+                  </div>
+                )}
+                {!loadingFiles && fileTree.length > 0 &&
+                  fileTree.map((file) => (
+                    <FileTreeNode
+                      key={file.path ?? file.name}
+                      file={file}
+                      selectedFile={selectedFile}
+                      onSelectFile={setSelectedFile}
+                      onDownloadFile={handleDownloadOutputFile}
+                      expandedFolders={expandedFolders}
+                      onToggleFolder={handleToggleFolder}
+                    />
+                  ))}
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  {currentVersion?.label} - {currentVersion?.timestamp}
+                  {currentRun
+                    ? `Run #${currentRun.id} - ${formatRunTime(currentRun.finishedAt ?? currentRun.startedAt)}`
+                    : "—"}
                 </span>
                 <span>
                   {selectedFile ? `Selected: ${selectedFile}` : "Click a file to select"}

@@ -1,5 +1,4 @@
-
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   Dialog,
   DialogContent,
@@ -24,8 +23,16 @@ import {
   File,
   ChevronRight,
   ChevronDown,
+  Loader2,
 } from "lucide-react"
 import type { Study } from "../types"
+import {
+  getStudyRuns,
+  getStudyRunResultFiles,
+  downloadResultFile,
+  type StudyRunDTO,
+  type StudyRunResultFileDTO,
+} from "../../api/study-repository"
 
 interface OutputFile {
   name: string
@@ -35,142 +42,63 @@ interface OutputFile {
   children?: OutputFile[]
 }
 
-interface OutputVersion {
-  id: string
-  label: string
-  timestamp: string
-  files: OutputFile[]
-}
-
 interface OutputBrowserModalProps {
   study: Study | null
   open: boolean
   onClose: () => void
 }
 
-const MOCK_OUTPUT_VERSIONS: OutputVersion[] = [
-  {
-    id: "run-003",
-    label: "Run #3",
-    timestamp: "2024-01-15 14:32:01",
-    files: [
-      {
-        name: "output",
-        path: "/output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            path: "/output/cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", path: "/output/cohorts/cohort_summary.csv", type: "table", size: "245 KB" },
-              { name: "cohort_counts.csv", path: "/output/cohorts/cohort_counts.csv", type: "table", size: "12 KB" },
-              { name: "cohort_attrition.csv", path: "/output/cohorts/cohort_attrition.csv", type: "table", size: "8 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            path: "/output/analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", path: "/output/analysis/incidence_rates.csv", type: "table", size: "128 KB" },
-              { name: "baseline_characteristics.xlsx", path: "/output/analysis/baseline_characteristics.xlsx", type: "table", size: "512 KB" },
-              { name: "outcome_model.rds", path: "/output/analysis/outcome_model.rds", type: "file", size: "2.1 MB" },
-              { name: "propensity_scores.csv", path: "/output/analysis/propensity_scores.csv", type: "table", size: "1.8 MB" },
-            ],
-          },
-          {
-            name: "figures",
-            path: "/output/figures",
-            type: "folder",
-            children: [
-              { name: "kaplan_meier_plot.png", path: "/output/figures/kaplan_meier_plot.png", type: "plot", size: "89 KB" },
-              { name: "forest_plot.png", path: "/output/figures/forest_plot.png", type: "plot", size: "156 KB" },
-              { name: "hazard_ratio_plot.png", path: "/output/figures/hazard_ratio_plot.png", type: "plot", size: "134 KB" },
-              { name: "calibration_plot.png", path: "/output/figures/calibration_plot.png", type: "plot", size: "98 KB" },
-            ],
-          },
-          { name: "analysis_report.html", path: "/output/analysis_report.html", type: "html", size: "1.2 MB" },
-          { name: "diagnostics.html", path: "/output/diagnostics.html", type: "html", size: "856 KB" },
-          { name: "log.txt", path: "/output/log.txt", type: "file", size: "45 KB" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "run-002",
-    label: "Run #2",
-    timestamp: "2024-01-14 09:15:43",
-    files: [
-      {
-        name: "output",
-        path: "/output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            path: "/output/cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", path: "/output/cohorts/cohort_summary.csv", type: "table", size: "198 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            path: "/output/analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", path: "/output/analysis/incidence_rates.csv", type: "table", size: "95 KB" },
-              { name: "baseline_characteristics.xlsx", path: "/output/analysis/baseline_characteristics.xlsx", type: "table", size: "384 KB" },
-            ],
-          },
-          {
-            name: "figures",
-            path: "/output/figures",
-            type: "folder",
-            children: [
-              { name: "kaplan_meier_plot.png", path: "/output/figures/kaplan_meier_plot.png", type: "plot", size: "78 KB" },
-              { name: "forest_plot.png", path: "/output/figures/forest_plot.png", type: "plot", size: "142 KB" },
-            ],
-          },
-          { name: "analysis_report.html", path: "/output/analysis_report.html", type: "html", size: "980 KB" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "run-001",
-    label: "Run #1",
-    timestamp: "2024-01-12 16:45:22",
-    files: [
-      {
-        name: "output",
-        path: "/output",
-        type: "folder",
-        children: [
-          {
-            name: "cohorts",
-            path: "/output/cohorts",
-            type: "folder",
-            children: [
-              { name: "cohort_summary.csv", path: "/output/cohorts/cohort_summary.csv", type: "table", size: "156 KB" },
-            ],
-          },
-          {
-            name: "analysis",
-            path: "/output/analysis",
-            type: "folder",
-            children: [
-              { name: "incidence_rates.csv", path: "/output/analysis/incidence_rates.csv", type: "table", size: "72 KB" },
-            ],
-          },
-          { name: "analysis_report.html", path: "/output/analysis_report.html", type: "html", size: "720 KB" },
-        ],
-      },
-    ],
-  },
-]
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function fileTypeFromPath(path: string): "folder" | "table" | "plot" | "html" | "file" {
+  const lower = path.toLowerCase()
+  if (lower.endsWith(".csv") || lower.endsWith(".xlsx") || lower.endsWith(".xls")) return "table"
+  if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".svg")) return "plot"
+  if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html"
+  return "file"
+}
+
+/** Build a tree from flat paths (e.g. "log.txt", "cohorts/summary.csv"). Root node is "output" (export folder). */
+function buildFileTree(entries: StudyRunResultFileDTO[]): OutputFile[] {
+  const root: OutputFile = { name: "output", path: "output", type: "folder", children: [] }
+  const pathToNode = new Map<string, OutputFile>()
+  pathToNode.set("output", root)
+
+  for (const { filePath, size } of entries) {
+    const parts = filePath.split("/").filter(Boolean)
+    if (parts.length === 0) continue
+    let currentPath = "output"
+    for (let i = 0; i < parts.length; i++) {
+      const isFile = i === parts.length - 1
+      const name = parts[i]
+      const fullPath = currentPath + (currentPath ? "/" : "") + name
+          if (pathToNode.has(fullPath)) {
+        currentPath = fullPath
+        continue
+      }
+      const parent = pathToNode.get(currentPath) ?? root
+      if (!parent.children) parent.children = []
+      const node: OutputFile = isFile
+        ? { name, path: filePath, type: fileTypeFromPath(name), size: formatSize(size), children: undefined }
+        : { name, path: fullPath, type: "folder", children: [] }
+      if (!isFile) pathToNode.set(fullPath, node)
+      parent.children.push(node)
+      currentPath = fullPath
+    }
+  }
+  const sortChildren = (node: OutputFile) => {
+    if (node.children) {
+      node.children.sort((a, b) => (a.type === "folder" ? 0 : 1) - (b.type === "folder" ? 0 : 1))
+      node.children.forEach(sortChildren)
+    }
+  }
+  sortChildren(root)
+  return [root]
+}
 
 function FileIcon({ type, isOpen }: { type: OutputFile["type"]; isOpen?: boolean }) {
   switch (type) {
@@ -196,6 +124,7 @@ function FileTreeNode({
   depth = 0,
   selectedFile,
   onSelectFile,
+  onDownloadFile,
   expandedFolders,
   onToggleFolder,
 }: {
@@ -203,6 +132,7 @@ function FileTreeNode({
   depth?: number
   selectedFile: string | null
   onSelectFile: (path: string) => void
+  onDownloadFile: (path: string) => void
   expandedFolders: Set<string>
   onToggleFolder: (path: string) => void
 }) {
@@ -218,11 +148,8 @@ function FileTreeNode({
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => {
-          if (isFolder) {
-            onToggleFolder(file.path)
-          } else {
-            onSelectFile(file.path)
-          }
+          if (isFolder) onToggleFolder(file.path)
+          else onSelectFile(file.path)
         }}
       >
         {isFolder ? (
@@ -248,6 +175,7 @@ function FileTreeNode({
             className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-primary/10"
             onClick={(e) => {
               e.stopPropagation()
+              onDownloadFile(file.path)
             }}
           >
             <Download className="h-3 w-3 text-primary" />
@@ -263,6 +191,7 @@ function FileTreeNode({
               depth={depth + 1}
               selectedFile={selectedFile}
               onSelectFile={onSelectFile}
+              onDownloadFile={onDownloadFile}
               expandedFolders={expandedFolders}
               onToggleFolder={onToggleFolder}
             />
@@ -273,41 +202,119 @@ function FileTreeNode({
   )
 }
 
-export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalProps) {
-  const [selectedVersion, setSelectedVersion] = useState(MOCK_OUTPUT_VERSIONS[0].id)
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set(["/output", "/output/cohorts", "/output/analysis", "/output/figures"])
-  )
+function collectFilePaths(file: OutputFile): string[] {
+  if (file.type !== "folder") return file.path ? [file.path] : []
+  return (file.children ?? []).flatMap(collectFilePaths)
+}
 
-  const currentVersion = MOCK_OUTPUT_VERSIONS.find((v) => v.id === selectedVersion)
+export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalProps) {
+  const [runs, setRuns] = useState<StudyRunDTO[]>([])
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
+  const [resultFiles, setResultFiles] = useState<StudyRunResultFileDTO[]>([])
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["output"]))
+  const [loadingRuns, setLoadingRuns] = useState(false)
+  const [loadingFiles, setLoadingFiles] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+
+  const packageId = study ? Number(study.id) : 0
+
+  useEffect(() => {
+    if (!open || !study) return
+    setLoadingRuns(true)
+    getStudyRuns(packageId)
+      .then((data) => {
+        const list = Array.isArray(data) ? data : []
+        setRuns(list)
+        setResultFiles([])
+        const withFiles = list.filter((r: StudyRunDTO) => (r.fileCount ?? 0) > 0)
+        setSelectedRunId(withFiles.length > 0 ? String(withFiles[0].id) : list.length > 0 ? String(list[0].id) : null)
+      })
+      .catch(() => setRuns([]))
+      .finally(() => setLoadingRuns(false))
+  }, [open, study?.id, packageId])
+
+  useEffect(() => {
+    if (!open || !study || !selectedRunId) {
+      setResultFiles([])
+      return
+    }
+    setLoadingFiles(true)
+    getStudyRunResultFiles(packageId, Number(selectedRunId))
+      .then((data) => setResultFiles(Array.isArray(data) ? data : []))
+      .catch(() => setResultFiles([]))
+      .finally(() => setLoadingFiles(false))
+  }, [open, study?.id, packageId, selectedRunId])
+
+  const currentRun = runs.find((r) => String(r.id) === selectedRunId)
+  const fileTree = resultFiles.length > 0 ? buildFileTree(resultFiles) : []
 
   const handleToggleFolder = (path: string) => {
     setExpandedFolders((prev) => {
       const next = new Set(prev)
-      if (next.has(path)) {
-        next.delete(path)
-      } else {
-        next.add(path)
-      }
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
       return next
     })
   }
 
-  const countFiles = (files: OutputFile[]): number => {
-    let count = 0
-    for (const file of files) {
-      if (file.type !== "folder") {
-        count++
-      }
-      if (file.children) {
-        count += countFiles(file.children)
-      }
+  const formatRunTime = (iso: string | null) => {
+    if (!iso) return "—"
+    try {
+      const d = new Date(iso)
+      return d.toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })
+    } catch {
+      return iso
     }
-    return count
   }
 
-  const totalFiles = currentVersion ? countFiles(currentVersion.files) : 0
+  const handleDownloadFile = useCallback(
+    async (filePath: string) => {
+      if (!study || !selectedRunId) return
+      setDownloading(true)
+      try {
+        const blob = await downloadResultFile(packageId, Number(selectedRunId), filePath)
+        const name = filePath.includes("/") ? filePath.slice(filePath.lastIndexOf("/") + 1) : filePath
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = name
+        a.click()
+        URL.revokeObjectURL(url)
+      } finally {
+        setDownloading(false)
+      }
+    },
+    [study, packageId, selectedRunId]
+  )
+
+  const handleDownloadAll = useCallback(async () => {
+    if (!study || !selectedRunId || resultFiles.length === 0) return
+    setDownloading(true)
+    try {
+      for (const f of resultFiles) {
+        try {
+          const blob = await downloadResultFile(packageId, Number(selectedRunId), f.filePath)
+          const name = f.filePath.includes("/") ? f.filePath.slice(f.filePath.lastIndexOf("/") + 1) : f.filePath
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = name
+          a.click()
+          URL.revokeObjectURL(url)
+        } catch {
+          /* skip failed file */
+        }
+      }
+    } finally {
+      setDownloading(false)
+    }
+  }, [study, packageId, selectedRunId, resultFiles])
+
+  const countFiles = (files: OutputFile[]): number => {
+    return files.flatMap((f) => (f.type === "folder" && f.children ? countFiles(f.children) : [1])).reduce((a, b) => a + b, 0)
+  }
+  const totalFiles = fileTree.length > 0 ? countFiles(fileTree) : 0
 
   if (!study) return null
 
@@ -321,63 +328,91 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Version selector and Download All */}
+          {/* Run selector and Download All */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Output version:</span>
-              <Select value={selectedVersion} onValueChange={setSelectedVersion}>
-                <SelectTrigger className="h-9 w-[200px] border-border">
-                  <SelectValue placeholder="Select version" />
+              <span className="text-sm text-muted-foreground">Run:</span>
+              <Select
+                value={selectedRunId ?? ""}
+                onValueChange={setSelectedRunId}
+                disabled={loadingRuns || runs.length === 0}
+              >
+                <SelectTrigger className="h-9 w-[220px] border-border">
+                  <SelectValue placeholder={loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_OUTPUT_VERSIONS.map((version) => (
-                    <SelectItem key={version.id} value={version.id}>
+                  {runs.map((run) => (
+                    <SelectItem key={run.id} value={String(run.id)}>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{version.label}</span>
+                        <span className="font-medium">Run #{run.id}</span>
                         <span className="text-xs text-muted-foreground">
-                          {version.timestamp}
+                          {formatRunTime(run.finishedAt ?? run.startedAt)}
                         </span>
+                        {(run.fileCount ?? 0) > 0 && (
+                          <span className="text-xs text-muted-foreground">({run.fileCount} files)</span>
+                        )}
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Download className="mr-2 h-4 w-4" />
+            <Button
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              disabled={loadingFiles || resultFiles.length === 0 || downloading}
+              onClick={handleDownloadAll}
+            >
+              {downloading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
               Download All
             </Button>
           </div>
 
-          {/* File Explorer */}
+          {/* File Explorer (export folder contents from DB) */}
           <div className="rounded-md border border-border bg-background">
             <div className="border-b border-border bg-secondary/50 px-3 py-2">
               <span className="text-sm font-medium text-muted-foreground">
-                {currentVersion?.label} - {totalFiles} files
+                {currentRun ? `Run #${currentRun.id}` : ""} — {loadingFiles ? "Loading…" : `${totalFiles} files`}
               </span>
             </div>
             <div className="h-[400px] overflow-auto p-2">
-              {currentVersion?.files.map((file) => (
-                <FileTreeNode
-                  key={file.path}
-                  file={file}
-                  selectedFile={selectedFile}
-                  onSelectFile={setSelectedFile}
-                  expandedFolders={expandedFolders}
-                  onToggleFolder={handleToggleFolder}
-                />
-              ))}
+              {loadingFiles && (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading output files…
+                </div>
+              )}
+              {!loadingFiles && fileTree.length === 0 && (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  {runs.length === 0
+                    ? "No runs yet. Run the study to see outputs here."
+                    : resultFiles.length === 0
+                      ? "No output files saved for this run."
+                      : null}
+                </div>
+              )}
+              {!loadingFiles &&
+                fileTree.map((file) => (
+                  <FileTreeNode
+                    key={file.path}
+                    file={file}
+                    selectedFile={selectedFile}
+                    onSelectFile={setSelectedFile}
+                    onDownloadFile={handleDownloadFile}
+                    expandedFolders={expandedFolders}
+                    onToggleFolder={handleToggleFolder}
+                  />
+                ))}
             </div>
           </div>
 
           {/* Status bar */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              {currentVersion?.timestamp}
-            </span>
-            <span>
-              {selectedFile ? `Selected: ${selectedFile}` : "Click a file to select"}
-            </span>
+            <span>{currentRun ? formatRunTime(currentRun.finishedAt ?? currentRun.startedAt) : "—"}</span>
+            <span>{selectedFile ? `Selected: ${selectedFile}` : "Click a file to select or download"}</span>
           </div>
         </div>
       </DialogContent>

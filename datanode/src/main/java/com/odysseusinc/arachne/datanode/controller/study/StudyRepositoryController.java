@@ -46,11 +46,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.InputStream;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.odysseusinc.arachne.datanode.service.study.StudyContainerService.DirEntry;
 
@@ -400,6 +403,70 @@ public class StudyRepositoryController {
         return containerService.listDirectory(containerId, path);
     }
 
+    private static final DateTimeFormatter ISO_OFFSET = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC);
+
+    /**
+     * List study runs for a package (newest first). Used by Browse Outputs to pick a run.
+     */
+    @GetMapping("/packages/{packageId}/runs")
+    public List<Map<String, Object>> listRuns(@PathVariable Long packageId) {
+        if (studyService.findStudyPackageById(packageId).isEmpty()) {
+            throw new ResourceNotFoundException("Study package not found: " + packageId);
+        }
+        return studyService.findStudyRunsByPackageId(packageId).stream()
+                .map(run -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", run.getId());
+                    m.put("status", run.getStatus().name());
+                    m.put("startedAt", run.getStartedAt() != null ? ISO_OFFSET.format(run.getStartedAt()) : null);
+                    m.put("finishedAt", run.getFinishedAt() != null ? ISO_OFFSET.format(run.getFinishedAt()) : null);
+                    m.put("resultPath", run.getResultPath());
+                    m.put("fileCount", studyService.countStudyRunResultFiles(run.getId()));
+                    return m;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * List result files (export folder contents) for a run. Paths are relative (e.g. "output/log.txt", "cohorts/summary.csv").
+     */
+    @GetMapping("/packages/{packageId}/runs/{runId}/result-files")
+    public List<Map<String, Object>> listResultFiles(@PathVariable Long packageId, @PathVariable Long runId) {
+        StudyRun run = studyService.findStudyRunById(runId)
+                .orElseThrow(() -> new ResourceNotFoundException("Study run not found: " + runId));
+        if (!run.getStudyPackage().getId().equals(packageId)) {
+            throw new ResourceNotFoundException("Study run not found for this package");
+        }
+        return studyService.getStudyRunResultFiles(runId).stream()
+                .map(f -> Map.<String, Object>of(
+                        "filePath", f.getFilePath(),
+                        "size", f.getContent() != null ? f.getContent().length : 0))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Download a single result file. Path must match stored file_path (e.g. "output/log.txt").
+     */
+    @GetMapping(value = "/packages/{packageId}/runs/{runId}/result-files/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> downloadResultFile(
+            @PathVariable Long packageId,
+            @PathVariable Long runId,
+            @RequestParam("path") String filePath) {
+        StudyRun run = studyService.findStudyRunById(runId)
+                .orElseThrow(() -> new ResourceNotFoundException("Study run not found: " + runId));
+        if (!run.getStudyPackage().getId().equals(packageId)) {
+            throw new ResourceNotFoundException("Study run not found for this package");
+        }
+        return studyService.getStudyRunResultFileContent(runId, filePath)
+                .map(content -> {
+                    String filename = filePath.contains("/") ? filePath.substring(filePath.lastIndexOf('/') + 1) : filePath;
+                    return ResponseEntity.ok()
+                            .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                            .body(content);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     /**
      * Refresh (pull) the study image from the registry so it is available locally.
      * Use when the study is registered but the image was removed or not yet pulled.
@@ -428,6 +495,8 @@ public class StudyRepositoryController {
         dto.setVersion(pkg.getVersion());
         dto.setScript(Objects.requireNonNullElse(pkg.getScript(), ""));
         dto.setRunning(studyService.isStudyRunning(pkg.getId()));
+        String containerId = pkg.getContainerId();
+        dto.setLoaded(containerId != null && !containerId.isBlank() && containerService.isContainerRunning(containerId));
         dto.setHasResults(studyService.studyHasResults(pkg.getId()));
         String imageName = pkg.getCatalogAddress() != null && !pkg.getCatalogAddress().isBlank()
                 ? StudyContainerService.imageNameFor(pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion())

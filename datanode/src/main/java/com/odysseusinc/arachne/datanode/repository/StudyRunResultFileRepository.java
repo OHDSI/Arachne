@@ -19,10 +19,15 @@ import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudyRunResultFileRepository extends JpaRepository<StudyRunResultFile, Long> {
 
     List<StudyRunResultFile> findByStudyRunIdOrderByFilePath(Long runId);
+
+    Optional<StudyRunResultFile> findByStudyRunIdAndFilePath(Long runId, String filePath);
+
+    long countByStudyRunId(Long runId);
 
     void deleteByStudyRunId(Long runId);
 }

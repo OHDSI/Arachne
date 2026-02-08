@@ -226,6 +226,22 @@ public class StudyRepositoryPersistenceService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public long countStudyRunResultFiles(Long runId) {
+        return studyRunResultFileRepository.countByStudyRunId(runId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudyRunResultFile> getStudyRunResultFiles(Long runId) {
+        return studyRunResultFileRepository.findByStudyRunIdOrderByFilePath(runId);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<byte[]> getStudyRunResultFileContent(Long runId, String filePath) {
+        return studyRunResultFileRepository.findByStudyRunIdAndFilePath(runId, filePath)
+                .map(StudyRunResultFile::getContent);
+    }
+
     // --- Catalog settings (study.catalog.address, study.catalog.token) ---
 
     @Transactional(readOnly = true)

@@ -44,6 +44,8 @@ interface StudyRepositoryProps {
   studies: Study[]
   /** Repository names from the catalog (populated when connection test succeeds in Settings). */
   catalogRepos?: string[]
+  /** Study id for which R code (codeToRun.R) is currently executing; show running icon for that row only. */
+  scriptExecutingStudyId?: string | null
   onInstall: (name: string) => void | Promise<void>
   onUpdate: (id: string) => void | Promise<void>
   onRun: (id: string) => void
@@ -57,6 +59,7 @@ interface StudyRepositoryProps {
 export function StudyRepository({
   studies,
   catalogRepos = [],
+  scriptExecutingStudyId = null,
   onInstall,
   onUpdate,
   onRun,
@@ -211,10 +214,15 @@ export function StudyRepository({
                     )}
                   </div>
                   <div>
-                    {study.isRunning ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-info">
+                    {study.id === scriptExecutingStudyId ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-info" title="R code (codeToRun.R) is running">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         Running
+                      </span>
+                    ) : study.isLoaded ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-success" title="Study Docker image is loaded (container running)">
+                        <Circle className="w-3 h-3 fill-green-500 text-green-500" />
+                        Loaded
                       </span>
                     ) : study.hasResults ? (
                       <span className="inline-flex items-center gap-1 text-xs text-success">
@@ -295,7 +303,7 @@ export function StudyRepository({
                         </>
                       )}
 
-                      {study.isRunning && (
+                      {(study.isLoaded || study.id === scriptExecutingStudyId) && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

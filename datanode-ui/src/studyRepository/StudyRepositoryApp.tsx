@@ -57,6 +57,7 @@ function packagesToStudies(
       version: current.version,
       installedVersions: sorted.map((p) => p.version),
       isRunning: current.running,
+      isLoaded: current.loaded ?? false,
       hasResults: current.hasResults,
       script: current.script ?? "",
       imageInstalled: current.imageInstalled,
@@ -77,6 +78,8 @@ export function StudyRepositoryApp() {
   const [activeStudyId, setActiveStudyId] = useState<string | null>(null);
   const [browseStudyId, setBrowseStudyId] = useState<string | null>(null);
   const [catalogRepos, setCatalogRepos] = useState<string[]>([]);
+  /** Study id for which codeToRun.R is currently executing (so list shows "Running" icon). */
+  const [scriptExecutingStudyId, setScriptExecutingStudyId] = useState<string | null>(null);
 
   const studies = useMemo(
     () => packagesToStudies(packages, selectedVersionByName),
@@ -252,6 +255,7 @@ export function StudyRepositoryApp() {
             <StudyRepository
               studies={studies}
               catalogRepos={catalogRepos}
+              scriptExecutingStudyId={scriptExecutingStudyId}
               onInstall={handleInstallStudy}
               onUpdate={handleUpdateStudy}
               onRun={handleRunStudy}
@@ -276,6 +280,9 @@ export function StudyRepositoryApp() {
               onBack={handleBackToRepository}
               onSaveScript={handleSaveScript}
               onExecuteStudy={handleExecuteStudy}
+              onExecutionPhaseChange={(phase) => {
+                setScriptExecutingStudyId(phase === "running" ? activeStudy.id : null);
+              }}
             />
           )}
         </main>

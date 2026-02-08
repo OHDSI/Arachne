@@ -29,6 +29,8 @@ public class StudyPackageDTO {
     private String version;
     private String script;
     private boolean running;
+    /** True when the study Docker container is running (image loaded and container up). */
+    private boolean loaded;
     private boolean hasResults;
     /** True if the study's Docker image is present locally (docker image list). False when image was removed or not yet pulled. */
     private boolean imageInstalled;
