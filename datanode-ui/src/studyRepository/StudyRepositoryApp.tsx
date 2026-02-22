@@ -14,6 +14,7 @@ import { StudyRepository } from "./components/study-repository";
 import { SettingsPage } from "./components/settings-page";
 import { StudyRunView } from "./components/study-run-view";
 import { OutputBrowserModal } from "./components/output-browser-modal";
+import { ResultsModal } from "./components/results-modal";
 import type { Study } from "./types";
 import {
   getStudyPackages,
@@ -77,6 +78,7 @@ export function StudyRepositoryApp() {
   const [error, setError] = useState<string | null>(null);
   const [activeStudyId, setActiveStudyId] = useState<string | null>(null);
   const [browseStudyId, setBrowseStudyId] = useState<string | null>(null);
+  const [viewResultsStudyId, setViewResultsStudyId] = useState<string | null>(null);
   const [catalogRepos, setCatalogRepos] = useState<string[]>([]);
   /** Study id for which codeToRun.R is currently executing (so list shows "Running" icon). */
   const [scriptExecutingStudyId, setScriptExecutingStudyId] = useState<string | null>(null);
@@ -87,6 +89,7 @@ export function StudyRepositoryApp() {
   );
   const activeStudy = studies.find((s) => s.id === activeStudyId);
   const browseStudy = studies.find((s) => s.id === browseStudyId) ?? null;
+  const viewResultsStudy = studies.find((s) => s.id === viewResultsStudyId) ?? null;
 
   const fetchPackages = useCallback(async () => {
     try {
@@ -166,8 +169,7 @@ export function StudyRepositoryApp() {
   };
 
   const handleViewResults = (id: string) => {
-    // Results viewer URL (e.g. R Shiny or static server); configure as needed
-    window.open(`http://localhost:3838/results/${id}`, "_blank");
+    setViewResultsStudyId(id);
   };
 
   const handleBrowseOutputs = (id: string) => {
@@ -283,6 +285,7 @@ export function StudyRepositoryApp() {
               onExecutionPhaseChange={(phase) => {
                 setScriptExecutingStudyId(phase === "running" ? activeStudy.id : null);
               }}
+              onOpenViewResults={() => setViewResultsStudyId(activeStudy.id)}
             />
           )}
         </main>
@@ -292,6 +295,11 @@ export function StudyRepositoryApp() {
         study={browseStudy}
         open={!!browseStudyId}
         onClose={() => setBrowseStudyId(null)}
+      />
+      <ResultsModal
+        study={viewResultsStudy}
+        open={!!viewResultsStudyId}
+        onClose={() => setViewResultsStudyId(null)}
       />
     </div>
   );

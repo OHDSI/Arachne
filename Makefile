@@ -4,7 +4,7 @@
 .PHONY: build build-backend build-datanode-ui \
 	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui \
 	docs \
-	test test-backend test-backend-integration test-datanode-ui env-test install-test \
+	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-buttons \
 	buildtest full-stack-build-test clean help
 
 # Default: show help
@@ -31,6 +31,7 @@ help:
 	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 18; .nvmrc provided)"
 	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
 	@echo "  make install-test  Run Study Repository install test (pulls image; may take several minutes)"
+	@echo "  make test-study-buttons  Pull example study image then print UI test steps for Loaded/Running buttons"
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
 	@echo "  make full-stack-build-test  Same as buildtest"
@@ -133,6 +134,20 @@ env-test:
 # May take several minutes while the Docker image is pulled from the registry.
 install-test:
 	./scripts/install-test.sh
+
+# Pull example study image then print steps to test Loaded/Running buttons in the UI. Requires datanode.env with registry credentials.
+# Start the app (make start) in another terminal, then follow the printed steps. See docs/TESTING_STUDY_REPOSITORY_UI.md for full guide.
+test-study-buttons: install-test
+	@echo ""
+	@echo "Example study image is ready. To test the Loaded/Running buttons:"
+	@echo "  1. Start the app: make start  (or already running)"
+	@echo "  2. Open http://localhost:3000 → Study Repository"
+	@echo "  3. Install 'darwin-eu-dev/examplestudy' if not already in the list"
+	@echo "  4. Click Run (play) → wait for green 'Study environment ready' → Back to Repository → row should show green 'Loaded'"
+	@echo "  5. Open the study again → Run study → list should show 'Running' (spinner) until execution finishes"
+	@echo "  6. Shutdown (square) → row should show Idle"
+	@echo ""
+	@echo "Full guide: docs/TESTING_STUDY_REPOSITORY_UI.md"
 
 # --- Full stack build test (CI / verification) ---
 buildtest full-stack-build-test:

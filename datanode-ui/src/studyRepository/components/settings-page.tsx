@@ -1,11 +1,28 @@
-
-import { useState } from "react"
-import { Save, CheckCircle2, Loader2, XCircle, Plug, Check, X } from "lucide-react"
-import { checkStudyRepositoryConnection } from "../../api/study-repository"
+import { useState, useEffect, useCallback } from "react"
+import { Save, CheckCircle2, Loader2, XCircle, Plug, Check, X, Plus, Pencil, Trash2 } from "lucide-react"
+import {
+  checkStudyRepositoryConnection,
+  getStudyEnvVars,
+  getStudyEnvVar,
+  createStudyEnvVar,
+  updateStudyEnvVar,
+  deleteStudyEnvVar,
+  type StudyEnvironmentVariableDTO,
+} from "../../api/study-repository"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog"
 
 function getConnectionErrorMessage(err: unknown): string {
   if (err && typeof err === "object") {
@@ -35,6 +52,17 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
   const [saved, setSaved] = useState(false)
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [testMessage, setTestMessage] = useState("")
+
+  // Environment variables (injected into study containers; use Sys.getenv() in codeToRun.R)
+  const [envVars, setEnvVars] = useState<StudyEnvironmentVariableDTO[]>([])
+  const [envVarsLoading, setEnvVarsLoading] = useState(true)
+  const [newEnvName, setNewEnvName] = useState("")
+  const [newEnvValue, setNewEnvValue] = useState("")
+  const [envVarAdding, setEnvVarAdding] = useState(false)
+  const [editingEnvId, setEditingEnvId] = useState<number | null>(null)
+  const [editingEnvValue, setEditingEnvValue] = useState("")
+  const [envVarError, setEnvVarError] = useState("")
+  const [deleteEnvId, setDeleteEnvId] = useState<number | null>(null)
 
   const handleSave = () => {
     if (!username.trim()) {
@@ -81,6 +109,82 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
       setTestStatus("idle")
       setTestMessage("")
     }, 8000)
+  }
+
+  const fetchEnvVars = useCallback(async () => {
+    try {
+      const list = await getStudyEnvVars()
+      setEnvVars(list)
+    } catch {
+      setEnvVars([])
+    } finally {
+      setEnvVarsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchEnvVars()
+  }, [fetchEnvVars])
+
+  const handleAddEnvVar = async () => {
+    const name = newEnvName.trim()
+    if (!name) {
+      setEnvVarError("Name is required")
+      return
+    }
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+      setEnvVarError("Name must be a valid env var (e.g. MY_VAR, DB_PASSWORD)")
+      return
+    }
+    setEnvVarError("")
+    setEnvVarAdding(true)
+    try {
+      await createStudyEnvVar(name, newEnvValue)
+      setNewEnvName("")
+      setNewEnvValue("")
+      await fetchEnvVars()
+    } catch (e: unknown) {
+      setEnvVarError(e instanceof Error ? e.message : "Failed to create variable")
+    } finally {
+      setEnvVarAdding(false)
+    }
+  }
+
+  const handleStartEditEnvVar = async (id: number) => {
+    try {
+      const one = await getStudyEnvVar(id)
+      setEditingEnvId(id)
+      setEditingEnvValue(one.value ?? "")
+    } catch {
+      setEnvVarError("Failed to load variable")
+    }
+  }
+
+  const handleSaveEditEnvVar = async () => {
+    if (editingEnvId == null) return
+    setEnvVarError("")
+    try {
+      await updateStudyEnvVar(editingEnvId, editingEnvValue)
+      setEditingEnvId(null)
+      setEditingEnvValue("")
+      await fetchEnvVars()
+    } catch (e: unknown) {
+      setEnvVarError(e instanceof Error ? e.message : "Failed to update variable")
+    }
+  }
+
+  const handleDeleteEnvVar = async (id: number) => {
+    try {
+      await deleteStudyEnvVar(id)
+      setDeleteEnvId(null)
+      await fetchEnvVars()
+      if (editingEnvId === id) {
+        setEditingEnvId(null)
+        setEditingEnvValue("")
+      }
+    } catch {
+      setEnvVarError("Failed to delete variable")
+    }
   }
 
   return (
@@ -188,6 +292,117 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
           )}
         </CardContent>
       </Card>
+
+      <Card className="mt-6 shadow-[0_3px_13px_0_rgba(0,0,0,0.16)]">
+        <CardHeader>
+          <CardTitle>Study environment variables</CardTitle>
+          <CardDescription>
+            Variables injected into study Docker containers when they run. Use{" "}
+            <code className="rounded bg-muted px-1 text-sm">Sys.getenv("VAR_NAME")</code> in your codeToRun.R to read
+            them. Values are stored encrypted.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {envVarsLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading…
+            </div>
+          ) : (
+            <>
+              <ul className="space-y-2">
+                {envVars.map((ev) => (
+                  <li
+                    key={ev.id}
+                    className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-secondary/20 px-3 py-2"
+                  >
+                    <span className="font-mono text-sm font-medium">{ev.name}</span>
+                    {editingEnvId === ev.id ? (
+                      <>
+                        <Input
+                          type="password"
+                          placeholder="Value"
+                          value={editingEnvValue}
+                          onChange={(e) => setEditingEnvValue(e.target.value)}
+                          className="max-w-xs font-mono"
+                        />
+                        <Button size="sm" onClick={handleSaveEditEnvVar}>
+                          Save
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => { setEditingEnvId(null); setEditingEnvValue(""); }}>
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs text-muted-foreground">••••••••</span>
+                        <Button size="sm" variant="ghost" onClick={() => handleStartEditEnvVar(ev.id)}>
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteEnvId(ev.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap items-end gap-2 border-t border-border pt-4">
+                <div className="space-y-1">
+                  <Label htmlFor="new-env-name" className="text-xs">Name</Label>
+                  <Input
+                    id="new-env-name"
+                    placeholder="e.g. DB_PASSWORD"
+                    value={newEnvName}
+                    onChange={(e) => setNewEnvName(e.target.value)}
+                    className="font-mono w-40"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="new-env-value" className="text-xs">Value</Label>
+                  <Input
+                    id="new-env-value"
+                    type="password"
+                    placeholder="Value"
+                    value={newEnvValue}
+                    onChange={(e) => setNewEnvValue(e.target.value)}
+                    className="font-mono w-48"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleAddEnvVar}
+                  disabled={envVarAdding}
+                >
+                  {envVarAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  Add variable
+                </Button>
+              </div>
+              {envVarError && (
+                <p className="text-sm text-destructive">{envVarError}</p>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={deleteEnvId != null} onOpenChange={(open) => !open && setDeleteEnvId(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete environment variable?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will remove the variable from the list. Study containers started after this will not receive it.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={() => deleteEnvId != null && handleDeleteEnvVar(deleteEnvId)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

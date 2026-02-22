@@ -18,8 +18,10 @@ package com.odysseusinc.arachne.datanode.controller.study;
 import com.odysseusinc.arachne.datanode.dto.study.ConnectionCheckResultDTO;
 import com.odysseusinc.arachne.datanode.dto.study.InstallStudyRequestDTO;
 import com.odysseusinc.arachne.datanode.dto.study.RepositoryTagsDTO;
+import com.odysseusinc.arachne.datanode.dto.study.StudyEnvironmentVariableDTO;
 import com.odysseusinc.arachne.datanode.dto.study.StudyPackageDTO;
 import com.odysseusinc.arachne.datanode.dto.study.StudyRepositorySettingsDTO;
+import com.odysseusinc.arachne.datanode.model.study.StudyEnvironmentVariable;
 import com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import com.odysseusinc.arachne.datanode.model.study.StudyRun;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -177,6 +180,57 @@ public class StudyRepositoryController {
         return connectionService.checkConnection(address, token, username);
     }
 
+    // --- Study environment variables (injected into study containers; values encrypted at rest) ---
+
+    @GetMapping("/env-vars")
+    public List<StudyEnvironmentVariableDTO> listEnvVars() {
+        return studyService.findAllStudyEnvironmentVariables().stream()
+                .map(StudyRepositoryController::toEnvVarDTO)
+                .toList();
+    }
+
+    @GetMapping("/env-vars/{id}")
+    public StudyEnvironmentVariableDTO getEnvVar(@PathVariable Long id) {
+        return studyService.findStudyEnvironmentVariableById(id)
+                .map(StudyRepositoryController::toEnvVarDTOWithValue)
+                .orElseThrow(() -> new ResourceNotFoundException("Environment variable not found: " + id));
+    }
+
+    @PostMapping("/env-vars")
+    @ResponseStatus(HttpStatus.CREATED)
+    public StudyEnvironmentVariableDTO createEnvVar(@RequestBody Map<String, String> body) {
+        String name = body != null ? body.get("name") : null;
+        String value = body != null ? body.get("value") : null;
+        StudyEnvironmentVariable created = studyService.createStudyEnvironmentVariable(name, value);
+        return StudyRepositoryController.toEnvVarDTOWithValue(created);
+    }
+
+    @PutMapping("/env-vars/{id}")
+    public StudyEnvironmentVariableDTO updateEnvVar(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String value = body != null ? body.get("value") : null;
+        StudyEnvironmentVariable updated = studyService.updateStudyEnvironmentVariable(id, value);
+        return StudyRepositoryController.toEnvVarDTOWithValue(updated);
+    }
+
+    @DeleteMapping("/env-vars/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEnvVar(@PathVariable Long id) {
+        studyService.deleteStudyEnvironmentVariable(id);
+    }
+
+    private static StudyEnvironmentVariableDTO toEnvVarDTO(StudyEnvironmentVariable e) {
+        StudyEnvironmentVariableDTO dto = new StudyEnvironmentVariableDTO();
+        dto.setId(e.getId());
+        dto.setName(e.getName());
+        return dto;
+    }
+
+    private static StudyEnvironmentVariableDTO toEnvVarDTOWithValue(StudyEnvironmentVariable e) {
+        StudyEnvironmentVariableDTO dto = toEnvVarDTO(e);
+        dto.setValue(e.getValue());
+        return dto;
+    }
+
     /**
      * Get tags for a single study (Docker repo) from the configured registry (ACR API).
      * Used to populate study versions. Example repo: "myteam/myimage".
@@ -225,7 +279,8 @@ public class StudyRepositoryController {
             LOG.info("Study start: using local image {} (requested {} not present)", resolvedImage, imageName);
         }
         LOG.info("Study start: starting Docker container for package id={}, image={}", id, resolvedImage);
-        containerId = containerService.startContainer(resolvedImage);
+        List<String> env = studyService.getStudyEnvForContainer();
+        containerId = containerService.startContainer(resolvedImage, id, env);
         studyService.setStudyPackageContainerId(id, containerId);
         CodeFileService.CodeFileContent code = getCodeOrFromContainer(id, pkg, containerId);
         try {
@@ -266,6 +321,82 @@ public class StudyRepositoryController {
             containerService.stopContainer(containerId);
             studyService.setStudyPackageContainerId(id, null);
         }
+    }
+
+    /**
+     * Get Shiny results viewer status and URL. If already running, returns url to open in browser.
+     */
+    @GetMapping("/packages/{id}/shiny/status")
+    public Map<String, Object> getShinyStatus(@PathVariable Long id, HttpServletRequest request) {
+        StudyPackage pkg = studyService.findStudyPackageById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String containerId = pkg.getContainerId();
+        if (containerId == null || containerId.isBlank() || !containerService.isContainerRunning(containerId)) {
+            return Map.of("running", false, "url", "");
+        }
+        boolean running = containerService.isShinyRunning(containerId);
+        String url = buildShinyUrl(request, id);
+        return Map.of("running", running, "url", url != null ? url : "");
+    }
+
+    /**
+     * Start the results viewer Shiny app in the study container (e.g. ExampleStudy::launchResultsExplorer(outputFolder)).
+     * If already running, returns the URL without starting again. Output folder is taken from the study script (e.g. /code/output).
+     */
+    @PostMapping("/packages/{id}/shiny/start")
+    public Map<String, Object> startShiny(@PathVariable Long id, HttpServletRequest request) {
+        StudyPackage pkg = studyService.findStudyPackageById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String containerId = pkg.getContainerId();
+        if (containerId == null || containerId.isBlank()) {
+            throw new IllegalStateException("Study container is not running. Open the study first.");
+        }
+        if (!containerService.isContainerRunning(containerId)) {
+            throw new IllegalStateException("Study container is no longer running. Open the study again.");
+        }
+        boolean alreadyRunning = containerService.isShinyRunning(containerId);
+        if (!alreadyRunning) {
+            String script = pkg.getScript() != null ? pkg.getScript() : "";
+            String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
+            String outputFolderPath = StudyContainerService.STUDY_WORKDIR + "/" + outputFolderName;
+            containerService.startShinyApp(containerId, outputFolderPath);
+        }
+        String url = buildShinyUrl(request, id);
+        return Map.of("url", url != null ? url : "", "running", true);
+    }
+
+    /**
+     * Stop the Shiny results viewer app in the study container.
+     */
+    @PostMapping("/packages/{id}/shiny/stop")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void stopShiny(@PathVariable Long id) {
+        StudyPackage pkg = studyService.findStudyPackageById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String containerId = pkg.getContainerId();
+        if (containerId != null && !containerId.isBlank()) {
+            containerService.stopShinyApp(containerId);
+        }
+    }
+
+    /**
+     * Get R console output from the Shiny app in the container (for debugging launch failures).
+     */
+    @GetMapping(value = "/packages/{id}/shiny/logs", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String getShinyLogs(@PathVariable Long id) {
+        StudyPackage pkg = studyService.findStudyPackageById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String containerId = pkg.getContainerId();
+        if (containerId == null || containerId.isBlank()) {
+            return "";
+        }
+        return containerService.getShinyLogs(containerId);
+    }
+
+    private static String buildShinyUrl(HttpServletRequest request, long packageId) {
+        String host = request.getServerName();
+        int port = StudyContainerService.getShinyHostPort(packageId);
+        return "http://" + host + ":" + port;
     }
 
     /**

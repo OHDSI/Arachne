@@ -128,6 +128,8 @@ interface StudyRunViewProps {
   onExecuteStudy: (script: string) => Promise<{ logs: string; status: string }>
   /** Called when execution phase changes so the list can show "Running" only while codeToRun.R is executing. */
   onExecutionPhaseChange?: (phase: RunPhase) => void
+  /** Open the View Results (Shiny) modal. When set, the View Results card uses this instead of a static URL. */
+  onOpenViewResults?: () => void
 }
 
 export type RunPhase = "editing" | "starting" | "running" | "completed"
@@ -361,7 +363,7 @@ function FileTreeNode({
 
 const AUTOSAVE_DELAY_MS = 1500
 
-export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange }: StudyRunViewProps) {
+export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange, onOpenViewResults }: StudyRunViewProps) {
   const [script, setScript] = useState(study.script || DEFAULT_SCRIPT)
   const [version, setVersion] = useState(0)
   const [scriptLoading, setScriptLoading] = useState(true)
@@ -824,34 +826,23 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onEx
       {/* Results & Outputs Section - Only show after completion */}
       {phase === "completed" && (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          {/* View Results */}
+          {/* View Results - Shiny app in container */}
           <Card className="shadow-[0_3px_13px_0_rgba(0,0,0,0.16)]">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-primary-dark">View Results</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                The interactive results viewer is ready. Open the link below to explore your study
-                results.
+                Launch the interactive results viewer (Shiny app) in the study container to explore
+                your study results. Opens in a new tab with launch/stop and console output in the modal.
               </p>
-              <div className="flex items-center gap-2 rounded-md border border-border bg-secondary/30 p-3">
-                <code className="flex-1 text-sm text-primary">{resultsUrl}</code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCopyUrl}
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                >
-                  {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
               <div className="mt-4 flex gap-2">
                 <Button
-                  onClick={() => window.open(resultsUrl, "_blank")}
+                  onClick={() => (onOpenViewResults ? onOpenViewResults() : window.open(resultsUrl, "_blank"))}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  Open in new tab
+                  {onOpenViewResults ? "Launch / open results viewer" : "Open in new tab"}
                 </Button>
               </div>
             </CardContent>

@@ -151,7 +151,9 @@ public class StudyRepositoryConnectionService {
         if (registryHost == null) {
             throw new IllegalArgumentException("Could not determine registry host from: " + catalogAddress);
         }
-        String imageName = registryHost + "/" + repoName.trim() + ":" + (version != null && !version.isBlank() ? version.trim() : "latest");
+        String repo = stripRegistryPrefix(repoName.trim(), registryHost);
+        String tag = sanitizeImageTag(version);
+        String imageName = registryHost + "/" + repo + ":" + tag;
         String dockerUser = catalogUsername != null && !catalogUsername.isBlank() ? catalogUsername.trim() : deriveUsernameFromRegistry(registryBase);
         String dockerToken = catalogToken;
         if (envRegistryUrl != null && !envRegistryUrl.isBlank() && envRegistryToken != null && !envRegistryToken.isBlank()) {
@@ -161,9 +163,18 @@ public class StudyRepositoryConnectionService {
                 dockerToken = envRegistryToken;
             }
         }
-        LOG.info("Pulling study image: {}", imageName);
+        // On ARM (e.g. Apple Silicon), pull linux/amd64 so we get an image; Docker will run it with emulation.
+        String osArch = System.getProperty("os.arch", "");
+        if ("aarch64".equals(osArch)) {
+            LOG.info("Pulling study image: {} (platform linux/amd64 for emulation on ARM)", imageName);
+        } else {
+            LOG.info("Pulling study image: {}", imageName);
+        }
         try {
             var pullCmd = dockerClient.pullImageCmd(imageName);
+            if ("aarch64".equals(osArch)) {
+                pullCmd = pullCmd.withPlatform("linux/amd64");
+            }
             if (dockerToken != null && !dockerToken.isBlank()) {
                 pullCmd = pullCmd.withAuthConfig(buildAuthConfig(registryBase, dockerToken, dockerUser));
             }
@@ -193,6 +204,21 @@ public class StudyRepositoryConnectionService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Remove leading registryHost/ from repo name to avoid double-prefix (e.g. registry/registry/repo). */
+    private static String stripRegistryPrefix(String repoName, String registryHost) {
+        if (registryHost != null && repoName.startsWith(registryHost + "/")) {
+            return repoName.substring(registryHost.length() + 1);
+        }
+        return repoName;
+    }
+
+    /** Docker image tag must not contain ':'. Use first segment if version contains colon. */
+    private static String sanitizeImageTag(String version) {
+        String tag = (version != null && !version.isBlank()) ? version.trim() : "latest";
+        int colon = tag.indexOf(':');
+        return colon >= 0 ? tag.substring(0, colon) : tag;
     }
 
     /**

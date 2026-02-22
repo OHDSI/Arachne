@@ -38,7 +38,7 @@ export function installStudyPackage(
   name: string,
   version?: string
 ): Promise<StudyPackageDTO> {
-  return api.post("/study-repository/packages", { name, version: version || "1.0.0" });
+  return api.post("/study-repository/packages", { name, version: version || "latest" });
 }
 
 export function updateStudyPackageScript(
@@ -59,6 +59,33 @@ export function refreshStudyPackage(id: number): Promise<StudyPackageDTO> {
 
 export function getStudyRepositorySettings(): Promise<StudyRepositorySettingsDTO> {
   return api.get("/study-repository/settings");
+}
+
+/** Study environment variables (injected into study containers; use Sys.getenv() in codeToRun.R) */
+export type StudyEnvironmentVariableDTO = {
+  id: number;
+  name: string;
+  value?: string;
+};
+
+export function getStudyEnvVars(): Promise<StudyEnvironmentVariableDTO[]> {
+  return api.get("/study-repository/env-vars");
+}
+
+export function getStudyEnvVar(id: number): Promise<StudyEnvironmentVariableDTO> {
+  return api.get(`/study-repository/env-vars/${id}`);
+}
+
+export function createStudyEnvVar(name: string, value: string): Promise<StudyEnvironmentVariableDTO> {
+  return api.post("/study-repository/env-vars", { name, value });
+}
+
+export function updateStudyEnvVar(id: number, value: string): Promise<StudyEnvironmentVariableDTO> {
+  return api.put(`/study-repository/env-vars/${id}`, { value });
+}
+
+export function deleteStudyEnvVar(id: number): Promise<void> {
+  return api.delete(`/study-repository/env-vars/${id}`);
 }
 
 export function saveStudyRepositorySettings(
@@ -129,6 +156,30 @@ export function putCodeToRun(
 /** Stop study container. */
 export function stopStudyContainer(packageId: number): Promise<void> {
   return api.post(`/study-repository/packages/${packageId}/stop`);
+}
+
+/** Shiny results viewer status and URL. */
+export type ShinyStatusDTO = { running: boolean; url: string };
+
+export function getShinyStatus(packageId: number): Promise<ShinyStatusDTO> {
+  return api.get(`/study-repository/packages/${packageId}/shiny/status`);
+}
+
+/** Start Shiny results viewer in container; if already running returns URL. */
+export function startShiny(packageId: number): Promise<{ url: string; running: boolean }> {
+  return api.post(`/study-repository/packages/${packageId}/shiny/start`);
+}
+
+/** Stop Shiny results viewer in container. */
+export function stopShiny(packageId: number): Promise<void> {
+  return api.post(`/study-repository/packages/${packageId}/shiny/stop`);
+}
+
+/** R console output from Shiny app in container (for debugging). */
+export function getShinyLogs(packageId: number): Promise<string> {
+  return api.get(`/study-repository/packages/${packageId}/shiny/logs`, {
+    responseType: "text",
+  }).then((r) => (typeof r === "string" ? r : ""));
 }
 
 /** Execute the R script in the study container; returns run id, status, and logs. */

@@ -18,8 +18,11 @@ package com.odysseusinc.arachne.datanode.service.study;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +76,14 @@ public class StudyContainerService {
     private static final String CODE_TO_RUN_ROOT = "/code/codeToRun.R";
     private static final String RUN_SCRIPT_PATH = "/tmp/codeToRun_run.R";
 
+    /** Shiny app port inside the container (R runApp default). Host port = SHINY_PORT_BASE + packageId. */
+    public static final int SHINY_PORT_CONTAINER = 3838;
+    private static final int SHINY_PORT_BASE = 3838;
+    private static final String SHINY_LOG_PATH = "/tmp/shiny.log";
+    private static final String SHINY_PID_PATH = "/tmp/shiny.pid";
+    /** R function to launch results viewer (ExampleStudy NAMESPACE: export(launchResultsExplorer); first arg = dataFolder). */
+    private static final String SHINY_LAUNCH_EXPR = "ExampleStudy::launchResultsExplorer('%s', launch.browser=FALSE)";
+
     private final DockerClient dockerClient;
 
     public StudyContainerService(@Autowired(required = false) DockerClient dockerClient) {
@@ -82,14 +93,31 @@ public class StudyContainerService {
     /**
      * Build full image name from catalog address and package name/version.
      * Example: https://myreg.azurecr.io + darwin-eu-dev/examplestudy + main -> myreg.azurecr.io/darwin-eu-dev/examplestudy:main
+     * If name already starts with registry host (e.g. from stored catalogAddress), the prefix is stripped to avoid double-prefix.
      */
     public static String imageNameFor(String catalogAddress, String name, String version) {
         String host = registryHostFrom(catalogAddress);
         if (host == null) {
             throw new IllegalArgumentException("Invalid catalog address: " + catalogAddress);
         }
+        String repo = stripRegistryPrefix(name.trim(), host);
+        String tag = sanitizeImageTag(version);
+        return host + "/" + repo + ":" + tag;
+    }
+
+    /** Remove leading registryHost/ from name to avoid double-prefix. */
+    private static String stripRegistryPrefix(String name, String registryHost) {
+        if (registryHost != null && name.startsWith(registryHost + "/")) {
+            return name.substring(registryHost.length() + 1);
+        }
+        return name;
+    }
+
+    /** Docker image tag must not contain ':'. Use first segment if version contains colon. */
+    private static String sanitizeImageTag(String version) {
         String tag = (version != null && !version.isBlank()) ? version.trim() : "latest";
-        return host + "/" + name.trim() + ":" + tag;
+        int colon = tag.indexOf(':');
+        return colon >= 0 ? tag.substring(0, colon) : tag;
     }
 
     private static String registryHostFrom(String catalogAddress) {
@@ -117,25 +145,102 @@ public class StudyContainerService {
     }
 
     /**
-     * Start a container from the study image with working directory /code.
-     * Container runs tail -f /dev/null to stay alive. Returns the container id.
+     * Start a container from the study image (no Shiny port binding). Prefer {@link #startContainer(String, long, List)} when package id is available.
      */
     public String startContainer(String imageName) {
+        return startContainer(imageName, 0, null);
+    }
+
+    /**
+     * Start a container from the study image with working directory /code (no env vars).
+     */
+    public String startContainer(String imageName, long packageId) {
+        return startContainer(imageName, packageId, null);
+    }
+
+    /**
+     * Start a container from the study image with working directory /code.
+     * Container runs tail -f /dev/null to stay alive. Binds container port 3838 (Shiny) to host port SHINY_PORT_BASE + packageId when packageId > 0.
+     * Environment variables from {@code env} (format "NAME=VALUE") are injected so codeToRun.R can use Sys.getenv().
+     *
+     * @param imageName full image name (e.g. registry/repo:tag)
+     * @param packageId study package id; when > 0, Shiny port 3838 is bound to host port SHINY_PORT_BASE + packageId
+     * @param env       optional list of "NAME=VALUE" entries to set in the container (e.g. from study env vars settings)
+     * @return container id
+     */
+    public String startContainer(String imageName, long packageId, List<String> env) {
         if (dockerClient == null) {
             throw new IllegalStateException("Docker is not available.");
         }
         LOG.info("Starting study Docker container for image: {}", imageName);
         String name = "study-" + System.currentTimeMillis() + "-" + Math.abs(imageName.hashCode() % 10000);
-        CreateContainerResponse created = dockerClient.createContainerCmd(imageName)
+        var createCmd = dockerClient.createContainerCmd(imageName)
                 .withWorkingDir(STUDY_WORKDIR)
                 .withCmd("tail", "-f", "/dev/null")
-                .withName(name)
-                .exec();
+                .withName(name);
+        if (env != null && !env.isEmpty()) {
+            createCmd.withEnv(env);
+        }
+        if (packageId > 0) {
+            ExposedPort shinyPort = ExposedPort.tcp(SHINY_PORT_CONTAINER);
+            int hostPort = SHINY_PORT_BASE + (int) (packageId % 1000);
+            Ports portBindings = new Ports();
+            portBindings.bind(shinyPort, Ports.Binding.bindPort(hostPort));
+            createCmd.withExposedPorts(shinyPort)
+                    .withHostConfig(HostConfig.newHostConfig().withPortBindings(portBindings));
+        }
+        CreateContainerResponse created = createCmd.exec();
         String containerId = created.getId();
         LOG.info("Study container created: id={}, name={}, image={}", containerId, name, imageName);
         dockerClient.startContainerCmd(containerId).exec();
         LOG.info("Study Docker container started: id={}, name={}, image={}", containerId, name, imageName);
         return containerId;
+    }
+
+    /** Host port for Shiny for a given package id (must match port binding used in startContainer). */
+    public static int getShinyHostPort(long packageId) {
+        return SHINY_PORT_BASE + (int) (packageId % 1000);
+    }
+
+    /**
+     * Start the results viewer Shiny app in the container (e.g. ExampleStudy::launchResultsExplorer(dataFolder)).
+     * Runs in background; use getShinyLogs to see R console output and stopShinyApp to stop.
+     *
+     * @param containerId       running study container
+     * @param outputFolderPath  path inside container to the output folder (e.g. /code/output)
+     */
+    public void startShinyApp(String containerId, String outputFolderPath) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) return;
+        String expr = String.format(SHINY_LAUNCH_EXPR, outputFolderPath.replace("'", "'\\''"));
+        String cmd = "nohup R -e \"" + expr + "\" >> " + SHINY_LOG_PATH + " 2>&1 & echo $! > " + SHINY_PID_PATH;
+        execInContainer(containerId, "sh", "-c", cmd);
+        LOG.info("Started Shiny app in container {} with dataFolder={}", containerId, outputFolderPath);
+    }
+
+    /** Stop the Shiny app process in the container (if running). */
+    public void stopShinyApp(String containerId) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) return;
+        String cmd = "test -f " + SHINY_PID_PATH + " && kill $(cat " + SHINY_PID_PATH + ") 2>/dev/null; rm -f " + SHINY_PID_PATH;
+        execInContainer(containerId, "sh", "-c", cmd);
+        LOG.info("Stopped Shiny app in container {}", containerId);
+    }
+
+    /** True if the Shiny process is likely running (PID file exists and process exists). */
+    public boolean isShinyRunning(String containerId) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) return false;
+        String out = execInContainer(containerId, "sh", "-c", "test -f " + SHINY_PID_PATH + " && kill -0 $(cat " + SHINY_PID_PATH + ") 2>/dev/null && echo yes || echo no");
+        return out != null && out.trim().contains("yes");
+    }
+
+    /** Read Shiny app R console output from the container (for debugging). */
+    public String getShinyLogs(String containerId) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) return "";
+        try {
+            return execInContainer(containerId, "cat", SHINY_LOG_PATH);
+        } catch (Exception e) {
+            LOG.warn("Could not read Shiny logs from container {}: {}", containerId, e.getMessage());
+            return "";
+        }
     }
 
     /**

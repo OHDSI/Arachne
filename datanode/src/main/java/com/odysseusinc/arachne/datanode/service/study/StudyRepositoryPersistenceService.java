@@ -15,9 +15,11 @@
 
 package com.odysseusinc.arachne.datanode.service.study;
 
+import com.odysseusinc.arachne.datanode.model.study.StudyEnvironmentVariable;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import com.odysseusinc.arachne.datanode.model.study.StudyRun;
 import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
+import com.odysseusinc.arachne.datanode.repository.StudyEnvironmentVariableRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyPackageRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyRunRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyRunResultFileRepository;
@@ -28,9 +30,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Internal service for reading and writing Study Repository persistent data.
@@ -46,6 +50,7 @@ public class StudyRepositoryPersistenceService {
     private final StudyPackageRepository studyPackageRepository;
     private final StudyRunRepository studyRunRepository;
     private final StudyRunResultFileRepository studyRunResultFileRepository;
+    private final StudyEnvironmentVariableRepository studyEnvVarRepository;
     private final SystemSettingRepository systemSettingRepository;
 
     @Value("${datanode.studyRepository.defaultRegistryUrl:}")
@@ -55,14 +60,19 @@ public class StudyRepositoryPersistenceService {
     @Value("${datanode.studyRepository.defaultRegistryToken:}")
     private String defaultRegistryToken;
 
+    /** Env var names must be valid for Docker (e.g. no = in name). */
+    private static final Pattern ENV_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+
     public StudyRepositoryPersistenceService(
             StudyPackageRepository studyPackageRepository,
             StudyRunRepository studyRunRepository,
             StudyRunResultFileRepository studyRunResultFileRepository,
+            StudyEnvironmentVariableRepository studyEnvVarRepository,
             SystemSettingRepository systemSettingRepository) {
         this.studyPackageRepository = studyPackageRepository;
         this.studyRunRepository = studyRunRepository;
         this.studyRunResultFileRepository = studyRunResultFileRepository;
+        this.studyEnvVarRepository = studyEnvVarRepository;
         this.systemSettingRepository = systemSettingRepository;
     }
 
@@ -295,5 +305,78 @@ public class StudyRepositoryPersistenceService {
             setting.setValue(value);
             systemSettingRepository.save(setting);
         });
+    }
+
+    // --- Study environment variables (injected into study containers; values encrypted at rest) ---
+
+    @Transactional(readOnly = true)
+    public List<StudyEnvironmentVariable> findAllStudyEnvironmentVariables() {
+        return studyEnvVarRepository.findAllByOrderByNameAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<StudyEnvironmentVariable> findStudyEnvironmentVariableById(Long id) {
+        return studyEnvVarRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<StudyEnvironmentVariable> findStudyEnvironmentVariableByName(String name) {
+        return studyEnvVarRepository.findByName(name);
+    }
+
+    /**
+     * Returns env entries as "NAME=VALUE" for Docker container. Values are decrypted by the entity converter.
+     * Names and values are sanitized (no newlines in value) so they are safe for container env.
+     */
+    @Transactional(readOnly = true)
+    public List<String> getStudyEnvForContainer() {
+        List<StudyEnvironmentVariable> vars = studyEnvVarRepository.findAllByOrderByNameAsc();
+        List<String> result = new ArrayList<>();
+        for (StudyEnvironmentVariable v : vars) {
+            if (v.getName() == null || v.getName().isBlank()) continue;
+            String name = v.getName().trim();
+            if (!ENV_NAME_PATTERN.matcher(name).matches()) continue;
+            String value = v.getValue() != null ? v.getValue().replace("\n", "").replace("\r", "") : "";
+            result.add(name + "=" + value);
+        }
+        return result;
+    }
+
+    @Transactional
+    public StudyEnvironmentVariable createStudyEnvironmentVariable(String name, String value) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Environment variable name is required.");
+        }
+        String trimmedName = name.trim();
+        if (!ENV_NAME_PATTERN.matcher(trimmedName).matches()) {
+            throw new IllegalArgumentException("Name must be a valid environment variable name (e.g. MY_VAR, DB_PASSWORD).");
+        }
+        if (studyEnvVarRepository.existsByName(trimmedName)) {
+            throw new IllegalArgumentException("Environment variable already exists: " + trimmedName);
+        }
+        StudyEnvironmentVariable entity = new StudyEnvironmentVariable();
+        entity.setName(trimmedName);
+        entity.setValue(value != null ? value : "");
+        Instant now = Instant.now();
+        entity.setCreatedAt(now);
+        entity.setUpdatedAt(now);
+        return studyEnvVarRepository.save(entity);
+    }
+
+    @Transactional
+    public StudyEnvironmentVariable updateStudyEnvironmentVariable(Long id, String value) {
+        StudyEnvironmentVariable entity = studyEnvVarRepository.findById(id)
+                .orElseThrow(() -> new com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException("Environment variable not found: " + id));
+        entity.setValue(value != null ? value : "");
+        entity.setUpdatedAt(Instant.now());
+        return studyEnvVarRepository.save(entity);
+    }
+
+    @Transactional
+    public void deleteStudyEnvironmentVariable(Long id) {
+        if (!studyEnvVarRepository.existsById(id)) {
+            throw new com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException("Environment variable not found: " + id);
+        }
+        studyEnvVarRepository.deleteById(id);
     }
 }

@@ -97,6 +97,7 @@ class StudyRepositoryInstallIT {
             boolean notFound = msg.contains("404") || msg.contains("not found") || causeMsg.contains("404") || causeMsg.contains("not found");
             boolean noSocket = msg.contains("No such file or directory") || msg.contains("LastErrorException")
                     || causeMsg.contains("No such file or directory") || causeMsg.contains("LastErrorException");
+            boolean noManifestForArch = msg.contains("no matching manifest") || causeMsg.contains("no matching manifest");
             if (noSocket) {
                 String warning = "WARNING: Docker host is not available. Start Docker (e.g. Docker Desktop) or set DOCKER_HOST. Skipping install-test.";
                 LOG.warn(warning);
@@ -104,9 +105,14 @@ class StudyRepositoryInstallIT {
                 System.err.println("*** " + warning + " ***");
                 System.err.println();
             }
+            if (noManifestForArch) {
+                LOG.warn("Example study image has no manifest for this platform (e.g. linux/arm64). Skipping. Build ExampleStudy locally to test.");
+            }
             Assumptions.assumeTrue(!noSocket, "Docker socket not available (start Docker or set DOCKER_HOST): " + msg);
             Assumptions.assumeTrue(!notFound,
                     "Image " + INSTALL_REPO + ":" + INSTALL_VERSION + " not in registry (push it or ignore): " + msg);
+            Assumptions.assumeTrue(!noManifestForArch,
+                    "Image has no manifest for this platform (e.g. Apple Silicon). Build ExampleStudy locally: docker build -t <registry>/darwin-eu-dev/examplestudy:main ExampleStudy/");
             throw e;
         }
         LOG.info("Pulled study image {}:{} successfully", INSTALL_REPO, INSTALL_VERSION);

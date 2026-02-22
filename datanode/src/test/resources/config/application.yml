@@ -61,7 +61,7 @@ docker:
 jasypt:
   encryptor:
     password: arachne
-    algorythm: PBEWITHMD5ANDDES
+    algorithm: PBEWITHMD5ANDDES
 server:
   port: 8080
 build:
