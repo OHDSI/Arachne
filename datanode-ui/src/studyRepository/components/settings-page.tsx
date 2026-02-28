@@ -1,11 +1,12 @@
 
 import { useState } from "react"
 import { Save, CheckCircle2, Loader2, XCircle, Plug, Check, X } from "lucide-react"
-import { checkStudyRepositoryConnection } from "../../api/study-repository"
+import { checkStudyRepositoryConnection, type CodeSnippetDTO } from "../../api/study-repository"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { CodeSnippetsSection } from "./code-snippets-section"
 
 function getConnectionErrorMessage(err: unknown): string {
   if (err && typeof err === "object") {
@@ -26,9 +27,22 @@ interface SettingsPageProps {
   catalogUsername: string
   catalogToken: string
   onSave: (address: string, username: string, token: string) => void
+  snippets: CodeSnippetDTO[]
+  onCreateSnippet: (snippet: { name: string; description: string; content: string }) => Promise<void>
+  onUpdateSnippet: (id: number, snippet: { name: string; description: string; content: string }) => Promise<void>
+  onDeleteSnippet: (id: number) => Promise<void>
 }
 
-export function SettingsPage({ catalogAddress, catalogUsername: initialUsername, catalogToken, onSave }: SettingsPageProps) {
+export function SettingsPage({
+  catalogAddress,
+  catalogUsername: initialUsername,
+  catalogToken,
+  onSave,
+  snippets,
+  onCreateSnippet,
+  onUpdateSnippet,
+  onDeleteSnippet,
+}: SettingsPageProps) {
   const [address, setAddress] = useState(catalogAddress)
   const [username, setUsername] = useState(initialUsername ?? "")
   const [token, setToken] = useState(catalogToken)
@@ -188,6 +202,13 @@ export function SettingsPage({ catalogAddress, catalogUsername: initialUsername,
           )}
         </CardContent>
       </Card>
+
+      <CodeSnippetsSection
+        snippets={snippets}
+        onCreateSnippet={onCreateSnippet}
+        onUpdateSnippet={onUpdateSnippet}
+        onDeleteSnippet={onDeleteSnippet}
+      />
     </div>
   )
 }

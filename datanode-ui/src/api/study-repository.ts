@@ -205,3 +205,33 @@ export function downloadResultFile(
     { params: { path: filePath }, responseType: "blob" }
   );
 }
+
+// --- Code Snippets ---
+
+export type CodeSnippetDTO = {
+  id: number;
+  name: string;
+  description: string;
+  content: string;
+};
+
+export function getCodeSnippets(): Promise<CodeSnippetDTO[]> {
+  return api.get("/study-repository/snippets");
+}
+
+export function createCodeSnippet(
+  dto: { name: string; description: string; content: string }
+): Promise<CodeSnippetDTO> {
+  return api.post("/study-repository/snippets", dto);
+}
+
+export function updateCodeSnippet(
+  id: number,
+  dto: { name: string; description: string; content: string }
+): Promise<CodeSnippetDTO> {
+  return api.put(`/study-repository/snippets/${id}`, dto);
+}
+
+export function deleteCodeSnippet(id: number): Promise<void> {
+  return api.delete(`/study-repository/snippets/${id}`);
+}

@@ -26,7 +26,12 @@ import {
   startStudyContainer,
   stopStudyContainer,
   executeStudyScript,
+  getCodeSnippets,
+  createCodeSnippet,
+  updateCodeSnippet,
+  deleteCodeSnippet,
   type StudyPackageDTO,
+  type CodeSnippetDTO,
 } from "../api/study-repository";
 
 function groupPackagesByName(packages: StudyPackageDTO[]): Map<string, StudyPackageDTO[]> {
@@ -80,6 +85,7 @@ export function StudyRepositoryApp() {
   const [catalogRepos, setCatalogRepos] = useState<string[]>([]);
   /** Study id for which codeToRun.R is currently executing (so list shows "Running" icon). */
   const [scriptExecutingStudyId, setScriptExecutingStudyId] = useState<string | null>(null);
+  const [snippets, setSnippets] = useState<CodeSnippetDTO[]>([]);
 
   const studies = useMemo(
     () => packagesToStudies(packages, selectedVersionByName),
@@ -101,6 +107,15 @@ export function StudyRepositoryApp() {
     }
   }, []);
 
+  const fetchSnippets = useCallback(async () => {
+    try {
+      const data = await getCodeSnippets();
+      setSnippets(Array.isArray(data) ? data : []);
+    } catch {
+      setSnippets([]);
+    }
+  }, []);
+
   const fetchSettings = useCallback(async () => {
     try {
       const data = await getStudyRepositorySettings();
@@ -118,7 +133,8 @@ export function StudyRepositoryApp() {
     setLoading(true);
     fetchPackages();
     fetchSettings();
-  }, [fetchPackages, fetchSettings]);
+    fetchSnippets();
+  }, [fetchPackages, fetchSettings, fetchSnippets]);
 
   const handleNavigate = (view: "repository" | "settings") => {
     setCurrentView(view);
@@ -205,6 +221,21 @@ export function StudyRepositoryApp() {
     setCurrentView("repository");
   };
 
+  const handleCreateSnippet = async (dto: { name: string; description: string; content: string }) => {
+    await createCodeSnippet(dto);
+    await fetchSnippets();
+  };
+
+  const handleUpdateSnippet = async (id: number, dto: { name: string; description: string; content: string }) => {
+    await updateCodeSnippet(id, dto);
+    await fetchSnippets();
+  };
+
+  const handleDeleteSnippet = async (id: number) => {
+    await deleteCodeSnippet(id);
+    await fetchSnippets();
+  };
+
   const handleSaveSettings = async (address: string, username: string, token: string) => {
     try {
       await saveStudyRepositorySettings(address, username, token);
@@ -272,6 +303,10 @@ export function StudyRepositoryApp() {
               catalogUsername={catalogUsername}
               catalogToken={catalogToken}
               onSave={handleSaveSettings}
+              snippets={snippets}
+              onCreateSnippet={handleCreateSnippet}
+              onUpdateSnippet={handleUpdateSnippet}
+              onDeleteSnippet={handleDeleteSnippet}
             />
           )}
           {currentView === "run" && activeStudy && (
@@ -283,6 +318,7 @@ export function StudyRepositoryApp() {
               onExecutionPhaseChange={(phase) => {
                 setScriptExecutingStudyId(phase === "running" ? activeStudy.id : null);
               }}
+              snippets={snippets}
             />
           )}
         </main>
