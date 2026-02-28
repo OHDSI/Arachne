@@ -15,10 +15,12 @@
 
 package com.odysseusinc.arachne.datanode.service.study;
 
+import com.odysseusinc.arachne.datanode.model.study.CodeSnippet;
 import com.odysseusinc.arachne.datanode.model.study.StudyEnvironmentVariable;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import com.odysseusinc.arachne.datanode.model.study.StudyRun;
 import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
+import com.odysseusinc.arachne.datanode.repository.CodeSnippetRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyEnvironmentVariableRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyPackageRepository;
 import com.odysseusinc.arachne.datanode.repository.StudyRunRepository;
@@ -52,6 +54,7 @@ public class StudyRepositoryPersistenceService {
     private final StudyRunResultFileRepository studyRunResultFileRepository;
     private final StudyEnvironmentVariableRepository studyEnvVarRepository;
     private final SystemSettingRepository systemSettingRepository;
+    private final CodeSnippetRepository codeSnippetRepository;
 
     @Value("${datanode.studyRepository.defaultRegistryUrl:}")
     private String defaultRegistryUrl;
@@ -68,12 +71,14 @@ public class StudyRepositoryPersistenceService {
             StudyRunRepository studyRunRepository,
             StudyRunResultFileRepository studyRunResultFileRepository,
             StudyEnvironmentVariableRepository studyEnvVarRepository,
-            SystemSettingRepository systemSettingRepository) {
+            SystemSettingRepository systemSettingRepository,
+            CodeSnippetRepository codeSnippetRepository) {
         this.studyPackageRepository = studyPackageRepository;
         this.studyRunRepository = studyRunRepository;
         this.studyRunResultFileRepository = studyRunResultFileRepository;
         this.studyEnvVarRepository = studyEnvVarRepository;
         this.systemSettingRepository = systemSettingRepository;
+        this.codeSnippetRepository = codeSnippetRepository;
     }
 
     // --- Study packages ---
@@ -378,5 +383,55 @@ public class StudyRepositoryPersistenceService {
             throw new com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException("Environment variable not found: " + id);
         }
         studyEnvVarRepository.deleteById(id);
+    }
+
+    // --- Code snippets ---
+
+    @Transactional(readOnly = true)
+    public List<CodeSnippet> findAllCodeSnippets() {
+        return codeSnippetRepository.findAllByOrderByNameAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CodeSnippet> findCodeSnippetById(Long id) {
+        return codeSnippetRepository.findById(id);
+    }
+
+    @Transactional
+    public CodeSnippet createCodeSnippet(String name, String description, String content) {
+        CodeSnippet snippet = new CodeSnippet();
+        snippet.setName(name);
+        snippet.setDescription(description);
+        snippet.setContent(content);
+        Instant now = Instant.now();
+        snippet.setCreatedAt(now);
+        snippet.setUpdatedAt(now);
+        return codeSnippetRepository.save(snippet);
+    }
+
+    @Transactional
+    public CodeSnippet updateCodeSnippet(Long id, String name, String description, String content) {
+        CodeSnippet snippet = codeSnippetRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Code snippet not found: " + id));
+        snippet.setName(name);
+        snippet.setDescription(description);
+        snippet.setContent(content);
+        snippet.setUpdatedAt(Instant.now());
+        return codeSnippetRepository.save(snippet);
+    }
+
+    @Transactional
+    public void deleteCodeSnippet(Long id) {
+        codeSnippetRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean codeSnippetNameExists(String name) {
+        return codeSnippetRepository.existsByName(name);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean codeSnippetNameExistsForOther(String name, Long id) {
+        return codeSnippetRepository.existsByNameAndIdNot(name, id);
     }
 }

@@ -645,4 +645,71 @@ public class StudyRepositoryController {
                 : containerService.hasImageLocally(imageName)));
         return dto;
     }
+
+    // --- Code Snippets ---
+
+    @GetMapping("/snippets")
+    public List<Map<String, Object>> getCodeSnippets() {
+        return studyService.findAllCodeSnippets().stream()
+                .map(this::snippetToMap)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/snippets")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Map<String, Object> createCodeSnippet(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String description = body.getOrDefault("description", "");
+        String content = body.get("content");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Snippet name is required");
+        }
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Snippet content is required");
+        }
+        long lineCount = content.lines().count();
+        if (lineCount > 100) {
+            throw new IllegalArgumentException("Snippet must be 100 lines or fewer (has " + lineCount + ")");
+        }
+        if (studyService.codeSnippetNameExists(name)) {
+            throw new IllegalArgumentException("A snippet with name '" + name + "' already exists");
+        }
+        return snippetToMap(studyService.createCodeSnippet(name, description, content));
+    }
+
+    @PutMapping("/snippets/{id}")
+    public Map<String, Object> updateCodeSnippet(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String description = body.getOrDefault("description", "");
+        String content = body.get("content");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Snippet name is required");
+        }
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Snippet content is required");
+        }
+        long lineCount = content.lines().count();
+        if (lineCount > 100) {
+            throw new IllegalArgumentException("Snippet must be 100 lines or fewer (has " + lineCount + ")");
+        }
+        if (studyService.codeSnippetNameExistsForOther(name, id)) {
+            throw new IllegalArgumentException("A snippet with name '" + name + "' already exists");
+        }
+        return snippetToMap(studyService.updateCodeSnippet(id, name, description, content));
+    }
+
+    @DeleteMapping("/snippets/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCodeSnippet(@PathVariable Long id) {
+        studyService.deleteCodeSnippet(id);
+    }
+
+    private Map<String, Object> snippetToMap(com.odysseusinc.arachne.datanode.model.study.CodeSnippet snippet) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", snippet.getId());
+        map.put("name", snippet.getName());
+        map.put("description", snippet.getDescription());
+        map.put("content", snippet.getContent());
+        return map;
+    }
 }

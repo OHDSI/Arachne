@@ -29,6 +29,7 @@ import {
   ChevronRight,
   ChevronDown,
   Circle,
+  Code2,
 } from "lucide-react"
 import type { Study } from "../types"
 import {
@@ -40,9 +41,11 @@ import {
   getStudyRunResultFiles,
   downloadResultFile,
   type ContainerFileEntry,
+  type CodeSnippetDTO,
   type StudyRunDTO,
   type StudyRunResultFileDTO,
 } from "../../api/study-repository"
+import { InsertSnippetModal } from "./insert-snippet-modal"
 import {
   Sheet,
   SheetContent,
@@ -130,6 +133,8 @@ interface StudyRunViewProps {
   onExecutionPhaseChange?: (phase: RunPhase) => void
   /** Open the View Results (Shiny) modal. When set, the View Results card uses this instead of a static URL. */
   onOpenViewResults?: () => void
+  /** Code snippets available for insertion. */
+  snippets?: CodeSnippetDTO[]
 }
 
 export type RunPhase = "editing" | "starting" | "running" | "completed"
@@ -363,8 +368,9 @@ function FileTreeNode({
 
 const AUTOSAVE_DELAY_MS = 1500
 
-export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange, onOpenViewResults }: StudyRunViewProps) {
+export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange, onOpenViewResults, snippets = [] }: StudyRunViewProps) {
   const [script, setScript] = useState(study.script || DEFAULT_SCRIPT)
+  const [snippetModalOpen, setSnippetModalOpen] = useState(false)
   const [version, setVersion] = useState(0)
   const [scriptLoading, setScriptLoading] = useState(true)
   const [scriptError, setScriptError] = useState<string | null>(null)
@@ -549,6 +555,11 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onEx
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleInsertSnippet = (snippetContent: string) => {
+    const separator = script.trim() ? "\n\n" : ""
+    setScript((prev) => snippetContent + separator + prev)
+  }
+
   const handleDownloadOutputFile = async (filePath: string) => {
     if (!selectedRunId) return
     setDownloading(true)
@@ -727,6 +738,18 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onEx
                   </>
                 )}
               </Button>
+              {snippets.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSnippetModalOpen(true)}
+                  disabled={scriptLoading}
+                  className="border-border text-foreground hover:bg-secondary bg-transparent"
+                >
+                  <Code2 className="mr-2 h-4 w-4" />
+                  Insert Snippet
+                </Button>
+              )}
               <Button
                 onClick={handleRun}
                 disabled={scriptLoading || phase === "starting" || phase === "running"}
@@ -945,6 +968,13 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onEx
           </Card>
         </div>
       )}
+
+      <InsertSnippetModal
+        snippets={snippets}
+        open={snippetModalOpen}
+        onClose={() => setSnippetModalOpen(false)}
+        onInsert={handleInsertSnippet}
+      />
     </div>
   )
 }

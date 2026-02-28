@@ -1,0 +1,8 @@
+2026-02-22T01:48:11.963+01:00  INFO 22466 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Starting StudyRepositoryInstallIT using Java 23.0.1 with PID 22466 (started by ablack in /Users/ablack/darwin/Arachne/datanode)
+2026-02-22T01:48:11.968+01:00  INFO 22466 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : No active profile set, falling back to 1 default profile: "default"
+2026-02-22T01:48:12.174+01:00  INFO 22466 --- [main] c.o.a.datanode.config.DockerConfig       : Docker client using host: unix:///var/run/docker.sock (docker.host=unix:///var/run/docker.sock, arachne.docker.host=unix:///var/run/docker.sock)
+2026-02-22T01:48:12.286+01:00  INFO 22466 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Started StudyRepositoryInstallIT in 0.477 seconds (process running for 1.027)
+2026-02-22T01:48:12.732+01:00  INFO 22466 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulling study image darwin-eu-dev/examplestudy:main from registry
+2026-02-22T01:48:12.732+01:00  INFO 22466 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulling study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:main (platform linux/amd64 for emulation on ARM)
+2026-02-22T01:50:30.783+01:00  INFO 22466 --- [main] a.d.s.s.StudyRepositoryConnectionService : Pulled study image: executionengine.azurecr.io/darwin-eu-dev/examplestudy:main
+2026-02-22T01:50:30.818+01:00  INFO 22466 --- [main] c.o.a.d.s.s.StudyRepositoryInstallIT     : Pulled study image darwin-eu-dev/examplestudy:main successfully
