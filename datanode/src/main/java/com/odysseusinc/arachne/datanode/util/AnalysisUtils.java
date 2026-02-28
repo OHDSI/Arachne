@@ -42,6 +42,7 @@ public class AnalysisUtils {
             if (name == null) {
                 name = "file";
             }
+            name = Paths.get(name).getFileName().toString();
             Path path = Paths.get(multipartFilesDir.getAbsolutePath(), name);
             File file = path.toFile();
             InputStream inputStream = multipartFile.getInputStream();

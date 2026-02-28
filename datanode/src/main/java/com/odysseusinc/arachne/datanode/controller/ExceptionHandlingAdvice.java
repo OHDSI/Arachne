@@ -71,7 +71,7 @@ public class ExceptionHandlingAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception ex) {
         String token = token();
-        log.error("[{}]: {}", token, ex.getMessage());
+        log.error("[{}]: {}", token, ex.getMessage(), ex);
         return ResponseEntity.internalServerError().body("Error code [" + token + "]. Please provide this code to contact system administrator");
     }
 

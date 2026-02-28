@@ -47,10 +47,10 @@ import java.util.UUID;
 @Service
 public class DbBasicCredentialsService {
     /**
-     * Current password encoders (such as Argon2 used here) built-in salt implementation
-     * that is later stored with the encoded password. Thus, there is no need to bother about
-     * salt at all. Note that this also means thre is no way to get the same result if we encode
-     * same password twice, so encoder's matches() method has to be used.
+     * BCrypt has a built-in salt implementation that is stored with the encoded password.
+     * Thus, there is no need to bother about salt at all. Note that this also means there
+     * is no way to get the same result if we encode same password twice, so encoder's
+     * matches() method has to be used.
      */
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

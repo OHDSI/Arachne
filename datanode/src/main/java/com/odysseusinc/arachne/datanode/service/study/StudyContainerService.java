@@ -558,6 +558,7 @@ public class StudyContainerService {
     /** Path must be under STUDY_WORKDIR; returns normalized path (forward slashes) or null if invalid. */
     private static String normalizePathUnderWorkdir(String path) {
         if (path == null || path.isBlank()) return STUDY_WORKDIR;
+        if (path.contains("..")) return null;
         String normalized = Paths.get(path).normalize().toString().replace('\\', '/');
         if (!normalized.startsWith("/")) normalized = "/" + normalized;
         if (!normalized.startsWith(STUDY_WORKDIR + "/") && !normalized.equals(STUDY_WORKDIR)) {

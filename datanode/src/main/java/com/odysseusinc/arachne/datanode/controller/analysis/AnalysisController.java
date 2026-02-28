@@ -93,8 +93,8 @@ public class AnalysisController {
     }
 
     @PostMapping(path = "/execute/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Long execute(Principal principal, String id, @Valid @RequestBody AnalysisRequestDTO request) {
-        User user = userService.getUser(principal);;
+    public Long execute(Principal principal, @PathVariable("id") String id, @Valid @RequestBody AnalysisRequestDTO request) {
+        User user = userService.getUser(principal);
         return orchestrator.run(user, request, id);
     }
 
@@ -160,7 +160,7 @@ public class AnalysisController {
             }
         } else {
             for (AnalysisFile f : resultFiles) {
-                Files.copy(Paths.get(f.getLink()), stdoutDir);
+                Files.copy(Paths.get(f.getLink()), stdoutDir.resolve(Paths.get(f.getLink()).getFileName()));
             }
         }
 
