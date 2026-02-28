@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -131,7 +132,8 @@ public class DataSourceController {
 
     @ApiOperation("Remove kerberos keytab")
     @DeleteMapping("/{id}/keytab")
-    public void removeKeytab(@PathVariable("id") Long id) {
+    public void removeKeytab(Principal principal, @PathVariable("id") Long id) throws PermissionDeniedException {
+        getAdmin(principal);
         dataSourceService.removeKeytab(id);
     }
 
@@ -154,7 +156,7 @@ public class DataSourceController {
 
     @Async
     @PostMapping(value = "/check")
-    public CompletableFuture<CheckResult> check(DataSourceUnsecuredDTO dto) {
+    public CompletableFuture<CheckResult> check(@RequestBody DataSourceUnsecuredDTO dto) {
         return checkService.check(dto);
     }
 

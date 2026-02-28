@@ -202,11 +202,6 @@ function FileTreeNode({
   )
 }
 
-function collectFilePaths(file: OutputFile): string[] {
-  if (file.type !== "folder") return file.path ? [file.path] : []
-  return (file.children ?? []).flatMap(collectFilePaths)
-}
-
 export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalProps) {
   const [runs, setRuns] = useState<StudyRunDTO[]>([])
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)

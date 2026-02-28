@@ -38,6 +38,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,7 +130,23 @@ public class AnalysisResultsService {
         try (net.lingala.zip4j.ZipFile zipFile = new net.lingala.zip4j.ZipFile(file.toFile())) {
             Path extracted = Files.createTempDirectory("result_file");
             zipFile.extractFile(filename, extracted.toString());
-            return new FileSystemResource(extracted.resolve(filename));
+            Path extractedFile = extracted.resolve(filename);
+            return new FileSystemResource(extractedFile) {
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    InputStream delegate = super.getInputStream();
+                    return new java.io.FilterInputStream(delegate) {
+                        @Override
+                        public void close() throws IOException {
+                            try {
+                                super.close();
+                            } finally {
+                                org.apache.commons.io.FileUtils.deleteQuietly(extracted.toFile());
+                            }
+                        }
+                    };
+                }
+            };
         } catch (IOException e) {
             log.error("Failed to list archive [{}]", archive.getLink(), e);
             throw new IllegalOperationException(MessageFormat.format("Failed to list archive [{0}]: {1}", archive.getLink(), e.getMessage()));
@@ -184,7 +201,7 @@ public class AnalysisResultsService {
     public Analysis markExecuted(Long id, File resultDir, String stage, String error, String stdout) {
         return analysisRepository.findById(id).map(analysis -> {
             File[] files = resultDir.listFiles();
-            Stream.of(files).map(file ->
+            Stream.of(files != null ? files : new File[0]).map(file ->
                     new AnalysisFile(file.getAbsolutePath(), AnalysisFileType.ANALYSYS_RESULT, analysis)
             ).forEach(em::persist);
 
@@ -212,7 +229,7 @@ public class AnalysisResultsService {
     }
 
     private boolean checkZipArchiveForErrorFile(File[] listFiles) {
-
+        if (listFiles == null) return false;
         return Stream.of(listFiles)
                 .map(this::scanZipForErrorFilenames)
                 .reduce(Boolean::logicalOr)

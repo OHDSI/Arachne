@@ -76,6 +76,7 @@ public class JwtTokens {
         return Fn.create(() -> new Cookie(TokenType.BEARER.getValue(), tokenValue), cookie -> {
             cookie.setPath("/");
             cookie.setHttpOnly(true);
+            cookie.setSecure(true);
             cookie.setAttribute("SameSite", "Strict");
             cookie.setAttribute("Expires", expires);
         });

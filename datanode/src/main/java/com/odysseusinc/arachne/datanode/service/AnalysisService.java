@@ -40,7 +40,6 @@ import com.odysseusinc.arachne.datanode.model.analysis.AnalysisStateEntry_;
 import com.odysseusinc.arachne.datanode.model.analysis.Analysis_;
 import com.odysseusinc.arachne.datanode.model.datasource.DataSource;
 import com.odysseusinc.arachne.datanode.model.user.User;
-import com.odysseusinc.arachne.datanode.service.client.engine.ExecutionEngineClient;
 import com.odysseusinc.arachne.datanode.util.AnalysisUtils;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestDTO;
 import com.odysseusinc.arachne.execution_engine_common.api.v1.dto.AnalysisRequestStatusDTO;
@@ -71,8 +70,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -87,18 +84,12 @@ public class AnalysisService {
 	);
 	private static final Comparator<String> BY_STAGE_ORDER = Comparator.comparing(STAGE_ORDER::indexOf);
 
-	@SuppressWarnings("unused")
-	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
-
 	@Autowired
 	private UploadService uploadService;
 	@Autowired
 	private DataSourceService dataSourceService;
 	@Autowired
 	private AnalysisStateService stateService;
-	@Autowired
-	@SuppressWarnings("unused")
-	private ExecutionEngineClient engine;
 	@Value("${analysis.scheduler.invalidateExecutingInterval}")
 	protected Long invalidateExecutingInterval;
 	@Value("${analysis.scheduler.invalidateMaxDaysExecutingInterval}")
@@ -124,11 +115,14 @@ public class AnalysisService {
 	@Transactional
 	public void ensureCancellable(Long id) {
 		AnalysisStateEntry state = find(id).getCurrentState();
+		if (state == null) {
+			throw new ValidationException("Analysis " + id + " has no state yet and cannot be cancelled");
+		}
         String stage = state.getStage();
         if (state.getCommand() == AnalysisCommand.ABORT) {
             throw new ValidationException("Analysis " + id + " has already been aborted. Current state: [" + state + "]");
         }
-        if (Objects.equals(stage, Stage.ABORT) && !TERMINAL_STAGES.contains(stage)) {
+        if (Objects.equals(stage, Stage.ABORT) || TERMINAL_STAGES.contains(stage)) {
 			throw new ValidationException("Analysis not running: " + id + ", current state [" + state + "]");
 		}
 	}
@@ -354,7 +348,7 @@ public class AnalysisService {
 		dto.setDataSource(dataSourceService.toUnsecuredDto(analysis.getDataSource()));
 		dto.setId(analysis.getId());
 		dto.setExecutableFileName(analysis.getExecutableFileName());
-		dto.setParameters(analysis.getParameters());;
+		dto.setParameters(analysis.getParameters());
 		dto.setRequestedDescriptorId(Optional.ofNullable(analysis.getEnvironment()).map(EnvironmentDescriptor::getDescriptorId).orElse(null));
 		dto.setDockerImage(analysis.getDockerImage());
 		dto.setUpdateStatusCallback(analysis.getUpdateStatusCallback());

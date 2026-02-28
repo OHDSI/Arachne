@@ -130,7 +130,7 @@ public class DataSourceService {
                 Optional.ofNullable(dto.getKrbRealm()).ifPresent(entity::setKrbRealm);
                 Optional.ofNullable(dto.getKrbFQDN()).ifPresent(entity::setKrbFQDN);
                 Optional.ofNullable(dto.getKrbUser()).ifPresent(entity::setKrbUser);
-                Optional.ofNullable(dto.getKrbPassword()).filter(this::isNotDummyPassword).ifPresent(entity::setName);
+                Optional.ofNullable(dto.getKrbPassword()).filter(this::isNotDummyPassword).ifPresent(entity::setKrbPassword);
             } else {
                 entity.setKrbRealm(null);
                 entity.setKrbFQDN(null);
@@ -241,7 +241,7 @@ public class DataSourceService {
         target.setCohortTargetTable(StringUtils.isEmpty(cohortTargetTable) ? defaultCohortTargetTable : cohortTargetTable);
 
         target.setUseKerberos(source.getUseKerberos());
-        if (source.getUseKerberos()) {
+        if (Boolean.TRUE.equals(source.getUseKerberos())) {
             target.setKrbFQDN(source.getKrbFQDN());
             target.setKrbAdminFQDN(source.getKrbFQDN());
             target.setKrbRealm(source.getKrbRealm());

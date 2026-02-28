@@ -134,7 +134,7 @@ public class OidcCredentialsService {
         // The easiest approach is to deserialize it into a Map.
         Map<String, Object> storedUser  = SerializationUtils.deserialize(new TypeReference<Map<String, Object>>() {}).apply(credentials.getData());
         return Objects.equals(storedUser.get("email"), user.getEmail())
-                && storedUser.get("emailVerified") == user.getEmailVerified()
+                && Objects.equals(storedUser.get("emailVerified"), user.getEmailVerified())
                 && Objects.equals(storedUser.get("preferredUsername"), user.getPreferredUsername())
                 && Objects.equals(storedUser.get("givenName"), user.getGivenName())
                 && Objects.equals(storedUser.get("familyName"), user.getFamilyName());

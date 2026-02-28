@@ -50,7 +50,7 @@ public class WebSecurityConfig {
     @Autowired
     private LoginDisabledAuthenticationFilter loginDisabledAuthenticationFilter;
 
-    @Value("${security.loginDisabled:true}")
+    @Value("${security.loginDisabled:false}")
     private boolean loginDisabled;
 
     @Bean

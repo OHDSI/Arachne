@@ -150,7 +150,8 @@ public class StudyRepositoryController {
         StudyRepositorySettingsDTO dto = new StudyRepositorySettingsDTO();
         dto.setCatalogAddress(studyService.getCatalogAddress());
         dto.setCatalogUsername(studyService.getCatalogUsername());
-        dto.setCatalogToken(studyService.getCatalogToken());
+        String token = studyService.getCatalogToken();
+        dto.setCatalogToken(token != null && !token.isEmpty() ? "********" : "");
         return dto;
     }
 
@@ -317,7 +318,7 @@ public class StudyRepositoryController {
                     }
                 }
             } catch (Exception e) {
-                // Logs and status already saved; result folder copy is best-effort
+                LOG.warn("Failed to copy result folder for run {}: {}", run.getId(), e.getMessage(), e);
             }
         }
 
@@ -369,7 +370,13 @@ public class StudyRepositoryController {
 
     private static int numberVersion(Object v) {
         if (v instanceof Number) return ((Number) v).intValue();
-        if (v instanceof String) return Integer.parseInt((String) v, 10);
+        if (v instanceof String) {
+            try {
+                return Integer.parseInt((String) v, 10);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
         return 0;
     }
 
@@ -460,8 +467,9 @@ public class StudyRepositoryController {
         return studyService.getStudyRunResultFileContent(runId, filePath)
                 .map(content -> {
                     String filename = filePath.contains("/") ? filePath.substring(filePath.lastIndexOf('/') + 1) : filePath;
+                    String sanitizedFilename = filename.replaceAll("[\"\\r\\n]", "_");
                     return ResponseEntity.ok()
-                            .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                            .header("Content-Disposition", "attachment; filename=\"" + sanitizedFilename + "\"")
                             .body(content);
                 })
                 .orElse(ResponseEntity.notFound().build());
