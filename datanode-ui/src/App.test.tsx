@@ -29,7 +29,7 @@ import App from "./App";
 function TestWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ThemeProvider theme={theme}>
           <NotificationsProvider
             maxSnack={3}

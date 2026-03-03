@@ -11,7 +11,6 @@ export type StudyPackageDTO = {
   id: number;
   name: string;
   version: string;
-  script: string;
   running: boolean;
   /** True when the study Docker container is running (image loaded and container up). */
   loaded: boolean;
@@ -39,13 +38,6 @@ export function installStudyPackage(
   version?: string
 ): Promise<StudyPackageDTO> {
   return api.post("/study-repository/packages", { name, version: version || "latest" });
-}
-
-export function updateStudyPackageScript(
-  id: number,
-  script: string
-): Promise<StudyPackageDTO> {
-  return api.patch(`/study-repository/packages/${id}/script`, { script });
 }
 
 export function deleteStudyPackage(id: number): Promise<void> {

@@ -32,7 +32,6 @@ import java.util.List;
 
 /**
  * Installed study package from the Study Repository catalog (name + version).
- * Holds the user-editable run script saved with the study.
  */
 @Getter
 @Setter
@@ -53,9 +52,6 @@ public class StudyPackage {
 
     @Column(name = "catalog_address", length = 1024)
     private String catalogAddress;
-
-    @Column(name = "script", columnDefinition = "TEXT")
-    private String script;
 
     /** Docker container id when study is opened for run (working dir /code in image). Null when not running. */
     @Column(name = "container_id", length = 128)

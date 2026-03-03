@@ -21,10 +21,8 @@ import {
   getStudyRepositorySettings,
   installStudyPackage,
   refreshStudyPackage,
-  updateStudyPackageScript,
   deleteStudyPackage,
   saveStudyRepositorySettings,
-  startStudyContainer,
   stopStudyContainer,
   executeStudyScript,
   getCodeSnippets,
@@ -65,7 +63,6 @@ function packagesToStudies(
       isRunning: current.running,
       isLoaded: current.loaded ?? false,
       hasResults: current.hasResults,
-      script: current.script ?? "",
       imageInstalled: current.imageInstalled,
     });
   }
@@ -192,16 +189,6 @@ export function StudyRepositoryApp() {
     setBrowseStudyId(id);
   };
 
-  const handleSaveScript = async (script: string) => {
-    if (!activeStudyId) return;
-    try {
-      await updateStudyPackageScript(Number(activeStudyId), script);
-      await fetchPackages();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to save script");
-    }
-  };
-
   const handleExecuteStudy = async (script: string): Promise<{ logs: string; status: string }> => {
     if (!activeStudyId) return { logs: "", status: "FAILED" };
     const res = await executeStudyScript(Number(activeStudyId), script);
@@ -315,7 +302,6 @@ export function StudyRepositoryApp() {
             <StudyRunView
               study={activeStudy}
               onBack={handleBackToRepository}
-              onSaveScript={handleSaveScript}
               onExecuteStudy={handleExecuteStudy}
               onExecutionPhaseChange={(phase) => {
                 setScriptExecutingStudyId(phase === "running" ? activeStudy.id : null);

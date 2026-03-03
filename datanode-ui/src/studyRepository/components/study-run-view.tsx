@@ -126,7 +126,6 @@ function buildFileTree(entries: StudyRunResultFileDTO[]): OutputFile[] {
 interface StudyRunViewProps {
   study: Study
   onBack: () => void
-  onSaveScript: (script: string) => void
   /** Execute the current script in the study container; returns logs and status. */
   onExecuteStudy: (script: string) => Promise<{ logs: string; status: string }>
   /** Called when execution phase changes so the list can show "Running" only while codeToRun.R is executing. */
@@ -368,8 +367,8 @@ function FileTreeNode({
 
 const AUTOSAVE_DELAY_MS = 1500
 
-export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onExecutionPhaseChange, onOpenViewResults, snippets = [] }: StudyRunViewProps) {
-  const [script, setScript] = useState(study.script || DEFAULT_SCRIPT)
+export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseChange, onOpenViewResults, snippets = [] }: StudyRunViewProps) {
+  const [script, setScript] = useState(DEFAULT_SCRIPT)
   const [snippetModalOpen, setSnippetModalOpen] = useState(false)
   const [version, setVersion] = useState(0)
   const [scriptLoading, setScriptLoading] = useState(true)
@@ -513,7 +512,6 @@ export function StudyRunView({ study, onBack, onSaveScript, onExecuteStudy, onEx
     putCodeToRun(Number(study.id), { content: script, version })
       .then((res) => {
         setVersion(res.version)
-        onSaveScript(script)
         setSaved(true)
         setConflictMessage(null)
         setTimeout(() => setSaved(false), 2000)

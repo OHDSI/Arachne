@@ -54,7 +54,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -128,11 +127,17 @@ public class StudyRepositoryController {
 
     @PatchMapping("/packages/{id}/script")
     public StudyPackageDTO updateScript(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String script = body != null ? body.get("script") : null;
-        studyService.saveStudyPackageScript(id, Objects.requireNonNullElse(script, ""));
-        return studyService.findStudyPackageById(id)
-                .map(pkg -> toDTO(pkg, null))
+        StudyPackage pkg = studyService.findStudyPackageById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String script = body != null ? body.get("script") : null;
+        CodeFileService.CodeFileContent current = codeFileService.getOrSeedCodeFile(id, pkg.getVersion(), CodeFileService.DEFAULT_PATH);
+        codeFileService.updateContentIfVersionMatches(
+                id,
+                pkg.getVersion(),
+                CodeFileService.DEFAULT_PATH,
+                script != null ? script : "",
+                current.getVersion());
+        return toDTO(pkg, null);
     }
 
     @DeleteMapping("/packages/{id}")
@@ -357,7 +362,7 @@ public class StudyRepositoryController {
         }
         boolean alreadyRunning = containerService.isShinyRunning(containerId);
         if (!alreadyRunning) {
-            String script = pkg.getScript() != null ? pkg.getScript() : "";
+            String script = getCurrentStudyScript(id, pkg.getVersion());
             String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
             String outputFolderPath = StudyContainerService.STUDY_WORKDIR + "/" + outputFolderName;
             containerService.startShinyApp(containerId, outputFolderPath);
@@ -412,7 +417,7 @@ public class StudyRepositoryController {
                 .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
         String script = body != null ? body.get("script") : null;
         if (script == null) {
-            script = pkg.getScript() != null ? pkg.getScript() : "";
+            script = getCurrentStudyScript(id, pkg.getVersion());
         }
         String containerId = pkg.getContainerId();
         if (containerId == null || containerId.isBlank()) {
@@ -497,6 +502,15 @@ public class StudyRepositoryController {
             }
         }
         return ResponseEntity.ok(Map.of("content", content, "version", newVersion));
+    }
+
+    private String getCurrentStudyScript(Long studyId, String imageTag) {
+        try {
+            return codeFileService.getOrSeedCodeFile(studyId, imageTag, CodeFileService.DEFAULT_PATH).getContent();
+        } catch (Exception e) {
+            LOG.warn("Falling back to empty script for study {}: {}", studyId, e.getMessage());
+            return "";
+        }
     }
 
     private static int numberVersion(Object v) {
@@ -632,7 +646,6 @@ public class StudyRepositoryController {
         dto.setId(pkg.getId());
         dto.setName(pkg.getName());
         dto.setVersion(pkg.getVersion());
-        dto.setScript(Objects.requireNonNullElse(pkg.getScript(), ""));
         dto.setRunning(studyService.isStudyRunning(pkg.getId()));
         String containerId = pkg.getContainerId();
         dto.setLoaded(containerId != null && !containerId.isBlank() && containerService.isContainerRunning(containerId));

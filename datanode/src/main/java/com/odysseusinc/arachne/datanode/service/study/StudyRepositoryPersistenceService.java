@@ -128,16 +128,6 @@ public class StudyRepositoryPersistenceService {
         return studyPackageRepository.save(studyPackage);
     }
 
-    /** Updates and persists the script for the given study package. */
-    @Transactional
-    public void saveStudyPackageScript(Long studyPackageId, String script) {
-        studyPackageRepository.findById(studyPackageId).ifPresent(pkg -> {
-            pkg.setScript(script);
-            pkg.setUpdatedAt(Instant.now());
-            studyPackageRepository.save(pkg);
-        });
-    }
-
     /** Set or clear the Docker container id for a study package (when study is opened or stopped). */
     @Transactional
     public void setStudyPackageContainerId(Long studyPackageId, String containerId) {

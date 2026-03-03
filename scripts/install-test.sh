@@ -19,8 +19,9 @@ fi
 SOCKET_PATH="${DOCKER_HOST#unix://}"
 if [[ ! -S "$SOCKET_PATH" ]]; then
   echo "" >&2
-  echo "*** WARNING: Docker host is not available ($SOCKET_PATH not found). Start Docker (e.g. Docker Desktop) or set DOCKER_HOST. Install test will be skipped. ***" >&2
+  echo "*** ERROR: Docker host is not available ($SOCKET_PATH not found). Start Docker (e.g. Docker Desktop) or set DOCKER_HOST before running install-test. ***" >&2
   echo "" >&2
+  exit 1
 fi
 
 if [[ -f datanode/config/datanode.env ]]; then

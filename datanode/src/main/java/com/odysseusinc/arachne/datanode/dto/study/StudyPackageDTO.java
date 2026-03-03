@@ -27,7 +27,6 @@ public class StudyPackageDTO {
     private Long id;
     private String name;
     private String version;
-    private String script;
     private boolean running;
     /** True when the study Docker container is running (image loaded and container up). */
     private boolean loaded;

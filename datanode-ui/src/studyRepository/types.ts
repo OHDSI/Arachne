@@ -7,7 +7,6 @@ export type Study = {
   /** True when the study Docker container is running (loaded). */
   isLoaded: boolean;
   hasResults: boolean;
-  script: string;
   /** True when the study's Docker image is present locally. */
   imageInstalled?: boolean;
 };

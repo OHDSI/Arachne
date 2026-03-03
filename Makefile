@@ -2,7 +2,7 @@
 # Backend: Maven (datanode + commons + executionengine). Frontend: datanode-ui (React, includes Study Repository).
 
 .PHONY: build build-backend build-datanode-ui \
-	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui \
+	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui flush \
 	docs \
 	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-buttons \
 	buildtest full-stack-build-test clean help
@@ -72,13 +72,16 @@ stop:
 	@echo "(Backend may show Maven [ERROR] exit 143 in the terminal where it was started; that is expected when stopping.)"
 
 # Stop frontend (ports 3000/3001 and any next dev), remove Next.js dev lock so 'npm run dev' can start again.
-flush:
+unlock-ui:
 	@echo "Stopping frontend and removing Next.js dev lock..."
 	-lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 	-lsof -ti:3001 | xargs kill -9 2>/dev/null || true
 	-pkill -f "next dev" 2>/dev/null || true
 	-rm -f datanode-ui/.next/dev/lock
 	@echo "Done. You can run 'make run-datanode-ui' or 'make start' again."
+
+# Backward-compatible alias for older docs and local habits.
+flush: unlock-ui
 
 # Backend on 8880 so Next.js dev proxy (PROXY_HOST default) can reach it.
 # DB: application.yml defaults (localhost:5432/arachne_datanode). For Docker Postgres: SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode

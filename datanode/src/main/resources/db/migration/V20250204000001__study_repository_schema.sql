@@ -10,7 +10,6 @@ CREATE TABLE study_packages
     name           VARCHAR(512) NOT NULL,
     version        VARCHAR(128) NOT NULL,
     catalog_address VARCHAR(1024),
-    script         TEXT,
     installed_at   TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     created_at     TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
@@ -19,7 +18,6 @@ CREATE TABLE study_packages
 -- BIGSERIAL already creates study_packages_id_seq
 
 COMMENT ON TABLE study_packages IS 'Installed study packages from the catalog (Study Repository)';
-COMMENT ON COLUMN study_packages.script IS 'User-editable run script (e.g. codeToRun.R) saved with the study';
 
 -- Study runs: each run of a study (for hasResults, logs, output path)
 CREATE TABLE study_runs

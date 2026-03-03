@@ -16,6 +16,14 @@ else
   export DOCKER_HOST="unix:///var/run/docker.sock"
 fi
 
+SOCKET_PATH="${DOCKER_HOST#unix://}"
+if [[ ! -S "$SOCKET_PATH" ]]; then
+  echo "" >&2
+  echo "*** ERROR: Docker host is not available ($SOCKET_PATH not found). Start Docker (e.g. Docker Desktop) or set DOCKER_HOST before running env-test. ***" >&2
+  echo "" >&2
+  exit 1
+fi
+
 if [[ -f datanode/config/datanode.env ]]; then
   while IFS= read -r line; do
     line="${line%%#*}"   # strip inline comment
