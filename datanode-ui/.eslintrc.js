@@ -16,6 +16,13 @@
  */
 
 module.exports = {
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "build/",
+    "out/",
+    "target/"
+  ],
   "env": {
     "browser": true,
     "es2021": true
@@ -23,8 +30,7 @@ module.exports = {
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "next/core-web-vitals"
+    "plugin:react/recommended"
   ],
   "settings": {
     "react": {
@@ -55,10 +61,6 @@ module.exports = {
     "license-header"
   ],
   "rules": {
-    "indent": [
-      "error",
-      2
-    ],
     "license-header/header": [0, "./public/license-header.js"],
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/ban-ts-comment": 0,

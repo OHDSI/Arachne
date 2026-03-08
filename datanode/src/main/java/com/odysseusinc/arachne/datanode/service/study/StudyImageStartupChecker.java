@@ -18,6 +18,7 @@ package com.odysseusinc.arachne.datanode.service.study;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -34,17 +35,24 @@ public class StudyImageStartupChecker {
 
     private static final Logger LOG = LoggerFactory.getLogger(StudyImageStartupChecker.class);
 
+    private final boolean requireDockerAtStartup;
     private final StudyRepositoryPersistenceService studyService;
     private final StudyContainerService containerService;
 
-    public StudyImageStartupChecker(StudyRepositoryPersistenceService studyService,
+    public StudyImageStartupChecker(@Value("${datanode.studyRepository.requireDocker:true}") boolean requireDockerAtStartup,
+                                    StudyRepositoryPersistenceService studyService,
                                     StudyContainerService containerService) {
+        this.requireDockerAtStartup = requireDockerAtStartup;
         this.studyService = studyService;
         this.containerService = containerService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void checkInstalledStudiesHaveImage() {
+        if (requireDockerAtStartup) {
+            containerService.requireDockerAvailable();
+            LOG.info("Docker availability check passed on startup.");
+        }
         Set<String> localImages = containerService.listLocalImageNames();
         for (StudyPackage pkg : studyService.findAllStudyPackages()) {
             String catalogAddress = pkg.getCatalogAddress();
@@ -53,7 +61,7 @@ public class StudyImageStartupChecker {
             }
             String imageName = StudyContainerService.imageNameFor(
                     catalogAddress, pkg.getName(), pkg.getVersion());
-            if (!StudyContainerService.hasRepositoryInSet(localImages, imageName)) {
+            if (!StudyContainerService.hasImageInSet(localImages, imageName)) {
                 LOG.warn("Study image not found locally: {} (study package id={}, name={}, version={}). "
                                 + "Use Refresh in the UI to run 'docker pull' for this study.",
                         imageName, pkg.getId(), pkg.getName(), pkg.getVersion());

@@ -313,7 +313,7 @@ export function SettingsPage({
           <CardTitle>Study environment variables</CardTitle>
           <CardDescription>
             Variables injected into study Docker containers when they run. Use{" "}
-            <code className="rounded bg-muted px-1 text-sm">Sys.getenv("VAR_NAME")</code> in your codeToRun.R to read
+            <code className="rounded bg-muted px-1 text-sm">{"Sys.getenv(\"VAR_NAME\")"}</code> in your codeToRun.R to read
             them. Values are stored encrypted.
           </CardDescription>
         </CardHeader>

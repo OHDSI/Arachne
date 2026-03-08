@@ -30,14 +30,17 @@ import {
   getStudyRuns,
   getStudyRunResultFiles,
   downloadResultFile,
+  previewResultFile,
   type StudyRunDTO,
   type StudyRunResultFileDTO,
 } from "../../api/study-repository"
+import { CsvFileViewer } from "./CsvFileViewer"
+import { TextFileViewer } from "./TextFileViewer"
 
 interface OutputFile {
   name: string
   path: string
-  type: "folder" | "table" | "plot" | "html" | "file"
+  type: "folder" | "table" | "plot" | "html" | "text" | "file"
   size?: string
   children?: OutputFile[]
 }
@@ -54,11 +57,24 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function fileTypeFromPath(path: string): "folder" | "table" | "plot" | "html" | "file" {
+function fileTypeFromPath(path: string): OutputFile["type"] {
   const lower = path.toLowerCase()
-  if (lower.endsWith(".csv") || lower.endsWith(".xlsx") || lower.endsWith(".xls")) return "table"
+  if (lower.endsWith(".csv")) return "table"
   if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".svg")) return "plot"
   if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html"
+  if (
+    lower.endsWith(".txt") ||
+    lower.endsWith(".log") ||
+    lower.endsWith(".md") ||
+    lower.endsWith(".out") ||
+    lower.endsWith(".json") ||
+    lower.endsWith(".yaml") ||
+    lower.endsWith(".yml") ||
+    lower.endsWith(".xml") ||
+    lower.endsWith(".sql") ||
+    lower.endsWith(".r") ||
+    lower.endsWith(".tsv")
+  ) return "text"
   return "file"
 }
 
@@ -110,6 +126,8 @@ function FileIcon({ type, isOpen }: { type: OutputFile["type"]; isOpen?: boolean
       )
     case "table":
       return <FileSpreadsheet className="h-4 w-4 text-[#4caf50]" />
+    case "text":
+      return <FileText className="h-4 w-4 text-[#2196f3]" />
     case "plot":
       return <FileImage className="h-4 w-4 text-[#9c27b0]" />
     case "html":
@@ -211,8 +229,16 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
   const [loadingRuns, setLoadingRuns] = useState(false)
   const [loadingFiles, setLoadingFiles] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [fileContent, setFileContent] = useState<string | null>(null)
+  const [loadingContent, setLoadingContent] = useState(false)
+  const [previewTruncated, setPreviewTruncated] = useState(false)
 
   const packageId = study ? Number(study.id) : 0
+
+  /** Whether the selected file can be viewed inline (CSV or text). */
+  const selectedFileViewable =
+    selectedFile &&
+    (fileTypeFromPath(selectedFile) === "table" || fileTypeFromPath(selectedFile) === "text")
 
   useEffect(() => {
     if (!open || !study) return
@@ -240,6 +266,28 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
       .catch(() => setResultFiles([]))
       .finally(() => setLoadingFiles(false))
   }, [open, study?.id, packageId, selectedRunId])
+
+  // Load file content when a viewable file is selected
+  useEffect(() => {
+    if (!open || !study || !selectedRunId || !selectedFile || !selectedFileViewable) {
+      setFileContent(null)
+      setPreviewTruncated(false)
+      return
+    }
+    setLoadingContent(true)
+    setFileContent(null)
+    setPreviewTruncated(false)
+    previewResultFile(packageId, Number(selectedRunId), selectedFile)
+      .then((preview) => {
+        setFileContent(preview.content)
+        setPreviewTruncated(preview.truncated)
+      })
+      .catch(() => {
+        setFileContent(null)
+        setPreviewTruncated(false)
+      })
+      .finally(() => setLoadingContent(false))
+  }, [open, study?.id, packageId, selectedRunId, selectedFile, selectedFileViewable])
 
   const currentRun = runs.find((r) => String(r.id) === selectedRunId)
   const fileTree = resultFiles.length > 0 ? buildFileTree(resultFiles) : []
@@ -313,102 +361,146 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
 
   if (!study) return null
 
+  const showViewer = selectedFileViewable && (loadingContent || fileContent !== null)
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className={showViewer ? "max-w-5xl" : "max-w-2xl"}>
         <DialogHeader>
           <DialogTitle className="text-primary-dark">
             Browse Outputs - {study.name}
           </DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* Run selector and Download All */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Run:</span>
-              <Select
-                value={selectedRunId ?? ""}
-                onValueChange={setSelectedRunId}
-                disabled={loadingRuns || runs.length === 0}
-              >
-                <SelectTrigger className="h-9 w-[220px] border-border">
-                  <SelectValue placeholder={loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {runs.map((run) => (
-                    <SelectItem key={run.id} value={String(run.id)}>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Run #{run.id}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatRunTime(run.finishedAt ?? run.startedAt)}
-                        </span>
-                        {(run.fileCount ?? 0) > 0 && (
-                          <span className="text-xs text-muted-foreground">({run.fileCount} files)</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={loadingFiles || resultFiles.length === 0 || downloading}
-              onClick={handleDownloadAll}
-            >
-              {downloading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Download className="mr-2 h-4 w-4" />
-              )}
-              Download All
-            </Button>
-          </div>
 
-          {/* File Explorer (export folder contents from DB) */}
-          <div className="rounded-md border border-border bg-background">
-            <div className="border-b border-border bg-secondary/50 px-3 py-2">
-              <span className="text-sm font-medium text-muted-foreground">
-                {currentRun ? `Run #${currentRun.id}` : ""} — {loadingFiles ? "Loading…" : `${totalFiles} files`}
+        <div className={`flex gap-4 ${showViewer ? "flex-row" : "flex-col"} space-y-0`}>
+          <div className={`space-y-4 ${showViewer ? "min-w-0 flex-shrink-0 w-[320px]" : ""}`}>
+            {/* Run selector and Download All */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-sm text-muted-foreground shrink-0">Run:</span>
+                <Select
+                  value={selectedRunId ?? ""}
+                  onValueChange={setSelectedRunId}
+                  disabled={loadingRuns || runs.length === 0}
+                >
+                  <SelectTrigger className="h-9 w-[220px] border-border">
+                    <SelectValue placeholder={loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {runs.map((run) => (
+                      <SelectItem key={run.id} value={String(run.id)}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Run #{run.id}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatRunTime(run.finishedAt ?? run.startedAt)}
+                          </span>
+                          {(run.fileCount ?? 0) > 0 && (
+                            <span className="text-xs text-muted-foreground">({run.fileCount} files)</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
+                disabled={loadingFiles || resultFiles.length === 0 || downloading}
+                onClick={handleDownloadAll}
+              >
+                {downloading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                Download All
+              </Button>
+            </div>
+
+            {/* File Explorer (export folder contents from DB) */}
+            <div className="rounded-md border border-border bg-background">
+              <div className="border-b border-border bg-secondary/50 px-3 py-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {currentRun ? `Run #${currentRun.id}` : ""} — {loadingFiles ? "Loading…" : `${totalFiles} files`}
+                </span>
+              </div>
+              <div className="h-[400px] overflow-auto p-2">
+                {loadingFiles && (
+                  <div className="flex items-center justify-center py-8 text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading output files…
+                  </div>
+                )}
+                {!loadingFiles && fileTree.length === 0 && (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    {runs.length === 0
+                      ? "No runs yet. Run the study to see outputs here."
+                      : resultFiles.length === 0
+                        ? "No output files saved for this run."
+                        : null}
+                  </div>
+                )}
+                {!loadingFiles &&
+                  fileTree.map((file) => (
+                    <FileTreeNode
+                      key={file.path}
+                      file={file}
+                      selectedFile={selectedFile}
+                      onSelectFile={setSelectedFile}
+                      onDownloadFile={handleDownloadFile}
+                      expandedFolders={expandedFolders}
+                      onToggleFolder={handleToggleFolder}
+                    />
+                  ))}
+              </div>
+            </div>
+
+            {/* Status bar */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{currentRun ? formatRunTime(currentRun.finishedAt ?? currentRun.startedAt) : "—"}</span>
+              <span className="truncate" title={selectedFile ?? undefined}>
+                {selectedFile ? `Selected: ${selectedFile}` : "Click a file to select, view, or download"}
               </span>
             </div>
-            <div className="h-[400px] overflow-auto p-2">
-              {loadingFiles && (
-                <div className="flex items-center justify-center py-8 text-muted-foreground">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading output files…
-                </div>
-              )}
-              {!loadingFiles && fileTree.length === 0 && (
-                <div className="py-8 text-center text-sm text-muted-foreground">
-                  {runs.length === 0
-                    ? "No runs yet. Run the study to see outputs here."
-                    : resultFiles.length === 0
-                      ? "No output files saved for this run."
-                      : null}
-                </div>
-              )}
-              {!loadingFiles &&
-                fileTree.map((file) => (
-                  <FileTreeNode
-                    key={file.path}
-                    file={file}
-                    selectedFile={selectedFile}
-                    onSelectFile={setSelectedFile}
-                    onDownloadFile={handleDownloadFile}
-                    expandedFolders={expandedFolders}
-                    onToggleFolder={handleToggleFolder}
-                  />
-                ))}
-            </div>
           </div>
 
-          {/* Status bar */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{currentRun ? formatRunTime(currentRun.finishedAt ?? currentRun.startedAt) : "—"}</span>
-            <span>{selectedFile ? `Selected: ${selectedFile}` : "Click a file to select or download"}</span>
-          </div>
+          {/* CSV / Text file viewer */}
+          {showViewer && (
+            <div className="flex flex-col min-w-0 flex-1 border border-border rounded-md bg-background">
+              <div className="border-b border-border bg-secondary/50 px-3 py-2 flex items-center justify-between">
+                <div className="min-w-0">
+                  <span className="text-sm font-medium text-muted-foreground truncate block">
+                    {selectedFile?.split("/").pop() ?? "Preview"}
+                  </span>
+                  {previewTruncated && (
+                    <span className="text-xs text-muted-foreground">Preview truncated for large file</span>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => selectedFile && handleDownloadFile(selectedFile)}
+                >
+                  <Download className="h-3.5 w-3.5 text-primary" />
+                </Button>
+              </div>
+              <div className="flex-1 min-h-[300px] max-h-[450px] overflow-hidden p-2">
+                {loadingContent ? (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading…
+                  </div>
+                ) : fileContent !== null && selectedFile ? (
+                  fileTypeFromPath(selectedFile) === "table" ? (
+                    <CsvFileViewer content={fileContent} className="h-full" />
+                  ) : (
+                    <TextFileViewer content={fileContent} className="h-full" />
+                  )
+                ) : null}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

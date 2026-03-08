@@ -52,11 +52,14 @@ public final class StudyRunResultExtractor {
                 if (name == null || name.contains("..")) {
                     continue;
                 }
-                // Strip leading path segment if present (e.g. "output/log.txt" -> "log.txt" or keep "output/log.txt")
+                // Store paths relative to the output folder (no leading "output/") so Browse Outputs and download use consistent paths.
                 String relativePath = name;
                 int slash = name.indexOf('/');
                 if (slash >= 0 && slash < name.length() - 1) {
                     relativePath = name.substring(slash + 1);
+                }
+                if (relativePath.startsWith("output/")) {
+                    relativePath = relativePath.substring(7);
                 }
                 if (relativePath.isEmpty()) {
                     continue;

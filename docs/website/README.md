@@ -14,6 +14,8 @@
 | [Installation](installation.md) | Technical details for installing and configuring Arachne |
 | [How to run studies](how-to-run-studies.md) | Step-by-step guide for using Arachne to run studies |
 | [Security](security.md) | Security overview: authentication, data protection, infrastructure, compliance, and reporting |
+| [Developer architecture](developer-architecture.md) | Runtime components, API flow, and Docker image/container lifecycle |
+| [Database state](database-state.md) | Study Repository schema and run/output state model |
 
 ---
 

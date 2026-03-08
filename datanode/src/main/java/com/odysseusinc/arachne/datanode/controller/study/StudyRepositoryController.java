@@ -49,8 +49,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,10 @@ import com.odysseusinc.arachne.datanode.service.study.StudyContainerService.DirE
 public class StudyRepositoryController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StudyRepositoryController.class);
+    private static final int FILE_PREVIEW_MAX_BYTES = 512 * 1024;
+    private static final Set<String> CSV_PREVIEW_EXTENSIONS = Set.of("csv");
+    private static final Set<String> TEXT_PREVIEW_EXTENSIONS = Set.of(
+            "txt", "log", "md", "out", "json", "yaml", "yml", "xml", "sql", "r", "tsv");
 
     private final StudyRepositoryPersistenceService studyService;
     private final StudyRepositoryConnectionService connectionService;
@@ -101,27 +107,30 @@ public class StudyRepositoryController {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("name is required");
         }
-        String version = request.getVersion() != null && !request.getVersion().isBlank()
-                ? request.getVersion()
-                : "latest";
+        NormalizedInstallRequest normalized = normalizeInstallRequest(request);
+        String name = normalized.name();
+        String version = normalized.version();
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("name is required");
+        }
         String catalogAddress = studyService.getCatalogAddress();
         if (catalogAddress == null || catalogAddress.isBlank()) {
             throw new IllegalStateException("Study catalog address is not configured. Set it in Settings.");
         }
-        boolean alreadyInstalled = studyService.studyPackageExists(request.getName(), version);
+        boolean alreadyInstalled = studyService.studyPackageExists(name, version);
         // Pull the Docker image from the registry (or refresh if already installed)
         connectionService.pullStudyImage(
-                request.getName(),
+                name,
                 version,
                 catalogAddress,
                 studyService.getCatalogToken(),
                 studyService.getCatalogUsername());
         if (alreadyInstalled) {
-            StudyPackage pkg = studyService.findStudyPackageByNameAndVersion(request.getName(), version)
+            StudyPackage pkg = studyService.findStudyPackageByNameAndVersion(name, version)
                     .orElseThrow(() -> new IllegalStateException("Study package disappeared"));
             return toDTO(pkg, null);
         }
-        StudyPackage pkg = studyService.createStudyPackage(request.getName(), version, catalogAddress);
+        StudyPackage pkg = studyService.createStudyPackage(name, version, catalogAddress);
         return toDTO(pkg, null);
     }
 
@@ -280,13 +289,13 @@ public class StudyRepositoryController {
         }
         String imageName = StudyContainerService.imageNameFor(
                 pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion());
-        String resolvedImage = containerService.resolveLocalImageName(imageName);
-        if (!resolvedImage.equals(imageName)) {
-            LOG.info("Study start: using local image {} (requested {} not present)", resolvedImage, imageName);
+        if (containerService.isDockerAvailable() && !containerService.hasImageLocally(imageName)) {
+            throw new IllegalStateException("Study image is not installed locally for this version. "
+                    + "Click Refresh to pull " + imageName + ".");
         }
-        LOG.info("Study start: starting Docker container for package id={}, image={}", id, resolvedImage);
+        LOG.info("Study start: starting Docker container for package id={}, image={}", id, imageName);
         List<String> env = studyService.getStudyEnvForContainer();
-        containerId = containerService.startContainer(resolvedImage, id, env);
+        containerId = containerService.startContainer(imageName, id, env);
         studyService.setStudyPackageContainerId(id, containerId);
         CodeFileService.CodeFileContent code = getCodeOrFromContainer(id, pkg, containerId);
         try {
@@ -431,37 +440,45 @@ public class StudyRepositoryController {
                 pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion());
         studyService.updateStudyRunDockerImage(run.getId(), dockerImage);
 
-        String logs;
-        StudyRun.StudyRunStatus status;
+        String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
+        String outputFolderPath = StudyContainerService.STUDY_WORKDIR + "/" + outputFolderName;
+
+        List<String> systemMessages = new ArrayList<>();
+        String executionLogs = "";
+        StudyRun.StudyRunStatus status = StudyRun.StudyRunStatus.FAILED;
         try {
-            logs = containerService.executeScriptInContainer(containerId, script);
+            // Clear output folder so we only capture this run's outputs (same container may have leftover files from a previous run)
+            containerService.clearOutputFolderInContainer(containerId, outputFolderName);
+            systemMessages.add("[system] Cleared output folder before run: " + outputFolderPath);
+            executionLogs = containerService.executeScriptInContainer(containerId, script);
             status = StudyRun.StudyRunStatus.COMPLETED;
+
+            if (status == StudyRun.StudyRunStatus.COMPLETED) {
+                List<Map.Entry<String, byte[]>> files = List.of();
+                try (InputStream tarStream = containerService.copyOutputFolderFromContainer(containerId, outputFolderName)) {
+                    if (tarStream != null) {
+                        files = StudyRunResultExtractor.extractFilesFromTar(tarStream);
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to copy result folder for run {}: {}", run.getId(), e.getMessage(), e);
+                    systemMessages.add("[system] Failed to copy output folder from container: " + e.getMessage());
+                }
+                studyService.saveStudyRunResultFiles(run.getId(), files);
+                systemMessages.add("[system] Saved " + files.size() + " result file(s) from " + outputFolderPath + " for run #" + run.getId() + ".");
+            }
         } catch (Exception e) {
-            logs = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            executionLogs = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             status = StudyRun.StudyRunStatus.FAILED;
         }
-
-        studyService.updateStudyRunStatus(run.getId(), status, null, logs);
-
-        if (status == StudyRun.StudyRunStatus.COMPLETED) {
-            String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
-            try (InputStream tarStream = containerService.copyOutputFolderFromContainer(containerId, outputFolderName)) {
-                if (tarStream != null) {
-                    var files = StudyRunResultExtractor.extractFilesFromTar(tarStream);
-                    if (!files.isEmpty()) {
-                        studyService.saveStudyRunResultFiles(run.getId(), files);
-                        studyService.updateStudyRunStatus(run.getId(), status, outputFolderName, null);
-                    }
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to copy result folder for run {}: {}", run.getId(), e.getMessage(), e);
-            }
-        }
+        String combinedLogs = mergeLogs(systemMessages, executionLogs);
+        studyService.updateStudyRunStatus(run.getId(), status,
+                status == StudyRun.StudyRunStatus.COMPLETED ? outputFolderName : null,
+                combinedLogs);
 
         Map<String, Object> result = new HashMap<>();
         result.put("runId", run.getId());
         result.put("status", status.name());
-        result.put("logs", logs != null ? logs : "");
+        result.put("logs", combinedLogs);
         return result;
     }
 
@@ -621,6 +638,64 @@ public class StudyRepositoryController {
     }
 
     /**
+     * Read-only preview for a result file (CSV/text-like only). Returns UTF-8 text content, size, and truncation flag.
+     */
+    @GetMapping("/packages/{packageId}/runs/{runId}/result-files/preview")
+    public Map<String, Object> previewResultFile(
+            @PathVariable Long packageId,
+            @PathVariable Long runId,
+            @RequestParam("path") String filePath) {
+        StudyRun run = studyService.findStudyRunById(runId)
+                .orElseThrow(() -> new ResourceNotFoundException("Study run not found: " + runId));
+        if (!run.getStudyPackage().getId().equals(packageId)) {
+            throw new ResourceNotFoundException("Study run not found for this package");
+        }
+        if (!isPreviewableTextFile(filePath)) {
+            throw new IllegalArgumentException("Preview supports only CSV and text files");
+        }
+        byte[] content = studyService.getStudyRunResultFileContent(runId, filePath)
+                .orElseThrow(() -> new ResourceNotFoundException("Result file not found: " + filePath));
+        int previewSize = Math.min(content.length, FILE_PREVIEW_MAX_BYTES);
+        String text = new String(content, 0, previewSize, StandardCharsets.UTF_8);
+        return Map.of(
+                "path", filePath,
+                "type", previewType(filePath),
+                "content", text,
+                "size", content.length,
+                "truncated", content.length > FILE_PREVIEW_MAX_BYTES);
+    }
+
+    /**
+     * Read-only preview for a file from the running study container (CSV/text-like only).
+     */
+    @GetMapping("/packages/{id}/container-files/preview")
+    public Map<String, Object> previewContainerFile(
+            @PathVariable Long id,
+            @RequestParam("path") String path) {
+        StudyPackage pkg = studyService.findStudyPackageById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
+        String containerId = pkg.getContainerId();
+        if (containerId == null || containerId.isBlank()) {
+            throw new IllegalStateException("Study container is not running. Open the study first.");
+        }
+        if (!containerService.isContainerRunning(containerId)) {
+            throw new IllegalStateException("Study container is no longer running. Open the study again.");
+        }
+        if (!isPreviewableTextFile(path)) {
+            throw new IllegalArgumentException("Preview supports only CSV and text files");
+        }
+        StudyContainerService.TextFilePreview preview = containerService
+                .readTextFilePreview(containerId, path, FILE_PREVIEW_MAX_BYTES)
+                .orElseThrow(() -> new ResourceNotFoundException("Container file not found: " + path));
+        return Map.of(
+                "path", preview.getPath(),
+                "type", previewType(path),
+                "content", preview.getContent(),
+                "size", preview.getSize(),
+                "truncated", preview.isTruncated());
+    }
+
+    /**
      * Refresh (pull) the study image from the registry so it is available locally.
      * Use when the study is registered but the image was removed or not yet pulled.
      */
@@ -654,9 +729,65 @@ public class StudyRepositoryController {
                 ? StudyContainerService.imageNameFor(pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion())
                 : null;
         dto.setImageInstalled(imageName != null && (localImages != null
-                ? StudyContainerService.hasRepositoryInSet(localImages, imageName)
+                ? StudyContainerService.hasImageInSet(localImages, imageName)
                 : containerService.hasImageLocally(imageName)));
         return dto;
+    }
+
+    private static String mergeLogs(List<String> systemMessages, String executionLogs) {
+        List<String> parts = new ArrayList<>();
+        if (systemMessages != null) {
+            parts.addAll(systemMessages.stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .toList());
+        }
+        if (executionLogs != null && !executionLogs.isBlank()) {
+            parts.add(executionLogs);
+        }
+        return String.join("\n", parts);
+    }
+
+    private static boolean isPreviewableTextFile(String path) {
+        String ext = extensionOf(path);
+        return CSV_PREVIEW_EXTENSIONS.contains(ext) || TEXT_PREVIEW_EXTENSIONS.contains(ext);
+    }
+
+    private static String previewType(String path) {
+        return CSV_PREVIEW_EXTENSIONS.contains(extensionOf(path)) ? "csv" : "text";
+    }
+
+    private static String extensionOf(String path) {
+        if (path == null || path.isBlank()) {
+            return "";
+        }
+        int slash = path.lastIndexOf('/');
+        String name = slash >= 0 ? path.substring(slash + 1) : path;
+        int dot = name.lastIndexOf('.');
+        if (dot < 0 || dot == name.length() - 1) {
+            return "";
+        }
+        return name.substring(dot + 1).toLowerCase();
+    }
+
+    private static NormalizedInstallRequest normalizeInstallRequest(InstallStudyRequestDTO request) {
+        String name = request.getName().trim();
+        String explicitVersion = request.getVersion() != null ? request.getVersion().trim() : "";
+        if (!explicitVersion.isEmpty()) {
+            return new NormalizedInstallRequest(name, explicitVersion);
+        }
+        int lastSlash = name.lastIndexOf('/');
+        int lastColon = name.lastIndexOf(':');
+        int digestMarker = name.indexOf('@');
+        boolean hasEmbeddedTag = lastColon > lastSlash && (digestMarker < 0 || lastColon < digestMarker);
+        if (!hasEmbeddedTag) {
+            return new NormalizedInstallRequest(name, "latest");
+        }
+        String parsedName = name.substring(0, lastColon).trim();
+        String parsedVersion = name.substring(lastColon + 1).trim();
+        return new NormalizedInstallRequest(parsedName, parsedVersion.isEmpty() ? "latest" : parsedVersion);
+    }
+
+    private record NormalizedInstallRequest(String name, String version) {
     }
 
     // --- Code Snippets ---

@@ -37,15 +37,20 @@ import {
   getCodeToRun,
   putCodeToRun,
   listContainerFiles,
+  previewContainerFile,
+  previewResultFile,
   getStudyRuns,
   getStudyRunResultFiles,
   downloadResultFile,
   type ContainerFileEntry,
+  type FilePreviewDTO,
   type CodeSnippetDTO,
   type StudyRunDTO,
   type StudyRunResultFileDTO,
 } from "../../api/study-repository"
 import { InsertSnippetModal } from "./insert-snippet-modal"
+import { CsvFileViewer } from "./CsvFileViewer"
+import { TextFileViewer } from "./TextFileViewer"
 import {
   Sheet,
   SheetContent,
@@ -58,7 +63,7 @@ interface OutputFile {
   path?: string
   /** For file nodes: path to send to download API (may include "output/" prefix). */
   downloadPath?: string
-  type: "folder" | "table" | "plot" | "html" | "file"
+  type: "folder" | "table" | "plot" | "html" | "text" | "file"
   size?: string
   children?: OutputFile[]
 }
@@ -69,12 +74,33 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function fileTypeFromPath(path: string): "folder" | "table" | "plot" | "html" | "file" {
+function fileTypeFromPath(path: string): "folder" | "table" | "plot" | "html" | "text" | "file" {
   const lower = path.toLowerCase()
-  if (lower.endsWith(".csv") || lower.endsWith(".xlsx") || lower.endsWith(".xls")) return "table"
+  if (lower.endsWith(".csv")) return "table"
   if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".svg")) return "plot"
   if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html"
+  if (
+    lower.endsWith(".txt") ||
+    lower.endsWith(".log") ||
+    lower.endsWith(".md") ||
+    lower.endsWith(".out") ||
+    lower.endsWith(".json") ||
+    lower.endsWith(".yaml") ||
+    lower.endsWith(".yml") ||
+    lower.endsWith(".xml") ||
+    lower.endsWith(".sql") ||
+    lower.endsWith(".r") ||
+    lower.endsWith(".tsv")
+  ) return "text"
   return "file"
+}
+
+function parseOutputFolderFromScript(script: string): string {
+  const m = script.match(
+    /outputFolder\s*(?:<-|=)\s*(?:here::here\s*\(\s*["']([^"']+)["']\s*\)|["']([^"']+)["'])/i
+  )
+  const parsed = (m?.[1] ?? m?.[2] ?? "output").trim()
+  return parsed || "output"
 }
 
 /** Build a tree from flat result file entries (paths relative to export folder, may start with "output/"). */
@@ -184,6 +210,8 @@ function ContainerFileTree({
   loadingPath,
   expandedPaths,
   onToggleExpand,
+  selectedFilePath,
+  onSelectFile,
 }: {
   path: string
   pathLabel: string
@@ -191,6 +219,8 @@ function ContainerFileTree({
   loadingPath: string | null
   expandedPaths: Set<string>
   onToggleExpand: (path: string) => void
+  selectedFilePath: string | null
+  onSelectFile: (path: string) => void
 }) {
   const isExpanded = expandedPaths.has(path)
   const entries = entriesByPath[path]
@@ -240,17 +270,29 @@ function ContainerFileTree({
                   loadingPath={loadingPath}
                   expandedPaths={expandedPaths}
                   onToggleExpand={onToggleExpand}
+                  selectedFilePath={selectedFilePath}
+                  onSelectFile={onSelectFile}
                 />
               ) : (
-                <div
-                  key={entry.name}
-                  className="flex cursor-default items-center gap-1 rounded px-2 py-1.5 text-sm hover:bg-secondary/50"
-                  style={{ paddingLeft: "24px" }}
-                >
-                  <span className="h-4 w-4" />
-                  <File className="h-4 w-4 text-muted-foreground" />
-                  <span className="truncate">{entry.name}</span>
-                </div>
+                (() => {
+                  const fullPath = path + "/" + entry.name
+                  const isSelected = selectedFilePath === fullPath
+                  return (
+                    <div
+                      key={entry.name}
+                      className={`flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 text-sm hover:bg-secondary/50 ${
+                        isSelected ? "bg-primary/10" : ""
+                      }`}
+                      style={{ paddingLeft: "24px" }}
+                      onClick={() => onSelectFile(fullPath)}
+                      title={fullPath}
+                    >
+                      <span className="h-4 w-4" />
+                      <File className="h-4 w-4 text-muted-foreground" />
+                      <span className="truncate">{entry.name}</span>
+                    </div>
+                  )
+                })()
               )
             )}
         </div>
@@ -273,6 +315,8 @@ function FileIcon({ type, isOpen }: { type: OutputFile["type"]; isOpen?: boolean
       return <FileImage className="h-4 w-4 text-[#9c27b0]" />
     case "html":
       return <FileText className="h-4 w-4 text-[#ff5722]" />
+    case "text":
+      return <FileText className="h-4 w-4 text-[#2196f3]" />
     default:
       return <File className="h-4 w-4 text-muted-foreground" />
   }
@@ -295,8 +339,8 @@ function FileTreeNode({
   expandedFolders: Set<string>
   onToggleFolder: (path: string) => void
 }) {
-  const pathKey = file.path ?? file.name
   const isFolder = file.type === "folder"
+  const pathKey = !isFolder && file.downloadPath ? file.downloadPath : (file.path ?? file.name)
   const isExpanded = expandedFolders.has(pathKey)
   const isSelected = selectedFile === pathKey
 
@@ -375,9 +419,9 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   const [scriptError, setScriptError] = useState<string | null>(null)
   const [conflictMessage, setConflictMessage] = useState<string | null>(null)
   const [phase, setPhase] = useState<RunPhase>("editing")
+  const [lastRunStatus, setLastRunStatus] = useState<string | null>(null)
   const [logs, setLogs] = useState<string[]>([])
   const [saved, setSaved] = useState(false)
-  const [copied, setCopied] = useState(false)
   const autosaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const versionRef = useRef(version)
   versionRef.current = version
@@ -385,6 +429,9 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
   const [resultFiles, setResultFiles] = useState<StudyRunResultFileDTO[]>([])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [resultFilePreview, setResultFilePreview] = useState<FilePreviewDTO | null>(null)
+  const [resultPreviewLoading, setResultPreviewLoading] = useState(false)
+  const [resultPreviewError, setResultPreviewError] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["output"]))
   const [loadingRuns, setLoadingRuns] = useState(false)
   const [loadingFiles, setLoadingFiles] = useState(false)
@@ -395,11 +442,20 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   const [containerEntriesByPath, setContainerEntriesByPath] = useState<Record<string, ContainerFileEntry[]>>({})
   const [containerLoadingPath, setContainerLoadingPath] = useState<string | null>(null)
   const [expandedContainerPaths, setExpandedContainerPaths] = useState<Set<string>>(new Set(["/code"]))
+  const [containerSelectedFilePath, setContainerSelectedFilePath] = useState<string | null>(null)
+  const [containerFilePreview, setContainerFilePreview] = useState<FilePreviewDTO | null>(null)
+  const [containerPreviewLoading, setContainerPreviewLoading] = useState(false)
+  const [containerPreviewError, setContainerPreviewError] = useState<string | null>(null)
 
   const resultsUrl = `http://localhost:3838/results/${study.id}`
   const packageId = Number(study.id)
   const currentRun = runs.find((r) => String(r.id) === selectedRunId)
   const fileTree = resultFiles.length > 0 ? buildFileTree(resultFiles) : []
+  const outputFolderName = parseOutputFolderFromScript(script)
+  const outputFolderPath = `/code/${outputFolderName}`
+  const selectedResultFileViewable = selectedFile != null && ["table", "text"].includes(fileTypeFromPath(selectedFile))
+  const selectedContainerFileViewable = containerSelectedFilePath != null
+    && ["table", "text"].includes(fileTypeFromPath(containerSelectedFilePath))
 
   // When opening the study, start the container and load DB-backed codeToRun.R (content + version)
   useEffect(() => {
@@ -480,14 +536,36 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   useEffect(() => {
     if (!selectedRunId) {
       setResultFiles([])
+      setSelectedFile(null)
       return
     }
+    setSelectedFile(null)
+    setResultFilePreview(null)
+    setResultPreviewError(null)
     setLoadingFiles(true)
     getStudyRunResultFiles(packageId, Number(selectedRunId))
       .then((data) => setResultFiles(Array.isArray(data) ? data : []))
       .catch(() => setResultFiles([]))
       .finally(() => setLoadingFiles(false))
   }, [packageId, selectedRunId])
+
+  // Load read-only preview for selected result file (CSV/text only)
+  useEffect(() => {
+    if (!selectedRunId || !selectedFile || !selectedResultFileViewable) {
+      setResultFilePreview(null)
+      setResultPreviewError(null)
+      return
+    }
+    setResultPreviewLoading(true)
+    setResultPreviewError(null)
+    previewResultFile(packageId, Number(selectedRunId), selectedFile)
+      .then((preview) => setResultFilePreview(preview))
+      .catch((e) => {
+        setResultFilePreview(null)
+        setResultPreviewError(e instanceof Error ? e.message : "Could not load file preview")
+      })
+      .finally(() => setResultPreviewLoading(false))
+  }, [packageId, selectedRunId, selectedFile, selectedResultFileViewable])
 
   // Load container directory when file explorer opens or user expands a folder
   useEffect(() => {
@@ -507,6 +585,31 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
       })
       .finally(() => setContainerLoadingPath(null))
   }, [fileExplorerOpen, expandedContainerPaths, containerEntriesByPath, containerLoadingPath, study.id, scriptLoading, scriptError])
+
+  // Load read-only preview for selected container file (CSV/text only)
+  useEffect(() => {
+    if (!fileExplorerOpen || !containerSelectedFilePath || !selectedContainerFileViewable) {
+      setContainerFilePreview(null)
+      setContainerPreviewError(null)
+      return
+    }
+    setContainerPreviewLoading(true)
+    setContainerPreviewError(null)
+    previewContainerFile(Number(study.id), containerSelectedFilePath)
+      .then((preview) => setContainerFilePreview(preview))
+      .catch((e) => {
+        setContainerFilePreview(null)
+        setContainerPreviewError(e instanceof Error ? e.message : "Could not load file preview")
+      })
+      .finally(() => setContainerPreviewLoading(false))
+  }, [fileExplorerOpen, containerSelectedFilePath, selectedContainerFileViewable, study.id])
+
+  useEffect(() => {
+    if (fileExplorerOpen) return
+    setContainerSelectedFilePath(null)
+    setContainerFilePreview(null)
+    setContainerPreviewError(null)
+  }, [fileExplorerOpen])
 
   const handleSave = () => {
     putCodeToRun(Number(study.id), { content: script, version })
@@ -530,6 +633,7 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
 
   const handleRun = async () => {
     setPhase("starting")
+    setLastRunStatus(null)
     setLogs([])
     try {
       setPhase("running")
@@ -538,19 +642,26 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
       const raw = result.logs ?? ""
       const lines = raw.split("\n")
       setLogs(lines.length > 0 ? lines : [raw || "(no output)"])
+      setLastRunStatus(result.status ?? "COMPLETED")
+      getStudyRuns(packageId)
+        .then((data) => {
+          const list = Array.isArray(data) ? data : []
+          setRuns(list)
+          if (list.length > 0) {
+            setSelectedRunId(String(list[0].id))
+          }
+        })
+        .catch(() => {
+          /* ignore refresh errors after run */
+        })
       setPhase("completed")
       onExecutionPhaseChange?.("completed")
     } catch (e) {
       setLogs([e instanceof Error ? e.message : "Execution failed"])
+      setLastRunStatus("FAILED")
       setPhase("completed")
       onExecutionPhaseChange?.("completed")
     }
-  }
-
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(resultsUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleInsertSnippet = (snippetContent: string) => {
@@ -690,9 +801,9 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
             <SheetTitle>Container files</SheetTitle>
           </SheetHeader>
           <p className="text-sm text-muted-foreground mt-1">
-            Files and folders inside the running study image (workdir /code).
+            Files and folders inside the running study image (workdir /code). CSV/text preview is read-only.
           </p>
-          <div className="flex-1 overflow-auto mt-4 rounded-md border border-border bg-secondary/30 min-h-0">
+          <div className="overflow-auto mt-4 rounded-md border border-border bg-secondary/30 min-h-0 h-[45%]">
             {containerLoadingPath === "/code" ? (
               <div className="flex items-center gap-2 p-4 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -706,7 +817,47 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
                 loadingPath={containerLoadingPath}
                 expandedPaths={expandedContainerPaths}
                 onToggleExpand={handleToggleContainerPath}
+                selectedFilePath={containerSelectedFilePath}
+                onSelectFile={setContainerSelectedFilePath}
               />
+            )}
+          </div>
+          <div className="mt-3 flex-1 min-h-0 rounded-md border border-border bg-background p-2">
+            {!containerSelectedFilePath && (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                Select a CSV/text file to preview it.
+              </div>
+            )}
+            {containerSelectedFilePath && !selectedContainerFileViewable && (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground text-center px-3">
+                Preview is available only for CSV and text files.
+              </div>
+            )}
+            {containerSelectedFilePath && selectedContainerFileViewable && containerPreviewLoading && (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading preview...
+              </div>
+            )}
+            {containerSelectedFilePath && selectedContainerFileViewable && containerPreviewError && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {containerPreviewError}
+              </div>
+            )}
+            {containerSelectedFilePath && selectedContainerFileViewable && !containerPreviewLoading && !containerPreviewError && containerFilePreview && (
+              <div className="h-full flex flex-col">
+                <div className="mb-2 text-xs text-muted-foreground">
+                  {containerFilePreview.path}
+                  {containerFilePreview.truncated ? " (preview truncated)" : ""}
+                </div>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  {containerFilePreview.type === "csv" ? (
+                    <CsvFileViewer content={containerFilePreview.content} className="h-full" />
+                  ) : (
+                    <TextFileViewer content={containerFilePreview.content} className="h-full" />
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </SheetContent>
@@ -789,6 +940,10 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
                 {conflictMessage}
               </div>
             )}
+            <div className="mb-3 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+              To include outputs for this run, write files under <span className="font-mono text-foreground">{outputFolderPath}</span>.
+              This folder is cleared automatically before each run.
+            </div>
             <div className="rounded-md border border-border bg-secondary/30">
               <div className="border-b border-border bg-secondary/50 px-3 py-2 text-sm font-medium text-muted-foreground">
                 codeToRun.R (saved in DB, synced to /workspace in container)
@@ -830,10 +985,16 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
                       {log}
                     </div>
                   ))}
-                  {phase === "completed" && (
+                  {phase === "completed" && lastRunStatus === "COMPLETED" && (
                     <div className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-2 text-success">
                       <CheckCircle className="h-4 w-4" />
                       Run completed without error
+                    </div>
+                  )}
+                  {phase === "completed" && lastRunStatus && lastRunStatus !== "COMPLETED" && (
+                    <div className="mt-4 flex items-center gap-2 rounded-md bg-destructive/20 p-2 text-destructive">
+                      <CheckCircle className="h-4 w-4" />
+                      Run finished with status: {lastRunStatus}
                     </div>
                   )}
                   <div ref={logEndRef} />
@@ -961,6 +1122,44 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
                 <span>
                   {selectedFile ? `Selected: ${selectedFile}` : "Click a file to select"}
                 </span>
+              </div>
+              <div className="mt-3 h-[250px] rounded-md border border-border bg-secondary/20 p-2">
+                {!selectedFile && (
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    Select a CSV/text output file to preview it.
+                  </div>
+                )}
+                {selectedFile && !selectedResultFileViewable && (
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    Preview is available only for CSV and text files.
+                  </div>
+                )}
+                {selectedFile && selectedResultFileViewable && resultPreviewLoading && (
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading preview...
+                  </div>
+                )}
+                {selectedFile && selectedResultFileViewable && resultPreviewError && (
+                  <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {resultPreviewError}
+                  </div>
+                )}
+                {selectedFile && selectedResultFileViewable && !resultPreviewLoading && !resultPreviewError && resultFilePreview && (
+                  <div className="h-full flex flex-col">
+                    <div className="mb-2 text-xs text-muted-foreground">
+                      {resultFilePreview.path}
+                      {resultFilePreview.truncated ? " (preview truncated)" : ""}
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                      {resultFilePreview.type === "csv" ? (
+                        <CsvFileViewer content={resultFilePreview.content} className="h-full" />
+                      ) : (
+                        <TextFileViewer content={resultFilePreview.content} className="h-full" />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

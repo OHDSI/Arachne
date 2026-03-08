@@ -51,9 +51,12 @@ You don’t need to re-download or re-install manually.
 3. When ready, an **editor** opens with a **single script** (e.g. `codeToRun.R`) where you enter:
    - Database connection details  
    - Study run parameters  
-4. **Edit the script**, then click **Save**.
-5. Click **Run study**. A **log viewer** shows progress; watch the log while the study runs.
-6. When it finishes successfully, you’ll see a clear message such as **“Run completed without error.”**
+4. Set or confirm `outputFolder` in the script. Files must be written under `/code/<outputFolder>` to be captured as run outputs.
+5. **Edit the script**, then click **Save**.
+6. Click **Run study**. A **log viewer** shows progress; watch the log while the study runs.
+   - Arachne clears `/code/<outputFolder>` before each run to avoid mixing previous files with the current run.
+   - The log includes system lines showing the output folder cleanup and how many files were saved for that run.
+7. When it finishes successfully, you’ll see **“Run completed without error.”** (or a non-success status if execution failed).
 
 Your edits (database connection, settings) are **saved with that study**. If you shutdown and start the study again later, the same script and edits are still there.
 
@@ -65,7 +68,10 @@ After a run:
 
 1. From the same place you ran the study (editor / run view), open **Browse outputs** or **Output files**.
 2. You’ll see a list of output files (tables, plots, etc.) produced by the study.
-3. Open or download files as needed.
+3. Select a CSV/text file to preview it in a **read-only viewer**.
+4. Download files as needed.
+
+You can also open **File explorer** in the run page to browse files in the running container (`/code`) and preview CSV/text files in a read-only panel.
 
 ---
 

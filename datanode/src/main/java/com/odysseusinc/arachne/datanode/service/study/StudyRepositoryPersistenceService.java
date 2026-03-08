@@ -214,12 +214,12 @@ public class StudyRepositoryPersistenceService {
     /** Save result files for a run (from the study output folder). Replaces any existing result files for this run. */
     @Transactional
     public void saveStudyRunResultFiles(Long runId, List<Map.Entry<String, byte[]>> files) {
-        if (files == null || files.isEmpty()) {
-            return;
-        }
         StudyRun run = studyRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Study run not found: " + runId));
         studyRunResultFileRepository.deleteByStudyRunId(runId);
+        if (files == null || files.isEmpty()) {
+            return;
+        }
         for (Map.Entry<String, byte[]> e : files) {
             String filePath = e.getKey();
             if (filePath == null || filePath.length() > 2048) continue;

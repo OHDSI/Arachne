@@ -33,6 +33,8 @@ nav:
   - Installation: installation.md
   - How to run studies: how-to-run-studies.md
   - Security: security.md
+  - Developer architecture: developer-architecture.md
+  - Database state: database-state.md
 
 plugins:
   - search

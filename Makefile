@@ -2,7 +2,7 @@
 # Backend: Maven (datanode + commons + executionengine). Frontend: datanode-ui (React, includes Study Repository).
 
 .PHONY: build build-backend build-datanode-ui \
-	start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui flush \
+	run start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui flush \
 	docs \
 	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-buttons \
 	buildtest full-stack-build-test clean help
@@ -12,6 +12,7 @@ help:
 	@echo "Arachne full stack"
 	@echo ""
 	@echo "  make build          Build backend (Maven; includes datanode-ui)"
+	@echo "  make run            Same as make start: build and run full stack"
 	@echo "  make start          Build and run full stack: Postgres (Docker) + backend (8880) + frontend (3000)"
 	@echo "  make stop           Shut down app and free ports 3000 (frontend) and 8880 (backend)"
 	@echo "  make restart        Stop then start full stack (stop + start)"
@@ -28,7 +29,7 @@ help:
 	@echo ""
 	@echo "  make test-backend   Maven test, unit only (skips Docker/Testcontainers integration tests)"
 	@echo "  make test-backend-integration   Maven test including integration tests (requires Docker)"
-	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 18; .nvmrc provided)"
+	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 20; .nvmrc provided)"
 	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
 	@echo "  make install-test  Run Study Repository install test (pulls image; may take several minutes)"
 	@echo "  make test-study-buttons  Pull example study image then print UI test steps for Loaded/Running buttons"
@@ -50,6 +51,9 @@ build-datanode-ui:
 	cd datanode-ui && npm ci && npm run build
 
 # --- Run ---
+# Alias for start (full stack).
+run: start
+
 # Full stack: Postgres (Docker) + backend + frontend. Ctrl+C stops frontend and backend.
 start:
 	./scripts/run-full-stack.sh

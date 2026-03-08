@@ -6,7 +6,8 @@ This page covers **technical details** for installing and configuring Arachne (d
 
 ## Prerequisites
 
-- **Docker** installed and running on the machine where studies will run. Arachne uses Docker to pull study images and run study containers.
+- **Docker** installed and running on the machine where studies will run.
+  Arachne Study Repository depends on Docker for pull/start/execute flows. The backend now fails fast at startup when Docker daemon is unreachable (default behavior via `datanode.studyRepository.requireDocker=true`).
 - **Java** (version required by the datanode; see project `pom.xml` or README).
 - **Node.js/npm** (or equivalent) if you build the datanode UI from source.
 
@@ -60,3 +61,14 @@ See `install/docker/README.md` for exact commands and port mapping.
 3. In Arachne, open **Study Repository**; you should see the list of installed studies (initially empty). Use **Install** with a study name from the catalog to pull your first study.
 
 If pulls or runs fail, check Docker daemon access, registry URL, and credentials.
+
+From the repo root, you can also run:
+
+```bash
+make env-test
+make install-test
+```
+
+Both commands now fail fast when Docker is unavailable, so they are useful as hard preflight checks for production-like local environments.
+
+If you need to run non-Docker unit tests in a special environment, you can explicitly disable startup enforcement with `datanode.studyRepository.requireDocker=false` (not recommended for real deployments).

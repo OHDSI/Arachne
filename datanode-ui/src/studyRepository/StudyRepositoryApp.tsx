@@ -141,9 +141,9 @@ export function StudyRepositoryApp() {
     setActiveStudyId(null);
   };
 
-  const handleInstallStudy = async (name: string) => {
+  const handleInstallStudy = async (input: string) => {
     try {
-      await installStudyPackage(name);
+      await installStudyPackage(input);
       await fetchPackages();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to install study");

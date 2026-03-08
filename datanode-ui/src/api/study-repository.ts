@@ -33,11 +33,39 @@ export function getStudyPackage(id: number): Promise<StudyPackageDTO> {
   return api.get(`/study-repository/packages/${id}`);
 }
 
+/**
+ * Parse "repo" or "repo:tag" into { name, version }.
+ * Example: "darwin-eu-dev/examplestudy:main" -> { name: "darwin-eu-dev/examplestudy", version: "main" }.
+ */
+export function parseStudyInstallInput(input: string): { name: string; version: string } {
+  const trimmed = input.trim();
+  const lastSlash = trimmed.lastIndexOf("/");
+  const lastColon = trimmed.lastIndexOf(":");
+  const digestMarker = trimmed.indexOf("@");
+  const hasEmbeddedTag =
+    lastColon > lastSlash && (digestMarker === -1 || lastColon < digestMarker);
+  if (!hasEmbeddedTag) {
+    return { name: trimmed, version: "latest" };
+  }
+  return {
+    name: trimmed.slice(0, lastColon).trim(),
+    version: trimmed.slice(lastColon + 1).trim() || "latest",
+  };
+}
+
 export function installStudyPackage(
   name: string,
   version?: string
 ): Promise<StudyPackageDTO> {
-  return api.post("/study-repository/packages", { name, version: version || "latest" });
+  const explicitVersion = version?.trim() || "";
+  const { name: reqName, version: reqVersion } =
+    explicitVersion !== ""
+      ? { name: name.trim(), version: explicitVersion }
+      : parseStudyInstallInput(name);
+  return api.post("/study-repository/packages", {
+    name: reqName,
+    version: reqVersion || "latest",
+  });
 }
 
 export function deleteStudyPackage(id: number): Promise<void> {
@@ -195,6 +223,24 @@ export function listContainerFiles(
   });
 }
 
+/** Read-only preview of a CSV/text file inside the running study container. */
+export type FilePreviewDTO = {
+  path: string;
+  type: "csv" | "text";
+  content: string;
+  size: number;
+  truncated: boolean;
+};
+
+export function previewContainerFile(
+  packageId: number,
+  path: string
+): Promise<FilePreviewDTO> {
+  return api.get(`/study-repository/packages/${packageId}/container-files/preview`, {
+    params: { path },
+  });
+}
+
 export type RepositoryTagsDTO = {
   repo: string;
   tags: string[];
@@ -247,6 +293,17 @@ export function downloadResultFile(
     `/study-repository/packages/${packageId}/runs/${runId}/result-files/download`,
     { params: { path: filePath }, responseType: "blob" }
   );
+}
+
+/** Read-only preview of a saved result file (CSV/text only). */
+export function previewResultFile(
+  packageId: number,
+  runId: number,
+  filePath: string
+): Promise<FilePreviewDTO> {
+  return api.get(`/study-repository/packages/${packageId}/runs/${runId}/result-files/preview`, {
+    params: { path: filePath },
+  });
 }
 
 // --- Code Snippets ---

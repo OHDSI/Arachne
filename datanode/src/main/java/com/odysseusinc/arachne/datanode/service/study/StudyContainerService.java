@@ -41,7 +41,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -160,7 +162,8 @@ public class StudyContainerService {
 
     /**
      * Start a container from the study image with working directory /code.
-     * Container runs tail -f /dev/null to stay alive. Binds container port 3838 (Shiny) to host port SHINY_PORT_BASE + packageId when packageId > 0.
+     * Container runs tail -f /dev/null to stay alive. Binds container port 3838 (Shiny) to host port
+     * SHINY_PORT_BASE + packageId when packageId > 0.
      * Environment variables from {@code env} (format "NAME=VALUE") are injected so codeToRun.R can use Sys.getenv().
      *
      * @param imageName full image name (e.g. registry/repo:tag)
@@ -173,7 +176,7 @@ public class StudyContainerService {
             throw new IllegalStateException("Docker is not available.");
         }
         LOG.info("Starting study Docker container for image: {}", imageName);
-        String name = "study-" + System.currentTimeMillis() + "-" + Math.abs(imageName.hashCode() % 10000);
+        String name = "study-" + UUID.randomUUID();
         var createCmd = dockerClient.createContainerCmd(imageName)
                 .withWorkingDir(STUDY_WORKDIR)
                 .withCmd("tail", "-f", "/dev/null")
@@ -183,7 +186,7 @@ public class StudyContainerService {
         }
         if (packageId > 0) {
             ExposedPort shinyPort = ExposedPort.tcp(SHINY_PORT_CONTAINER);
-            int hostPort = SHINY_PORT_BASE + (int) (packageId % 1000);
+            int hostPort = getShinyHostPort(packageId);
             Ports portBindings = new Ports();
             portBindings.bind(shinyPort, Ports.Binding.bindPort(hostPort));
             createCmd.withExposedPorts(shinyPort)
@@ -199,7 +202,11 @@ public class StudyContainerService {
 
     /** Host port for Shiny for a given package id (must match port binding used in startContainer). */
     public static int getShinyHostPort(long packageId) {
-        return SHINY_PORT_BASE + (int) (packageId % 1000);
+        long hostPort = SHINY_PORT_BASE + packageId;
+        if (hostPort > 65535) {
+            throw new IllegalArgumentException("No free fixed Shiny port available for package id " + packageId);
+        }
+        return (int) hostPort;
     }
 
     /**
@@ -279,52 +286,36 @@ public class StudyContainerService {
         return s.substring(0, lastColon);
     }
 
-    /**
-     * True if any image in {@code localImageNames} (each "repo:tag") has the same repository
-     * as {@code fullImageName}. This allows matching when the study version in DB (e.g. 1.0.0)
-     * differs from the actual image tag (e.g. main).
-     */
-    public static boolean hasRepositoryInSet(Set<String> localImageNames, String fullImageName) {
+    /** True if the exact image (repo:tag) is present in the provided local image set. */
+    public static boolean hasImageInSet(Set<String> localImageNames, String fullImageName) {
         if (fullImageName == null || fullImageName.isBlank() || localImageNames == null) return false;
-        String repo = repositoryFrom(fullImageName);
-        if (repo.isEmpty()) return false;
-        String prefix = repo + ":";
-        for (String s : localImageNames) {
-            if (s != null && (s.equals(repo) || s.startsWith(prefix))) return true;
-        }
-        return false;
+        return localImageNames.contains(fullImageName.trim());
     }
 
-    /** True if the given image (exact repo:tag) or any image with the same repository is present locally. */
+    /** True if the exact image (repo:tag) is present locally. */
     public boolean hasImageLocally(String imageName) {
         if (imageName == null || imageName.isBlank() || dockerClient == null) {
             return false;
         }
-        Set<String> local = listLocalImageNames();
-        String trimmed = imageName.trim();
-        return local.contains(trimmed) || hasRepositoryInSet(local, trimmed);
+        return hasImageInSet(listLocalImageNames(), imageName);
+    }
+
+    public boolean isDockerAvailable() {
+        return dockerClient != null;
     }
 
     /**
-     * Returns an image name that is present locally for the same repository as {@code preferredImageName}.
-     * Use this when starting a container so that e.g. preferred "repo:1.0.0" resolves to "repo:main" if
-     * that is the only tag available locally.
-     * @return the preferred name if it exists locally, otherwise any local "repo:tag" with the same repo, or the preferred name (start may then fail)
+     * Fail-fast validation for runtime startup: Docker client must exist and daemon must respond to ping.
      */
-    public String resolveLocalImageName(String preferredImageName) {
-        if (preferredImageName == null || preferredImageName.isBlank() || dockerClient == null) {
-            return preferredImageName != null ? preferredImageName.trim() : "";
+    public void requireDockerAvailable() {
+        if (dockerClient == null) {
+            throw new IllegalStateException("Docker is not available. This application requires Docker.");
         }
-        Set<String> local = listLocalImageNames();
-        String preferred = preferredImageName.trim();
-        if (local.contains(preferred)) return preferred;
-        String repo = repositoryFrom(preferred);
-        if (repo.isEmpty()) return preferred;
-        String prefix = repo + ":";
-        for (String s : local) {
-            if (s != null && (s.equals(repo) || s.startsWith(prefix))) return s;
+        try {
+            dockerClient.pingCmd().exec();
+        } catch (Exception e) {
+            throw new IllegalStateException("Docker daemon is not reachable. Start Docker and retry.", e);
         }
-        return preferred;
     }
 
     /** Returns true if the container exists and is running. */
@@ -456,6 +447,28 @@ public class StudyContainerService {
     }
 
     /**
+     * Clear the study output folder in the container so only this run's outputs are present when we copy.
+     * Prevents files from a previous run (same container) from being saved to the new run.
+     *
+     * @param containerId      running container id
+     * @param outputFolderName folder name (e.g. "output") as set in codeToRun.R
+     */
+    public void clearOutputFolderInContainer(String containerId, String outputFolderName) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) {
+            return;
+        }
+        String pathInContainer = resolveOutputFolderPath(outputFolderName);
+        String quotedPath = shellQuote(pathInContainer);
+        String cmd = "mkdir -p " + quotedPath + "; find " + quotedPath
+                + " -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +";
+        try {
+            execInContainer(containerId, "sh", "-c", cmd);
+        } catch (Exception e) {
+            LOG.warn("Could not clear output folder {} in container {}: {}", pathInContainer, containerId, e.getMessage());
+        }
+    }
+
+    /**
      * Copy the study output folder from the container as a tar stream.
      * The path in the container is {@code STUDY_WORKDIR + "/" + outputFolderName} (e.g. /code/output).
      * Caller must close the returned stream.
@@ -468,7 +481,7 @@ public class StudyContainerService {
         if (dockerClient == null || containerId == null || containerId.isBlank()) {
             return null;
         }
-        String pathInContainer = STUDY_WORKDIR + "/" + (outputFolderName != null && !outputFolderName.isBlank() ? outputFolderName : DEFAULT_OUTPUT_FOLDER);
+        String pathInContainer = resolveOutputFolderPath(outputFolderName);
         try {
             return dockerClient.copyArchiveFromContainerCmd(containerId, pathInContainer).exec();
         } catch (NotFoundException e) {
@@ -489,7 +502,7 @@ public class StudyContainerService {
         if (dockerClient == null) {
             throw new IllegalStateException("Docker is not available.");
         }
-        String tempName = "study-seed-" + System.currentTimeMillis() + "-" + Math.abs(imageName.hashCode() % 10000);
+        String tempName = "study-seed-" + UUID.randomUUID();
         CreateContainerResponse created = dockerClient.createContainerCmd(imageName)
                 .withCmd("tail", "-f", "/dev/null")
                 .withName(tempName)
@@ -555,6 +568,54 @@ public class StudyContainerService {
         return entries;
     }
 
+    /**
+     * Read a text-like file inside the running container for read-only preview.
+     * Path must be under {@value #STUDY_WORKDIR}. Returns at most {@code maxBytes}.
+     */
+    public Optional<TextFilePreview> readTextFilePreview(String containerId, String path, int maxBytes) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) {
+            return Optional.empty();
+        }
+        String normalized = normalizePathUnderWorkdir(path);
+        if (normalized == null) {
+            return Optional.empty();
+        }
+        int limit = maxBytes > 0 ? maxBytes : 256 * 1024;
+        String quotedPath = shellQuote(normalized);
+        String sizeOut = execInContainer(containerId, "sh", "-c",
+                "if [ -f " + quotedPath + " ]; then wc -c < " + quotedPath + "; else echo -1; fi");
+        long size = parseLongOrDefault(sizeOut, -1L);
+        if (size < 0) {
+            return Optional.empty();
+        }
+        String content = execInContainer(containerId, "sh", "-c", "head -c " + limit + " " + quotedPath);
+        return Optional.of(new TextFilePreview(normalized, content != null ? content : "", size, size > limit));
+    }
+
+    private static String shellQuote(String value) {
+        return "'" + value.replace("'", "'\"'\"'") + "'";
+    }
+
+    private static long parseLongOrDefault(String raw, long defaultValue) {
+        if (raw == null) return defaultValue;
+        String trimmed = raw.trim();
+        if (trimmed.isEmpty()) return defaultValue;
+        try {
+            return Long.parseLong(trimmed);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static String resolveOutputFolderPath(String outputFolderName) {
+        String folder = outputFolderName != null && !outputFolderName.isBlank() ? outputFolderName : DEFAULT_OUTPUT_FOLDER;
+        String normalized = normalizePathUnderWorkdir(STUDY_WORKDIR + "/" + folder);
+        if (normalized == null) {
+            throw new IllegalArgumentException("outputFolder must resolve under " + STUDY_WORKDIR + ": " + folder);
+        }
+        return normalized;
+    }
+
     /** Path must be under STUDY_WORKDIR; returns normalized path (forward slashes) or null if invalid. */
     private static String normalizePathUnderWorkdir(String path) {
         if (path == null || path.isBlank()) return STUDY_WORKDIR;
@@ -580,6 +641,26 @@ public class StudyContainerService {
 
         public String getName() { return name; }
         public Type getType() { return type; }
+    }
+
+    /** Read-only text preview payload from a container file. */
+    public static final class TextFilePreview {
+        private final String path;
+        private final String content;
+        private final long size;
+        private final boolean truncated;
+
+        public TextFilePreview(String path, String content, long size, boolean truncated) {
+            this.path = path;
+            this.content = content;
+            this.size = size;
+            this.truncated = truncated;
+        }
+
+        public String getPath() { return path; }
+        public String getContent() { return content; }
+        public long getSize() { return size; }
+        public boolean isTruncated() { return truncated; }
     }
 
     /**

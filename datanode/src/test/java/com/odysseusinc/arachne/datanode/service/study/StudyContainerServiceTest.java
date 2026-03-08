@@ -17,6 +17,7 @@ package com.odysseusinc.arachne.datanode.service.study;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
@@ -50,6 +53,9 @@ class StudyContainerServiceTest {
     @Mock
     private StartContainerCmd startContainerCmd;
 
+    @Mock
+    private PingCmd pingCmd;
+
     private StudyContainerService service;
 
     @BeforeEach
@@ -63,6 +69,8 @@ class StudyContainerServiceTest {
         createResponse.setId(TEST_CONTAINER_ID);
         lenient().when(createContainerCmd.exec()).thenReturn(createResponse);
         lenient().when(dockerClient.startContainerCmd(anyString())).thenReturn(startContainerCmd);
+        lenient().when(dockerClient.pingCmd()).thenReturn(pingCmd);
+        lenient().doNothing().when(pingCmd).exec();
     }
 
     @Test
@@ -79,6 +87,12 @@ class StudyContainerServiceTest {
     void imageNameFor_accepts_bare_hostname() {
         assertThat(StudyContainerService.imageNameFor("executionengine.azurecr.io", "team/examplestudy", "main"))
                 .isEqualTo("executionengine.azurecr.io/team/examplestudy:main");
+    }
+
+    @Test
+    void getShinyHostPort_uses_unique_port_per_package_id() {
+        assertThat(StudyContainerService.getShinyHostPort(1L)).isEqualTo(3839);
+        assertThat(StudyContainerService.getShinyHostPort(1001L)).isEqualTo(4839);
     }
 
     @Test
@@ -115,6 +129,22 @@ class StudyContainerServiceTest {
         verify(createContainerCmd).exec();
         verify(dockerClient).startContainerCmd(TEST_CONTAINER_ID);
         verify(startContainerCmd).exec();
+    }
+
+    @Test
+    void requireDockerAvailable_throws_when_docker_client_missing() {
+        var serviceNoDocker = new StudyContainerService(null);
+        assertThatThrownBy(serviceNoDocker::requireDockerAvailable)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires Docker");
+    }
+
+    @Test
+    void requireDockerAvailable_throws_when_daemon_not_reachable() {
+        doThrow(new RuntimeException("cannot connect")).when(pingCmd).exec();
+        assertThatThrownBy(service::requireDockerAvailable)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("not reachable");
     }
 
     @Test
