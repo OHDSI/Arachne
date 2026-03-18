@@ -8,7 +8,8 @@ This page covers **technical details** for installing and configuring Arachne (d
 
 - **Docker** installed and running on the machine where studies will run.
   Arachne Study Repository depends on Docker for pull/start/execute flows. The backend now fails fast at startup when Docker daemon is unreachable (default behavior via `datanode.studyRepository.requireDocker=true`).
-- **Java** (version required by the datanode; see project `pom.xml` or README).
+- **Java 17**.
+  The Maven build targets Java 17. On machines with multiple JDKs installed, the project scripts and `Makefile` now prefer `openjdk@17` when available.
 - **Node.js/npm** (or equivalent) if you build the datanode UI from source.
 
 ---

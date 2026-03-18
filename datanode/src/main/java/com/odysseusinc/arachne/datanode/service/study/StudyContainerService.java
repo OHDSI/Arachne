@@ -609,17 +609,25 @@ public class StudyContainerService {
 
     private static String resolveOutputFolderPath(String outputFolderName) {
         String folder = outputFolderName != null && !outputFolderName.isBlank() ? outputFolderName : DEFAULT_OUTPUT_FOLDER;
-        String normalized = normalizePathUnderWorkdir(STUDY_WORKDIR + "/" + folder);
+        String candidate = folder.startsWith("/") ? folder : STUDY_WORKDIR + "/" + folder;
+        String normalized = normalizePathUnderWorkdir(candidate);
         if (normalized == null) {
             throw new IllegalArgumentException("outputFolder must resolve under " + STUDY_WORKDIR + ": " + folder);
         }
         return normalized;
     }
 
+    /**
+     * Resolve an output folder value from codeToRun.R into an absolute path inside the container.
+     * Accepts both relative values like "output" and absolute values like "/code/output".
+     */
+    public static String outputFolderPathFor(String outputFolderName) {
+        return resolveOutputFolderPath(outputFolderName);
+    }
+
     /** Path must be under STUDY_WORKDIR; returns normalized path (forward slashes) or null if invalid. */
     private static String normalizePathUnderWorkdir(String path) {
         if (path == null || path.isBlank()) return STUDY_WORKDIR;
-        if (path.contains("..")) return null;
         String normalized = Paths.get(path).normalize().toString().replace('\\', '/');
         if (!normalized.startsWith("/")) normalized = "/" + normalized;
         if (!normalized.startsWith(STUDY_WORKDIR + "/") && !normalized.equals(STUDY_WORKDIR)) {

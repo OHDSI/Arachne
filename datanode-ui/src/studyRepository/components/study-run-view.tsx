@@ -103,6 +103,15 @@ function parseOutputFolderFromScript(script: string): string {
   return parsed || "output"
 }
 
+function outputFolderPathFromScript(script: string): string {
+  const folder = parseOutputFolderFromScript(script)
+  return folder.startsWith("/code/") || folder === "/code" ? folder : `/code/${folder}`
+}
+
+function downloadNameFromPath(filePath: string): string {
+  return filePath.replaceAll("\\", "/").replaceAll("/", "__")
+}
+
 /** Build a tree from flat result file entries (paths relative to export folder, may start with "output/"). */
 function buildFileTree(entries: StudyRunResultFileDTO[]): OutputFile[] {
   const root: OutputFile = { name: "output", path: "output", type: "folder", children: [] }
@@ -451,8 +460,7 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   const packageId = Number(study.id)
   const currentRun = runs.find((r) => String(r.id) === selectedRunId)
   const fileTree = resultFiles.length > 0 ? buildFileTree(resultFiles) : []
-  const outputFolderName = parseOutputFolderFromScript(script)
-  const outputFolderPath = `/code/${outputFolderName}`
+  const outputFolderPath = outputFolderPathFromScript(script)
   const selectedResultFileViewable = selectedFile != null && ["table", "text"].includes(fileTypeFromPath(selectedFile))
   const selectedContainerFileViewable = containerSelectedFilePath != null
     && ["table", "text"].includes(fileTypeFromPath(containerSelectedFilePath))
@@ -674,7 +682,7 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
     setDownloading(true)
     try {
       const blob = await downloadResultFile(packageId, Number(selectedRunId), filePath)
-      const name = filePath.includes("/") ? filePath.slice(filePath.lastIndexOf("/") + 1) : filePath
+      const name = downloadNameFromPath(filePath)
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
@@ -693,7 +701,7 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
       for (const f of resultFiles) {
         try {
           const blob = await downloadResultFile(packageId, Number(selectedRunId), f.filePath)
-          const name = f.filePath.includes("/") ? f.filePath.slice(f.filePath.lastIndexOf("/") + 1) : f.filePath
+          const name = downloadNameFromPath(f.filePath)
           const url = URL.createObjectURL(blob)
           const a = document.createElement("a")
           a.href = url

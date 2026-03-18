@@ -6,6 +6,12 @@
 set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+JAVA17_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+
+if [[ -d "$JAVA17_HOME" ]]; then
+  export JAVA_HOME="$JAVA17_HOME"
+  export PATH="$JAVA_HOME/bin:$PATH"
+fi
 
 BACKEND_PID_FILE="${REPO_ROOT}/.run-backend.pid"
 cleanup() {

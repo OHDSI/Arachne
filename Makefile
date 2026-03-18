@@ -7,6 +7,9 @@
 	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-buttons \
 	buildtest full-stack-build-test clean help
 
+JAVA17_HOME := /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+MVN_ENV = if [ -d "$(JAVA17_HOME)" ]; then export JAVA_HOME="$(JAVA17_HOME)"; export PATH="$$JAVA_HOME/bin:$$PATH"; fi;
+
 # Default: show help
 help:
 	@echo "Arachne full stack"
@@ -45,7 +48,7 @@ help:
 build: build-backend
 
 build-backend:
-	mvn -q install -DskipTests -pl datanode -am
+	@$(MVN_ENV) mvn -q install -DskipTests -pl datanode -am
 
 build-datanode-ui:
 	cd datanode-ui && npm ci && npm run build
@@ -93,7 +96,7 @@ flush: unlock-ui
 run-backend: build-backend
 	@if [ -f datanode/config/datanode.env ]; then set -a && . datanode/config/datanode.env && set +a; fi; \
 	export DOCKER_HOST="unix:///var/run/docker.sock"; \
-	mvn -q spring-boot:run -pl datanode -am -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xmx1024m"
+	$(MVN_ENV) mvn -q spring-boot:run -pl datanode -am -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xmx1024m"
 
 # Use Docker Postgres (install/docker): start postgres only then run backend with DB on 5434.
 # Example: make run-docker-db && SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5434/arachne_datanode make run-backend
@@ -123,11 +126,11 @@ test: test-backend test-datanode-ui
 # Use package (not just test) so datanode-ui is built to a JAR before datanode's unpack goal runs (MDEP-98).
 # Skips integration tests (TestRunner/Cucumber, UploadServiceTest, ValidatorTest) unless Docker is available.
 test-backend:
-	mvn package -pl datanode -am
+	@$(MVN_ENV) mvn package -pl datanode -am
 
 # Run all tests including integration (requires Docker for Testcontainers).
 test-backend-integration:
-	mvn package -pl datanode -am -P integration
+	@$(MVN_ENV) mvn package -pl datanode -am -P integration
 
 # Use Node from .nvmrc when nvm is available (canvas native module fails on Node 21+).
 test-datanode-ui:
@@ -162,5 +165,5 @@ buildtest full-stack-build-test:
 
 # --- Clean ---
 clean:
-	mvn -q clean -pl datanode -am
+	@$(MVN_ENV) mvn -q clean -pl datanode -am
 	cd datanode-ui && (test ! -d build || rm -rf build) && (test ! -d target || rm -rf target)

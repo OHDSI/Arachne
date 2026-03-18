@@ -23,6 +23,7 @@ import com.odysseusinc.arachne.datanode.service.study.StudyContainerService;
 import com.odysseusinc.arachne.datanode.service.study.StudyRepositoryConnectionService;
 import com.odysseusinc.arachne.datanode.service.study.StudyRepositoryPersistenceService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,6 +90,25 @@ class StudyRepositoryControllerTest {
     }
 
     @Test
+    void startShiny_accepts_absolute_output_folder_path() {
+        StudyPackage pkg = new StudyPackage();
+        pkg.setId(42L);
+        pkg.setVersion("main");
+        pkg.setContainerId("container-1");
+
+        when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
+        when(containerService.isContainerRunning("container-1")).thenReturn(true);
+        when(containerService.isShinyRunning("container-1")).thenReturn(false);
+        when(codeFileService.getOrSeedCodeFile(42L, "main", CodeFileService.DEFAULT_PATH))
+                .thenReturn(new CodeFileService.CodeFileContent("outputFolder <- '/code/custom-output'", 3));
+        when(request.getServerName()).thenReturn("localhost");
+
+        controller.startShiny(42L, request);
+
+        verify(containerService).startShinyApp("container-1", "/code/custom-output");
+    }
+
+    @Test
     void executeStudy_without_request_script_uses_db_backed_code_file() {
         StudyPackage pkg = new StudyPackage();
         pkg.setId(42L);
@@ -140,17 +160,61 @@ class StudyRepositoryControllerTest {
         when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
         when(containerService.isContainerRunning("container-1")).thenReturn(true);
         when(studyService.createStudyRun(42L)).thenReturn(run);
-        org.mockito.Mockito.doThrow(new IllegalArgumentException("outputFolder must resolve under /code: ../../tmp"))
-                .when(containerService).clearOutputFolderInContainer("container-1", "../../tmp");
 
         Map<String, Object> response = controller.executeStudy(42L, Map.of("script", script));
 
+        verify(containerService, never()).clearOutputFolderInContainer(eq("container-1"), anyString());
         verify(containerService, never()).executeScriptInContainer(eq("container-1"), anyString());
         verify(studyService, never()).saveStudyRunResultFiles(eq(101L), anyList());
         verify(studyService).updateStudyRunStatus(eq(101L), eq(StudyRun.StudyRunStatus.FAILED), eq(null), eq((String) response.get("logs")));
         assertThat(response).containsEntry("runId", 101L);
         assertThat(response).containsEntry("status", "FAILED");
         assertThat((String) response.get("logs")).contains("outputFolder must resolve under /code");
+    }
+
+    @Test
+    void executeStudy_logs_absolute_output_folder_without_double_prefix() {
+        StudyPackage pkg = new StudyPackage();
+        pkg.setId(42L);
+        pkg.setName("team/example");
+        pkg.setVersion("main");
+        pkg.setCatalogAddress("https://registry.example.com");
+        pkg.setContainerId("container-1");
+
+        StudyRun run = new StudyRun();
+        run.setId(102L);
+        run.setStartedAt(Instant.now());
+
+        String script = "outputFolder <- '/code/output'";
+        when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
+        when(containerService.isContainerRunning("container-1")).thenReturn(true);
+        when(studyService.createStudyRun(42L)).thenReturn(run);
+        when(containerService.executeScriptInContainer("container-1", script)).thenReturn("ok");
+
+        Map<String, Object> response = controller.executeStudy(42L, Map.of("script", script));
+
+        verify(containerService).clearOutputFolderInContainer("container-1", "/code/output");
+        assertThat((String) response.get("logs")).contains("Cleared output folder before run: /code/output");
+        assertThat((String) response.get("logs")).doesNotContain("/code//code/output");
+    }
+
+    @Test
+    void downloadResultFile_preserves_relative_path_in_filename() {
+        StudyPackage pkg = new StudyPackage();
+        pkg.setId(42L);
+
+        StudyRun run = new StudyRun();
+        run.setId(100L);
+        run.setStudyPackage(pkg);
+
+        when(studyService.findStudyRunById(100L)).thenReturn(Optional.of(run));
+        when(studyService.getStudyRunResultFileContent(100L, "nested/output.csv"))
+                .thenReturn(Optional.of("a,b\n1,2".getBytes()));
+
+        ResponseEntity<byte[]> response = controller.downloadResultFile(42L, 100L, "nested/output.csv");
+
+        String disposition = response.getHeaders().getFirst("Content-Disposition");
+        assertThat(disposition).contains("nested__output.csv");
     }
 
     @Test

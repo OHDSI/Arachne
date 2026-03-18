@@ -96,6 +96,28 @@ class StudyContainerServiceTest {
     }
 
     @Test
+    void outputFolderPathFor_accepts_relative_and_absolute_paths_under_code() {
+        assertThat(StudyContainerService.outputFolderPathFor("output"))
+                .isEqualTo("/code/output");
+        assertThat(StudyContainerService.outputFolderPathFor("/code/output"))
+                .isEqualTo("/code/output");
+        assertThat(StudyContainerService.outputFolderPathFor("nested/results"))
+                .isEqualTo("/code/nested/results");
+        assertThat(StudyContainerService.outputFolderPathFor("/code/a..b"))
+                .isEqualTo("/code/a..b");
+    }
+
+    @Test
+    void outputFolderPathFor_rejects_paths_outside_code() {
+        assertThatThrownBy(() -> StudyContainerService.outputFolderPathFor("../../tmp"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolve under /code");
+        assertThatThrownBy(() -> StudyContainerService.outputFolderPathFor("/tmp/output"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolve under /code");
+    }
+
+    @Test
     void imageNameFor_throws_when_catalog_address_invalid() {
         assertThatThrownBy(() -> StudyContainerService.imageNameFor("", "a", "b"))
                 .isInstanceOf(IllegalArgumentException.class)

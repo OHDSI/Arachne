@@ -78,6 +78,10 @@ function fileTypeFromPath(path: string): OutputFile["type"] {
   return "file"
 }
 
+function downloadNameFromPath(filePath: string): string {
+  return filePath.replaceAll("\\", "/").replaceAll("/", "__")
+}
+
 /** Build a tree from flat paths (e.g. "log.txt", "cohorts/summary.csv"). Root node is "output" (export folder). */
 function buildFileTree(entries: StudyRunResultFileDTO[]): OutputFile[] {
   const root: OutputFile = { name: "output", path: "output", type: "folder", children: [] }
@@ -317,7 +321,7 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
       setDownloading(true)
       try {
         const blob = await downloadResultFile(packageId, Number(selectedRunId), filePath)
-        const name = filePath.includes("/") ? filePath.slice(filePath.lastIndexOf("/") + 1) : filePath
+        const name = downloadNameFromPath(filePath)
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
@@ -338,7 +342,7 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
       for (const f of resultFiles) {
         try {
           const blob = await downloadResultFile(packageId, Number(selectedRunId), f.filePath)
-          const name = f.filePath.includes("/") ? f.filePath.slice(f.filePath.lastIndexOf("/") + 1) : f.filePath
+          const name = downloadNameFromPath(f.filePath)
           const url = URL.createObjectURL(blob)
           const a = document.createElement("a")
           a.href = url

@@ -373,7 +373,7 @@ public class StudyRepositoryController {
         if (!alreadyRunning) {
             String script = getCurrentStudyScript(id, pkg.getVersion());
             String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
-            String outputFolderPath = StudyContainerService.STUDY_WORKDIR + "/" + outputFolderName;
+            String outputFolderPath = StudyContainerService.outputFolderPathFor(outputFolderName);
             containerService.startShinyApp(containerId, outputFolderPath);
         }
         String url = buildShinyUrl(request, id);
@@ -441,12 +441,11 @@ public class StudyRepositoryController {
         studyService.updateStudyRunDockerImage(run.getId(), dockerImage);
 
         String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
-        String outputFolderPath = StudyContainerService.STUDY_WORKDIR + "/" + outputFolderName;
-
         List<String> systemMessages = new ArrayList<>();
         String executionLogs = "";
         StudyRun.StudyRunStatus status = StudyRun.StudyRunStatus.FAILED;
         try {
+            String outputFolderPath = StudyContainerService.outputFolderPathFor(outputFolderName);
             // Clear output folder so we only capture this run's outputs (same container may have leftover files from a previous run)
             containerService.clearOutputFolderInContainer(containerId, outputFolderName);
             systemMessages.add("[system] Cleared output folder before run: " + outputFolderPath);
@@ -628,7 +627,7 @@ public class StudyRepositoryController {
         }
         return studyService.getStudyRunResultFileContent(runId, filePath)
                 .map(content -> {
-                    String filename = filePath.contains("/") ? filePath.substring(filePath.lastIndexOf('/') + 1) : filePath;
+                    String filename = sanitizedDownloadName(filePath);
                     String sanitizedFilename = filename.replaceAll("[\"\\r\\n]", "_");
                     return ResponseEntity.ok()
                             .header("Content-Disposition", "attachment; filename=\"" + sanitizedFilename + "\"")
@@ -767,6 +766,14 @@ public class StudyRepositoryController {
             return "";
         }
         return name.substring(dot + 1).toLowerCase();
+    }
+
+    private static String sanitizedDownloadName(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            return "download";
+        }
+        return filePath.replace('\\', '/')
+                .replace("/", "__");
     }
 
     private static NormalizedInstallRequest normalizeInstallRequest(InstallStudyRequestDTO request) {
