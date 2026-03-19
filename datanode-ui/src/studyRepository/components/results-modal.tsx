@@ -133,7 +133,7 @@ export function ResultsModal({ study, open, onClose }: ResultsModalProps) {
 
           <p className="text-sm text-muted-foreground">
             Launch the interactive results viewer (Shiny app) in the study container. It uses the
-            output folder from your last run. If the app is already running, open the tab or stop it below.
+            latest saved results from the most recent completed run. If the app is already running, open the tab or stop it below.
           </p>
 
           {loading ? (

@@ -16,8 +16,9 @@
 package com.odysseusinc.arachne.datanode.controller.study;
 
 import com.odysseusinc.arachne.datanode.dto.study.InstallStudyRequestDTO;
-import com.odysseusinc.arachne.datanode.model.study.StudyRun;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
+import com.odysseusinc.arachne.datanode.model.study.StudyRun;
+import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
 import com.odysseusinc.arachne.datanode.service.study.CodeFileService;
 import com.odysseusinc.arachne.datanode.service.study.StudyContainerService;
 import com.odysseusinc.arachne.datanode.service.study.StudyRepositoryConnectionService;
@@ -38,8 +39,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,42 +72,80 @@ class StudyRepositoryControllerTest {
     }
 
     @Test
-    void startShiny_prefers_db_backed_code_file_over_legacy_package_script() {
+    void startShiny_restores_saved_results_in_running_container() {
         StudyPackage pkg = new StudyPackage();
         pkg.setId(42L);
         pkg.setVersion("main");
         pkg.setContainerId("container-1");
 
+        StudyRun run = new StudyRun();
+        run.setId(100L);
+        run.setResultPath("saved-output");
+
+        StudyRunResultFile resultFile = new StudyRunResultFile();
+        resultFile.setFilePath("nested/output.csv");
+        resultFile.setContent("a,b\n1,2".getBytes());
+
         when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
+        when(studyService.findLatestRunWithSavedResults(42L)).thenReturn(Optional.of(run));
+        when(studyService.getStudyRunResultFiles(100L)).thenReturn(List.of(resultFile));
         when(containerService.isContainerRunning("container-1")).thenReturn(true);
         when(containerService.isShinyRunning("container-1")).thenReturn(false);
-        when(codeFileService.getOrSeedCodeFile(42L, "main", CodeFileService.DEFAULT_PATH))
-                .thenReturn(new CodeFileService.CodeFileContent("outputFolder <- 'fresh-output'", 3));
         when(request.getServerName()).thenReturn("localhost");
 
-        controller.startShiny(42L, request);
+        Map<String, Object> response = controller.startShiny(42L, request);
 
-        verify(containerService).startShinyApp("container-1", "/code/fresh-output");
-        verify(containerService, never()).startShinyApp("container-1", "/code/legacy-output");
+        verify(containerService).restoreOutputFolderInContainer(eq("container-1"), eq("saved-output"),
+                argThat(files -> files.size() == 1
+                        && "nested/output.csv".equals(files.get(0).getKey())));
+        verify(containerService).startShinyApp("container-1", "/code/saved-output");
+        assertThat(response).containsEntry("running", true);
+        assertThat(response).containsEntry("url", "http://localhost:3880");
     }
 
     @Test
-    void startShiny_accepts_absolute_output_folder_path() {
+    void startShiny_starts_container_and_uses_saved_absolute_output_path() {
+        StudyPackage pkg = new StudyPackage();
+        pkg.setId(42L);
+        pkg.setName("team/example");
+        pkg.setVersion("main");
+        pkg.setCatalogAddress("https://registry.example.com");
+
+        StudyRun run = new StudyRun();
+        run.setId(101L);
+        run.setResultPath("/code/custom-output");
+
+        when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
+        when(studyService.findLatestRunWithSavedResults(42L)).thenReturn(Optional.of(run));
+        when(studyService.getStudyEnvForContainer()).thenReturn(List.of("KEY=VALUE"));
+        when(containerService.startContainer("registry.example.com/team/example:main", 42L, List.of("KEY=VALUE")))
+                .thenReturn("container-2");
+        when(containerService.isShinyRunning("container-2")).thenReturn(false);
+        when(request.getServerName()).thenReturn("localhost");
+
+        controller.startShiny(42L, request);
+
+        verify(studyService).setStudyPackageContainerId(42L, "container-2");
+        verify(containerService).restoreOutputFolderInContainer(eq("container-2"), eq("/code/custom-output"), anyList());
+        verify(containerService).startShinyApp("container-2", "/code/custom-output");
+    }
+
+    @Test
+    void startShiny_requires_saved_results() {
         StudyPackage pkg = new StudyPackage();
         pkg.setId(42L);
         pkg.setVersion("main");
         pkg.setContainerId("container-1");
 
         when(studyService.findStudyPackageById(42L)).thenReturn(Optional.of(pkg));
-        when(containerService.isContainerRunning("container-1")).thenReturn(true);
-        when(containerService.isShinyRunning("container-1")).thenReturn(false);
-        when(codeFileService.getOrSeedCodeFile(42L, "main", CodeFileService.DEFAULT_PATH))
-                .thenReturn(new CodeFileService.CodeFileContent("outputFolder <- '/code/custom-output'", 3));
-        when(request.getServerName()).thenReturn("localhost");
+        when(studyService.findLatestRunWithSavedResults(42L)).thenReturn(Optional.empty());
 
-        controller.startShiny(42L, request);
+        assertThatThrownBy(() -> controller.startShiny(42L, request))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No saved study results");
 
-        verify(containerService).startShinyApp("container-1", "/code/custom-output");
+        verify(containerService, never()).startShinyApp(eq("container-1"), anyString());
+        verify(containerService, never()).startContainer(anyString(), eq(42L), anyList());
     }
 
     @Test

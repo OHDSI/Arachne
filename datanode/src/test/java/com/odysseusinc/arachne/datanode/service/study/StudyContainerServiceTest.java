@@ -17,8 +17,15 @@ package com.odysseusinc.arachne.datanode.service.study;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.ExecCreateCmd;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.command.ExecStartCmd;
+import com.github.dockerjava.api.command.InspectExecCmd;
+import com.github.dockerjava.api.command.InspectExecResponse;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.StreamType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,6 +63,21 @@ class StudyContainerServiceTest {
     @Mock
     private PingCmd pingCmd;
 
+    @Mock
+    private ExecCreateCmd execCreateCmd;
+
+    @Mock
+    private ExecCreateCmdResponse execCreateCmdResponse;
+
+    @Mock
+    private ExecStartCmd execStartCmd;
+
+    @Mock
+    private InspectExecCmd inspectExecCmd;
+
+    @Mock
+    private InspectExecResponse inspectExecResponse;
+
     private StudyContainerService service;
 
     @BeforeEach
@@ -71,6 +93,24 @@ class StudyContainerServiceTest {
         lenient().when(dockerClient.startContainerCmd(anyString())).thenReturn(startContainerCmd);
         lenient().when(dockerClient.pingCmd()).thenReturn(pingCmd);
         lenient().doNothing().when(pingCmd).exec();
+        lenient().when(dockerClient.execCreateCmd(anyString())).thenReturn(execCreateCmd);
+        lenient().when(execCreateCmd.withCmd(any(String[].class))).thenReturn(execCreateCmd);
+        lenient().when(execCreateCmd.withAttachStdout(true)).thenReturn(execCreateCmd);
+        lenient().when(execCreateCmd.withAttachStderr(true)).thenReturn(execCreateCmd);
+        lenient().when(execCreateCmd.exec()).thenReturn(execCreateCmdResponse);
+        lenient().when(execCreateCmdResponse.getId()).thenReturn("exec-123");
+        lenient().when(dockerClient.execStartCmd("exec-123")).thenReturn(execStartCmd);
+        lenient().when(dockerClient.inspectExecCmd("exec-123")).thenReturn(inspectExecCmd);
+        lenient().when(inspectExecCmd.exec()).thenReturn(inspectExecResponse);
+        lenient().when(inspectExecResponse.getExitCodeLong()).thenReturn(0L);
+        lenient().when(execStartCmd.exec(any())).thenAnswer(invocation -> {
+            Object callback = invocation.getArgument(0);
+            if (callback instanceof com.github.dockerjava.core.command.ExecStartResultCallback execCallback) {
+                execCallback.onNext(new Frame(StreamType.STDOUT, "ok".getBytes()));
+                execCallback.onComplete();
+            }
+            return callback;
+        });
     }
 
     @Test
@@ -194,5 +234,37 @@ class StudyContainerServiceTest {
         assertThatThrownBy(() -> service.syncCodeToRunningContainer(null, "content"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("containerId");
+    }
+
+    @Test
+    void execInContainer_returns_output_when_exit_code_zero() {
+        String output = service.execInContainer("container-1", "sh", "-c", "echo ok");
+
+        assertThat(output).contains("ok");
+        verify(dockerClient).inspectExecCmd("exec-123");
+    }
+
+    @Test
+    void execInContainer_throws_when_exit_code_non_zero() {
+        lenient().when(inspectExecResponse.getExitCodeLong()).thenReturn(1L);
+
+        assertThatThrownBy(() -> service.execInContainer("container-1", "sh", "-c", "exit 1"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("exit code 1")
+                .hasMessageContaining("ok");
+    }
+
+    @Test
+    void startShinyApp_escapes_globalenv_variable_for_shell() {
+        service.startShinyApp("container-1", "/code/output");
+
+        ArgumentCaptor<String[]> cmdCaptor = ArgumentCaptor.forClass(String[].class);
+        verify(execCreateCmd).withCmd(cmdCaptor.capture());
+        assertThat(cmdCaptor.getValue()).containsExactly(
+                "sh",
+                "-c",
+                "nohup R -e \"shinySettings <- list(dataFolder='/code/output'); .GlobalEnv\\$shinySettings <- shinySettings; "
+                        + "shiny::runApp(system.file('ResultsExplorer', package='ExampleStudy', mustWork=TRUE), "
+                        + "host='0.0.0.0', port=3838, launch.browser=FALSE)\" >> /tmp/shiny.log 2>&1 & echo $! > /tmp/shiny.pid");
     }
 }

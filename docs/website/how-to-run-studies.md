@@ -56,6 +56,7 @@ You don’t need to re-download or re-install manually.
 6. Click **Run study**. A **log viewer** shows progress; watch the log while the study runs.
    - Arachne clears `/code/<outputFolder>` before each run to avoid mixing previous files with the current run.
    - The log includes system lines showing the output folder cleanup and how many files were saved for that run.
+   - Keep interactive viewer startup out of `codeToRun.R`; use the dedicated **View results** action after the run completes.
 7. When it finishes successfully, you’ll see **“Run completed without error.”** (or a non-success status if execution failed).
 
 Your edits (database connection, settings) are **saved with that study**. If you shutdown and start the study again later, the same script and edits are still there.
@@ -78,7 +79,7 @@ You can also open **File explorer** in the run page to browse files in the runni
 ## 7. View results in an interactive app
 
 1. For a study that has produced results, click **View results**.
-2. Arachne starts the interactive results viewer (e.g. a Shiny app) for that study.
+2. Arachne restores the latest saved output snapshot for the most recent completed run, then starts the interactive results viewer (e.g. a Shiny app).
 3. A **link (URL)** is shown in the UI—open it in a new browser tab or copy it.
 4. Use the link to explore results; you can copy or open it again from the UI.
 

@@ -2,6 +2,14 @@
 
 This guide describes how to test the **Loaded** (green light) and **Running** (spinner) status indicators and related buttons using the **example study container** (`darwin-eu-dev/examplestudy`).
 
+For the automated end-to-end check that installs the example study, runs it, persists outputs, stops the container, and launches Shiny from saved results, run:
+
+```bash
+make test-study-e2e
+```
+
+The automated test verifies that the restored Shiny app serves HTML successfully from inside the restarted study container, which avoids false negatives from environment-specific host port forwarding.
+
 ## Prerequisites
 
 - **Docker** running (Docker Desktop or engine with socket available).
@@ -45,11 +53,18 @@ This runs the same integration test that pulls `darwin-eu-dev/examplestudy:main`
 ## 5. Test the “Running” indicator (spinner)
 
 1. Click **Run** on **examplestudy** again to open the run view.
-2. Leave the default `codeToRun.R` (or edit if you like). Click **Run study**.
+2. Leave the default `codeToRun.R` (or edit if you like). It should write files into `outputFolder` and not launch Shiny directly. Click **Run study**.
 3. **In the list**: switch back to the repository view (e.g. click “Study Repository” in the sidebar or open the list in another tab). You should see **“Running”** with the **spinner** for that study while R is executing.
 4. When the run finishes, the list updates: **“Running”** disappears and you see **“Loaded”** again (or **“Results ready”** if the run produced results).
 
-## 6. Test Shutdown
+## 6. Test View Results from saved outputs
+
+1. After the run completes, click **Shutdown** to stop the study container.
+2. From the repository list, click **View results** for the same study.
+3. Arachne should restart the container, restore the latest saved output snapshot, and open the Shiny URL without errors.
+4. The results explorer should load successfully even though the original run container was stopped.
+
+## 7. Test Shutdown
 
 1. With the study **Loaded** (or **Running**), click **Shutdown** (square icon) for that study.
 2. Confirm. The status should return to **Idle** (grey circle).

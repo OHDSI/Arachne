@@ -46,6 +46,14 @@ The backend is not optional for execution: if Docker is unavailable, startup fai
 3. For preview, UI calls `GET /runs/{runId}/result-files/preview` (read-only CSV/text).
 4. For download, UI calls `GET /runs/{runId}/result-files/download`.
 
+## View results flow
+
+1. UI calls `POST /packages/{id}/shiny/start`.
+2. Backend finds the latest completed run that has persisted result files.
+3. Backend starts or reuses the study container.
+4. Backend restores the saved output snapshot back into the run's saved `resultPath`.
+5. Backend launches the Shiny viewer against that restored folder and returns the host URL.
+
 ---
 
 ## 3. Docker image and container lifecycle
@@ -71,6 +79,7 @@ The backend is not optional for execution: if Docker is unavailable, startup fai
 3. Execute script.
 4. Copy output folder to backend and persist files under current run id.
 5. Store run logs with system messages indicating clear/save behavior.
+6. When Shiny is launched later, restore the saved files back into the container output path before starting the viewer.
 
 Because each run writes under a distinct `study_runs.id`, every run has an independent saved output snapshot (possibly empty).
 

@@ -25,6 +25,7 @@ import com.odysseusinc.arachne.datanode.model.study.StudyEnvironmentVariable;
 import com.odysseusinc.arachne.datanode.exception.ResourceNotFoundException;
 import com.odysseusinc.arachne.datanode.model.study.StudyPackage;
 import com.odysseusinc.arachne.datanode.model.study.StudyRun;
+import com.odysseusinc.arachne.datanode.model.study.StudyRunResultFile;
 import com.odysseusinc.arachne.datanode.service.study.CodeFileService;
 import com.odysseusinc.arachne.datanode.service.study.StudyContainerService;
 import com.odysseusinc.arachne.datanode.service.study.StudyRepositoryConnectionService;
@@ -271,32 +272,7 @@ public class StudyRepositoryController {
     public Map<String, Object> startStudy(@PathVariable Long id) {
         StudyPackage pkg = studyService.findStudyPackageById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
-        String containerId = pkg.getContainerId();
-        if (containerId != null && !containerId.isBlank() && containerService.isContainerRunning(containerId)) {
-            LOG.info("Study start: reusing existing container for package id={}, containerId={}", id, containerId);
-            CodeFileService.CodeFileContent code = getCodeOrFromContainer(id, pkg, containerId);
-            try {
-                codeFileService.syncCodeToRunningContainer(containerId, code.getContent());
-            } catch (Exception e) {
-                LOG.warn("Study start: could not sync code to container {}: {}", containerId, e.getMessage());
-            }
-            return Map.of("script", code.getContent(), "version", code.getVersion());
-        }
-        if (containerId != null && !containerId.isBlank()) {
-            LOG.info("Study start: stopping stale container for package id={}, containerId={}", id, containerId);
-            containerService.stopContainer(containerId);
-            containerId = null;
-        }
-        String imageName = StudyContainerService.imageNameFor(
-                pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion());
-        if (containerService.isDockerAvailable() && !containerService.hasImageLocally(imageName)) {
-            throw new IllegalStateException("Study image is not installed locally for this version. "
-                    + "Click Refresh to pull " + imageName + ".");
-        }
-        LOG.info("Study start: starting Docker container for package id={}, image={}", id, imageName);
-        List<String> env = studyService.getStudyEnvForContainer();
-        containerId = containerService.startContainer(imageName, id, env);
-        studyService.setStudyPackageContainerId(id, containerId);
+        String containerId = ensureStudyContainerRunning(id, pkg);
         CodeFileService.CodeFileContent code = getCodeOrFromContainer(id, pkg, containerId);
         try {
             codeFileService.syncCodeToRunningContainer(containerId, code.getContent());
@@ -320,6 +296,36 @@ public class StudyRepositoryController {
             String script = containerService.getCodeToRunFromContainer(containerId);
             return new CodeFileService.CodeFileContent(script != null ? script : "", 0);
         }
+    }
+
+    private String ensureStudyContainerRunning(Long id, StudyPackage pkg) {
+        String containerId = pkg.getContainerId();
+        if (containerId != null && !containerId.isBlank() && containerService.isContainerRunning(containerId)) {
+            LOG.info("Study start: reusing existing container for package id={}, containerId={}", id, containerId);
+            containerService.ensureStudyPackageInstalled(containerId);
+            return containerId;
+        }
+        if (containerId != null && !containerId.isBlank()) {
+            LOG.info("Study start: stopping stale container for package id={}, containerId={}", id, containerId);
+            containerService.stopContainer(containerId);
+        }
+        String imageName = StudyContainerService.imageNameFor(
+                pkg.getCatalogAddress(), pkg.getName(), pkg.getVersion());
+        if (containerService.isDockerAvailable() && !containerService.hasImageLocally(imageName)) {
+            throw new IllegalStateException("Study image is not installed locally for this version. "
+                    + "Click Refresh to pull " + imageName + ".");
+        }
+        LOG.info("Study start: starting Docker container for package id={}, image={}", id, imageName);
+        List<String> env = studyService.getStudyEnvForContainer();
+        String startedContainerId = containerService.startContainer(imageName, id, env);
+        studyService.setStudyPackageContainerId(id, startedContainerId);
+        containerService.ensureStudyPackageInstalled(startedContainerId);
+        LOG.info("Study start: container ready for package id={}, containerId={}", id, startedContainerId);
+        return startedContainerId;
+    }
+
+    private static Map.Entry<String, byte[]> toSavedResultEntry(StudyRunResultFile file) {
+        return Map.entry(file.getFilePath(), file.getContent());
     }
 
     /**
@@ -362,17 +368,16 @@ public class StudyRepositoryController {
     public Map<String, Object> startShiny(@PathVariable Long id, HttpServletRequest request) {
         StudyPackage pkg = studyService.findStudyPackageById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
-        String containerId = pkg.getContainerId();
-        if (containerId == null || containerId.isBlank()) {
-            throw new IllegalStateException("Study container is not running. Open the study first.");
-        }
-        if (!containerService.isContainerRunning(containerId)) {
-            throw new IllegalStateException("Study container is no longer running. Open the study again.");
-        }
+        StudyRun run = studyService.findLatestRunWithSavedResults(id)
+                .orElseThrow(() -> new IllegalStateException("No saved study results are available yet. Run the study first."));
+        String containerId = ensureStudyContainerRunning(id, pkg);
         boolean alreadyRunning = containerService.isShinyRunning(containerId);
         if (!alreadyRunning) {
-            String script = getCurrentStudyScript(id, pkg.getVersion());
-            String outputFolderName = StudyContainerService.parseOutputFolderFromScript(script);
+            List<Map.Entry<String, byte[]>> files = studyService.getStudyRunResultFiles(run.getId()).stream()
+                    .map(StudyRepositoryController::toSavedResultEntry)
+                    .toList();
+            String outputFolderName = run.getResultPath();
+            containerService.restoreOutputFolderInContainer(containerId, outputFolderName, files);
             String outputFolderPath = StudyContainerService.outputFolderPathFor(outputFolderName);
             containerService.startShinyApp(containerId, outputFolderPath);
         }

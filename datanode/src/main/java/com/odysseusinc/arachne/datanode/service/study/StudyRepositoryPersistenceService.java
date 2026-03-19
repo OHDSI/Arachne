@@ -159,7 +159,19 @@ public class StudyRepositoryPersistenceService {
     @Transactional(readOnly = true)
     public boolean studyHasResults(Long studyPackageId) {
         return studyRunRepository.findByStudyPackageIdOrderByStartedAtDesc(studyPackageId).stream()
-                .anyMatch(r -> r.getStatus() == StudyRun.StudyRunStatus.COMPLETED && r.getResultPath() != null);
+                .anyMatch(r -> r.getStatus() == StudyRun.StudyRunStatus.COMPLETED
+                        && r.getResultPath() != null
+                        && studyRunResultFileRepository.countByStudyRunId(r.getId()) > 0);
+    }
+
+    /** Latest completed run that has a saved output folder and at least one persisted result file. */
+    @Transactional(readOnly = true)
+    public Optional<StudyRun> findLatestRunWithSavedResults(Long studyPackageId) {
+        return studyRunRepository.findByStudyPackageIdOrderByStartedAtDesc(studyPackageId).stream()
+                .filter(r -> r.getStatus() == StudyRun.StudyRunStatus.COMPLETED)
+                .filter(r -> r.getResultPath() != null && !r.getResultPath().isBlank())
+                .filter(r -> studyRunResultFileRepository.countByStudyRunId(r.getId()) > 0)
+                .findFirst();
     }
 
     /** True if the study has at least one run in RUNNING status. */

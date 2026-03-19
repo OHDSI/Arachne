@@ -83,8 +83,15 @@ public class StudyContainerService {
     private static final int SHINY_PORT_BASE = 3838;
     private static final String SHINY_LOG_PATH = "/tmp/shiny.log";
     private static final String SHINY_PID_PATH = "/tmp/shiny.pid";
-    /** R function to launch results viewer (ExampleStudy NAMESPACE: export(launchResultsExplorer); first arg = dataFolder). */
-    private static final String SHINY_LAUNCH_EXPR = "ExampleStudy::launchResultsExplorer('%s', launch.browser=FALSE)";
+    /**
+     * Launch the ExampleStudy results app on the container's fixed Shiny port.
+     * The image's helper launches on a random port, so Arachne starts the app directly.
+     */
+    private static final String SHINY_LAUNCH_EXPR =
+            "shinySettings <- list(dataFolder='%s'); "
+                    + ".GlobalEnv\\$shinySettings <- shinySettings; "
+                    + "shiny::runApp(system.file('ResultsExplorer', package='ExampleStudy', mustWork=TRUE), "
+                    + "host='0.0.0.0', port=%d, launch.browser=FALSE)";
 
     private final DockerClient dockerClient;
 
@@ -218,7 +225,7 @@ public class StudyContainerService {
      */
     public void startShinyApp(String containerId, String outputFolderPath) {
         if (dockerClient == null || containerId == null || containerId.isBlank()) return;
-        String expr = String.format(SHINY_LAUNCH_EXPR, outputFolderPath.replace("'", "'\\''"));
+        String expr = String.format(SHINY_LAUNCH_EXPR, outputFolderPath.replace("'", "'\\''"), SHINY_PORT_CONTAINER);
         String cmd = "nohup R -e \"" + expr + "\" >> " + SHINY_LOG_PATH + " 2>&1 & echo $! > " + SHINY_PID_PATH;
         execInContainer(containerId, "sh", "-c", cmd);
         LOG.info("Started Shiny app in container {} with dataFolder={}", containerId, outputFolderPath);
@@ -376,6 +383,29 @@ public class StudyContainerService {
     }
 
     /**
+     * Ensure the study package defined in /code/DESCRIPTION is installed in the running container.
+     * This makes study images resilient when the source is copied into the image but not installed.
+     */
+    public void ensureStudyPackageInstalled(String containerId) {
+        if (dockerClient == null || containerId == null || containerId.isBlank()) {
+            return;
+        }
+        String packageName = execInContainer(containerId, "sh", "-c",
+                "if [ -f /code/DESCRIPTION ]; then awk -F': ' '$1==\"Package\" {print $2; exit}' /code/DESCRIPTION; fi");
+        String trimmedName = packageName != null ? packageName.trim() : "";
+        if (trimmedName.isEmpty()) {
+            return;
+        }
+        String installed = execInContainer(containerId, "R", "-q", "-e",
+                "pkg <- " + shellQuote(trimmedName) + "; cat(if (requireNamespace(pkg, quietly = TRUE)) 'yes' else 'no')");
+        if (installed != null && installed.trim().endsWith("yes")) {
+            return;
+        }
+        LOG.info("Installing study package {} from /code in container {}", trimmedName, containerId);
+        execInContainer(containerId, "sh", "-c", "cd /code && R CMD INSTALL /code");
+    }
+
+    /**
      * Run the given R script in the container: write script to /tmp/codeToRun_run.R, then Rscript it.
      * Returns combined stdout and stderr. Script content is base64-decoded in the container to handle newlines.
      */
@@ -411,7 +441,15 @@ public class StudyContainerService {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Exec interrupted", e);
         }
-        return out.get() != null ? out.get() : "";
+        String output = out.get() != null ? out.get() : "";
+        Integer exitCode = Optional.ofNullable(dockerClient.inspectExecCmd(execCreate.getId()).exec())
+                .map(resp -> resp.getExitCodeLong() != null ? resp.getExitCodeLong().intValue() : resp.getExitCode())
+                .orElse(null);
+        if (exitCode != null && exitCode != 0) {
+            throw new IllegalStateException("Container command failed with exit code " + exitCode
+                    + (output.isBlank() ? "" : ": " + output.trim()));
+        }
+        return output;
     }
 
     @SuppressWarnings("deprecation")
@@ -592,6 +630,44 @@ public class StudyContainerService {
         return Optional.of(new TextFilePreview(normalized, content != null ? content : "", size, size > limit));
     }
 
+    /**
+     * Restore persisted result files into the output folder inside the running container.
+     * Used when launching the Shiny viewer from saved run results after reopening a study.
+     */
+    public void restoreOutputFolderInContainer(String containerId, String outputFolderName, List<Map.Entry<String, byte[]>> files) {
+        if (dockerClient == null) {
+            throw new IllegalStateException("Docker is not available.");
+        }
+        if (containerId == null || containerId.isBlank()) {
+            throw new IllegalArgumentException("containerId is required");
+        }
+        clearOutputFolderInContainer(containerId, outputFolderName);
+        String outputRoot = resolveOutputFolderPath(outputFolderName);
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, byte[]> file : files) {
+            String relativePath = normalizeRelativeFilePath(file.getKey());
+            if (relativePath == null) {
+                LOG.warn("Skipping invalid saved result path during restore: {}", file.getKey());
+                continue;
+            }
+            String absolutePath = normalizePathUnderWorkdir(outputRoot + "/" + relativePath);
+            if (absolutePath == null) {
+                LOG.warn("Skipping out-of-bounds saved result path during restore: {}", file.getKey());
+                continue;
+            }
+            String parent = absolutePath.contains("/")
+                    ? absolutePath.substring(0, absolutePath.lastIndexOf('/'))
+                    : outputRoot;
+            String encoded = Base64.getEncoder().encodeToString(file.getValue() != null ? file.getValue() : new byte[0]);
+            execInContainer(containerId, "sh", "-c",
+                    "mkdir -p " + shellQuote(parent)
+                            + " && printf %s " + shellQuote(encoded)
+                            + " | base64 -d > " + shellQuote(absolutePath));
+        }
+    }
+
     private static String shellQuote(String value) {
         return "'" + value.replace("'", "'\"'\"'") + "'";
     }
@@ -623,6 +699,17 @@ public class StudyContainerService {
      */
     public static String outputFolderPathFor(String outputFolderName) {
         return resolveOutputFolderPath(outputFolderName);
+    }
+
+    private static String normalizeRelativeFilePath(String path) {
+        if (path == null || path.isBlank()) {
+            return null;
+        }
+        String normalized = Paths.get(path).normalize().toString().replace('\\', '/');
+        if (normalized.startsWith("/") || normalized.equals("..") || normalized.startsWith("../")) {
+            return null;
+        }
+        return normalized;
     }
 
     /** Path must be under STUDY_WORKDIR; returns normalized path (forward slashes) or null if invalid. */

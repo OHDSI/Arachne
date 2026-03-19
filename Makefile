@@ -4,7 +4,7 @@
 .PHONY: build build-backend build-datanode-ui \
 	run start restart run-backend run-datanode-ui run-docker run-docker-db stop unlock-ui flush \
 	docs \
-	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-buttons \
+	test test-backend test-backend-integration test-datanode-ui env-test install-test test-study-e2e test-study-buttons \
 	buildtest full-stack-build-test clean help
 
 JAVA17_HOME := /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
@@ -35,6 +35,7 @@ help:
 	@echo "  make test-datanode-ui     npm test in datanode-ui (use Node 20; .nvmrc provided)"
 	@echo "  make env-test      Run Study Repository check-connection (same as UI button) using ARACHNE_DOCKER_REGISTRY_* from datanode/config/datanode.env"
 	@echo "  make install-test  Run Study Repository install test (pulls image; may take several minutes)"
+	@echo "  make test-study-e2e  Install the example study, run it, persist outputs, then launch Shiny from saved results"
 	@echo "  make test-study-buttons  Pull example study image then print UI test steps for Loaded/Running buttons"
 	@echo ""
 	@echo "  make buildtest             Run full stack build test (backend)"
@@ -144,6 +145,10 @@ env-test:
 # May take several minutes while the Docker image is pulled from the registry.
 install-test:
 	./scripts/install-test.sh
+
+# Run the full Study Repository example-study flow: install -> run -> persist outputs -> relaunch Shiny from saved results.
+test-study-e2e:
+	./scripts/test-study-e2e.sh
 
 # Pull example study image then print steps to test Loaded/Running buttons in the UI. Requires datanode.env with registry credentials.
 # Start the app (make start) in another terminal, then follow the printed steps. See docs/TESTING_STUDY_REPOSITORY_UI.md for full guide.
