@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "6a68950dea1b055b28f92e308ffb1ffdcf784772",
+  "prompts": {
+    "25fdb288e1ee3c20": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ff9b2a94-968c-486f-9734-6ab7b704f428",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Konstantin Iaroshovets",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 1,
+      "accepted_lines": 6340,
+      "overriden_lines": 0
+    }
+  }
+}
