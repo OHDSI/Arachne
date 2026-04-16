@@ -5,12 +5,12 @@
 # ---------------------------------------------------------------------------
 spring:
   datasource:
-    url: ${spring.datasource.url:jdbc:postgresql://localhost:5432/arachne_datanode}
-    username: ${spring.datasource.username:ohdsi-user}
-    password: ${spring.datasource.password:ohdsi-password}
-    driver-class-name: ${spring.datasource.driver-class-name:org.postgresql.Driver}
-    platform: ${spring.datasource.platform:postgresql}
-    connection-test-query: ${spring.datasource.connection-test-query:select 1}
+    url: jdbc:postgresql://localhost:5434/arachne_datanode
+    username: ohdsi-user
+    password: ohdsi-password
+    driver-class-name: org.postgresql.Driver
+    platform: postgresql
+    connection-test-query: select 1
 
 server:
   compression:
@@ -162,10 +162,6 @@ management:
     ldap:
       enabled: false
 security:
-  # When true, no login is required; all requests use the anonymous user (see anonymousUsername).
-  loginDisabled: true
-  # Username of the user to use as principal when login is disabled (must exist and be enabled).
-  anonymousUsername: admin
   jwt.token:
     secretKey: ${datanode.jwt.secret}
     validityInSeconds: ${datanode.jwt.expiration}

@@ -65,7 +65,7 @@ class StudyRepositoryControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new StudyRepositoryController(studyService, connectionService, containerService, codeFileService);
+        controller = new StudyRepositoryController(studyService, connectionService, containerService, codeFileService, Runnable::run);
     }
 
     @Test

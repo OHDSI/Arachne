@@ -19,7 +19,6 @@ import { api } from "./";
 import { UserDTOInterface } from "../libs/types";
 import { AuthProviders } from "../libs/types";
 
-
 export const login = (username: string, password: string): Promise<{ token: string }> =>
   api.post("/auth/login", { username, password });
 
@@ -31,3 +30,35 @@ export const logout = (): Promise<boolean> =>
 
 export const getAuthOptions = (): Promise<AuthProviders> =>
     api.get('/auth/providers');
+
+export interface AuthModeResponse {
+  mode: "LOCAL" | "OIDC";
+  selfRegistrationEnabled: boolean;
+}
+
+export interface SetupStatusResponse {
+  initialized: boolean;
+}
+
+export interface PasswordPolicy {
+  minLength: number;
+  requireUppercase: boolean;
+  requireLowercase: boolean;
+  requireDigit: boolean;
+  requireSpecialChar: boolean;
+}
+
+export const getAuthMode = (): Promise<AuthModeResponse> =>
+  api.get("/auth/mode");
+
+export const getSetupStatus = (): Promise<SetupStatusResponse> =>
+  api.get("/auth/setup-status");
+
+export const postSetup = (username: string, password: string): Promise<any> =>
+  api.post("/auth/setup", { username, password });
+
+export const register = (username: string, password: string): Promise<any> =>
+  api.post("/auth/register", { username, password });
+
+export const getPasswordPolicy = (): Promise<PasswordPolicy> =>
+  api.get("/auth/password-policy");

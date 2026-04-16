@@ -15,13 +15,14 @@
  *
  */
 
-import { userReducer } from "../modules";
+import { userReducer, authModeReducer } from "../modules";
 import { AnyAction, combineReducers, Reducer } from "redux";
 
 const rootReducer = (routerMiddleware: any): Reducer<any, AnyAction> =>
   combineReducers({
     router: routerMiddleware,
     user: userReducer,
+    authMode: authModeReducer,
   });
 
 export default rootReducer;

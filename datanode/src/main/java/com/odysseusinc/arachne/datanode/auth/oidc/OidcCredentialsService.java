@@ -26,6 +26,9 @@ import com.odysseusinc.arachne.datanode.jpa.JpaPath;
 import com.odysseusinc.arachne.datanode.jpa.JpaSugar;
 import com.odysseusinc.arachne.datanode.model.user.User;
 import com.odysseusinc.arachne.datanode.model.user.User_;
+import com.odysseusinc.arachne.datanode.model.user.Role;
+import com.odysseusinc.arachne.datanode.repository.UserRepository;
+import com.odysseusinc.arachne.datanode.service.user.UserService;
 import com.odysseusinc.arachne.datanode.util.Fn;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -38,6 +41,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,6 +68,10 @@ public class OidcCredentialsService {
     private OAuthClientProperties oauthProperties;
     @Autowired
     private CredentialsService credentialsService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     @Transactional
     public CredentialsEntity onLoginSuccess(String provider, OidcUser oidcUser) {
@@ -119,13 +127,24 @@ public class OidcCredentialsService {
     }
 
     private User createUser(OidcUser oidcUser, String login) {
+        boolean isFirstUser = userRepository.count() == 0;
+        List<String> roleNames = isFirstUser
+                ? List.of("ROLE_ADMIN", "ROLE_USER")
+                : List.of("ROLE_USER");
+        List<Role> roles = userService.getRoles(roleNames);
+
         User user = Fn.create(User::new, u -> {
             u.setEmail(oidcUser.getEmail());
             u.setFirstName(oidcUser.getGivenName());
             u.setLastName(oidcUser.getFamilyName());
             u.setUsername(login);
+            u.setEnabled(true);
+            u.setRoles(roles);
         });
         em.persist(user);
+        if (isFirstUser) {
+            log.info("First OIDC user [{}] assigned ROLE_ADMIN", login);
+        }
         return user;
     }
 

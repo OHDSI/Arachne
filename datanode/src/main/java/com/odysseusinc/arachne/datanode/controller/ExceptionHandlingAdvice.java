@@ -15,6 +15,7 @@
 
 package com.odysseusinc.arachne.datanode.controller;
 
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.odysseusinc.arachne.datanode.exception.AlreadyExistsException;
 import com.odysseusinc.arachne.datanode.exception.AuthException;
@@ -64,8 +65,30 @@ public class ExceptionHandlingAdvice {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> dockerNotFoundHandler(NotFoundException ex) {
         log.warn("Docker not found: {}", ex.getMessage());
-        String msg = ex.getMessage() != null ? ex.getMessage() : "Image or container not found";
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(cleanDockerMessage(ex.getMessage()));
+    }
+
+    /** Other Docker errors (e.g. port conflict, internal server error). Return 500 with clean message. */
+    @ExceptionHandler(DockerException.class)
+    public ResponseEntity<String> dockerExceptionHandler(DockerException ex) {
+        log.error("Docker error: {}", ex.getMessage());
+        String msg = cleanDockerMessage(ex.getMessage());
+        return ResponseEntity.internalServerError().body(msg);
+    }
+
+    private static String cleanDockerMessage(String raw) {
+        if (raw == null) return "Docker error";
+        int msgStart = raw.indexOf("\"message\":\"");
+        if (msgStart >= 0) {
+            int start = msgStart + 11;
+            int end = raw.indexOf("\"}", start);
+            if (end > start) return raw.substring(start, end).replace("\\\"", "\"");
+        }
+        // Strip "Status NNN: " prefix
+        if (raw.matches("^Status \\d+: .*")) {
+            return raw.replaceFirst("^Status \\d+: ", "");
+        }
+        return raw;
     }
 
     @ExceptionHandler(Exception.class)
@@ -114,6 +137,18 @@ public class ExceptionHandlingAdvice {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> illegalArgumentHandler(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage() != null ? e.getMessage() : "Bad request");
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> illegalStateHandler(IllegalStateException e) {
+        return ResponseEntity.badRequest().body(e.getMessage() != null ? e.getMessage() : "Invalid state");
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> runtimeExceptionHandler(RuntimeException ex) {
+        String token = token();
+        log.error("[{}]: {}", token, ex.getMessage(), ex);
+        return ResponseEntity.internalServerError().body("Error code [" + token + "]. Please provide this code to contact system administrator");
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

@@ -20,18 +20,18 @@ server:
     key-alias: arachne
     key-password: odysseus
 datanode:
-  users:
-    admin:
-      email: admin@odysseusinc.com
-      firstName: Datanode
-      lastName: Admin
-      password: password
-      roles: ADMIN
-    user:
-      email: user@odysseusinc.com
-      firstName: Datanode
-      lastName: User
-      password: password
+#  users:
+#    admin:
+#      email: admin@odysseusinc.com
+#      firstName: Datanode
+#      lastName: Admin
+#      password: password
+#      roles: ADMIN
+#    user:
+#      email: user@odysseusinc.com
+#      firstName: Datanode
+#      lastName: User
+#      password: password
   jwt:
     expiration: 604800
 executionEngine:

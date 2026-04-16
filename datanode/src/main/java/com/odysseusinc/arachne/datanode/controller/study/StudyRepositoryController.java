@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -75,14 +76,16 @@ public class StudyRepositoryController {
     private final StudyRepositoryConnectionService connectionService;
     private final StudyContainerService containerService;
     private final CodeFileService codeFileService;
-
+    private final Executor asyncPullExecutor;
     public StudyRepositoryController(StudyRepositoryPersistenceService studyService,
                                      StudyRepositoryConnectionService connectionService,
                                      StudyContainerService containerService,
-                                     CodeFileService codeFileService) {
+                                     CodeFileService codeFileService,
+                                     Executor asyncPullExecutor) {
         this.studyService = studyService;
         this.connectionService = connectionService;
         this.containerService = containerService;
+        this.asyncPullExecutor = asyncPullExecutor;
         this.codeFileService = codeFileService;
     }
 
@@ -115,23 +118,58 @@ public class StudyRepositoryController {
         }
         String catalogAddress = studyService.getCatalogAddress();
         if (catalogAddress == null || catalogAddress.isBlank()) {
-            throw new IllegalStateException("Study catalog address is not configured. Set it in Settings.");
+            catalogAddress = "https://registry-1.docker.io";
         }
-        boolean alreadyInstalled = studyService.studyPackageExists(name, version);
-        // Pull the Docker image from the registry (or refresh if already installed)
-        connectionService.pullStudyImage(
-                name,
-                version,
-                catalogAddress,
-                studyService.getCatalogToken(),
-                studyService.getCatalogUsername());
-        if (alreadyInstalled) {
+        // If already installed, trigger a re-pull in background and return existing
+        if (studyService.studyPackageExists(name, version)) {
             StudyPackage pkg = studyService.findStudyPackageByNameAndVersion(name, version)
                     .orElseThrow(() -> new IllegalStateException("Study package disappeared"));
+            studyService.updateStatus(pkg.getId(), "DOWNLOADING", null);
+            startAsyncPull(pkg.getId(), name, version, catalogAddress);
+            pkg.setStatus("DOWNLOADING");
             return toDTO(pkg, null);
         }
-        StudyPackage pkg = studyService.createStudyPackage(name, version, catalogAddress);
+        // Create record immediately with DOWNLOADING status, then pull async
+        StudyPackage pkg = studyService.createStudyPackage(name, version, catalogAddress, "DOWNLOADING");
+        startAsyncPull(pkg.getId(), name, version, catalogAddress);
         return toDTO(pkg, null);
+    }
+
+    private void startAsyncPull(Long packageId, String name, String version, String catalogAddress) {
+        String token = studyService.getCatalogToken();
+        String username = studyService.getCatalogUsername();
+        asyncPullExecutor.execute(() -> {
+            try {
+                connectionService.pullStudyImage(name, version, catalogAddress, token, username);
+                studyService.updateStatus(packageId, "READY", null);
+            } catch (Exception e) {
+                String raw = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                LOG.warn("Async pull failed for {}: {}", name + ":" + version, raw);
+                try {
+                    studyService.updateStatus(packageId, "FAILED", cleanDockerError(raw));
+                } catch (Exception dbEx) {
+                    LOG.error("Failed to update status for package {}: {}", packageId, dbEx.getMessage());
+                }
+            }
+        });
+    }
+
+    private static String cleanDockerError(String raw) {
+        // Docker errors often look like: "Docker pull failed: Status 404: {\"message\":\"...actual message...\"}"
+        // Extract the inner message for a human-readable error.
+        int msgIdx = raw.indexOf("\"message\":\"");
+        if (msgIdx >= 0) {
+            int start = msgIdx + 11;
+            int end = raw.indexOf("\"", start);
+            if (end > start) {
+                return raw.substring(start, end).replace("\\\"", "\"");
+            }
+        }
+        // Strip "Docker pull failed: " prefix if present
+        if (raw.startsWith("Docker pull failed: ")) {
+            return raw.substring(20);
+        }
+        return raw;
     }
 
     @PatchMapping("/packages/{id}/script")
@@ -295,7 +333,18 @@ public class StudyRepositoryController {
         }
         LOG.info("Study start: starting Docker container for package id={}, image={}", id, imageName);
         List<String> env = studyService.getStudyEnvForContainer();
-        containerId = containerService.startContainer(imageName, id, env);
+        try {
+            containerId = containerService.startContainer(imageName, id, env);
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if (msg.contains("port is already allocated") || msg.contains("address already in use")) {
+                LOG.warn("Study start: port conflict, stopping other study containers and retrying");
+                containerService.stopAllStudyContainers();
+                containerId = containerService.startContainer(imageName, id, env);
+            } else {
+                throw e;
+            }
+        }
         studyService.setStudyPackageContainerId(id, containerId);
         CodeFileService.CodeFileContent code = getCodeOrFromContainer(id, pkg, containerId);
         try {
@@ -705,14 +754,11 @@ public class StudyRepositoryController {
                 .orElseThrow(() -> new ResourceNotFoundException("Study package not found: " + id));
         String catalogAddress = pkg.getCatalogAddress();
         if (catalogAddress == null || catalogAddress.isBlank()) {
-            throw new IllegalStateException("Study catalog address is not set. Configure it in Settings.");
+            catalogAddress = "https://registry-1.docker.io";
         }
-        connectionService.pullStudyImage(
-                pkg.getName(),
-                pkg.getVersion(),
-                catalogAddress,
-                studyService.getCatalogToken(),
-                studyService.getCatalogUsername());
+        studyService.updateStatus(pkg.getId(), "DOWNLOADING", null);
+        startAsyncPull(pkg.getId(), pkg.getName(), pkg.getVersion(), catalogAddress);
+        pkg.setStatus("DOWNLOADING");
         return toDTO(pkg, null);
     }
 
@@ -731,6 +777,8 @@ public class StudyRepositoryController {
         dto.setImageInstalled(imageName != null && (localImages != null
                 ? StudyContainerService.hasImageInSet(localImages, imageName)
                 : containerService.hasImageLocally(imageName)));
+        dto.setStatus(pkg.getStatus());
+        dto.setStatusMessage(pkg.getStatusMessage());
         return dto;
     }
 

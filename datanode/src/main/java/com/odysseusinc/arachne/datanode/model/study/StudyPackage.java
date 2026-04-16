@@ -54,6 +54,13 @@ public class StudyPackage {
     private String catalogAddress;
 
     /** Docker container id when study is opened for run (working dir /code in image). Null when not running. */
+    /** DOWNLOADING, READY, FAILED */
+    @Column(name = "status", nullable = false, length = 32)
+    private String status = "READY";
+
+    @Column(name = "status_message")
+    private String statusMessage;
+
     @Column(name = "container_id", length = 128)
     private String containerId;
 

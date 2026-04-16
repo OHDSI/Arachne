@@ -15,62 +15,100 @@
  *
  */
 
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Outlet } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { LoginPage } from "../LoginPage";
+import { InitialSetupPage } from "../InitialSetupPage";
+import { RegisterPage } from "../RegisterPage";
 import { LayoutSpinner } from "../../App.styled";
 import { Status } from "../../libs/enums";
 import { SpinnerWidgetContainer } from "../../libs/components";
-import { getUser } from "../../store/modules";
+import { getUser, fetchAuthMode, fetchSetupStatus } from "../../store/modules";
 import { ModalContext, UseModalContext } from "../../libs/hooks";
-
-// In development and test, skip login by default so the UI loads without a backend (set NEXT_PUBLIC_DISABLE_LOGIN=false to require login in dev).
-const isLoginDisabled =
-  (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") &&
-  process.env.NEXT_PUBLIC_DISABLE_LOGIN !== "false";
 
 export const PrivateRoute: React.FC<any> = (props) => {
   const { ...passProps } = props;
   const dispatch = useDispatch();
-  const getCurrentUser = () => dispatch(getUser());
   const { closeModal } = useContext<UseModalContext>(ModalContext);
+  const [showRegister, setShowRegister] = useState(false);
+
+  const userStatus = useSelector<any, Status>((state: any) => state.user.status);
+  const loginStatus = useSelector<any, Status>((state: any) => state.user.loginStatus);
+  const authModeStatus = useSelector<any, Status>((state: any) => state.authMode.status);
+  const authMode = useSelector<any, string | null>((state: any) => state.authMode.mode);
+  const selfRegistrationEnabled = useSelector<any, boolean>((state: any) => state.authMode.selfRegistrationEnabled);
+  const initialized = useSelector<any, boolean | null>((state: any) => state.authMode.initialized);
+  const setupStatus = useSelector<any, Status>((state: any) => state.authMode.setupStatus);
+  const registerStatus = useSelector<any, Status>((state: any) => state.authMode.registerStatus);
 
   useEffect(() => {
-    if (!isLoginDisabled) {
-      getCurrentUser();
-    }
+    dispatch(fetchAuthMode());
+    dispatch(fetchSetupStatus());
   }, []);
 
-  const status = useSelector<any, Status>(
-    (state: any) => state.user.status
-  );
-  const loginStatus = useSelector<any, Status>(
-    (state: any) => state.user.loginStatus
-  );
+  useEffect(() => {
+    // Once we know setup is done, try to get the current user (session check)
+    if (initialized === true) {
+      dispatch(getUser());
+    }
+  }, [initialized]);
+
+  // After setup or register succeeds, the saga also fetches the user
+  useEffect(() => {
+    if (setupStatus === Status.SUCCESS || registerStatus === Status.SUCCESS) {
+      setShowRegister(false);
+    }
+  }, [setupStatus, registerStatus]);
 
   useEffect(() => {
-    if (status !== Status.SUCCESS) {
+    if (userStatus !== Status.SUCCESS) {
       closeModal();
     }
-  }, [status]);
+  }, [userStatus]);
 
-  if (isLoginDisabled) {
-    return <Outlet {...passProps} />;
-  }
-
-  if (status === Status.IN_PROGRESS || status === Status.INITIAL) {
+  // Still loading auth mode or setup status
+  if (authModeStatus === Status.INITIAL || authModeStatus === Status.IN_PROGRESS || initialized === null) {
     return (
       <SpinnerWidgetContainer>
         <LayoutSpinner size={70} />
       </SpinnerWidgetContainer>
     );
   }
-  if (status === Status.SUCCESS) {
+
+  // Not initialized and LOCAL mode → show setup page
+  if (initialized === false && authMode === "LOCAL") {
+    return <InitialSetupPage />;
+  }
+
+  // User is authenticated
+  if (userStatus === Status.SUCCESS) {
     return <Outlet {...passProps} />;
   }
 
-  return <LoginPage loginStatus={loginStatus} />;
+  // Checking user session
+  if (userStatus === Status.IN_PROGRESS || userStatus === Status.INITIAL) {
+    return (
+      <SpinnerWidgetContainer>
+        <LayoutSpinner size={70} />
+      </SpinnerWidgetContainer>
+    );
+  }
+
+  // Show register page
+  if (showRegister && authMode === "LOCAL" && selfRegistrationEnabled) {
+    return <RegisterPage onBackToLogin={() => setShowRegister(false)} />;
+  }
+
+  // Not authenticated → show login
+  return (
+    <LoginPage
+      loginStatus={loginStatus}
+      authMode={authMode}
+      selfRegistrationEnabled={selfRegistrationEnabled}
+      onShowRegister={() => setShowRegister(true)}
+    />
+  );
 };

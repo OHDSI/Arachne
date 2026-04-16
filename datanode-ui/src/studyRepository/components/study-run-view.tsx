@@ -30,6 +30,7 @@ import {
   ChevronDown,
   Circle,
   Code2,
+  RefreshCw,
 } from "lucide-react"
 import type { Study } from "../types"
 import {
@@ -457,6 +458,9 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
   const selectedContainerFileViewable = containerSelectedFilePath != null
     && ["table", "text"].includes(fileTypeFromPath(containerSelectedFilePath))
 
+  const [retryCount, setRetryCount] = useState(0)
+  const retryStartContainer = () => setRetryCount((c) => c + 1)
+
   // When opening the study, start the container and load DB-backed codeToRun.R (content + version)
   useEffect(() => {
     let cancelled = false
@@ -470,9 +474,10 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
           setVersion(typeof (res as { version?: number }).version === "number" ? (res as { version: number }).version : 0)
         }
       })
-      .catch((e) => {
+      .catch((e: any) => {
         if (!cancelled) {
-          setScriptError(e instanceof Error ? e.message : "Failed to open study")
+          const msg = e?.response?.data || (e instanceof Error ? e.message : "Failed to open study");
+          setScriptError(typeof msg === "string" ? msg : "Failed to open study");
         }
       })
       .finally(() => {
@@ -481,7 +486,7 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
     return () => {
       cancelled = true
     }
-  }, [study.id])
+  }, [study.id, retryCount])
 
   // Debounced autosave: persist to backend and sync to container; handle 409 by refreshing
   useEffect(() => {
@@ -750,19 +755,22 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">{study.name}</h1>
           <Badge variant="secondary" className="bg-chip text-foreground">
-            v{study.version}
+            {study.version}
           </Badge>
         </div>
         {/* Study status: green = container running, amber = starting, red = error */}
         <div
-          className="flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1.5 text-sm"
+          className={`flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1.5 text-sm ${
+            scriptError && !scriptLoading ? "cursor-pointer hover:bg-secondary/60" : ""
+          }`}
           title={
             scriptLoading
               ? "Study Docker image is starting..."
               : scriptError
-                ? "Study container failed to start"
+                ? "Docker container failed to start. Check that Docker is running and the study image is installed. Click to retry."
                 : "Study Docker image is running and ready"
           }
+          onClick={scriptError && !scriptLoading ? retryStartContainer : undefined}
         >
           {scriptLoading ? (
             <>
@@ -771,8 +779,8 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
             </>
           ) : scriptError ? (
             <>
-              <Circle className="h-3 w-3 shrink-0 fill-destructive text-destructive" />
-              <span className="text-destructive">Study environment unavailable</span>
+              <RefreshCw className="h-3 w-3 shrink-0 text-destructive" />
+              <span className="text-destructive">Study environment unavailable — click to retry</span>
             </>
           ) : (
             <>
@@ -871,7 +879,6 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={handleSave}
                 className="border-border text-foreground hover:bg-secondary bg-transparent"
               >
@@ -890,7 +897,6 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
               {snippets.length > 0 && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => setSnippetModalOpen(true)}
                   disabled={scriptLoading}
                   className="border-border text-foreground hover:bg-secondary bg-transparent"
@@ -1005,8 +1011,8 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
         </Card>
       </div>
 
-      {/* Results & Outputs Section - Only show after completion */}
-      {phase === "completed" && (
+      {/* Results & Outputs Section - Show when there are previous runs or current run completed */}
+      {(phase === "completed" || runs.length > 0) && (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* View Results - Shiny app in container */}
           <Card className="shadow-[0_3px_13px_0_rgba(0,0,0,0.16)]">
@@ -1040,28 +1046,27 @@ export function StudyRunView({ study, onBack, onExecuteStudy, onExecutionPhaseCh
                   onValueChange={setSelectedRunId}
                   disabled={loadingRuns || runs.length === 0}
                 >
-                  <SelectTrigger className="h-8 w-[180px] border-border text-sm">
+                  <SelectTrigger className="h-9 w-[300px] border-border text-sm">
                     <SelectValue
                       placeholder={
                         loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="min-w-[300px]">
                     {runs.map((run) => (
                       <SelectItem key={run.id} value={String(run.id)}>
-                        <div className="flex flex-col">
-                          <span>Run #{run.id}</span>
-                          <span className="text-xs text-muted-foreground">
+                        <span className="whitespace-nowrap">
+                          <span className="font-medium">Run #{run.id}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
                             {formatRunTime(run.finishedAt ?? run.startedAt)}
                           </span>
                           {(run.fileCount ?? 0) > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              {" "}
+                            <span className="ml-1 text-xs text-muted-foreground">
                               ({run.fileCount} files)
                             </span>
                           )}
-                        </div>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>

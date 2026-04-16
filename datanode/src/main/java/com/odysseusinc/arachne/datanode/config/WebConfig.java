@@ -44,6 +44,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/submissions").setViewName("forward:/index.html");
         registry.addViewController("/administration/**").setViewName("forward:/index.html");
+        // SPA fallback for client-side routes
+        registry.addViewController("/study/**").setViewName("forward:/index.html");
+        registry.addViewController("/settings").setViewName("forward:/index.html");
+        registry.addViewController("/users").setViewName("forward:/index.html");
     }
 
     @Override

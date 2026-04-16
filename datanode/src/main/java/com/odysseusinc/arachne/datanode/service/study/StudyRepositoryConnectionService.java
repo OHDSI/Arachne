@@ -183,6 +183,9 @@ public class StudyRepositoryConnectionService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Pull interrupted", e);
+        } catch (com.github.dockerjava.api.exception.NotFoundException e) {
+            LOG.warn("Pull failed for {}: image not found", imageName);
+            throw e;
         } catch (Exception e) {
             String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             LOG.warn("Pull failed for {}: {}", imageName, msg);

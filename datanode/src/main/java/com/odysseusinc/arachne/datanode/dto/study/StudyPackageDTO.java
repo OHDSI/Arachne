@@ -33,4 +33,8 @@ public class StudyPackageDTO {
     private boolean hasResults;
     /** True if the study's Docker image is present locally (docker image list). False when image was removed or not yet pulled. */
     private boolean imageInstalled;
+    /** DOWNLOADING, READY, FAILED */
+    private String status;
+    /** Error message when status is FAILED */
+    private String statusMessage;
 }

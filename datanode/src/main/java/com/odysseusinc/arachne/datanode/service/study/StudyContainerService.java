@@ -332,6 +332,25 @@ public class StudyContainerService {
     }
 
     /**
+     * Stop and remove all study containers (named "study-*"). Used to recover from port conflicts.
+     */
+    public void stopAllStudyContainers() {
+        if (dockerClient == null) return;
+        try {
+            dockerClient.listContainersCmd()
+                    .withNameFilter(List.of("study-"))
+                    .withShowAll(true)
+                    .exec()
+                    .forEach(c -> {
+                        LOG.info("Stopping stale study container: {} ({})", c.getId(), c.getNames() != null ? String.join(",", c.getNames()) : "unnamed");
+                        stopContainer(c.getId());
+                    });
+        } catch (Exception e) {
+            LOG.warn("Error listing study containers: {}", e.getMessage());
+        }
+    }
+
+    /**
      * Stop and remove the container. Idempotent if container already gone.
      */
     public void stopContainer(String containerId) {

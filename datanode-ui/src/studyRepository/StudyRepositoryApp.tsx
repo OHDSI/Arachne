@@ -8,11 +8,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Sidebar } from "./components/sidebar";
 import { Header } from "./components/header";
 import { StudyRepository } from "./components/study-repository";
 import { SettingsPage } from "./components/settings-page";
 import { StudyRunView } from "./components/study-run-view";
+import { UserManagementPage } from "../components/UserManagementPage";
 import { OutputBrowserModal } from "./components/output-browser-modal";
 import { ResultsModal } from "./components/results-modal";
 import type { Study } from "./types";
@@ -64,13 +66,17 @@ function packagesToStudies(
       isLoaded: current.loaded ?? false,
       hasResults: current.hasResults,
       imageInstalled: current.imageInstalled,
+      status: current.status,
+      statusMessage: current.statusMessage,
     });
   }
   return studies.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function StudyRepositoryApp() {
-  const [currentView, setCurrentView] = useState<"repository" | "settings" | "run">("repository");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [currentView, setCurrentView] = useState<"repository" | "settings" | "run" | "users">("repository");
   const [catalogAddress, setCatalogAddress] = useState("");
   const [catalogUsername, setCatalogUsername] = useState("");
   const [catalogToken, setCatalogToken] = useState("");
@@ -93,6 +99,19 @@ export function StudyRepositoryApp() {
   const activeStudy = studies.find((s) => s.id === activeStudyId);
   const browseStudy = studies.find((s) => s.id === browseStudyId) ?? null;
   const viewResultsStudy = studies.find((s) => s.id === viewResultsStudyId) ?? null;
+
+  // Sync URL → state on mount (e.g. /study/42 → open study run view)
+  useEffect(() => {
+    const match = location.pathname.match(/^\/study\/(\d+)$/);
+    if (match) {
+      setActiveStudyId(match[1]);
+      setCurrentView("run");
+    } else if (location.pathname === "/settings") {
+      setCurrentView("settings");
+    } else if (location.pathname === "/users") {
+      setCurrentView("users");
+    }
+  }, []);
 
   const fetchPackages = useCallback(async () => {
     try {
@@ -136,17 +155,29 @@ export function StudyRepositoryApp() {
     fetchSnippets();
   }, [fetchPackages, fetchSettings, fetchSnippets]);
 
-  const handleNavigate = (view: "repository" | "settings") => {
+  // Poll for status updates when any study is downloading
+  const hasDownloading = packages.some((p) => p.status === "DOWNLOADING");
+  useEffect(() => {
+    if (!hasDownloading) return;
+    const interval = setInterval(() => {
+      fetchPackages();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [hasDownloading, fetchPackages]);
+
+  const handleNavigate = (view: "repository" | "settings" | "users") => {
     setCurrentView(view);
     setActiveStudyId(null);
+    navigate(view === "repository" ? "/" : `/${view}`);
   };
 
   const handleInstallStudy = async (input: string) => {
     try {
       await installStudyPackage(input);
       await fetchPackages();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to install study");
+    } catch (e: any) {
+      const msg = e?.response?.data || (e instanceof Error ? e.message : "Failed to install study");
+      setError(typeof msg === "string" ? msg : "Failed to install study");
     }
   };
 
@@ -158,8 +189,9 @@ export function StudyRepositoryApp() {
     try {
       await refreshStudyPackage(Number(id));
       await fetchPackages();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to pull study image");
+    } catch (e: any) {
+      const msg = e?.response?.data || (e instanceof Error ? e.message : "Failed to pull study image");
+      setError(typeof msg === "string" ? msg : "Failed to pull study image");
     }
   };
 
@@ -171,14 +203,16 @@ export function StudyRepositoryApp() {
         setActiveStudyId(null);
         setCurrentView("repository");
       }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to delete study");
+    } catch (e: any) {
+      const msg = e?.response?.data || (e instanceof Error ? e.message : "Failed to delete study");
+      setError(typeof msg === "string" ? msg : "Failed to delete study");
     }
   };
 
   const handleRunStudy = (id: string) => {
     setActiveStudyId(id);
     setCurrentView("run");
+    navigate(`/study/${id}`);
   };
 
   const handleViewResults = (id: string) => {
@@ -200,14 +234,16 @@ export function StudyRepositoryApp() {
     try {
       await stopStudyContainer(Number(id));
       await fetchPackages();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to stop study");
+    } catch (e: any) {
+      const msg = e?.response?.data || (e instanceof Error ? e.message : "Failed to stop study");
+      setError(typeof msg === "string" ? msg : "Failed to stop study");
     }
   };
 
   const handleBackToRepository = () => {
     setActiveStudyId(null);
     setCurrentView("repository");
+    navigate("/");
   };
 
   const handleCreateSnippet = async (dto: { name: string; description: string; content: string }) => {
@@ -242,6 +278,8 @@ export function StudyRepositoryApp() {
         return ["Study Repository"];
       case "settings":
         return ["Settings"];
+      case "users":
+        return ["User Management"];
       case "run":
         return ["Study Repository", activeStudy?.name ?? "Run Study"];
       default:
@@ -260,7 +298,7 @@ export function StudyRepositoryApp() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar
-        activeView={currentView === "run" ? "repository" : currentView}
+        activeView={currentView === "run" ? "repository" : currentView as any}
         onViewChange={handleNavigate}
       />
       <div className="flex flex-1 flex-col ml-[70px]">
@@ -297,6 +335,9 @@ export function StudyRepositoryApp() {
               onUpdateSnippet={handleUpdateSnippet}
               onDeleteSnippet={handleDeleteSnippet}
             />
+          )}
+          {currentView === "users" && (
+            <UserManagementPage />
           )}
           {currentView === "run" && activeStudy && (
             <StudyRunView

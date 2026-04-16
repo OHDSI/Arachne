@@ -111,15 +111,31 @@ public class StudyRepositoryPersistenceService {
 
     @Transactional
     public StudyPackage createStudyPackage(String name, String version, String catalogAddress) {
+        return createStudyPackage(name, version, catalogAddress, "READY");
+    }
+
+    @Transactional
+    public StudyPackage createStudyPackage(String name, String version, String catalogAddress, String status) {
         StudyPackage pkg = new StudyPackage();
         pkg.setName(name);
         pkg.setVersion(version);
         pkg.setCatalogAddress(catalogAddress);
+        pkg.setStatus(status);
         Instant now = Instant.now();
         pkg.setInstalledAt(now);
         pkg.setCreatedAt(now);
         pkg.setUpdatedAt(now);
         return studyPackageRepository.save(pkg);
+    }
+
+    @Transactional
+    public void updateStatus(Long id, String status, String statusMessage) {
+        studyPackageRepository.findById(id).ifPresent(pkg -> {
+            pkg.setStatus(status);
+            pkg.setStatusMessage(statusMessage);
+            pkg.setUpdatedAt(Instant.now());
+            studyPackageRepository.save(pkg);
+        });
     }
 
     @Transactional

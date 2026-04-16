@@ -1,18 +1,22 @@
 
-import { Library, Settings, User } from "lucide-react"
+import { Library, Settings, User, Users } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip"
+import { useSelector } from "react-redux"
 
 interface SidebarProps {
-  activeView: "repository" | "settings"
-  onViewChange: (view: "repository" | "settings") => void
+  activeView: "repository" | "settings" | "users"
+  onViewChange: (view: "repository" | "settings" | "users") => void
 }
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+  const userData = useSelector<any, any>((state: any) => state.user.data);
+  const isAdmin = userData?.isAdmin === true;
+
   return (
     <TooltipProvider delayDuration={0}>
       <aside className="fixed left-0 top-0 z-40 flex h-screen w-[70px] flex-col items-center bg-card py-4 shadow-md">
@@ -62,6 +66,28 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
               <p>Settings</p>
             </TooltipContent>
           </Tooltip>
+
+          {isAdmin && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => onViewChange("users")}
+                  className={`flex h-10 w-10 items-center justify-center rounded-md transition-colors ${
+                    activeView === "users"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary hover:text-primary"
+                  }`}
+                  aria-label="User Management"
+                >
+                  <Users className="h-5 w-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>User Management</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </nav>
 
         {/* Bottom section */}

@@ -18,3 +18,6 @@
 export * from "./LoginPage";
 export * from "./Logo";
 export * from "./PrivateRoute";
+export * from "./InitialSetupPage";
+export * from "./RegisterPage";
+export * from "./UserManagementPage";

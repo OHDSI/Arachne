@@ -30,7 +30,7 @@ done
 docker exec arachne-datanode-postgres pg_isready -U ohdsi-user -d arachne_datanode
 
 echo "==> Building backend (skip Docker image build and checkstyle for local run)..."
-mvn -q install -DskipTests -DskipDockerBuild=true -Ddockerfile.skip=true -Dcheckstyle.skip=true -pl datanode -am
+mvn -q install -DskipTests -Dmaven.test.skip=true -DskipDockerBuild=true -Ddockerfile.skip=true -Dcheckstyle.skip=true -pl datanode -am
 
 echo "==> Starting backend on 8880..."
 lsof -ti:8880 | xargs kill -9 2>/dev/null || true
@@ -45,7 +45,7 @@ fi
 export DOCKER_HOST="unix:///var/run/docker.sock"
 # Limit JVM heap to reduce chance of OOM kill (exit code 137). Override with JAVA_OPTS e.g. -Xmx512m if needed.
 HEAP="${JAVA_OPTS:--Xmx768m}"
-(cd datanode && mvn -q spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dserver.ssl.enabled=false $HEAP" -Dcheckstyle.skip=true) &
+(cd datanode && mvn -q spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dserver.ssl.enabled=false $HEAP" -Dcheckstyle.skip=true -Dmaven.test.skip=true) &
 echo $! > "$BACKEND_PID_FILE"
 
 echo "==> Waiting for backend to listen on 8880..."

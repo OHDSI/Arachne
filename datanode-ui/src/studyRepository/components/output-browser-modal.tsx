@@ -383,21 +383,21 @@ export function OutputBrowserModal({ study, open, onClose }: OutputBrowserModalP
                   onValueChange={setSelectedRunId}
                   disabled={loadingRuns || runs.length === 0}
                 >
-                  <SelectTrigger className="h-9 w-[220px] border-border">
+                  <SelectTrigger className="h-9 w-[300px] border-border">
                     <SelectValue placeholder={loadingRuns ? "Loading runs…" : runs.length === 0 ? "No runs" : "Select run"} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="min-w-[300px]">
                     {runs.map((run) => (
                       <SelectItem key={run.id} value={String(run.id)}>
-                        <div className="flex items-center gap-2">
+                        <span className="whitespace-nowrap">
                           <span className="font-medium">Run #{run.id}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="ml-2 text-xs text-muted-foreground">
                             {formatRunTime(run.finishedAt ?? run.startedAt)}
                           </span>
                           {(run.fileCount ?? 0) > 0 && (
-                            <span className="text-xs text-muted-foreground">({run.fileCount} files)</span>
+                            <span className="ml-1 text-xs text-muted-foreground">({run.fileCount} files)</span>
                           )}
-                        </div>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>

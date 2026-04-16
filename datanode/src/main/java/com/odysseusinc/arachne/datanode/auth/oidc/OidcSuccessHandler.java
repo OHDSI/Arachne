@@ -27,9 +27,13 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.odysseusinc.arachne.datanode.model.user.Role;
+import com.odysseusinc.arachne.datanode.util.Fn;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -51,9 +55,12 @@ public class OidcSuccessHandler extends SavedRequestAwareAuthenticationSuccessHa
                 String provider = oauthToken.getAuthorizedClientRegistrationId();
                 Optional.ofNullable(
                         credentialsService.onLoginSuccess(provider, principal)
-                ).ifPresent(uc ->
-                        response.addCookie(tokens.cookie(provider, String.valueOf(uc.getUser().getId()), List.of()))
-                );
+                ).ifPresent(uc -> {
+                    List<String> roles = Fn.stream(uc.getUser().getRoles())
+                            .map(role -> role.getName().replace("ROLE_", ""))
+                            .collect(Collectors.toList());
+                    response.addCookie(tokens.cookie(provider, String.valueOf(uc.getUser().getId()), roles));
+                });
                 super.onAuthenticationSuccess(request, response, authentication);
             } else {
                 log.warn("Unsupported authentication principal [{}]", oauthPrincipal.getClass());

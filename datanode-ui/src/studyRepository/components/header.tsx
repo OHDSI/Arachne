@@ -1,4 +1,5 @@
 
+import { useSelector } from "react-redux"
 import { ChevronRight, User } from "lucide-react"
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ interface HeaderProps {
 }
 
 export function Header({ breadcrumbs }: HeaderProps) {
+  const username = useSelector<any, string | undefined>((state: any) => state.user.data?.username);
   return (
     <header className="flex h-[50px] items-center justify-between bg-header px-6 text-header-foreground">
       {/* Breadcrumbs */}
@@ -35,7 +37,7 @@ export function Header({ breadcrumbs }: HeaderProps) {
             className="flex items-center gap-2 text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground"
           >
             <User className="h-4 w-4" />
-            <span>Researcher</span>
+            <span>{username || "User"}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

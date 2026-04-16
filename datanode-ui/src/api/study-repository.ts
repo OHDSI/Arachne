@@ -17,6 +17,10 @@ export type StudyPackageDTO = {
   hasResults: boolean;
   /** True when the study's Docker image is present locally. */
   imageInstalled?: boolean;
+  /** DOWNLOADING, READY, FAILED */
+  status?: string;
+  /** Error message when status is FAILED */
+  statusMessage?: string;
 };
 
 export type StudyRepositorySettingsDTO = {

@@ -10,3 +10,6 @@ datanode/logs/arachne.log
 
 # MkDocs build output
 site/
+arachne.log
+datanode/logs/*
+datanode/config/config-dev.yml

@@ -11,6 +11,7 @@ import {
   Loader2,
   CheckCircle2,
   Circle,
+  XCircle,
 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -163,9 +164,9 @@ export function StudyRepository({
           ) : (
             <div className="divide-y divide-border">
               {/* Table Header */}
-              <div className="grid grid-cols-[1fr_100px_100px_auto] gap-4 px-4 py-3 bg-info/10 text-sm font-medium text-foreground">
+              <div className="grid grid-cols-[1fr_120px_120px_180px] gap-4 px-4 py-3 bg-info/10 text-sm font-medium text-foreground">
                 <div>Study Name</div>
-                <div>Version</div>
+                <div>Tag</div>
                 <div>Status</div>
                 <div className="text-right">Actions</div>
               </div>
@@ -173,7 +174,7 @@ export function StudyRepository({
               {studies.map((study) => (
                 <div
                   key={study.id}
-                  className="grid grid-cols-[1fr_100px_100px_auto] gap-4 px-4 py-3 items-center hover:bg-secondary/50 transition-colors"
+                  className="grid grid-cols-[1fr_120px_120px_180px] gap-4 px-4 py-3 items-center hover:bg-secondary/50 transition-colors"
                 >
                   <div>
                     <span className="font-medium text-foreground">{study.name}</span>
@@ -190,7 +191,7 @@ export function StudyRepository({
                         value={study.version}
                         onValueChange={(v) => onSelectVersion?.(study.name, v)}
                       >
-                        <SelectTrigger className="h-7 w-[100px] text-xs">
+                        <SelectTrigger className="h-7 w-[120px] text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -199,7 +200,7 @@ export function StudyRepository({
                             .reverse()
                             .map((v) => (
                               <SelectItem key={v} value={v} className="text-xs">
-                                v{v}
+                                {v}
                                 {v === study.version && (
                                   <span className="ml-1 text-muted-foreground">(active)</span>
                                 )}
@@ -209,12 +210,22 @@ export function StudyRepository({
                       </Select>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-chip/20 text-foreground">
-                        v{study.version}
+                        {study.version}
                       </span>
                     )}
                   </div>
                   <div>
-                    {study.id === scriptExecutingStudyId ? (
+                    {study.status === "DOWNLOADING" ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-info" title="Pulling Docker image...">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Downloading
+                      </span>
+                    ) : study.status === "FAILED" ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-destructive" title={study.statusMessage || "Pull failed"}>
+                        <XCircle className="w-3 h-3" />
+                        Failed
+                      </span>
+                    ) : study.id === scriptExecutingStudyId ? (
                       <span className="inline-flex items-center gap-1 text-xs text-info" title="R code (codeToRun.R) is running">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         Running
@@ -235,9 +246,15 @@ export function StudyRepository({
                         Idle
                       </span>
                     )}
+                    {study.status === "FAILED" && study.statusMessage && (
+                      <p className="text-xs text-destructive/80 mt-1 truncate max-w-[200px]" title={study.statusMessage}>
+                        {study.statusMessage}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center justify-end gap-1">
                     <TooltipProvider delayDuration={0}>
+                      {study.status !== "DOWNLOADING" && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
@@ -253,10 +270,12 @@ export function StudyRepository({
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          {study.imageInstalled === false ? "Pull image" : "Refresh (pull image)"}
+                          {study.status === "FAILED" ? "Retry pull" : study.imageInstalled === false ? "Pull image" : "Refresh (pull image)"}
                         </TooltipContent>
                       </Tooltip>
+                      )}
 
+                      {study.status !== "DOWNLOADING" && study.status !== "FAILED" && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
@@ -270,6 +289,7 @@ export function StudyRepository({
                         </TooltipTrigger>
                         <TooltipContent>Run this study</TooltipContent>
                       </Tooltip>
+                      )}
 
                       {study.hasResults && (
                         <>

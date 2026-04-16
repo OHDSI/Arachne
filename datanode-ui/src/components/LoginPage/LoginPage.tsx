@@ -40,12 +40,26 @@ import { Status } from "../../libs";
 import { LogoMediumArachne } from "../Logo";
 import { useLoginOptions } from './LoginPage.hook';
 
-export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) => {
+interface LoginPageProps {
+  loginStatus: Status;
+  authMode?: string | null;
+  selfRegistrationEnabled?: boolean;
+  onShowRegister?: () => void;
+}
+
+export const LoginPage: React.FC<LoginPageProps> = ({
+  loginStatus,
+  authMode,
+  selfRegistrationEnabled,
+  onShowRegister,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { loginOptions, status } = useLoginOptions();
   const [userName, setUserName] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+
+  const isOidc = authMode === "OIDC";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,47 +138,62 @@ export const LoginPage: React.FC<{ loginStatus: Status }> = ({ loginStatus }) =>
                 </Grid>
 
                 <Grid item xs={12} spacing={2} container>
-                  <FormControl item xs={12}>
-                    <label>{t("forms.login.username")}</label>
-                    <Input
-                      fullWidth
-                      value={userName}
-                      onChange={e => setUserName(e.target.value)}
-                      placeholder={t("forms.login.username_placeholder")}
-                    />
-                  </FormControl>
-                  <FormControl item xs={12}>
-                    <label>{t("forms.login.password")}</label>
-                    <Input
-                      fullWidth
-                      type="password"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      placeholder={t("forms.login.password_placeholder")}
-                    />
-                  </FormControl>
-                  <Grid item xs={12} textAlign="right">
-                    <Button
-                      variant="contained"
-                      color="success"
-                      size="small"
-                      type="submit"
-                      fullWidth
-                      disabled={(!userName || !password) || loginStatus === Status.IN_PROGRESS}
-                    >
-                      {loginStatus === Status.IN_PROGRESS ? (
-                        <>
-                          <LogInText>{t("forms.login.submit_button")}</LogInText><Spinner size={18} />
-                        </>
-                      ) : (
-                        <>{t("forms.login.submit_button")}</>
+                  {!isOidc && (
+                    <>
+                      <FormControl item xs={12}>
+                        <label>{t("forms.login.username")}</label>
+                        <Input
+                          fullWidth
+                          value={userName}
+                          onChange={e => setUserName(e.target.value)}
+                          placeholder={t("forms.login.username_placeholder")}
+                        />
+                      </FormControl>
+                      <FormControl item xs={12}>
+                        <label>{t("forms.login.password")}</label>
+                        <Input
+                          fullWidth
+                          type="password"
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          placeholder={t("forms.login.password_placeholder")}
+                        />
+                      </FormControl>
+                      <Grid item xs={12} textAlign="right">
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          type="submit"
+                          fullWidth
+                          disabled={(!userName || !password) || loginStatus === Status.IN_PROGRESS}
+                        >
+                          {loginStatus === Status.IN_PROGRESS ? (
+                            <>
+                              <LogInText>{t("forms.login.submit_button")}</LogInText><Spinner size={18} />
+                            </>
+                          ) : (
+                            <>{t("forms.login.submit_button")}</>
+                          )}
+                        </Button>
+                      </Grid>
+                      {selfRegistrationEnabled && onShowRegister && (
+                        <Grid item xs={12} textAlign="center">
+                          <Button
+                            variant="text"
+                            size="small"
+                            onClick={onShowRegister}
+                          >
+                            Create Account
+                          </Button>
+                        </Grid>
                       )}
-                    </Button>
-                  </Grid>
+                    </>
+                  )}
 
                   {Object.keys(loginOptions).map((key, index) => (
                       <Grid item xs={12} key={key + index}>
-                        {index === 0 && <Divider />}
+                        {index === 0 && !isOidc && <Divider />}
                         <Button
                             onClick={() => {
                               location.href = `/oauth2/authorization/${key}`;

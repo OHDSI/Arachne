@@ -16,10 +16,11 @@
  */
 
 import { userSaga } from "../modules/user";
+import { authModeSaga } from "../modules/authMode";
 import { all, spawn } from "redux-saga/effects";
 
 const rootSaga = function* () {
-  yield all([spawn(userSaga)]);
+  yield all([spawn(userSaga), spawn(authModeSaga)]);
 };
 
 export default rootSaga;

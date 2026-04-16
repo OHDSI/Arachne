@@ -9,6 +9,10 @@ export type Study = {
   hasResults: boolean;
   /** True when the study's Docker image is present locally. */
   imageInstalled?: boolean;
+  /** DOWNLOADING, READY, FAILED */
+  status?: string;
+  /** Error message when status is FAILED */
+  statusMessage?: string;
 };
 
 export type AppView = "repository" | "settings" | "run";

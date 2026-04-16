@@ -16,10 +16,8 @@
 package com.odysseusinc.arachne.datanode.config;
 
 import com.odysseusinc.arachne.datanode.Api;
-import com.odysseusinc.arachne.datanode.auth.LoginDisabledAuthenticationFilter;
 import com.odysseusinc.arachne.datanode.auth.oidc.OidcSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +31,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -46,12 +43,6 @@ public class WebSecurityConfig {
 
     @Autowired(required = false)
     private OAuth2ClientProperties oAuth2ClientProperties;
-
-    @Autowired
-    private LoginDisabledAuthenticationFilter loginDisabledAuthenticationFilter;
-
-    @Value("${security.loginDisabled:false}")
-    private boolean loginDisabled;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -67,7 +58,7 @@ public class WebSecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ).exceptionHandling(
                 this::bearerExceptionHandler
-        ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).addFilterAfter(loginDisabledAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+        ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         .authorizeHttpRequests(auth -> {
             auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             auth.requestMatchers(
@@ -89,6 +80,9 @@ public class WebSecurityConfig {
                     "/api/v1/auth/refresh**",
                     "/api/v1/auth/method**",
                     "/api/v1/auth/mode**",
+                    "/api/v1/auth/setup**",
+                    "/api/v1/auth/setup-status**",
+                    "/api/v1/auth/password-policy**",
                     "/api/v1/auth/password-policies**",
                     "/api/v1/user-management/professional-types**",
                     "/api/v1/user-management/countries/**",
@@ -104,13 +98,8 @@ public class WebSecurityConfig {
             auth.requestMatchers("/api/v1/admin/**").hasAuthority("SCOPE_ADMIN");
             auth.requestMatchers("/api/v1/auth/providers").permitAll();
             auth.requestMatchers(Api.PREFIX + "/*/*" + Api.SUFFIX_STATUS, Api.PREFIX + "/*/*" + Api.SUFFIX_RESULT).permitAll();
-            if (loginDisabled) {
-                auth.requestMatchers("/api**").permitAll();
-                auth.requestMatchers("/api/**").permitAll();
-            } else {
-                auth.requestMatchers("/api**").authenticated();
-                auth.requestMatchers("/api/**").authenticated();
-            }
+            auth.requestMatchers("/api**").authenticated();
+            auth.requestMatchers("/api/**").authenticated();
             auth.anyRequest().permitAll();
         });
         return http.build();
