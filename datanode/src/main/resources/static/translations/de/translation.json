@@ -1,0 +1,21 @@
+{
+  "pages": {
+    "login": {
+      "welcome": "Willkommen bei Arachne Data Node",
+      "header": "Melden Sie sich bei Ihrem Konto an"
+    }
+  },
+  "forms": {
+    "login": {
+      "username": "Benutzername",
+      "username_placeholder": "Benutzernamen eingeben...",
+      "password": "Kennwort",
+      "password_placehoder": "Kennwort eingeben...",
+      "error_message": "Falscher Benutzername oder falsches Passwort",
+      "submit_button": "Einloggen"
+    }
+  },
+  "common": {
+    "buttons": {}
+  }
+}

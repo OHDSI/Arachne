@@ -585,33 +585,26 @@
         <repository>
             <id>ohdsi</id>
             <name>repo.ohdsi.org</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/releases</url>
+            <url>https://repo.ohdsi.org/artifactory/ohdsi/</url>
+        </repository>
+        <repository>
+            <id>ohdsi-nexus</id>
+            <url>https://repo.ohdsi.org/nexus/content/groups/public</url>
         </repository>
         <repository>
             <id>ohdsi.thirdparty</id>
-            <name>repo.ohdsi.org</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/thirdparty</url>
+            <name>repo.ohdsi.org-thirdparty</name>
+            <url>https://repo.ohdsi.org/artifactory/ohdsi-thirdparty/</url>
         </repository>
         <repository>
             <id>ohdsi.snapshots</id>
             <name>repo.ohdsi.org-snapshots</name>
-            <url>https://repo.ohdsi.org/nexus/content/repositories/snapshots</url>
+            <url>https://repo.ohdsi.org/artifactory/ohdsi-snapshot/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>springsource.releases</id>
-            <name>SpringSource GA Repository</name>
-            <url>http://repo.springsource.org/release</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>

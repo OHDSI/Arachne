@@ -1,0 +1,62 @@
+SET search_path TO @cdmDatabaseSchema, public;
+
+CREATE TABLE microbiology_infection
+(
+  microbiology_infection_id   BIGINT       NOT NULL,
+  person_id                   BIGINT       NOT NULL,
+  specimen_id                 BIGINT       NOT NULL,
+  measurement_id              BIGINT           NULL,
+  organism_concept_id         BIGINT       NOT NULL,
+  organism_source_value       VARCHAR(50)  NOT NULL,
+  isolate_source_value        VARCHAR(255)     NULL,
+  isolate_number              VARCHAR(255)     NULL,
+  CONSTRAINT xpk_microbiology_infection PRIMARY KEY (microbiology_infection_id),
+  CONSTRAINT fk_mi_person FOREIGN KEY (person_id) REFERENCES person (person_id),
+  CONSTRAINT fk_mi_specimen FOREIGN KEY (specimen_id) REFERENCES specimen (specimen_id),
+  CONSTRAINT fk_mi_measurement FOREIGN KEY (measurement_id) REFERENCES measurement (measurement_id),
+  CONSTRAINT fk_mi_organism_concept FOREIGN KEY (organism_concept_id) REFERENCES concept (concept_id)
+);
+
+CREATE TABLE microbiology_test
+(
+  microbiology_test_id        BIGINT       NOT NULL,
+  microbiology_infection_id   BIGINT       NOT NULL,
+  care_site_id                BIGINT           NULL,
+  antibiotic_concept_id       BIGINT       NOT NULL,
+  antibiotic_source_value     VARCHAR(50)  NOT NULL,
+  technique_concept_id        BIGINT           NULL,
+  technique_source_value      VARCHAR(50)      NULL,
+  test_type_concept_id        BIGINT           NULL,
+  test_type_source_value      VARCHAR(50)      NULL,
+  ruleset_concept_id          BIGINT           NULL,
+  ruleset_source_value        VARCHAR(255)     NULL,
+  value_as_number             FLOAT            NULL,
+  value_as_concept_id         BIGINT           NULL,
+  value_source_value          VARCHAR(50)      NULL,
+  unit_concept_id             BIGINT           NULL,
+  threshold_low               FLOAT            NULL,
+  threshold_high              FLOAT            NULL,
+  test_start_date             DATE             NULL,
+  test_start_datetime         TIMESTAMP        NULL,
+  test_end_date               DATE             NULL,
+  test_end_datetime           TIMESTAMP        NULL,
+  invalid_reason_source_value VARCHAR(255)     NULL,
+  invalid_reason_concept_id   BIGINT           NULL,
+  result_status_concept_id    BIGINT           NULL,
+  result_status_source_value  VARCHAR(50)      NULL,
+  result_source_value         VARCHAR(50)      NULL,
+  result_concept_id           BIGINT           NULL,
+  unit_source_value           VARCHAR(50)      NULL,
+  CONSTRAINT xpk_microbiology_test PRIMARY KEY (microbiology_test_id),
+  CONSTRAINT fk_mt_infection FOREIGN KEY (microbiology_infection_id) REFERENCES microbiology_infection (microbiology_infection_id),
+  CONSTRAINT fk_mt_care_site FOREIGN KEY (care_site_id) REFERENCES care_site (care_site_id),
+  CONSTRAINT fk_mt_antibiotic_concept FOREIGN KEY (antibiotic_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_technique_concept FOREIGN KEY (technique_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_test_type_concept FOREIGN KEY (test_type_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_ruleset_concept FOREIGN KEY (ruleset_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_value_as_concept FOREIGN KEY (value_as_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_unit_concept FOREIGN KEY (unit_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_invalid_reason_concept FOREIGN KEY (invalid_reason_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_result_status_concept FOREIGN KEY (result_status_concept_id) REFERENCES concept (concept_id),
+  CONSTRAINT fk_mt_result_concept FOREIGN KEY (result_concept_id) REFERENCES concept (concept_id)
+);

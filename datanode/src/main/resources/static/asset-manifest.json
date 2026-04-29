@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.8ab2b23f.css",
+    "main.js": "/static/js/main.eb7eb884.js",
+    "static/media/workspace.svg": "/static/media/workspace.57a7823c2c4e47599e943f9899528dec.svg",
+    "static/media/search_placeholder.svg": "/static/media/search_placeholder.449e5b650aef4d92a41c7dc83ba97aab.svg",
+    "static/media/libraryColored.svg": "/static/media/libraryColored.c50a46f90ca5eca7528b27ca71d6d79c.svg",
+    "static/media/dataCatalogColored.svg": "/static/media/dataCatalogColored.1351aa2ba6445d718b60e894b98f2d32.svg",
+    "static/media/studies.svg": "/static/media/studies.16976849d13b25046af52d5fb6eb1f0b.svg",
+    "static/media/public.svg": "/static/media/public.8e4da8dfdd724124f2e3fd617def1c65.svg",
+    "static/media/export.svg": "/static/media/export.aaa157ec16a5107a6602be250d1307dc.svg",
+    "static/media/import.svg": "/static/media/import.99db9a40ce706d6a6a2451e398806eed.svg",
+    "static/media/publish.svg": "/static/media/publish.053969ea66b6a773acd680a0bed781f7.svg",
+    "static/media/upload.svg": "/static/media/upload.e38071793c1bfc5df95398c25ab4c3c0.svg",
+    "static/media/download.svg": "/static/media/download.c699849535e9072131724fe6e51ecf5c.svg",
+    "static/media/private.svg": "/static/media/private.3d2d75dbf905cef77532c29f6ded86e8.svg",
+    "static/media/save.svg": "/static/media/save.2371c53b027bde50c00da807b790fa6d.svg",
+    "static/media/terminated.svg": "/static/media/terminated.42455f818fe9b92afd5833abdcea70ca.svg",
+    "index.html": "/index.html",
+    "static/media/getFetch.cjs": "/static/media/getFetch.40f37ddea2378391108f.cjs",
+    "static/media/message.svg": "/static/media/message.c243b12fef1d68f78aede881b8455ae8.svg",
+    "main.8ab2b23f.css.map": "/static/css/main.8ab2b23f.css.map",
+    "main.eb7eb884.js.map": "/static/js/main.eb7eb884.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ab2b23f.css",
+    "static/js/main.eb7eb884.js"
+  ]
+}

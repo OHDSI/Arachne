@@ -55,6 +55,8 @@ arachne:
     packages:
       trust-all: true
 #ms
+authenticator:
+  methods: {}
 files:
   store:
     path: /var/arachne/files

@@ -55,10 +55,14 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
-        // Spring Boot 2 falls back from /translations/en-US/** (404) to /translations/en/** (200).
-        // Spring Boot 3 returns (500) on /translations/en-US/**, so I added this handler to point it to /translations/en/.
+        // Translation assets are packaged under classpath:/static/translations/.
+        // Spring Boot 2 used to fall back from /translations/en-US/**
+        // to /translations/en/** automatically.
+        // Spring Boot 3 does not, so keep explicit locale aliases.
         registry.addResourceHandler("/translations/en-US/**")
-                .addResourceLocations("classpath:/translations/en/");
+                .addResourceLocations("classpath:/static/translations/en/");
 
+        registry.addResourceHandler("/translations/en-GB/**")
+                .addResourceLocations("classpath:/static/translations/en/");
     }
 }
