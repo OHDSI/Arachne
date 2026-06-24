@@ -1,6 +1,4 @@
 services:
-
-  # Application Postgres Database
   arachne-datanode-postgres:
     image: postgres:15.5-alpine
     pull_policy: always
@@ -10,21 +8,16 @@ services:
       options:
         max-size: 100m
     shm_size: "4g"
-    networks:
-      - arachne-network
     ports:
-      - "127.0.0.1:5434:5432" # Port mapping (host:container)
+      - "127.0.0.1:5434:5432"
     volumes:
-      - arachne-pg-data:/var/lib/postgresql/data # Volume mount for Arachne PG data
+      - arachne-pg-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ohdsi-user
       POSTGRES_PASSWORD: ohdsi-password
       POSTGRES_DB: arachne_datanode
 
-  # Local OMOP CDM v5.4 Postgres Database
   arachne-cdm-postgres:
-    build:
-      context: ./cdm-db
     image: arachne-cdm-postgres:local
     pull_policy: never
     container_name: arachne-cdm-postgres
@@ -33,8 +26,6 @@ services:
       options:
         max-size: 100m
     shm_size: "4g"
-    networks:
-      - arachne-network
     ports:
       - "127.0.0.1:5435:5432"
     volumes:
@@ -47,19 +38,16 @@ services:
       CDM_SCHEMA: omop
       CDM_VERSION: 5.4.2
 
-  # Execution Engine
   arachne-execution-engine:
     image: odysseusinc/execution_engine:2.7.1
     pull_policy: always
     platform: linux/amd64
     container_name: arachne-execution-engine
     restart: always
-    networks:
-      - arachne-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "127.0.0.1:8888:8888"  # Port mapping (host:container)
+      - "127.0.0.1:8888:8888"
     volumes:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
@@ -74,67 +62,23 @@ services:
       - RUNTIMESERVICE_DIST_VERBOSE_LOG=true
       - RUNTIMESERVICE_DIST_ARCHIVEFOLDER=/runtimes-empty/
 
-  # Arachne Datanode Service
   arachne-datanode:
     image: arachne-datanode-local
     pull_policy: never
     container_name: arachne-datanode
     platform: linux/amd64
     restart: always
-    networks:
-      - arachne-network
     ports:
-      - "8080:8080" # Port mapping (host:container)
+      - "8080:8080"
     volumes:
-      - arachne-datanode-files:/var/arachne/files  # Volume mount for Arachne data
+      - arachne-datanode-files:/var/arachne/files
     env_file:
-      - datanode.env  # Environment variables file
+      - datanode.env
     depends_on:
       - arachne-datanode-postgres
       - arachne-execution-engine
 
-  # Arachne Central Community Edition
-  #
-  # The upstream Central CE image is an all-in-one image: it starts its
-  # bundled PostgreSQL, Solr, ClamAV, LibreOffice and portal.jar.
-  arachne-central:
-    image: odysseusinc/arachne-central-ce:latest
-    pull_policy: always
-    platform: linux/amd64
-    container_name: arachne-central
-    restart: always
-    logging:
-      options:
-        max-size: 100m
-    networks:
-      - arachne-network
-    ports:
-      - "8443:8443"
-      - "127.0.0.1:5436:5434"
-      - "127.0.0.1:8983:8983"
-    volumes:
-      - arachne-central-postgres-data:/var/lib/postgresql
-      - arachne-central-postgres-config:/etc/postgresql
-      - arachne-central-postgres-logs:/var/log/postgresql
-      - arachne-central-files:/var/arachne/files
-      - arachne-central-solr-data:/var/solr
-      - arachne-central-clamav-data:/var/lib/clamav
-    environment:
-      JASYPT_ENCRYPTOR_PASSWORD: arachne
-      PORTAL_URLWHITELIST: https://localhost:8443,https://127.0.0.1:8443,http://localhost:8080,http://arachne-datanode:8080
-
-# Volumes for the services
 volumes:
   arachne-pg-data:
   arachne-cdm-pg-data:
   arachne-datanode-files:
-  arachne-central-postgres-data:
-  arachne-central-postgres-config:
-  arachne-central-postgres-logs:
-  arachne-central-files:
-  arachne-central-solr-data:
-  arachne-central-clamav-data:
-
-# Network definition
-networks:
-  arachne-network:

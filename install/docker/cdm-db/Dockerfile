@@ -1,4 +1,4 @@
-FROM postgres:15.5-alpine
+FROM postgres:16-alpine
 
 RUN apk add --no-cache bash curl unzip
 

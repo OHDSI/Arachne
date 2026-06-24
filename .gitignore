@@ -1,3 +1,19 @@
 **/target/
 /.idea/
 *.iml
+
+# Local platform metadata and deployment build outputs
+*:Zone.Identifier*
+.DS_Store
+
+/contextkit.zip
+/install/docker/.codex
+/install/docker/__pycache__/
+/install/docker/dist/
+/install/docker/transfer-bundle/
+/install/docker/atlas-cohort-packages/
+/install/docker/client-demo-submissions/
+/install/docker/*.zip
+/install/docker/*.tar
+/install/docker/*.dump
+/install/docker/cdm-imports/athena/*.zip

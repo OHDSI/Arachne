@@ -1,0 +1,32 @@
+services:
+  arachne-central:
+    image: odysseusinc/arachne-central-ce:latest
+    pull_policy: always
+    platform: linux/amd64
+    container_name: arachne-central
+    restart: always
+    logging:
+      options:
+        max-size: 100m
+    ports:
+      - "8443:8443"
+      - "127.0.0.1:5436:5434"
+      - "127.0.0.1:8983:8983"
+    volumes:
+      - arachne-central-postgres-data:/var/lib/postgresql
+      - arachne-central-postgres-config:/etc/postgresql
+      - arachne-central-postgres-logs:/var/log/postgresql
+      - arachne-central-files:/var/arachne/files
+      - arachne-central-solr-data:/var/solr
+      - arachne-central-clamav-data:/var/lib/clamav
+    environment:
+      JASYPT_ENCRYPTOR_PASSWORD: arachne
+      PORTAL_URLWHITELIST: ${PORTAL_URLWHITELIST:-https://localhost:8443,https://127.0.0.1:8443,http://localhost:8080}
+
+volumes:
+  arachne-central-postgres-data:
+  arachne-central-postgres-config:
+  arachne-central-postgres-logs:
+  arachne-central-files:
+  arachne-central-solr-data:
+  arachne-central-clamav-data:
